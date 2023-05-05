@@ -127,11 +127,11 @@ _conda run_ -n AEMpyX mypythonscript.py
 
 The usual way to work with **notebooks** is with your favorite web browser, or specialized software as _jupyterlab_. If using your browser (as set in your system as default) you can simply use the classical interface
 
-_jupyter notebook mynoytebook.ipynb_ 
+_jupyter notebook mynotebook.ipynb_ 
 
 or the new one
 
-_jupyter lab mynoytebook.ipynb_
+_jupyter lab mynotebook.ipynb_
 
 Both calls will open a new browser window, in which you can edit and run the notebook. The _jupiterlab_ is the future interface for notebooks, and there are many options not available with the classical call (https://jupyterlab.readthedocs.io). Remote clusters often offer a specialized server (JupyterHub) to develop and run notebooks. 
 
