@@ -35,19 +35,19 @@ The created local repository AEMpyX contains the following subdirectories:
 - 	**aempy/core1d**
 	This directory contains the Fortran 90 source code for the computational core run by the Python toolbox. 
 	The numerics is derived from the AMIRA/CSIRO AirBeo software. Currently it contains working wrappers for 
-	the two systems used in Tellus: GTK4, and CGG GENESIS, with TEMPEST and GEOTEM under development. This 
-	directory also contains makefiles for both operating systems, named _Makefile_linux_ or _Makefile_windows_, 
-	respectively.   
+	the two systems used in Tellus: AEM05, and GENESIS, with AEM95 (used in the earlier Northern Ireland 
+	surveys) available, and  TEMPEST and GEOTEM under development. This directory also contains makefiles 
+	for both operating systems, named _Makefile_linux_ or _Makefile_windows_, respectively.   
 
 -	**aempy/util**
  	Contains  useful helper shell scripts etc. 
 	
--	**aempy/report**
-	This is the place where publications, reports/manuals are developed.
+-	**aempy/publish**
+	This is the place where the latest report, and related publications, can be found.
 
 -	**aempy/info**
- 	Documentation for the toolbox, python (including the most important extensions, numpy, 
-	scipy, and matplotlib), and other tools. 
+ 	Documentation for python (including the most important extensions, numpy,
+	scipy, and matplotlib), and other useful tools.
 
 This version will run under Python 3.9+. However, moving to 3.10/11 is not yet encouraged because they are still missing some important (though not essential) packages. To install the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
 
