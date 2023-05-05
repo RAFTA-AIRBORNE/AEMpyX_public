@@ -1,8 +1,8 @@
-Extended Airborne Electromagnetics Toolbox (AEMpyX) public repository
+ public repository
 
 # Tools for processing, inversion, and interpretation of Airborne ElectroMagnetics (AEM)
 
-This is the public repository for the  Airborne Electromagnetic Inversion toolbox "AEMpyX", which was originally developed at DIAS starting with the project "Spatially constrained Bayesian inversion of frequency- and time-domain electromagnetic data from the Tellus projects" (2015-sc-004), followed by "RAFTA: Resolution Analyses for Frequency- and Time-Domain Airborne Electromagnetic Data of the Irish Tellus Programme" (2020-sc-049), both funded by the Geological Survey of Ireland GSI. It is distributed under the GNU GENERAL PUBLIC LICENSE Version 3. Currently it is expanded to include more algorithms (in particular for uncertainty quantification, UQ), platforms, and a branch for making it useful for magnetotelluric (MT) modelling and inversion. 
+This is the public repository for the  Extended Airborne Electromagnetic Inversion toolbox "AEMpyX", which was originally developed at DIAS starting with the project "Spatially constrained Bayesian inversion of frequency- and time-domain electromagnetic data from the Tellus projects" (2015-sc-004), followed by "RAFTA: Resolution Analyses for Frequency- and Time-Domain Airborne Electromagnetic Data of the Irish Tellus Programme" (2020-sc-049), both funded by the Geological Survey of Ireland GSI. It is distributed under the GNU GENERAL PUBLIC LICENSE Version 3. Currently it is expanded to include more algorithms (in particular for uncertainty quantification, UQ), platforms, and a branch for making it useful for magnetotelluric (MT) modelling and inversion. 
 
 AEMpyX currently works fully under linux operating systems, but mostly also under  windows (here short for Windows 10). There are of course changes in the installation procedures, as mentioned below. 
 
@@ -141,4 +141,4 @@ Enjoy, read the docs, but please keep in mind that this is an experimental softw
 
 D. Kiyan & V. Rath
 
-January 7, 2023
+May 5, 2023
