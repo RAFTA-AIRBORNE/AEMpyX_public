@@ -6,9 +6,9 @@ The "AEMpyX" toolbox was originally developed at DIAS starting with the project 
 
 AEMpyX currently works fully under linux operating systems, but mostly also under  windows (here short for Windows 10). There are of course changes in the installation procedures, as mentioned below. 
 
-Under linux, get your working copy directly via git from the command line. In windows, git functionality is available, once Anaconda is installeded (see below). There, open the powershell terminal and clone the repository with the same line as in linux: 
+Under linux, get your working copy directly via _git_ from the command line. In windows, git functionality is available, once Ana/Miniconda is installeded (see below). There, open the included terminal, and clone the repository with the same line as in linux: 
 
-_git clone https://github.com/RAFTA-AIRBORNE/AEMpyX.git_
+_git clone https://github.com/RAFTA-AIRBORNE/AEMpyX_public.git_
 
 The created local repository AEMpyX contains the following subdirectories:
 
