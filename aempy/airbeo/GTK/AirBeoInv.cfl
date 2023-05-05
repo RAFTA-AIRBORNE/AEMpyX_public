@@ -1,0 +1,33 @@
+AirBeo Test case for St. Gormans
+2 -1 1 0 ! TDFD, DO3D, PRFL, ISTOP (0=Run, 1=Print) 
+4 1 3 ! NFREQ, CMP, NPPF (CMP = -1?)
+912.000 -0.000 0.000 21.360 90 ! FREQ(J), ZRX(J), XRX(J), YRX(J), TXCLN(J)
+3005.000 -0.000 0.000 21.360 90 ! FREQ(J), ZRX(J), XRX(J), YRX(J), TXCLN(J)
+11962.000 -0.000 0.000 21.360 90 ! FREQ(J), ZRX(J), XRX(J), YRX(J), TXCLN(J)
+24510.000 -0.000 0.000 21.360 90 ! FREQ(J), ZRX(J), XRX(J), YRX(J), TXCLN(J) Vertical coplanar (Suppala 2--5)
+0 ! NPASS
+4 1 4 0 ! NLYR, QLYR, NLITH, GND_LVL (QLYR = 1 => structure specified using thickness of each layer, GND_LVL?)
+100.0000 1.0000 1.000000 1.0000 0.0000 0.0000 1.0000 ! RES(N), SIG_T(N), RMU(N), REPS(N), CHRG(N), CTAU(N), CFREQ(N) 
+100.0000 1.0000 1.000000 1.0000 0.0000 0.0000 1.0000 ! RES(N), SIG_T(N), RMU(N), REPS(N), CHRG(N), CTAU(N), CFREQ(N) 
+100.0000 1.0000 1.000000 1.0000 0.0000 0.0000 1.0000 ! RES(N), SIG_T(N), RMU(N), REPS(N), CHRG(N), CTAU(N), CFREQ(N) 
+100.0000 1.0000 1.000000 1.0000 0.0000 0.0000 1.0000 ! RES(N), SIG_T(N), RMU(N), REPS(N), CHRG(N), CTAU(N), CFREQ(N) 
+1     10.         !   LITH(1), THK(1)
+2     20.         !   LITH(1), THK(1)
+3     30.         !   LITH(1), THK(1)
+4                 !   LITH(3) Basement
+100 1 3  3  1      !   MAXITS, CNVRG, NFIX, MV1PRT, OUTPRT
+1  1  2             !   CTYPE, LYR_INDX, KPAR(, ELAS, LBND, UBND)
+1  2  2  
+1  3  2             !   CTYPE, LYR_INDX, KPAR(, ELAS, LBND, UBND)
+
+# fixed layers 
+100 1  2  3  1      !   MAXITS, CNVRG, NFIX, MV1PRT, OUTPRT
+1  1  2             !   CTYPE, LYR_INDX, KPAR(, ELAS, LBND, UBND)
+1  2  2  
+#unconstrained
+100 1  0  3  1      !   MAXITS, CNVRG, NFIX, MV1PRT, OUTPRT
+
+1     30.         !   LITH(1), THK(1)
+5                 !   LITH(3) Basement
+100 1  0  3  1      !   MAXITS, CNVRG, NFIX, MV1PRT, OUTPRT
+

@@ -1,0 +1,4 @@
+/ 0450        File version number
+/ PROGRAM_NAME=AirBeoVR - Version 4.7.X    22 August 2016                  
+/ TITLE: AirBeo Test case for St. Gormans
+/ Station  EastTx  NorthTx  RES(1:NLYR)  DEPTH(1:NLYR-1)  THK(1:NLYR-1)

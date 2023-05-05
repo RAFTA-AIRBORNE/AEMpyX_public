@@ -1,0 +1,18 @@
+/ 0450        File version number
+/ PROGRAM_NAME=AirBeoVR - Version 4.7.X    22 August 2016                  
+/ TITLE: AirBeo Test case for St. Gormans
+/ UNITS=ppm   NSTAT=001   NFRQ=04   NCMP=1
+/ FREQS(Hz) =       912.00      3005.00     11962.00     24510.00
+/ SURVEY=FD_AEM  PP=RX_POS
+/ LINE_HEADER
+/ Station  EastTx  NorthTx  AltTx  EastRx  NorthRx  AltRx    IVCB01  IVCB02  IVCB03  IVCB04  QVCB01  QVCB02  QVCB03  QVCB04
+/ LAYERS=05
+/ MODEL_HEADER
+/  RES_01  RES_02  RES_03  RES_04  RES_05 THICK_01 THICK_02 THICK_03 THICK_04
+/
+/ INITIAL_MODEL    100.0        10.00        100.0        100.0        100.0        25.00        25.00        25.00        50.00    
+Line 1376
+    1   5924171.0    639188.4    60.0   5924149.5    639188.4    60.0    570.5        1216.        1775.        2153.        663.6        742.3        810.0        1004.    
+/
+/ AirBeo forward model completed at 10:42 on 26 OCT 2022
+/ Computation time =       0.00 seconds.
