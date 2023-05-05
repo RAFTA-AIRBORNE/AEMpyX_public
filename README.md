@@ -1,6 +1,6 @@
 # Tools for processing, inversion, and interpretation of Airborne ElectroMagnetics (AEM)
 
-This is the public repository for the  Extended Airborne Electromagnetic Inversion toolbox "AEMpyX". **It will be populated in the near future.** 
+This is the public repository for the  Extended Airborne Electromagnetic Inversion toolbox "AEMpyX". **It will be successively populated in the near future.** 
 
 The "AEMpyX" toolbox was originally developed at DIAS starting with the project "Spatially constrained Bayesian inversion of frequency- and time-domain electromagnetic data from the Tellus projects" (2015-sc-004), followed by "RAFTA: Resolution Analyses for Frequency- and Time-Domain Airborne Electromagnetic Data of the Irish Tellus Programme" (2020-sc-049), both funded by the Geological Survey of Ireland GSI. It is distributed under the GNU GENERAL PUBLIC LICENSE Version 3. Currently it is expanded to include more algorithms (in particular for uncertainty quantification, UQ), platforms, and a branch for making it useful for magnetotelluric (MT) modelling and inversion. 
 
@@ -78,7 +78,7 @@ _conda create --name AEMpyX --file AEMpyX.txt_
 
 in the command window (powershell under windows).
 
-This will set up a Python 3.9 environment with all dependencies for aempy. In case you want to keep using python 3.8, corresponding EM38.yml and EM38.txt are available. Don't forget to update also the used environment regularly, using _conda update --name AEMpyX --all_! 
+This will set up a Python 3.9 (see https://docs.python.org/3.9/) environment with all dependencies for aempy. In case you want to keep using python 3.8, corresponding EM38.yml and EM38.txt are available. Don't forget to update also the used environment regularly, using _conda update --name AEMpyX --all_! 
 There is a replacement for _conda_, called _mamba_ (see https://github.com/mamba-org/mamba), which is not only considerably faster, but also better in keeping the environments consistent. It can be installed via _conda_ (i. e., _conda install mamba_), and has practically the same syntax as the original package manager.  
 
 
