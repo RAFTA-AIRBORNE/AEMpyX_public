@@ -6,7 +6,7 @@ The "AEMpyX" toolbox was originally developed at DIAS starting with the project 
 
 AEMpyX currently works fully under linux operating systems, but mostly also under  windows (here short for Windows 10). There are of course changes in the installation procedures, as mentioned below. 
 
-Under linux, get your working copy directly via _git_ from the command line. In windows, git functionality is available, once Ana/Miniconda is installeded (see below). There, open the included terminal, and clone the repository with the same line as in linux: 
+Under linux, get your working copy directly via _git_ from the command line. In windows, _git_ functionality is available, once Ana/Miniconda is installed (see below). There, open the included terminal, and clone the repository with the same line as in linux: 
 
 _git clone https://github.com/RAFTA-AIRBORNE/AEMpyX_public.git_
 
@@ -49,14 +49,14 @@ The created local repository AEMpyX contains the following subdirectories:
  	Documentation for the toolbox, python (including the most important extensions, numpy, 
 	scipy, and matplotlib), and other tools. 
 
-This version will run under Python 3.8+ (3.9 being the current development platform). Moving to 3.10/11 is not yet encouraged because they are still missing some important packages. To install the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
+This version will run under Python 3.9+. However, moving to 3.10/11 is not yet encouraged because they are still missing some important (though not essential) packages. To install the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
 
 
 (1) Download the latest Anaconda or Miniconda version (https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html), and install by running the downloaded bash script with:  
 
 _bash Miniconda3-latest-Linux-x86_64.sh_
 
-For windows just execute the downloaded executable, _Miniconda3-latest-Windows-x86_64.exe_. In order to make updates secure and avoid inconsistencies, copy .condarc from AEMpyX/environment to your home directory. As the Miniconda installer is not updated very frequently, it is useful  to run the following within Anaconda:
+For windows just execute the downloaded executable, _Miniconda3-latest-Windows-x86_64.exe_. In order to make updates secure and avoid inconsistencies, copy _.condarc_ from AEMpyX/environment to your home directory. As the Miniconda installer is not updated very frequently, it is useful  to run the following within Anaconda:
 
 _conda update conda_
 
@@ -77,7 +77,7 @@ _conda create --name AEMpyX --file AEMpyX.txt_
 in the command window (powershell under windows).
 
 This will set up a Python 3.9 (see https://docs.python.org/3.9/) environment with all dependencies for aempy. In case you want to keep using python 3.8, corresponding EM38.yml and EM38.txt are available. Don't forget to update also the used environment regularly, using _conda update --name AEMpyX --all_! 
-There is a replacement for _conda_, called _mamba_ (see https://github.com/mamba-org/mamba), which is not only considerably faster, but also better in keeping the environments consistent. It can be installed via _conda_ (i. e., _conda install mamba_), and has practically the same syntax as the original package manager.  
+There is a replacement for _conda_, called _mamba_ (see https://github.com/mamba-org/mamba), which is not only considerably faster, but also better in keeping the environments consistent. It can be installed via _conda_ (i. e., _conda install mamba -c conda-forge_), and has practically the same syntax as the original package manager.  
 
 
 (3) Activate this environment by:
@@ -101,12 +101,12 @@ In linux you can set them in your _.bashrc_ file. Example:
 
 _export AEMPYX_ROOT='${HOME}/AEMpyX/'_	
 
-_export AEMPYX_DATA='${HOME}/AEM_Data/Tellus/data/'_
+_export AEMPYX_DATA='${HOME}/AEM_Data/'_
 
 Under windows, you should use the system settings dialogue to do so. 
 
 
-(7) Finally, the remaining open source toolboxes you want to use need to be installed, either via the anaconda framework, or the _pip_ command. 
+(7) Finally, the remaining open source toolboxes you want to use need to be installed, either via the _conda_ or _mamba_ framework, or the _pip_ command. Using _pip_ within a _conda/mamba_ environment should be kept to a minimum, as it can lead to serious inconsistencies. You may need to re-install via _pip_ again after an update of the _conda_ environment. 
 
 
 (8) Once in the activated conda environment _AEMpyX_, there are several ways to start python scripts or jupyter notebooks (_https://jupyter.org/_). 
