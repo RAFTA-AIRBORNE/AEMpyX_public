@@ -49,9 +49,7 @@ The created local repository AEMpyX contains the following subdirectories:
  	Documentation for the toolbox, python (including the most important extensions, numpy, 
 	scipy, and matplotlib), and other tools. 
 
-The scripts and jupyter notebooks are available in the subdirectory AEMpyX/aempy. 
-
-This version will run under Python 3.8+ (3.9 bring the current development platform). Moving to 3.10 is not yet encouraged because it is still missing some important packages. To install the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
+This version will run under Python 3.8+ (3.9 being the current development platform). Moving to 3.10/11 is not yet encouraged because they are still missing some important packages. To install the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
 
 
 (1) Download the latest Anaconda or Miniconda version (https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html), and install by running the downloaded bash script with:  
@@ -111,11 +109,11 @@ Under windows, you should use the system settings dialogue to do so.
 (7) Finally, the remaining open source toolboxes you want to use need to be installed, either via the anaconda framework, or the _pip_ command. 
 
 
-(8) Once in the activated conda environment \texttt{AEMpyX}, there are several ways to start python scripts or jupyter notebooks \url{https://jupyter.org/}. 
+(8) Once in the activated conda environment _AEMpyX_, there are several ways to start python scripts or jupyter notebooks (_https://jupyter.org/_). 
 
-For getting started with python **scripts**, we suggest to use the _spyder_ IDE \url{https://www.spyder-ide.org/}, which is already installed within \texttt{AEMpyX}. It has been developed for easy development of python software, including visualisation with \texttt{matplotlib} and derived packages. Current versions (5.X) also allow to work with other languages as  JULIA or R languages, or with jupyter notebooks by installing the appropriate plugin. 
+For getting started with python **scripts**, we suggest to use the _spyder_ IDE (_https://www.spyder-ide.org_/), which is already installed within the _AEMpyX_ environment. It has been developed for easy development of python software, including visualisation with _matplotlib_ and derived packages. Current versions (5.X) also allow to work with other languages as _JULIA_ or _R_, or with _jupyter notebooks_ by installing the appropriate plugin. 
 
-However, as we have defined the environmental variables in step (6), the scripts can be run from anywhere in the system, either from the activated AEMpyX environment, or using _conda run_ (see, _https://docs.conda.io/projects/conda/en/latest/commands/run.html_) from an initialized conda (i.e., base environment). Running python scripts directly from the command line can be done in different ways:
+However, as we have defined the environmental variables in step (6), the scripts can be run from anywhere in the system, either from the activated _AEMpyX_ environment, or using _conda run_ (see, _https://docs.conda.io/projects/conda/en/latest/commands/run.html_) from an initialized conda (i.e., base environment). Running python scripts directly from the command line can be done in different ways:
 
 _python3 -u mypythonscript.py > output.log_, 
 
@@ -135,7 +133,7 @@ or the new one
 
 _jupyter lab mynotebook.ipynb_
 
-Both calls will open a new browser window, in which you can edit and run the notebook. The _jupiterlab_ is the future interface for notebooks, and there are many options not available with the classical call (https://jupyterlab.readthedocs.io). Remote clusters often offer a specialized server (JupyterHub) to develop and run notebooks. 
+Both calls will open a new browser window, in which you can edit and run the notebook. The _jupiterlab_ is the future interface for notebooks, and there are many options not available with the classical call (_https://jupyterlab.readthedocs.io_). Remote clusters often offer a specialized server _JupyterHub_) to develop and run notebooks. 
 
 Enjoy, read the docs, but please keep in mind that this is an experimental software, and may contain errors. Use at your own risk! However, we will frequently update the repository correcting bugs, and adding additional functionality.   
 
