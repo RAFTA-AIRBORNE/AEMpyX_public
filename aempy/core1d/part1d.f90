@@ -67,8 +67,6 @@ SUBROUTINE pack_mvec(nlyr,res,reps,rmu,calf,ctau,cfreq,thk,mvec)
 
 END SUBROUTINE pack_mvec
 
-
-
 SUBROUTINE trans_mvec(transform,nlyr,mvec,nvec)
 !f2py intent(in)    mvec
 !f2py intent(out)   nvec, delt
@@ -99,22 +97,22 @@ SUBROUTINE trans_mvec(transform,nlyr,mvec,nvec)
       
       SELECT CASE (abs(transform))
           CASE (0)
-            nvec(0*nlyr+1:1*nlyr)   = dlog10(mvec(0*nlyr+1:1*nlyr))
-            nvec(6*nlyr+1:7*nlyr-1) = dlog10(mvec(6*nlyr+1:7*nlyr-1))
+            nvec(0*nlyr+1:1*nlyr)   = dlog(mvec(0*nlyr+1:1*nlyr))
+            nvec(6*nlyr+1:7*nlyr-1) = dlog(mvec(6*nlyr+1:7*nlyr-1))
           CASE (1)
 ! all log Hoenig 2002
-            nvec(0*nlyr+1:1*nlyr) = dlog10(mvec(0*nlyr+1:1*nlyr))
-            nvec(3*nlyr+1:4*nlyr) = dlog10(mvec(3*nlyr+1:4*nlyr))
-            nvec(4*nlyr+1:5*nlyr) = dlog10(mvec(4*nlyr+1:5*nlyr))
-            nvec(5*nlyr+1:6*nlyr) = dlog10(mvec(5*nlyr+1:6*nlyr))
-            nvec(6*nlyr+1:7*nlyr-1) = dlog10(mvec(6*nlyr+1:7*nlyr-1))
+            nvec(0*nlyr+1:1*nlyr) = dlog(mvec(0*nlyr+1:1*nlyr))
+            nvec(3*nlyr+1:4*nlyr) = dlog(mvec(3*nlyr+1:4*nlyr))
+            nvec(4*nlyr+1:5*nlyr) = dlog(mvec(4*nlyr+1:5*nlyr))
+            nvec(5*nlyr+1:6*nlyr) = dlog(mvec(5*nlyr+1:6*nlyr))
+            nvec(6*nlyr+1:7*nlyr-1) = dlog(mvec(6*nlyr+1:7*nlyr-1))
         CASE (2)
 ! 10^mu/(10^mu + 1), INVERSE normalized chargeability Ghorbani 2007
-            nvec(0*nlyr+1:1*nlyr) = dlog10(mvec(0*nlyr+1:1*nlyr))
-            nvec(3*nlyr+1:4*nlyr) = dlog10(mvec(3*nlyr+1:4*nlyr)/(1D0-mvec(3*nlyr+1:4*nlyr)))
-            nvec(4*nlyr+1:5*nlyr) = dlog10(mvec(4*nlyr+1:5*nlyr))
-            nvec(5*nlyr+1:6*nlyr) = dlog10(mvec(5*nlyr+1:6*nlyr))
-            nvec(6*nlyr+1:7*nlyr-1) = dlog10(mvec(6*nlyr+1:7*nlyr-1))
+            nvec(0*nlyr+1:1*nlyr) = dlog(mvec(0*nlyr+1:1*nlyr))
+            nvec(3*nlyr+1:4*nlyr) = dlog(mvec(3*nlyr+1:4*nlyr)/(1D0-mvec(3*nlyr+1:4*nlyr)))
+            nvec(4*nlyr+1:5*nlyr) = dlog(mvec(4*nlyr+1:5*nlyr))
+            nvec(5*nlyr+1:6*nlyr) = dlog(mvec(5*nlyr+1:6*nlyr))
+            nvec(6*nlyr+1:7*nlyr-1) = dlog(mvec(6*nlyr+1:7*nlyr-1))
     END SELECT
 !     write(*,*) 'fend nlyr :',nlyr
 !     write(*,*) 'fend mvec :',nvec
@@ -151,28 +149,28 @@ SUBROUTINE untrans_mvec(transform,nlyr,mvec,nvec)
             write(*,*) 'before:'
             write(*,'(10g12.4)') mvec(0*nlyr+1:1*nlyr)            
             write(*,'(10g12.4)') mvec(6*nlyr+1:7*nlyr)
-            nvec(0*nlyr+1:1*nlyr)   = 10.d0**(mvec(0*nlyr+1:1*nlyr))
+            nvec(0*nlyr+1:1*nlyr)   = dexp(mvec(0*nlyr+1:1*nlyr))
             write(*,*) ' after:'
             write(*,'(10g12.4)') nvec(0*nlyr+1:1*nlyr)   
             write(*,'(10g12.4)') nvec(6*nlyr+1:7*nlyr)
 
-            nvec(6*nlyr+1:7*nlyr-1) = 10.d0**(mvec(6*nlyr+1:7*nlyr-1))
+            nvec(6*nlyr+1:7*nlyr-1) = dexp(mvec(6*nlyr+1:7*nlyr-1))
             write(*,'(10g12.4)') nvec(6*nlyr+1:7*nlyr)
           CASE (1)
 ! all log Hoenig 2002
-            nvec(0*nlyr+1:1*nlyr) = 10.d0**(mvec(0*nlyr+1:1*nlyr))
-            nvec(3*nlyr+1:4*nlyr) = 10.d0**(mvec(3*nlyr+1:4*nlyr))
-            nvec(4*nlyr+1:5*nlyr) = 10.d0**(mvec(4*nlyr+1:5*nlyr))
-            nvec(5*nlyr+1:6*nlyr) = 10.d0**(mvec(5*nlyr+1:6*nlyr))
-            nvec(6*nlyr+1:7*nlyr-1) = 10.d0**(mvec(6*nlyr+1:7*nlyr-1))
+            nvec(0*nlyr+1:1*nlyr) = dexp(mvec(0*nlyr+1:1*nlyr))
+            nvec(3*nlyr+1:4*nlyr) = dexp(mvec(3*nlyr+1:4*nlyr))
+            nvec(4*nlyr+1:5*nlyr) = dexp(mvec(4*nlyr+1:5*nlyr))
+            nvec(5*nlyr+1:6*nlyr) = dexp(mvec(5*nlyr+1:6*nlyr))
+            nvec(6*nlyr+1:7*nlyr-1) = dexp(mvec(6*nlyr+1:7*nlyr-1))
 
         CASE (2)
 ! 10^mu/(10^mu + 1), INVERSE normalized chargeability Ghorbani 2007
-            nvec(0*nlyr+1:1*nlyr) = 10.d0**(mvec(0*nlyr+1:1*nlyr))
-            nvec(3*nlyr+1:4*nlyr) = 10.d0**mvec(3*nlyr+1:4*nlyr)/ (10.d0**mvec(3*nlyr+1:4*nlyr)+1.d0)
-            nvec(4*nlyr+1:4*nlyr) = 10.d0**(mvec(4*nlyr+1:5*nlyr))
-            nvec(5*nlyr+1:6*nlyr) = 10.d0**(mvec(5*nlyr+1:6*nlyr))
-            nvec(6*nlyr+1:7*nlyr-1) = 10.d0**(mvec(6*nlyr+1:7*nlyr-1))
+            nvec(0*nlyr+1:1*nlyr) = dexp(mvec(0*nlyr+1:1*nlyr))
+            nvec(3*nlyr+1:4*nlyr) = dexp(mvec(3*nlyr+1:4*nlyr))/ (dexp(mvec(3*nlyr+1:4*nlyr))+1.d0)
+            nvec(4*nlyr+1:4*nlyr) = dexp(mvec(4*nlyr+1:5*nlyr))
+            nvec(5*nlyr+1:6*nlyr) = dexp(mvec(5*nlyr+1:6*nlyr))
+            nvec(6*nlyr+1:7*nlyr-1) = dexp(mvec(6*nlyr+1:7*nlyr-1))
       END SELECT
 
       write(*,*) 'nvec :', nvec

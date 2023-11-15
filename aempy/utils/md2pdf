@@ -1,0 +1,14 @@
+# sudo apt install grip wkhtmltopdf
+
+MD=${1:-README.md}
+PDF=${2:-"$MD".pdf}
+PORT=8971
+DELAY=10
+
+printf "Converting $MD to $PDF on port $PORT\n"
+printf "Waiting $DELAY seconds for server to start...\n"
+
+grip "$MD" localhost:$PORT &
+sleep $DELAY
+wkhtmltopdf http://localhost:$PORT "$PDF"
+kill $(ps -eo pid,command | grep grip | grep -v grep | awk '{print $1}')

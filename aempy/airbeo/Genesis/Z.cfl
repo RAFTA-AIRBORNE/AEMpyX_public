@@ -1,6 +1,6 @@
 Airbeo forward modelTempest2_Model_Number_3.cfl
  1  1   1  0
- 4 1      1    3  11         1 0.000
+ 4 1      1    3  11         1 0.000  ! ISW, NSX, STEP, UNITS, NCHNL, KRXW, OFFTIME
 90 52394 
 0.01	0.017
 0.017	0.035

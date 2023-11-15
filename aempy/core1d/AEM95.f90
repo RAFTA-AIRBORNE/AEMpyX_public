@@ -55,9 +55,10 @@ SUBROUTINE aemfwd1d_aem95(nlyr, mvec, alt, calc_data)
       REAL(KIND=8), DIMENSION(nfrq) :: txcln(1:nfrq) = 1.57079637    ! 90. degrees
       REAL(KIND=8), DIMENSION(nfrq) :: cstx, sntx, norm, prm_fd
       LOGICAL :: txa90=.false.
+      LOGICAL :: debug=.false.
 !      SAVE
 
-! Set system-specific parameters for 4 freq GTK system
+! Set system-specific parameters for 2 freq GTK system
 
       cstx(1:nfrq) = dcos(txcln(1:nfrq))
       sntx(1:nfrq) = dsin(txcln(1:nfrq))
@@ -65,11 +66,21 @@ SUBROUTINE aemfwd1d_aem95(nlyr, mvec, alt, calc_data)
 
       CALL setup_aem95(nfrq,xrx,yrx,zrx,txcln,txa90,prm_fd,ppfac,norm)
 
-      ALLOCATE (mcurrent(7*nlyr))
-      mcurrent = mvec
+      CALL unpack_mvec(nlyr,res,reps,rmu,calf,ctau,cfreq,thk,mvec)
+      
+      IF (debug) THEN
+         WRITE(*,*) 'FWD-AEM05'
+         WRITE(*,'(  A,3I7)')      ' nlyr, nfrq', nlyr, nfrq
+         WRITE(*,'(  A,24G14.6)') ' res  ', res
+         WRITE(*,'(  A,24G14.6)') ' reps ', reps
+         WRITE(*,'(  A,24G14.6)') ' rmu  ', rmu
+         WRITE(*,'(  A,24G14.6)') ' calf ', calf
+         WRITE(*,'(  A,24G14.6)') ' ctau ', ctau
+         WRITE(*,'(  A,24G14.6)') ' cfrq ', cfreq
+         WRITE(*,'(  A,24G14.6)') ' thk  ', thk
+         WRITE(*,'(  A,24G14.6)') ' alt  ', alt
+     ENDIF
 
-      CALL untrans_mvec(mode,nlyr,mcurrent)
-      CALL unpack_mvec(nlyr,res,reps,rmu,calf,ctau,cfreq,thk,mcurrent)
       CALL aem1d_fd(nfrq,freq,txcln,txa90,alt,zrx,xrx,yrx,  &
      &                  nlyr,res,reps,rmu,thk,calf,ctau,cfreq,bfd)
 

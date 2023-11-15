@@ -8,8 +8,8 @@
 #     text_representation:
 #       extension: .py
 #       format_name: light
-#       format_version: "1.5"
-#       jupytext_version: 1.11.4
+#       format_version: '1.5'
+#       jupytext_version: 1.14.7
 # ---
 
 """
@@ -97,6 +97,7 @@ InModDir = AEMPYX_DATA+"/Blocks/A9/results/"
 
 FileList = "set"
 ListName = ""
+SearchStrng = ""
 
 if "set" in FileList.lower():
     mod_files = [InModDir+"MUN_k3_data_merged.npz"]
@@ -284,7 +285,7 @@ for filein in mod_files:
     start = process_time()
     print("\nNModels read from: %s" % filein)
 
-    Models = numpy.load(filein)
+    Models = numpy.load(filein, allow_pickle=True)
 
     E = Models["x"][::step]*XYFact
     E_min = numpy.amin(E)

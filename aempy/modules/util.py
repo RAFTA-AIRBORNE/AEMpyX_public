@@ -15,6 +15,7 @@ from datetime import datetime
 
 import numpy
 import pyproj
+from pyproj import CRS, Transformer
 
 import shapely
 import scipy.ndimage.filters
@@ -24,11 +25,37 @@ import scipy.spatial
 import matplotlib
 import matplotlib.pyplot
 
-import skimage.io
-import skimage.filters
+
+# import skimage.filters
 
 import aesys
 import inverse
+
+
+def check_env(envar="CONDA_PREFIX", action="error"):
+    """
+    Check if environment variable exists
+
+    Parameters
+    ----------
+    envar : strng, optional
+        The default is ["CONDA_PREFIX"].
+
+    Returns
+    -------
+    None.
+
+    """
+    act_env = os.environ[envar]    
+    if len(act_env)>0:
+        print("\n\n")
+        print("Active conda Environment  is:  " + act_env)
+        print("\n\n")
+    else:
+        if "err" in action.lower():
+            error("Environment "+ act_env+"is not activated! Exit.")
+            
+        
 
 def get_data_list(how=["search", ".npz", "./"],
                   sort=True, fullpath=False, out= True):
@@ -167,7 +194,7 @@ def merge_data_sets(infile_list=None, outfile_name="./tmp.npz", aem_system="aem0
 
 def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, out=False):
     """
-    Merge data sets from file list
+    Merge models from file list
     Created on Sun Jan 22 12:18:58 2023
     @author: vrath
     """
@@ -419,55 +446,116 @@ def project_utm_to_geoid(utm_x, utm_y, utm_z, utm_zone=32629, geoid=3855):
     return utm_x, utm_y, elev
 
 
-def project_utm_to_latlon(utm_x, utm_y, utm_zone=32629):
+
+def project_gk_to_latlon(gk_x, gk_y, gk_zone=5684):
     """
     transform utm to latlon, using pyproj
     Look for other EPSG at https://epsg.io/
     VR 04/21
     """
     prj_wgs = pyproj.CRS("epsg:4326")
-    prj_utm = pyproj.CRS("epsg:" + str(utm_zone))
-    latitude, longitude = pyproj.transform(prj_utm, prj_wgs, utm_x, utm_y)
+    prj_gk = pyproj.CRS("epsg:" + str(gk_zone))
+    latitude, longitude = pyproj.transform(prj_gk, prj_wgs, gk_x, gk_y)
     return latitude, longitude
 
+
+# def get_utm_zone(latitude=None, longitude=None):
+#     """
+#     Find EPSG from position in lat/lon, using pyproj
+
+#     VR 04/21
+#     """
+#     prj_wgs = pyproj.CRS("epsg:4326")
+#     utm_list = pyproj.query_utm_crs_info(
+#         datum_name="WGS 84",
+#         area_of_interest=pyproj.AreaOfInterest(
+#         west_lon_degree=longitude,
+#         south_lat_degree=latitude,
+#         east_lon_degree=longitude,
+#         north_lat_degree=latitude, ), )
+
+#     return utm_list
+ 
+def get_utm_zone(latitude=None, longitude=None):
+    """
+    Find EPSG from position, using pyproj
+
+    VR 08/23
+    """
+    from pyproj.aoi import AreaOfInterest
+    from pyproj.database import query_utm_crs_info
+    utm_list = query_utm_crs_info(
+        datum_name="WGS 84",
+        area_of_interest=AreaOfInterest(
+        west_lon_degree=longitude,
+        south_lat_degree=latitude,
+        east_lon_degree=longitude,
+        north_lat_degree=latitude, ), )
+    utm_crs =CRS.from_epsg(utm_list[0].code)
+    EPSG = CRS.to_epsg(utm_crs)
+
+    return EPSG, utm_crs
 
 def project_latlon_to_utm(latitude, longitude, utm_zone=32629):
     """
     transform latlon to utm , using pyproj
     Look for other EPSG at https://epsg.io/
 
-    VR 04/21
+    VR 08/23
     """
-    prj_wgs = pyproj.CRS("epsg:4326")
-    prj_utm = pyproj.CRS("epsg:" + str(utm_zone))
-    utm_x, utm_y = pyproj.transform(prj_wgs, prj_utm, latitude, longitude)
+    prj_wgs = CRS("epsg:4326")
+    prj_utm = CRS("epsg:" + str(utm_zone))
+    transformer = Transformer.from_crs(prj_wgs, prj_utm)
+    utm_x, utm_y = transformer.transform(latitude, longitude)
+    # transfor
+    # prj_wgs = CRS("epsg:4326")
+    # prj_utm = CRS("epsg:" + str(utm_zone))
+    # utm_x, utm_y = pyproj.transform(prj_wgs, prj_utm, latitude, longitude)
+
     return utm_x, utm_y
 
+def project_utm_to_latlon(utm_e, utm_n, utm_zone=32629):
+    """
+    transform latlon to utm , using pyproj
+    Look for other EPSG at https://epsg.io/
+    
+    VR 08/23
+    """    
+    prj_wgs = CRS("epsg:4326")
+    prj_utm = CRS("epsg:" + str(utm_zone))
+    transformer = Transformer.from_crs(prj_utm, prj_wgs)
+    latitude, longitude = transformer.transform(utm_e, utm_n)
+    
+    return latitude, longitude
 
 
-def project_latlon_to_itm(latitude, longitude):
+def project_latlon_to_itm(longitude, latitude):
     """
     transform latlon to itm , using pyproj
     Look for other EPSG at https://epsg.io/
 
-    VR 04/21
+    VR 08/23
     """
-    prj_wgs = pyproj.CRS("epsg:4326")
-    prj_itm = pyproj.CRS("epsg:2157")
-    itm_x, itm_y = pyproj.transform(prj_wgs, prj_itm, latitude, longitude)
-    return itm_x, itm_y
+    prj_wgs = CRS("epsg:4326")
+    prj_itm = CRS("epsg:2157")
+    transformer = Transformer.from_crs(prj_wgs, prj_itm)
+    itm_e, itm_n = transformer.transform(latitude, longitude)
+
+    return itm_e, itm_n
 
 
-def project_itm_to_latlon(itm_x, itm_y):
+def project_itm_to_latlon(itm_e, itm_n):
     """
     transform itm to latlon, using pyproj
     Look for other EPSG at https://epsg.io/
 
-    VR 04/21
+    VR 08/23
     """
-    prj_wgs = pyproj.CRS("epsg:4326")
-    prj_itm = pyproj.CRS("epsg:2157")
-    latitude, longitude = pyproj.transform(prj_itm, prj_wgs, itm_x, itm_y)
+    prj_wgs = CRS("epsg:4326")
+    prj_itm = CRS("epsg:2157")
+    transformer = Transformer.from_crs(prj_itm, prj_wgs)
+    latitude, longitude = transformer.transform(itm_e, itm_n)
+
     return latitude, longitude
 
 
@@ -476,55 +564,83 @@ def project_itm_to_utm(itm_x, itm_y, utm_zone=32629):
     transform itm to utm, using pyproj
     Look for other EPSG at https://epsg.io/
 
-    VR 04/21
+    VR 08/23
     """
-    prj_utm = pyproj.CRS("epsg:" + str(utm_zone))
-    prj_itm = pyproj.CRS("epsg:2157")
-    utm_x, utm_y =pyproj.transform(prj_itm, prj_utm, itm_x, itm_y)
-    return utm_x, utm_y
+    prj_utm = CRS("epsg:" + str(utm_zone))
+    prj_itm = CRS("epsg:2157") 
+    transformer = Transformer.from_crs(prj_itm, prj_utm)
+    utm_e, utm_n = transformer.transform(itm_x, itm_y)
+    
+    return utm_e, utm_n
 
 
-def project_utm_to_itm(utm_x, utm_y, utm_zone=32629):
+def project_utm_to_itm(utm_e, utm_n, utm_zone=32629):
     """
     transform utm to itm, using pyproj
     Look for other EPSG at https://epsg.io/
 
-    VR 04/21
+    VR 08/23
     """
-    prj_utm = pyproj.CRS("epsg:" + str(utm_zone))
-    prj_itm = pyproj.CRS("epsg:2157")
-    itm_x, itm_y = pyproj.transform(prj_utm, prj_itm, utm_x, utm_y)
-    return itm_x, itm_y
+    prj_utm = CRS("epsg:" + str(utm_zone))
+    prj_itm = CRS("epsg:2157")
+    
+    transformer = Transformer.from_crs(prj_utm, prj_itm)
+    itm_e, itm_n = transformer.transform(utm_e, utm_n)
+    
+    return itm_e, itm_n
 
-def project_utm_to_utm(utm_x_in, utm_y_in, utm_zone_in=2157, utm_zone_out=32629):
+
+def project_utm_to_utm(utm_e_in, utm_n_in, utm_zone_in=32629, utm_zone_out=32629):
     """
-    transform utm to utm using pyproj
-    Look for other EPSGs at https://epsg.io/
+    transform utm to utm, using pyproj
+    Look for other EPSG at https://epsg.io/
 
-    VR 08/22
+    VR 08/23
+
     """
-    prj_in = pyproj.CRS("epsg:" + str(utm_zone_in))
-    prj_out = pyproj.CRS("epsg: "+ str(utm_zone_out))
-    utm_x_out, utm_y_out = pyproj.transform(prj_in, prj_out, utm_x_in, utm_y_in)
-    return utm_x_out, utm_y_out
+    if utm_zone_in==utm_zone_out:
+        return  utm_e_in, utm_n_in
+        
+    prj_utm_in = CRS("epsg:" + str(utm_zone_in))
+    prj_utm_out = CRS("epsg:" + str(utm_zone_out))
+    
+    transformer = Transformer.from_crs(prj_utm_in, prj_utm_out)
+    utm_e, utm_n = transformer.transform(utm_e_in, utm_n_in)
+    
+    return utm_e, utm_n
 
-def get_utm_zone(latitude=None, longitude=None):
+
+def project_wgs_to_geoid(lat, lon, alt, geoid=3855 ):
     """
-    Find EPSG from position in lat/lon, using pyproj
+    transform ellipsoid heigth to geoid, using pyproj
+    Look for other EPSG at https://epsg.io/
 
-    VR 04/21
+    VR 09/21
+
     """
-    prj_wgs = pyproj.CRS("epsg:4326")
-    utm_list = pyproj.query_utm_crs_info(
-        datum_name="WGS 84",
-        area_of_interest=pyproj.AreaOfInterest(
-        west_lon_degree=longitude,
-        south_lat_degree=latitude,
-        east_lon_degree=longitude,
-        north_lat_degree=latitude, ), )
 
-    return utm_list
+    geoidtrans =pyproj.crs.CompoundCRS(name="WGS 84 + EGM2008 height", components=[4979, geoid])
+    wgs = pyproj.Transformer.from_crs(
+            pyproj.CRS(4979), geoidtrans, always_xy=True)
+    lat, lon, elev = wgs.transform(lat, lon, alt)
 
+    return lat, lon, elev
+
+def project_utm_to_geoid(utm_x, utm_y, utm_z, utm_zone=32629, geoid=3855):
+    """
+    transform ellipsoid heigth to geoid, using pyproj
+    Look for other EPSG at https://epsg.io/
+
+    VR 09/21
+
+    """
+
+    geoidtrans =pyproj.crs.CompoundCRS(name="UTM + EGM2008 height", components=[utm_zone, geoid])
+    utm = pyproj.Transformer.from_crs(
+            pyproj.CRS(utm_zone), geoidtrans, always_xy=True)
+    utm_x, utm_y, elev = utm.transform(utm_x, utm_y, utm_z)
+
+    return utm_x, utm_y, elev
 
 def modify_polygon(Polygons=None,
                     Operator="intersection",
@@ -680,7 +796,7 @@ def extract_data_rect(Data=None, Corners=None, Out=True):
     Xll = numpy.amin(X)
     Xur = numpy.amax(X)
     Yll = numpy.amin(Y)
-    Yur = numpy.amin(Y)
+    Yur = numpy.amax(Y)
     
     if Out:
         print("Rect lower left : "+str(Xll)+", "+str(Yll))
@@ -1190,7 +1306,7 @@ def find_nearest(site0=(0.,0.), sitevec=numpy.array([])):
     return minpos
 
 def add_object_npz(filein=None,
-                   xkey = None, xobject=numpy.array([]),
+                   xkey = [], xobject=numpy.array([]),
                    fileout = None):
     """
     Add object to .npz file.
@@ -1212,17 +1328,19 @@ def add_object_npz(filein=None,
     if fileout==None:
         fileout=filein
 
-    if xobject.size==0 or xkey.size==0:
+    if len(xobject)==0 or len(xkey)==0:
         error("Objects/keys not not given! Exit.")
-    if xobject.size != xkey.size:
+    if len(xobject) != len(xkey):
         print("Object/key sizes do mot match! Set t0: "+xkey)
 
-    tmp = numpy.load(filein)
+    tmp = numpy.load(filein, allow_pickle=True)
     tmp = dict(tmp)
     for iobj in numpy.arange(len(xkey)):
         tmp[xkey[iobj]] = xobject[iobj]
+        print("Item "+xkey[iobj]+" added to "+fileout)
 
     numpy.savez_compressed(fileout,**tmp)
+
 
 
 def del_object_npz(filein=None,
@@ -1231,7 +1349,7 @@ def del_object_npz(filein=None,
     """
     delete object from .npz file.
 
-    filein: str
+    filein:  str
         Valid .npz file.
     fileout: str
         Filename for output, default is filein
@@ -1251,7 +1369,7 @@ def del_object_npz(filein=None,
     if fileout==None:
         fileout=filein
 
-    tmp = numpy.load(filein)
+    tmp = numpy.load(filein, allow_pickle=True)
     tmp = dict(tmp)
     for iobj in numpy.arange(len(xkey)):
         if xkey[iobj] in tmp:

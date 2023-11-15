@@ -1,4 +1,16 @@
-!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.14.7
+# ---
+
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ---
 # jupyter:
@@ -406,7 +418,7 @@ for filein in dat_files:
         print("Data, read   min="+str( D_min)+"   max="+str( D_max))
 
         if ("Z" in Comp) or ("H" in Comp):
-            Unit = "fT"
+            Unit = "ppm"
             if DataTrans ==1:
                 Unit = "-"
                 D = numpy.log10(D)

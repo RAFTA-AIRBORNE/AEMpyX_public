@@ -42,6 +42,22 @@ SUBROUTINE aemfwd1d_geotem( nlyr, mvec, alt, calc_data,nspars,spars)
     &                     nppf=3, nchnl=11, nrx=1, kppm=0, cmp= 3,   &
     &                     ider=4, gstrp=0 , astrp=0, nrxf=1
 
+    !     REAL(KIND=8), PARAMETER :: ppfac = 1.d6, bffac = 1.d6
+!      For KPPM > 0:
+!        PUNIT can have values pct, ppt, ppm or ppb; eg,
+!           parts per hundred (percent)
+!           parts per thousand
+!           parts per million
+!           parts per billion
+!     Conversion factors  are in ppfacs
+    REAL(KIND=8), DIMENSION(4), PARAMETER ::  ppfacs = (/1.E2 , 1.E3 , 1.E6 , 1.E9/)
+!      Output physical units 'nT/s' , 'pT/s' , 'fT/s' , 'nT  ' , 'pT  ' , 'fT  '
+!      Conversion factors  are in bffacs
+    REAL(KIND=8), DIMENSION(6), PARAMETER ::  bffacs = (/1. , 1000. , 1.E6 , 1. , 1000. , 1.E6/)
+
+
+
+
     REAL(KIND=8), PARAMETER :: pi = 3.141592654d0, twopi = 6.283185307d0
 
     REAL(KIND=8), DIMENSION(nspars) :: spars
@@ -91,23 +107,13 @@ SUBROUTINE aemfwd1d_geotem( nlyr, mvec, alt, calc_data,nspars,spars)
     REAL(KIND=8),  INTENT(out), DIMENSION(nchnl*3) :: calc_data
     REAL(KIND=8) , DIMENSION(nlyr) :: res, reps , ctau , cfreq , calf , rmu
     REAL(KIND=8) , DIMENSION(nlyr) :: thk
-
+    LOGICAL :: debug=.false.
     !SAVE
 
 
-! Set system-specific parameters for CGG Genesis system
-!  only caled once:
-!  Sets up interpolation times for FD -> TD tjsransform which use the
-!  exact 6 points per decade frequency-domain data plus 6 per decade
-!  interpolated values.  These are based on a 12 point per decade
-!  cosine filter derived from the Niels Christensen routine FILCOA
-!  with  OMEGA = .3 PI and shift 0.
-!  Calulates:REAL(KIND=8) swx(nsx) , swy(nsx,3)
-!        TRP - array of time values for FD -> TD transformations
-!      NTYRP - number of values in TRP
-!     EXTENT - the latest time for which time-domain output is required.
-!      PULSE - time length of one signal pulse
-!     NTYPLS - number of TRP values in 1 PULSE
+     ppfac = ppfacs(nppf)
+     bffac = bffacs(iunits)
+
 
       topns = 1.d-3*topn
       tclss = 1.d-3*tcls
@@ -144,14 +150,25 @@ SUBROUTINE aemfwd1d_geotem( nlyr, mvec, alt, calc_data,nspars,spars)
        DEALLOCATE (tmp)
 
 
-       CALL setup_genesis(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
-
-       ALLOCATE (mcurrent(7*nlyr))
-       mcurrent = mvec
-
+       CALL setup_geotem(xrx,yrx,zrx,txcln,ppfac, prm_td,kppm,bffac,norm)
 
 ! unpack parameter vector
-      CALL unpack_mvec(nlyr,res,reps,rmu,calf,ctau,cfreq,thk,mcurrent)
+      CALL unpack_mvec(nlyr,res,reps,rmu,calf,ctau,cfreq,thk,mvec)
+      
+      
+      IF (debug) THEN
+         WRITE(*,*) 'FWD-GEOTEM'
+         WRITE(*,'(  A,3I7)')      ' nlyr, nfrq', nlyr, nfrq
+         WRITE(*,'(  A,24G14.6)') ' res  ', res
+         WRITE(*,'(  A,24G14.6)') ' reps ', reps
+         WRITE(*,'(  A,24G14.6)') ' rmu  ', rmu
+         WRITE(*,'(  A,24G14.6)') ' calf ', calf
+         WRITE(*,'(  A,24G14.6)') ' ctau ', ctau
+         WRITE(*,'(  A,24G14.6)') ' cfrq ', cfreq
+         WRITE(*,'(  A,24G14.6)') ' thk  ', thk
+         WRITE(*,'(  A,24G14.6)') ' alt  ', alt
+      ENDIF
+
       CALL aem1d_td(step,ider,nsx,swx,swy,npuls,pulse,ntypls,     &
      &                     ntyrp,trp,nchnl,topns,tclss,txcln,alt, &
      &                     zrx,xrx,yrx,                           &
@@ -174,7 +191,7 @@ SUBROUTINE aemfwd1d_geotem( nlyr, mvec, alt, calc_data,nspars,spars)
 
 END SUBROUTINE aemfwd1d_geotem
 
-SUBROUTINE setup_geotem(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
+SUBROUTINE setup_geotem(xrx,yrx,zrx,txcln,ppfac,prm_td,kppm,bffac,norm)
 !---------------------------------------------------------
 ! For time-domain, PRM_TD is the 3 component Tx-Rx dc coupling factor
 ! per unit dipole moment, expressed in NANOTESLAS per unit amp
@@ -266,7 +283,7 @@ SUBROUTINE setup_geotem(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
        tmp(1:3) = abs(prm_td(1:3))
        tmp(4)   = sqrt(tmp(1)**2+tmp(2)**2+tmp(3)**2)
 
-       norm(1:3) = ppfac
+       if (kppm==1) norm(1:3) = bffac
        if (kppm==1) norm(1:3) = ppfac/tmp(1)
        if (kppm==3) norm(1:3)= ppfac/tmp(3)
        if (kppm==4) norm(1:3)= ppfac/tmp(4)

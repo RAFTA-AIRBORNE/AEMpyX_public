@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:sphinx,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: sphinx
+#       format_version: '1.1'
+#       jupytext_version: 1.14.7
+# ---
+
 
 # -*- coding: utf-8 -*-
 # ---
@@ -98,7 +110,7 @@ CorrectDirection = True
 Data selection
 
 """
-###############################################################################
+""
 
 RectCorners = []
 PolyFiles = []
@@ -106,7 +118,7 @@ DataSelect = ""
 
 ###############################################################################
 # Full Blocks
-###############################################################################
+# ##############################################################################
 AEM_system = "aem05"
 _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
@@ -179,28 +191,28 @@ nD = NN[0]
 
 ###############################################################################
 # StGormans
-###############################################################################
+# ##############################################################################
 
-DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
-OutDatDir = AEMPYX_DATA+"/Projects/StGormans/raw/"
-RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
-InSurvey = "A1"
-OutStrng = InSurvey+"_rect_StGormans"
+# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+# InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
+# OutDatDir = AEMPYX_DATA+"/Projects/StGormans/raw/"
+# RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
+# InSurvey = "A1"
+# OutStrng = InSurvey+"_rect_StGormans"
 ###############################################################################
 # LoughGur
-###############################################################################
+# ##############################################################################
 
-#DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-#InDatDir = AEMPYX_DATA+"/Blocks/A5/orig/"
-#OutDatDir = AEMPYX_DATA+"/Projects/LoughGur/raw/"
-#RectCorners = [529600., 5816800., 534200., 5820250.] # StGormans
-#InSurvey = "A5"
-#OutStrng = InSurvey+"_rect_LoughGur"
+DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+InDatDir = AEMPYX_DATA+"/Blocks/A5/orig/"
+OutDatDir = AEMPYX_DATA+"/Projects/LoughGur/raw/"
+RectCorners = [529600., 5816800., 534200., 5820250.] # Lough Gur
+InSurvey = "A5"
+OutStrng = InSurvey+"_rect_LoughGur"
 
 ###############################################################################
 # CGG NM
-###############################################################################
+# ##############################################################################
 # AEM_system = "genesis"
 # _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 # nD = NN[0]
@@ -211,9 +223,10 @@ OutStrng = InSurvey+"_rect_StGormans"
 # OutStrng = InSurvey
 
 
+
 ###############################################################################
 # Overlap Area
-###############################################################################
+# ##############################################################################
 
 
 # InSurvey = "A1"

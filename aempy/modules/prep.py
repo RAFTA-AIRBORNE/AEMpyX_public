@@ -386,7 +386,7 @@ def reduce_data(datavec=numpy.array([]), System="aem05",
 
         if blocksize%2==0:
             blocksize = blocksize+1
-            Method[0] = blocksize
+            Method[1] = blocksize
 
 
 

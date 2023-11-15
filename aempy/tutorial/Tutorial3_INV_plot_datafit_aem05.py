@@ -1,18 +1,5 @@
 #!/usr/bin/env python3
 
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: "1.5"
-#       jupytext_version: 1.11.4
-# ---
-
 """
 Show several 1d block models as (stitched) section.
 
@@ -64,15 +51,18 @@ OutInfo = True
 now = datetime.now()
 
 """
-input formats are "npz","nc4","asc"
+input formats is "npz"
 """
-InFileFmt = ".npz"
-InModDir = AEMPYX_DATA + "/Projects/Compare_systems/results/C/"
+
+# InModDir = AEMPYX_DATA + "/Aug2023/results/"
+
+InModDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/results_diffop/"
+if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Data read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*3000*.npz"
-SearchStrng = "*FL2060011-17*.npz"
+SearchStrng = "*gcv*results.npz"
+
 if "search" in FileList.lower():
 
     print("Search flightline ID string: %s " % SearchStrng)
@@ -82,6 +72,8 @@ if "search" in FileList.lower():
 if "set" in FileList.lower():
     res_files =[]
 
+print (res_files)
+
 PlotType =  1
 
 # PlotType =  0      # rms, datafit, model
@@ -89,21 +81,24 @@ PlotType =  1
 # PlotType =  2      #  model
 # PlotType =  3      #  datafit
 
-PlotDir = AEMPYX_DATA + "/Projects/Compare_systems/plots/C/"
+# PlotDir = AEMPYX_DATA + "/Projects/Compare/plots/C36/"
+PlotDir = InModDir
 print("Plots written to dir: %s " % PlotDir)
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
     os.mkdir(PlotDir)
 
 
-FilesOnly = False
+FilesOnly = True
 PlotFmt = [".pdf", ".png"]
-PdfCatalog = True
+PDFCatalog = True
+PDFStrng = ".pdf"
 if ".pdf" in PlotFmt:
-    PdfCatName = PlotDir+"AEM05_Type"+str(PlotType)+"_Catalog.pdf"
+    # PDFCatName = PlotDir+"AEM05_LCC"+"_Type"+str(PlotType)+PDFStrng    
+    PDFCatName = PlotDir+"AEM05_GCV"+"_Type"+str(PlotType)+PDFStrng
 else:
     print(" No pdfs generated. No catalog possible!")
-    PdfCatalog = False
+    PDFCatalog = False
 
 
 
@@ -130,8 +125,8 @@ rms_limits  =[0., 4.]
 """
 Parameter for model plot
 """
-min_lrho =  1.5
-max_lrho =  3.5
+min_lrho =  1.
+max_lrho =  4.
 cl = [min_lrho, max_lrho]
 cb_ticks = [-1, 0, 1, 2, 3, 4]
 
@@ -139,9 +134,11 @@ cb_ticks = [-1, 0, 1, 2, 3, 4]
 blank = 10
 
 low_sens = True
-if low_sens:    
+if low_sens:        
     lowsens = -2.
-    sens_pars = ["euc","size", "sqrt","max"]
+    # sens_pars = ["euc","size", "sqrt","max", "log"]
+    sens_pars = ["euc","sqrt","max", "log"]
+    
     strng_sens = " sensitivity scaling = "+str(sens_pars)+", thresh ="+str(lowsens)
     alpha_sens = 0.05
 else:
@@ -153,26 +150,28 @@ else:
 high_rms = True
 if high_rms:
     highrms = 3.
-    alpha_rms= 0.4
+    alpha_rms= 0.05
 
 high_err = False
 if high_err:
     higherr = 0.5
     alpha_err95 = 0.3
 
+
 max_doi = False
 if max_doi:
-    maxdoi = 100.68
+    maxdoi = 150.
     alpha_doi = 0.0
 
 
-plot_adapt = True
+plot_adapt = False
 if plot_adapt:
    if not max_doi:
        maxdoi = 150.
 else:
-    plot_min = -100.0
+    plot_min = -200.0
     plot_max = 60.0
+
 
 topo_use_average = False #
 
@@ -183,7 +182,7 @@ General Parameter for all plots
 poslatlon = True
 if poslatlon:
     EPSG=32629
-    
+
 ProfType = "distance"
 if "dist" in ProfType.lower():
     ProfLabel = "distance (m)"
@@ -197,11 +196,13 @@ Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
 """
 
-matplotlib.pyplot.style.use("seaborn-paper") # ("seaborn-paper")
+matplotlib.pyplot.style.use("seaborn-v0_8-paper") # ("seaborn-paper")
 matplotlib.rcParams["figure.dpi"] = 400
 matplotlib.rcParams["axes.linewidth"] = 0.5
 matplotlib.rcParams["savefig.facecolor"] = "none"
 # matplotlib.rcParams["text.usetex"] = True
+matplotlib.rcParams["savefig.transparent"] = True
+matplotlib.rcParams["savefig.bbox"] = "tight" 
 
 Fontsize = 8
 Labelsize = Fontsize
@@ -236,7 +237,7 @@ ns = numpy.size(res_files)
 ifl = 0
 pdf_list = []
 for file in res_files:
-
+    
     nplots = 0
 
     FileName, filext0 = os.path.splitext(file)
@@ -319,6 +320,7 @@ for file in res_files:
         site_sens[isite,:] = inverse.transform_sensitivity(S=sens, 
                                                            V=thk, 
                                                            Transform=sens_pars[1:])
+        # if isite  in [ 3, 10, 70]: print(site_sens[isite,:])
 
     if topo_use_average:
         site_tref = numpy.mean(site_dem)
@@ -326,6 +328,11 @@ for file in res_files:
         site_tref = 0
     site_topo = site_dem - site_tref
     max_topo = numpy.amax(site_topo)
+    
+    avg_rms = round(numpy.nanmean(site_rms), 2)
+    med_rms = round(numpy.nanmedian(site_rms),2)
+    med = med_rms*numpy.ones_like(site_rms)
+    avg = avg_rms*numpy.ones_like(site_rms)
 
     models = numpy.shape(site_model)
     sites = models[0]
@@ -360,7 +367,7 @@ for file in res_files:
         size_lay = numpy.repeat(thk.T, sites, axis=0)
         site_val = numpy.log10(site_model[:,:])
         
-        site_sens = numpy.log10(site_sens[:,:])
+        # site_sens = numpy.log10(site_sens[:,:])
 
 
         alpha = numpy.ones_like(site_val)
@@ -368,7 +375,7 @@ for file in res_files:
         site_node = numpy.ones((sites, numpy.size(z0)))
 
         for nmod  in  numpy.arange(sites):
-
+            # if nmod  in [ 3, 10, 70]: print(" nmod ", site_sens[nmod,:])
             site_val[nmod, -1] = numpy.nan
             zmp = site_topo[nmod] - zm
             z0p = site_topo[nmod] - z0
@@ -406,12 +413,6 @@ for file in res_files:
             plotmax = plot_max
             plotmin = plot_min
 
-    if PlotType in [0, 1]:
-        #
-        avg_rms = round(numpy.nanmean(site_rms), 2)
-        med_rms = round(numpy.nanmedian(site_rms),2)
-        med = med_rms*numpy.ones_like(site_rms)
-        avg = avg_rms*numpy.ones_like(site_rms)
 
     if PlotType in [0, 3]:
 
@@ -453,7 +454,7 @@ for file in res_files:
     if PlotType == 2:
         nplots = 1
         fig, ax = matplotlib.pyplot.subplots(nplots, 1,
-                                          figsize=(PlotSize[0]*cm, nplots*PlotSize[1]*cm),
+                                          figsize=(PlotSize[0]*cm, 1.5*nplots*PlotSize[1]*cm),
                                           sharex=True,
                                           gridspec_kw={"height_ratios": [3]})
     if PlotType == 3:
@@ -718,13 +719,23 @@ for file in res_files:
         axii.set_ylim((plotmax, plotmin))
         axii.invert_yaxis()
         axii.grid(True)
+        
+        # if PlotType not in [0, 1]:
+        #     strng_rms = "nRMS: avg=" +str(avg_rms)+ "  med="+str(med_rms)
+        #     axii.text(0.05, 0.8, strng_rms,
+        #                verticalalignment="bottom", horizontalalignment="left",
+        #                transform=axii.transAxes,
+        #                fontsize=Fontsize-2)
 
         if len(strng_sens) > 0:
-            axii.text(0.5, 0.1, strng_sens,
-                       verticalalignment="bottom", horizontalalignment="center",
+            axii.text(0.05, 0.1, strng_sens,
+                       verticalalignment="bottom", horizontalalignment="left",
                        transform=axii.transAxes,
                        fontsize=Fontsize-2)
-
+        axii.text(0.95, 0.1, "nRMS average=" +str(avg_rms)+", median="+str(med_rms),
+                  verticalalignment="bottom", horizontalalignment="right",
+                    transform=axii.transAxes,
+                    color="black", fontsize=Fontsize-2)
         axii.text(0.0, -0.3, beg_strng,
                    verticalalignment="top", horizontalalignment="left",
                    transform=axii.transAxes,
@@ -735,7 +746,7 @@ for file in res_files:
                    color="black", fontsize=Fontsize)
 
         norm = matplotlib.colors.Normalize(vmin=cl[0], vmax=cl[1], clip=False)
-        cb = fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=mycmap),
+        cb = fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=mycmap), ax=matplotlib.pyplot.gca(),
                           ticks=cb_ticks ,
                           orientation="horizontal", aspect=40, pad=0.25, shrink=0.65)
         cb.set_label(r"log10($\Omega$ m)", size=Fontsize)
@@ -749,9 +760,9 @@ for file in res_files:
         
     matplotlib.pyplot.clf()
 
-    if PdfCatalog:
+    if PDFCatalog:
         pdf_list.append(PlotDir+FileName+"_PType"+str(PlotType)+".pdf")
 
 
-if PdfCatalog:
-    viz.make_pdf_catalog(PdfList=pdf_list, FileName=PdfCatName)
+if PDFCatalog:
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)

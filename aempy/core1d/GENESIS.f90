@@ -36,38 +36,60 @@ SUBROUTINE aemfwd1d_genesis(nlyr, mvec, alt, calc_data)
 !
     IMPLICIT NONE
 
+    REAL(KIND=8), PARAMETER :: pi = 3.141592654d0, twopi = 6.283185307d0
+
+!  From CGG's airbeo input:
+!  TDFD =  1   DO1D =  0   PRFL =  1    ISTOP = 0
+!  ISW =   4   NSX =   1   STEP = 1    UNITS =   3  NCHNL =  11
+!  KRXW =  1   OFFTYM =   0.000    
+
+!     INTEGER, INTENT(in) :: nlyr
+!     INTEGER, PARAMETER :: isw=4, iunits=3, step=1, nsx=1, npuls=1,   &
+!     &                     nppf=3, nchnl=11, nrx=1, kppm=0, cmp= 2,   &
+!     &                     ider=4, gstrp=0 , astrp=0, nrxf=1
+!    REAL(KIND=8), PARAMETER :: ppfac = 1.d3, bffac = 1.d3
+
+!  Our best try:
     INTEGER, INTENT(in) :: nlyr
+    ! CMP = 11 => horizontal in-line component only
+!         = 13 => vertical component only
+!         = 2  => vertical & horizontal in-line components
+!         = 3  => all 3 components
+!         = 4  => total field
     INTEGER, PARAMETER :: isw=4, iunits=6, step=1, nsx=1, npuls=1,   &
     &                     nppf=3, nchnl=11, nrx=1, kppm=0, cmp= 2,   &
     &                     ider=4, gstrp=0 , astrp=0, nrxf=1
-! CMP=13 or 2?!
-! CMP = 11 => invert on horizontal in-line component only
-!             = 13 => invert on vertical component only
-!             = 2  => joint inversion on vertical & horizontal in-line components
-!             = 3  => invert on all 3 components
-!             = 4  => invert on total field
 
-    REAL(KIND=8), PARAMETER :: pi = 3.141592654d0, twopi = 6.283185307d0
+!     REAL(KIND=8), PARAMETER :: ppfac = 1.d6, bffac = 1.d6
+!      For KPPM > 0:
+!        PUNIT can have values pct, ppt, ppm or ppb; eg,
+!           parts per hundred (percent)
+!           parts per thousand
+!           parts per million
+!           parts per billion
+!     Conversion factors  are in ppfacs
+    REAL(KIND=8), DIMENSION(4), PARAMETER ::  ppfacs = (/1.E2 , 1.E3 , 1.E6 , 1.E9/)
+!      Output physical units 'nT/s' , 'pT/s' , 'fT/s' , 'nT  ' , 'pT  ' , 'fT  '
+!      Conversion factors  are in bffacs
+    REAL(KIND=8), DIMENSION(6), PARAMETER ::  bffacs = (/1. , 1000. , 1.E6 , 1. , 1000. , 1.E6/)
 
     REAL(KIND=8), DIMENSION(1)   :: swx
     REAL(KIND=8), DIMENSION(1,3) :: swy
     REAL(KIND=8), DIMENSION(3) ::   prm_td
 
-    ! instrument geometry and constants
-    ! not used :offtym = 0.d0, txfreq = 90.d0,
+    ! instrument geometry and constants, not used :offtym = 0.d0, txfreq = 90.d0
+    ! pulse = 0.5d0/txfreq
+    ! txcln = 5 deg*pi/180
+
     REAL(KIND=8), DIMENSION(nrxf) ::   &
     &          zrx = 43.d0, xrx = 90.d0, yrx = 0.d0, txcln = 0.087266462599716d0
     ! from CGG Tellus NM report
-    ! REAL(KIND=8) :: txampl =52394.d0,  txfreq = 225.d0, pulse =  0.002222222222222222d0
+    REAL(KIND=8) :: txampl = 52394.d0,  txfreq = 225.d0, pulse =  0.002222222222222222d0
     ! from Eberle 2010
     ! REAL(KIND=8) :: txampl =52394.d0,  txfreq = 75.d0, pulse =  0.006666667
     ! from CGG inversion
-    REAL(KIND=8) :: txampl =52394.d0,  txfreq = 90.d0, pulse =  0.005555555555556d0
-    ! pulse =  0.002222222
-    ! txarea =  90.d0
-    ! txampl = 391.d0
-    ! pulse = 0.5d0/txfreq
-    ! txcln = 5 deg*pi/180
+    ! REAL(KIND=8) :: txampl =52394.d0,  txfreq = 90.d0, pulse =  0.005555555555556d0
+
     REAL(KIND=8) , PARAMETER :: T0_min = 1.d-7
     ! windows
     REAL(KIND=8), DIMENSION(nchnl) ::  &
@@ -82,11 +104,10 @@ SUBROUTINE aemfwd1d_genesis(nlyr, mvec, alt, calc_data)
 !    &       0.191d0, 0.295d0, 0.434d0, 0.660d0, 1.007d0,  1.510d0 /) &
 !    &  tcls =  (/ 0.017d0, 0.035d0, 0.069d0, 0.122d0, 0.191d0, &
 !    &          0.295d0, 0.434d0, 0.660d0, 1.007d0, 1.510d0, 2.205d0 /)
-    ! units  punit = 'fT '
-    REAL(KIND=8), PARAMETER :: ppfac = 1.d6, bffac = 1.d6
+
 
     INTEGER, PARAMETER :: mxtym = 200
-    REAL(KIND=8) :: t0 , extent, tbase , qtym , tq
+    REAL(KIND=8) :: t0 , extent, tbase , qtym , tq, ppfac, bffac
     REAL(KIND=8), ALLOCATABLE :: trp(:), tmp(:)
 
     INTEGER :: ntypls , ntyrp , kk
@@ -104,8 +125,11 @@ SUBROUTINE aemfwd1d_genesis(nlyr, mvec, alt, calc_data)
     REAL(KIND=8) , DIMENSION(nlyr) :: res, reps , ctau , cfreq , calf , rmu
     REAL(KIND=8) , DIMENSION(nlyr) :: thk
 
+    LOGICAL :: debug=.false.
     !SAVE
 
+     ppfac = ppfacs(nppf)
+     bffac = bffacs(iunits)
 
 ! Set system-specific parameters for CGG Genesis system
 !  only called once: current
@@ -156,17 +180,25 @@ SUBROUTINE aemfwd1d_genesis(nlyr, mvec, alt, calc_data)
        DEALLOCATE (tmp)
 
 
+       CALL setup_genesis(xrx,yrx,zrx,txcln,ppfac,prm_td,kppm,bffac,norm)
 
-       CALL setup_genesis(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
-
-!       ALLOCATE (mcurrent(7*nlyr))
-!       mcurrent = mvec
-
-! unpack parameter vector
+!      unpack parameter vector
        CALL unpack_mvec(nlyr,res,reps,rmu,calf,ctau,cfreq,thk,mvec)
-!      WRITE(*,*) nlyr
-!      WRITE(*,'(a4,3x,3G12.4)') 'RES ',res  !,reps,rmu,calf,ctau,cfreq,thk
 
+      IF (debug) THEN
+         WRITE(*,*) 'FWD-GENESIS'
+         WRITE(*,'(  A,I7)') ' layers  ', nlyr
+         WRITE(*,'(  A,24G14.6)') ' res  ', res
+         WRITE(*,'(  A,24G14.6)') ' reps ', reps
+         WRITE(*,'(  A,24G14.6)') ' rmu  ', rmu
+         WRITE(*,'(  A,24G14.6)') ' calf ', calf
+         WRITE(*,'(  A,24G14.6)') ' ctau ', ctau
+         WRITE(*,'(  A,24G14.6)') ' cfrq ', cfreq
+         WRITE(*,'(  A,24G14.6)') ' thk  ', thk
+         WRITE(*,'(  A,24G14.6)') ' alt  ', alt
+     ENDIF
+!      Compute BTD, the layered earth response convolved with the excitation waveform
+!      as dB/dt in nT/s if STEP = 0;  or as B in pT if STEP = 1
        CALL aem1d_td(step,ider,nsx,swx,swy,npuls,pulse,ntypls,     &
      &                     ntyrp,trp,nchnl,topns,tclss,txcln,alt, &
      &                     zrx,xrx,yrx,                           &
@@ -186,7 +218,7 @@ SUBROUTINE aemfwd1d_genesis(nlyr, mvec, alt, calc_data)
 END SUBROUTINE aemfwd1d_genesis
 
 
-SUBROUTINE setup_genesis(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
+SUBROUTINE setup_genesis(xrx,yrx,zrx,txcln,ppfac,prm_td,kppm,bffac,norm)
 !---------------------------------------------------------
 ! For time-domain, PRM_TD is the 3 component Tx-Rx dc coupling factor
 ! per unit dipole moment, expressed in NANOTESLAS per unit amp
@@ -224,7 +256,8 @@ SUBROUTINE setup_genesis(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
 !           parts per million
 !           parts per billion
 !
-!      PPFAC = 1e2, 1e3, 1e6 or 1e9 is the conversion factor to achieve this
+!      bffac = 1e2, 1e3, 1e6 or 1e9 is the conversion factor to achieve this
+
 !!      PRM_TD(I) - peak primary dB/dt in nT/s if STEP = 0 or
 !               peak primary B (in nT if STEP = 1)
 !               I = 1, 2 & 3 are the in-line, transverse & vertical components.
@@ -244,7 +277,7 @@ SUBROUTINE setup_genesis(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
       INTEGER, PARAMETER :: nrxf = 1
       REAL(KIND=8), PARAMETER ::  pi = 3.141592654d0
       REAL(KIND=8), ALLOCATABLE :: tmp(:)
-      REAL(KIND=8)  :: ppfac, norm(3)
+      REAL(KIND=8)  :: bffac, ppfac, norm(3)
       REAL(KIND=8) :: sntx , cstx , xbd , ybd , zbd , rbrd , rsq , rsq1 , bfac ,   &
      &     fac , faczx ,  theta , inline , vert , trans , prm_td(3)
       REAL(KIND=8) , DIMENSION(nrxf) :: zrx, xrx, yrx, txcln
@@ -278,7 +311,7 @@ SUBROUTINE setup_genesis(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
        tmp(1:3) = abs(prm_td(1:3))
        tmp(4)   = sqrt(tmp(1)**2+tmp(2)**2+tmp(3)**2)
 
-       norm(1:3) = ppfac
+       if (kppm==0) norm(1:3) = bffac
        if (kppm==1) norm(1:3) = ppfac/tmp(1)
        if (kppm==3) norm(1:3)= ppfac/tmp(3)
        if (kppm==4) norm(1:3)= ppfac/tmp(4)

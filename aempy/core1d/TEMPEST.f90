@@ -51,6 +51,20 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
 !             = 3  => invert on all 3 components
 !             = 4  => invert on total field
 
+!     REAL(KIND=8), PARAMETER :: ppfac = 1.d6, bffac = 1.d6
+!      For KPPM > 0:
+!        PUNIT can have values pct, ppt, ppm or ppb; eg,
+!           parts per hundred (percent)
+!           parts per thousand
+!           parts per million
+!           parts per billion
+!     Conversion factors  are in ppfacs
+    REAL(KIND=8), DIMENSION(4), PARAMETER ::  ppfacs = (/1.E2 , 1.E3 , 1.E6 , 1.E9/)
+!      Output physical units 'nT/s' , 'pT/s' , 'fT/s' , 'nT  ' , 'pT  ' , 'fT  '
+!      Conversion factors  are in bffacs
+    REAL(KIND=8), DIMENSION(6), PARAMETER ::  bffacs = (/1. , 1000. , 1.E6 , 1. , 1000. , 1.E6/)
+
+
     REAL(KIND=8), PARAMETER :: pi = 3.141592654d0, twopi = 6.283185307d0
 
     REAL(KIND=8), DIMENSION(1)   :: swx
@@ -103,7 +117,7 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
 12.407 19.993
  /)
     ! units  punit = 'fT '
-    REAl*8, PARAMETER :: ppfac = 1.d6, bffac = 1.d6
+    REAl*8 :: ppfac, bffac
 
     INTEGER, PARAMETER :: mxtym =200
     REAL(KIND=8) :: t0 , extent, tbase , qtym , tq
@@ -123,9 +137,11 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
     REAL(KIND=8),  INTENT(out), DIMENSION(nchnl*2) :: calc_data
     REAL(KIND=8) , DIMENSION(nlyr) :: res, reps , ctau , cfreq , calf , rmu
     REAL(KIND=8) , DIMENSION(nlyr) :: thk
-
+    LOGICAL :: debug=.false.
     !SAVE
 
+     ppfac = ppfacs(nppf)
+     bffac = bffacs(iunits)
 
 !  Set system-specific parameters for CGG tempest system
 !  only called once: current
@@ -177,12 +193,23 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
 
 
 
-       CALL setup_tempest(xrx,yrx,zrx,txcln,prm_td,kppm,ppfac,norm)
+       CALL setup_tempest(xrx,yrx,zrx,txcln,ppfac, prm_td,kppm,bffac,norm)
 
 !    unpack parameter vector
        CALL unpack_mvec(nlyr,res,reps,rmu,calf,ctau,cfreq,thk,mvec)
-!      WRITE(*,*) nlyr
-!      WRITE(*,'(a4,3x,3G12.4)') 'RES ',res  !,reps,rmu,calf,ctau,cfreq,thk
+
+        IF (debug) THEN
+            WRITE(*,*) 'FWD-TEMPEST'
+            WRITE(*,'(  A,3I7)')      ' nlyr, nfrq', nlyr, nfrq
+            WRITE(*,'(  A,24G14.6)') ' res  ', res
+            WRITE(*,'(  A,24G14.6)') ' reps ', reps
+            WRITE(*,'(  A,24G14.6)') ' rmu  ', rmu
+            WRITE(*,'(  A,24G14.6)') ' calf ', calf
+            WRITE(*,'(  A,24G14.6)') ' ctau ', ctau
+            WRITE(*,'(  A,24G14.6)') ' cfrq ', cfreq
+            WRITE(*,'(  A,24G14.6)') ' thk  ', thk
+            WRITE(*,'(  A,24G14.6)') ' alt  ', alt
+        ENDIF
 
        CALL aem1d_td(step,ider,nsx,swx,swy,npuls,pulse,ntypls,     &
      &                     ntyrp,trp,nchnl,topns,tclss,txcln,alt, &

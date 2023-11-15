@@ -1,0 +1,77 @@
+
+FC=gfortran
+# x86_64-conda-linux-gnu-gfortran
+FFLAGS= -O3  -g -fbounds-check -Wall -fPIC -shared # -fno-underscoring
+LD= gfortran
+# x86_64-conda-linux-gnu-gfortran
+LDFLAGS=-shared -o core1d.so
+f2pyexe=f2py3
+corelib=core1d.cpython-39-x86_64-linux-gnu.so
+#core1d.so
+
+OTHER =
+
+.default:
+	-echo $@ does not exist.
+
+
+all: module install testGENESIS testAEM05
+tests: testGENESIS testAEM05 testAEM95
+# testGEOTEM
+
+
+# modules
+
+filt_coef_q.o: ./filt_coef_q.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./filt_coef_q.f90
+frequency_select.o: ./frequency_select.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./frequency_select.f90
+
+# core routines
+core1d.o: ./core1d.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./core1d.f90
+part1d.o: ./part1d.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./part1d.f90
+
+# acquisition system-dependent
+AEM05.o: ./AEM05.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./AEM05.f90
+AEM95.o: ./AEM95.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./AEM95.f90
+#GEOTEM.o: ./GEOTEM.f90
+#	$(FC) $(FFLAGS) $(OTHER) -c	./GEOTEM.f90
+GENESIS.o: ./GENESIS.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./GENESIS.f90
+
+
+
+src	  = filt_coef_q.f90 frequency_select.f90 core1d.f90 part1d.f90 AEM05.f90 AEM95.f90 GENESIS.f90
+# GEOTEM.f90
+
+obj   = filt_coef_q.o frequency_select.o core1d.o part1d.o AEM05.o AEM95.o GENESIS.o
+# GEOTEM.o
+
+clean:
+	-rm -f $(tmpfiles)  $(obj)  $(exec)  *.mod *.pyf *.so *.pyc *.x *.o
+neat:
+	-rm -f $(tmpfiles)
+
+
+testGENESIS: BeoDriverGENESIS.f90 library
+	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverGENESIS.f90 $(src) -o BeoDriverGENESIS.x
+testAEM05: BeoDriverAEM05.f90   library
+	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverAEM05.f90 $(src) -o BeoDriverAEM05.x
+testAEM95: BeoDriverAEM95.f90   library
+	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverAEM95.f90 $(src) -o BeoDriverAEM95.x
+#testGEOTEM: BeoDriverGEOTEM.f90  library
+#	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverGEOTEM.f90 $(src) -o BeoDriverGEOTEM.x
+
+library:  $(src) 
+	$(FC) $(FFLAGS) $(LDFLAGS) $(OTHER) $(src) -o libcore1d.so
+
+module: $(src)
+	$(f2pyexe) -m core1d -c $(src)
+
+install: module
+	#cp core1d.so ../modules/core1d.so
+	cp core1d.*.so ../modules/

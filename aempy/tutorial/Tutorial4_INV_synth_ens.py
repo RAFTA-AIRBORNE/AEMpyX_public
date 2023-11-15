@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.14.7
+# ---
+
 
 import os
 import sys
@@ -13,6 +25,7 @@ import copy
 
 import numpy
 import scipy
+import scipy.stats
 
 # %logstart -o
 
@@ -53,8 +66,8 @@ An error model is applied for the raw data, which is
 mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
 """
-AEM_system = "genesis"
-# AEM_system = "aem05"  # "genesis"
+# AEM_system = "genesis"
+AEM_system = "aem05"  # "genesis"
 if "aem05" in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
@@ -83,7 +96,7 @@ input format is ".npz"
 InDatDir = AEMPYX_DATA + "/SynthData/data/"
 FileList = "search"  # "search", "read"
 SearchStrng = "AEM05*3LayerMod*Alt_60*.npz"
-SearchStrng = "GEN*3LayerMod*Alt_120*.npz"
+# SearchStrng = "GEN*3LayerMod*Alt_120*.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -118,7 +131,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -140,9 +153,9 @@ else:
 Tau1 = numpy.logspace(Tau1min, Tau1max, NTau1)
 nreg = NTau0 * NTau1
 
-NSamples = 100
-Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-# Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
+EnsOut = True
+Percentiles = [10., 20., 30., 40.] # linear
+# Percentiles = [2.3, 15.9,]                   # 95/68
 
 """
 Model definition
@@ -176,7 +189,7 @@ mod_apr[6*Nlyr:7*Nlyr-1] = dz[0:Nlyr - 1]
 mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
 
 
-# mod_bnd = mumpy.array([])
+# mod_bnd = numpy.array([])
 max_val = 1.e+30
 min_val = 1.e-30
 # max_val = mod_apr[mod_act==1] + 3*mod_std[mod_act==1]
@@ -226,14 +239,20 @@ if "tikhopt" in  RunType.lower():
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     RegShift = 1
+
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
-        ("inversion",[RunType, RegFun, Tau0, Tau1, Maxiter,ThreshRMS, LinPars, SetPrior, Delta, RegShift]),
-        ("covar", [L0, Cm0, L1, Cm1]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
-        ])
-
+        ("name", ""),
+        ("inversion",
+         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
+                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
+        ("covar", 
+         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert", 
+         Uncert)
+       ])
 
 if "occ" in RunType.lower():
     """
@@ -265,10 +284,16 @@ if "occ" in RunType.lower():
     Delta = [1.e-5]
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
-        ("inversion",[RunType, TauSeq, Tau0, Maxiter,ThreshRMS, LinPars, SetPrior, Delta]),
-        ("covar", [L0, Cm0, L1, Cm1]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
+        ("name", ""),
+        ("inversion", 
+         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
+                      LinPars, SetPrior, Delta],dtype=object)),
+        ("covar", 
+         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert", 
+         Uncert)
        ])
 
 if "map" in  RunType.lower():
@@ -317,12 +342,19 @@ if "map" in  RunType.lower():
     RegShift = 1
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
+        ("name", ""),
         ("inversion",
-         [RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS, LinPars, SetPrior, Delta, RegShift]),
-        ("covar", [C, sC]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
+         numpy.array([RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
+        ("covar",
+         numpy.array([C, sC], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert",
+         Uncert)
        ])
+
+
 
 
 if OutInfo:
@@ -335,7 +367,7 @@ OutStrng = "_nlyr"+str(Nlyr)\
             +"_Prior"+str(int(Guess_r))\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))\
             +"_results"
-print("ID string: Iinput file + %s " % OutStrng)
+print("ID string: input file + %s " % OutStrng)
 
 
 fcount =0
@@ -348,20 +380,25 @@ for file in dat_files:
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
     print("\n Reading file " + filein)
-    tmp = numpy.load(filein)
+
+
+    fileout = OutDatDir + name + OutStrng
+    numpy.savez_compressed(file=fileout+"_ctrl.npz", **Ctrl)
+
+    tmp = numpy.load(filein, allow_pickle=True)
     #  numpy.savez_compressed(
     # file=NPZFile, model = Model, data = Data, para = Para)
-    site_para = tmp["para"]
-    site_data = tmp["data"]
-    site_modl = tmp["model"]
-    print(numpy.shape(site_data))
+    imod_para = tmp["para"]
+    imod_data = tmp["data"]
+    imod_modl = tmp["model"]
+    print(numpy.shape(imod_data))
 
-    site_ens = site_data[:,0]
-    site_smp = site_data[:,1]
-    site_alt = site_data[:,2]
+    imod_num = imod_data[:,0]
+    imod_smp = imod_data[:,1]
+    imod_alt = imod_data[:,2]
 
 
-    [nsite,ndata] = numpy.shape(site_data)
+    [nsample,ndata] = numpy.shape(imod_data)
 
 
     if "read" in SetPrior.lower():
@@ -371,29 +408,32 @@ for file in dat_files:
         mod_prior, mod_var = inverse.load_prior(prior_file)
 
 
-    dat_act = numpy.tile(data_active,(nsite,1))
-    dat_obs = site_data[:,3:]
+    dat_act = numpy.tile(data_active,(nsample,1))
+    dat_obs = imod_data[:,3:]
     dat_err = numpy.zeros_like(dat_obs)
     print(numpy.shape(dat_obs))
 
     """
-    Loop over sites
+    Loop over samples
 
     """
-    sequence = range(nsite)
-    sites = sequence
+    sequence = range(nsample)
+    samples = sequence
 
 
     logsize = (2 + 7*Maxiter)
-    site_log = numpy.full((len(sites),logsize), numpy.nan)
+    imod_log = numpy.full((len(samples),logsize), numpy.nan)
 
     start = time.time()
-    for ii in sites:
-        print("\n Invert site #"+str(ii))
+    for ii in samples:
+        print("\n Invert sample #"+str(ii))
 
         """
         Setup model-related paramter
         """
+        if ii==0:
+            mod_true = imod_modl
+            dat_true = dat_obs[ii, :]
 
         if "read" in SetPrior.lower():
             mod_apr = mod_prior[ii]
@@ -432,24 +472,24 @@ for file in dat_files:
             ("d_act", dat_act[ii,:]),
             ("d_obs", dat_obs[ii,:]),
             ("d_err", dat_err[ii,:]),
-            ("alt", site_alt[ii])
+            ("alt", imod_alt[ii])
             ])
 
         """
         Call inversion algorithms
         """
         if "opt" in RunType.lower():
-            Results =\
+            results =\
                 alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "occ" in RunType.lower():
-            Results =\
+            results =\
                 alg.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "map" in RunType.lower():
-            Results =\
+            results =\
                 alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
 
                                   OutInfo=OutInfo)
@@ -457,111 +497,86 @@ for file in dat_files:
         Store inversion Results
         """
         if OutInfo:
-            print("Results: ",Results.keys())
+            print("Results: ",results.keys())
 
 
-        M = Results["model"]
-        D = Results["data"]
-        C = Results["log"]
+        M = results["model"]
+        D = results["data"]
+        C = results["log"]
 
         if ii==0:
-            site_num  = numpy.array([ii])
-            site_nrms = C[2]
-            site_modl = M[0]
-            site_merr = M[1]
-            site_sens = M[2]
-            site_dobs = D[0].reshape((1,-1))
-            site_dcal = D[1].reshape((1,-1))
-            site_derr = D[2].reshape((1,-1))
-            # print("ii=0")
-            cc = numpy.hstack((C[0], C[1],
-                              C[2],
-                              C[3].ravel(),
-                              C[4].ravel(),
-                              C[5].ravel(),
-                              C[6].ravel()))
-            site_log[ii,0:len(cc)] = cc
-            if Uncert:
-                jd = Results["jacd"]
-                site_jacd = jd.reshape((1,numpy.size(jd)))
-                pcov = Results["cpost"]
-                site_pcov = pcov.reshape((1,numpy.size(pcov)))
-
+            ens_num  = numpy.array([ii])
+            ens_nrms = C[2]
+            ens_modl = M[0]
+            ens_merr = M[1]
+            ens_sens = M[2]
+            ens_dobs = D[0].reshape((1,-1))
+            ens_dcal = D[1].reshape((1,-1))
+            ens_derr = D[2].reshape((1,-1))
+ 
         else:
-           site_num = numpy.vstack((site_num, ii))
-           site_nrms = numpy.vstack((site_nrms, C[2]))
-           site_modl = numpy.vstack((site_modl, M[0]))
-           site_merr = numpy.vstack((site_merr, M[1]))
-           site_sens = numpy.vstack((site_sens, M[2]))
-           site_dobs = numpy.vstack((site_dobs, D[0]))
-           site_dcal = numpy.vstack((site_dcal, D[1]))
-           site_derr = numpy.vstack((site_derr, D[2]))
-           cc = numpy.hstack((C[0], C[1],
-                              C[2],
-                              C[3].ravel(),
-                              C[4].ravel(),
-                              C[5].ravel(),
-                              C[6].ravel()))
-           site_log[ii,0:len(cc)] = cc
+           ens_num = numpy.vstack((ens_num, ii))
+           ens_nrms = numpy.vstack((ens_nrms, C[2]))
+           
+           ens_modl = numpy.vstack((ens_modl, M[0]))
+           ens_merr = numpy.vstack((ens_merr, M[1]))
+           ens_sens = numpy.vstack((ens_sens, M[2]))
+           ens_dobs = numpy.vstack((ens_dobs, D[0]))
+           ens_dcal = numpy.vstack((ens_dcal, D[1]))
+           ens_derr = numpy.vstack((ens_derr, D[2]))
+ 
 
-           if Uncert:
-               jd = Results["jacd"]
-               # print(numpy.shape(site_jacd))
-               site_jacd = numpy.vstack((site_jacd,
-                                         jd.reshape((1,numpy.size(jd)))))
-               pcov = Results["cpost"]
-               site_pcov = numpy.vstack((site_pcov ,
-                                            pcov.reshape((1,numpy.size(pcov)))))
+    m_quants, m_mean, m_stdv, m_skew, m_kurt, m_mode = \
+        inverse.calc_stat_ens(ensemble=ens_modl, quantiles=Percentiles, sum_stats=True)
+    stat_modl = numpy.vstack((m_quants, m_mean, m_stdv, m_skew, m_kurt, m_mode))
 
+    d_quants, d_mean, d_stdv, d_skew, d_kurt, d_mode = \
+        inverse.calc_stat_ens(ensemble=ens_modl, quantiles=Percentiles, sum_stats=True)
+    stat_dcal = numpy.vstack((d_quants, d_mean, d_stdv, d_skew, d_kurt, d_mode))
 
+    r_quants, r_mean, r_stdv, r_skew, r_kurt, r_mode = \
+        inverse.calc_stat_ens(ensemble=ens_nrms, quantiles=Percentiles, sum_stats=True) 
+    stat_nrms= numpy.vstack((r_quants, r_mean, r_stdv, r_skew, r_kurt, r_mode))
 
-    Fileout = OutDatDir + name + OutStrng +".npz"
-    numpy.savez_compressed(
-        file=Fileout,
-        fl_data=file,
-        fl_name=site_ens,
-        header= titstrng,
-        aem_system=AEM_system,
-        ctrl = Ctrl,
-        site_log =site_log,
-        mod_ref=mod_apr,
-        mod_act=mod_act,
-        dat_act=dat_act,
-        site_modl=site_modl,
-        site_sens=site_sens,
-        site_merr=site_merr,
-        site_dobs=site_dobs,
-        site_dcal=site_dcal,
-        site_derr=site_derr,
-        site_nrms=site_nrms)
-
-
-    if Uncert:
+    mod_alt =  imod_alt[0]
+    
+    if EnsOut:
+        fileout = OutDatDir + name + OutStrng +".npz"
         numpy.savez_compressed(
-            file=Fileout,
-            fl_data=file,
-            fl_name=site_ens,
-            header=titstrng,
+            file=fileout,
+            header= titstrng,
             aem_system=AEM_system,
-            ctrl = Ctrl,
-            site_log =site_log,
+            mod_true=mod_true, dat_true=dat_true, mod_alt=mod_alt,
             mod_ref=mod_apr,
             mod_act=mod_act,
-            dat_act=dat_act,
-            site_modl=site_modl,
-            site_sens=site_sens,
-            site_merr=site_merr,
-            site_dobs=site_dobs,
-            site_dcal=site_dcal,
-            site_derr=site_derr,
-            site_nrms=site_nrms,
-            site_alt=site_alt,
-            site_jac= site_jacd,
-            site_cov= site_pcov)
+            dat_act=dat_act,            
+            ens_modl=ens_modl,
+            ens_merr=ens_merr,
+            ens_dobs=ens_dobs,
+            ens_dcal=ens_dcal,
+            ens_derr=ens_derr,
+            ens_nrms=ens_nrms,            
+            stat_dcal=stat_dcal,
+            stat_modl=stat_modl,
+            stat_nrms=stat_nrms)
+    else:
+        fileout = OutDatDir + name + OutStrng +"_stat.npz"
+        numpy.savez_compressed(
+            file=fileout,
+            header= titstrng,
+            aem_system=AEM_system,
+            mod_true=mod_true, dat_true=dat_true, mod_alt=mod_alt,
+            mod_ref=mod_apr,
+            mod_act=mod_act,
+            dat_act=dat_act,            
+            stat_dcal=stat_dcal,
+            stat_modl=stat_modl,
+            stat_nrms=stat_nrms)
 
-    print("\n\nResults stored to "+Fileout)
-    elapsed = (time.time() - start)
-    print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+
+print("\n\nResults stored to "+fileout)
+elapsed = (time.time() - start)
+print (" Used %7.4f sec for %6i samples" % (elapsed, ii+1))
+print (" Average %7.4f sec/imod\n" % (elapsed/(ii+1)))
 
 print("\n\nAll done!")

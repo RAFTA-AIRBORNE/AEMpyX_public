@@ -37,7 +37,7 @@ def get_system_params(System="aem05", OutInfo = True):
         meta information includes flight line, position (UTM), height asl,
         radar altitude, and DTM.
         other could be a power line monitor where available, and
-        other available quality related infoemation.
+        other available quality related information.
     fmt :  string
         Output format for ASCII data in aempy
     col :  string
@@ -110,7 +110,7 @@ def get_system_params(System="aem05", OutInfo = True):
         wct = 0.5 *(numpy.array(w0) + numpy.array(w1))
         # wct =numpy.power(10.,wct)
         xunits = "(ms)"
-        dunits= "(fT)"
+        dunits= "(ppm)"
         compdict =\
             dict([
                 ("H1", [ 6, wct[0], " - 0.0135 ms"]), ("H2", [ 7, wct[1], " - 0.026 ms"]),
@@ -336,7 +336,7 @@ def get_system_params(System="aem05", OutInfo = True):
 
     return fwdcall, nn, fmt, col, miscpars
 
-def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30",
+def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan,
                      EPSG_in=2157,
                      EPSG_out=32629):
     """
@@ -345,7 +345,10 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
     """
     print("Survey is "+Survey.lower())
 
-
+    # Invalid could also be fac*numpy.finfo(float).max
+    
+    invalid_strng = str(Invalid)
+    
     if Survey.lower() in ["a1", "a2", "a3", "a4", "wf", "tb", ]:
         """
         ===================================================================================================================
@@ -414,7 +417,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
                 t = line.split()
 
-                t = [w.replace("*", Missing) for w in t]
+                t = [w.replace("*", invalid_strng) for w in t]
                 # print(t[:22])
                 tmp = [t[ii] for ii in ncol]
                 Data.append(tmp)
@@ -479,7 +482,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
                 t = line.split()
 
-                t = [w.replace("*", Missing) for w in t]
+                t = [w.replace("*", invalid_strng) for w in t]
                 # print(t[:22])
                 tmp = [t[ii] for ii in ncol]
                 tmp[0] = fl
@@ -554,7 +557,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
                 t = line.split()
 
-                t = [w.replace("*", Missing) for w in t]
+                t = [w.replace("*", invalid_strng) for w in t]
                 # print(t[:22])
                 tmp = [t[ii] for ii in ncol]
                 Data.append(tmp)
@@ -621,7 +624,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
                 t = line.split()
 
-                t = [w.replace("*", Missing) for w in t]
+                t = [w.replace("*", invalid_strng) for w in t]
                 tmp = [t[ii] for ii in ncol]
                 Data.append(tmp)
 
@@ -718,7 +721,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
 
 
-                tmp = [w.replace("*", "1.e-30") for w in t]
+                tmp = [w.replace("*", invalid_strng) for w in t]
                 tmp = [tmp[ii] for ii in ncol]
                 Data.append(tmp)
 
@@ -732,7 +735,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
             
         Data = numpy.insert(Data, 5, Data[:, 3]-Data[:, 4], axis=1)
         
-        Data = numpy.where(Data<(float(Missing)/1.e2),Data, numpy.nan)
+        Data = numpy.where(Data<Invalid/1.e2,Data, Invalid)
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
 
@@ -817,7 +820,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
 
 
-                tmp = [w.replace("*", "1.e-30") for w in t]
+                tmp = [w.replace("*", invalid_strng) for w in t]
                 tmp = [tmp[ii] for ii in ncol]
                 Data.append(tmp)
 
@@ -829,7 +832,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
                                                            utm_zone_in=EPSG_in,
                                                            utm_zone_out=EPSG_out)
         Data = numpy.insert(Data, 5, Data[:, 3]-Data[:, 4], axis=1)
-        Data = numpy.where(Data<(float(Missing)/1.e2),Data, numpy.nan)
+        Data = numpy.where(Data<Invalid/1.e2,Data, Invalid)
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
 
@@ -891,7 +894,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
                     continue
 
                 t = line.split()
-                tmp = [w.replace("*", Missing) for w in t]
+                tmp = [w.replace("*", invalid_strng) for w in t]
                 tmp = [tmp[ii] for ii in ncol]
                 Data.append(tmp)
 
@@ -902,6 +905,86 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
             Data[:,1], Data[:,2] = util.project_utm_to_utm(Data[:,1], Data[:,2],
                                                        utm_zone_in=EPSG_in,
                                                        utm_zone_out=EPSG_out)
+
+
+
+
+    if Survey.lower() in ["nmx", ]:
+        """
+        ===================================================================================================================
+        Survey NM (GENESIS TDEM system):
+        ===================================================================================================================
+
+        Translation table from .xyz files to internal data format:
+
+        0   0       -           Line Number
+            1       -           Flight Number
+            2       yyyymmdd    Date of Survey Flight
+            3       sec         Universal Time (Seconds Since Midnight)
+            4       degrees     Point by Point Bearing
+            5       degrees     Latitude in WGS84
+            6       degrees     Longitude in WGS84
+        1   7       m           Easting (X) in WGS84 UTM Zone 29N
+        2   8       m           Northing (Y) in WGS84 UTM Zone 29N
+            9       m           Easting (X) in IRENET95 Irish Transverse Mercato
+            10      m           Northing (Y) in IRENET95 Irish Transverse Mercator
+        3   11      m           GPS Elevation (Referenced to Mean Sea Level)
+        4   12      m           Radar Altimeter
+        5   13      m           Terrain (Referenced to Mean Sea Level)
+            14      A           Transmitter Current
+            15      ppm         X-Coil Late Time N294.51     194.9ormalization Channel
+            16      ppm         Z-Coil Late Time Normalization Channel
+            17-27   ppm         Raw X-Coil Channels 01 to 11
+            28-38   ppm         Raw Z-Coil Channels 01 to 11
+            39-49   ppm         Levelled X-Coil Channels 01 to 11
+            50-60   ppm         Levelled Z-Coil Channels 01 to 11
+            61-71   ppm         Levelled and Height Corrected X-Coil Channels 01 to 11
+            18-28 72-82   ppm         Levelled and Height Corrected Z-Coil Channels 01 to 11
+
+        ncol = [0, 7, 8, 11, 12, 13,
+                    61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
+                    72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82]
+
+        """
+        ncol = [0, 7, 8, 11, 12, 13,
+                61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
+                72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82]
+
+        # print(numpy.shape(ncol))
+        # Data = []
+        # iline = 0
+        Data = []
+        Norm = []
+        iline = 0
+        with open(DatFile) as fd:
+            for line in fd:
+                iline = iline + 1
+                if (line[:24].lower().startswith("#")
+                    or line[:24].lower().startswith("/")
+                    or "line" in line[:24].lower()
+                    or "tie"  in line[:24].lower()
+                    or "*" in line):
+                    continue
+
+                t = line.split()
+                tmp = [w.replace("*", invalid_strng) for w in t]
+                tmp = [tmp[ii] for ii in ncol]
+
+                Data.append(tmp)
+                Norm.append([line[59], line[60]])
+
+        Data = numpy.asarray(Data, dtype=float)
+        Norm = numpy.asarray(Norm, dtype=float)
+
+        Data[:, 6:6+11] = Norm[:,0]*Data[:, 6:6+11]
+        Data[:, 18:18+11] = Norm[:,1]*Data[:, 18:18+11]
+
+        EPSG_in = EPSG_out
+        if EPSG_in != EPSG_out:
+            Data[:,1], Data[:,2] = util.project_utm_to_utm(Data[:,1], Data[:,2],
+                                                       utm_zone_in=EPSG_in,
+                                                       utm_zone_out=EPSG_out)
+
 
     if Survey.lower() in ["cggt", ]:
         """
@@ -924,6 +1007,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
 
         """
+        
         ncol = [0, 1, 2, 3, 4, 5,
                 7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 
                 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
@@ -945,7 +1029,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
 
 
 
-                tmp = [w.replace("*", Missing) for w in t]
+                tmp = [w.replace("*", invalid_strng) for w in t]
                 tmp = [tmp[ii] for ii in ncol]
                 Data.append(tmp)
 
@@ -959,11 +1043,9 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Missing = "1.e30"
         Data2 = Data[:,16:]
         Data = numpy.column_stack((Data1,numpy.nan*numpy.ones_like(Data[:,0])))
         Data = numpy.column_stack((Data, Data2))
-
-        Data = numpy.where(Data<(float(Missing)/1.e2),Data, numpy.nan)
+        Data = numpy.where(Data<Invalid/1.e2, Data, Invalid)
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
-
 
     nn = numpy.shape(Data)
 

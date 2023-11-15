@@ -64,8 +64,6 @@
  
       DATA wvfrm/'Transmitter current' , 'Vertical receiver  ' ,        &
      &     'Horizontal receiver'/
-      DATA punits/'pct ' , 'ppt ' , 'ppm ' , 'ppb '/
-      DATA bunits/'nT/s' , 'pT/s' , 'fT/s' , 'nT  ' , 'pT  ' , 'fT  '/
       DATA bffacs/1. , 1000. , 1.E6 , 1. , 1000. , 1.E6/
       DATA ppfacs/1.E2 , 1.E3 , 1.E6 , 1.E9/
  
@@ -172,7 +170,7 @@
          IF ( step==0 .AND. iunits>3 ) iunits = 1       ! Default
          IF ( step==1 .AND. iunits<4 ) iunits = iunits + 3
          IF ( isw==4 ) THEN
-            iunits = 6                  ! Default
+            iunits = 6                  ! DefaulFt
             IF ( step==0 ) iunits = 3   ! Change from fT to fT/s
          ENDIF
          bunit = bunits(iunits)
@@ -383,6 +381,7 @@
          ENDIF
  
          !!!!!!!! IF ( isw==4 ) kppm = 0
+         IF ( isw==4 ) kppm = 0
          IF ( kppm==123 ) THEN
             IF ( cmp==11 ) kppm = 1
             IF ( cmp==13 ) kppm = 3

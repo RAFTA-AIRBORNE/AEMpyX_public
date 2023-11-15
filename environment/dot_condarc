@@ -1,7 +1,11 @@
 channels:
-  - defaults
   - conda-forge
+  - defaults
+  - intel
 
 #auto_activate_base: true
 #changeps1: true
-channel_priority: false
+channel_priority: flexible
+env_prompt: ({name})
+#####pinned_packages: [mamba=0.22.1, conda=4.12.0]
+changeps1: true

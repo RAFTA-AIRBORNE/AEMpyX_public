@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.14.7
+# ---
+
 
 import os
 import sys
@@ -231,15 +243,20 @@ if "tikhopt" in  RunType.lower():
 
 
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
-    Delta = 1.e-5
+    Delta = [1.e-5]
     RegShift = 1
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
-        ("inversion",[RunType, RegFun, Tau0, Tau1, Maxiter,ThreshRMS, LinPars, SetPrior, Delta, RegShift]),
-        ("covar", [L0, Cm0, L1, Cm1]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
-        ])
+        ("inversion",
+         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
+        ("covar",
+         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert",
+         Uncert)
+       ])
 
 if "occ" in RunType.lower():
     """
@@ -251,7 +268,7 @@ if "occ" in RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -268,13 +285,18 @@ if "occ" in RunType.lower():
     ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
     L = L1
     TauSeq = [0.5]
-    Delta = 1.e-5
+    Delta = [1.e-5]
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
-        ("inversion",[RunType, TauSeq, Tau0, Maxiter,ThreshRMS, LinPars, SetPrior, Delta]),
-        ("covar", [L0, Cm0, L1, Cm1]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
+        ("inversion",
+         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS,
+                      LinPars, SetPrior, Delta],dtype=object)),
+        ("covar",
+         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert",
+         Uncert)
        ])
 
 if "map" in  RunType.lower():
@@ -318,16 +340,21 @@ if "map" in  RunType.lower():
     Maxreduce = 5
     Rfact = 0.66
     ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
-    Delta = 1.e-5
+    Delta = [1.e-5]
     TauSeq = [0.5]
     RegShift = 1
     Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
+        ("system",
+         [AEM_system, FwdCall]),
         ("inversion",
-         [RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS, LinPars, SetPrior, Delta, RegShift]),
-        ("covar", [C, sC]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
+         numpy.array([RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
+        ("covar",
+         numpy.array([C, sC], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert",
+         Uncert)
        ])
 
 
@@ -335,29 +362,49 @@ if "rto" in RunType.lower():
     """
     Prepre parameters for rto (randomize-then-optimize) algorithm
     """
+    NSamples = 100
+    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
+    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
+
     Ctrl["rto"] = [NSamples]
-    Ctrl["output"] = ["quant", Percentiles]  # ["ens "]
+    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
 
 if "eki" in RunType.lower():
     """
     Prepare pramters for ensemble kalman inversion (eki)
     """
-    Ctrl = dict([
-    ("system", [AEM_system, FwdCall]),
-    ("covar", [C, sC]),
-    ("transform", [DataTrans, ParaTrans]),
-    ("eki", [NSamples]),
-    ("output", ["quant", Percentiles])
-    ])# ["ens "]
+    NSamples = 100
+    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.]  # linear
+    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
 
+    Ctrl = dict([
+        ("system", [AEM_system, FwdCall]),
+        ("covar", numpy.array([C, sC], dtype=object)),
+        ("transform", [DataTrans, ParaTrans]),
+        ("eki", [NSamples]),
+        ("output", numpy.array(["quant", Percentiles], dtype=object))
+           ])
 
 if "jac" in RunType.lower():
     """
-    no new parametrres for jackknife estimates
+    no new parameteres for jackknife estimates
     """
-    #  Ctrl["output"] = ["quant", Percentiles]  # ["ens "]
+    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
+    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
+    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
     pass
 
+if "nul" in RunType.lower():
+    """
+    no new parametrres for nullspace projection
+    """
+    NSing = 3
+    NSamples = 1000
+    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
+    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
+    Ctrl["nullspace"] = [NSing, NSamples]
+    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
+    pass
 
 
 
@@ -379,6 +426,11 @@ for file in dat_files:
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
     print("\n Reading file " + filein)
+
+    fileout = OutDatDir + name + OutStrng
+    numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
+
+
     DataObs, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
 
@@ -395,7 +447,7 @@ for file in dat_files:
     if "read" in SetPrior.lower():
         error("Prior model read not yet implemented! Exit.")
         # file,filext0 = os.path.splitext(file)
-        # tmp = numpy.load(file)
+        # tmp = numpy.load(file, allow_pickle=True)
         # mod_aprel = tmp["site_modl"]
         # mod_apr = numpy.mat(inverse.extract_mod(mod_apr,mod_act))
     elif "set" in SetPrior.lower() or "upd" in SetPrior.lower():
@@ -563,15 +615,14 @@ for file in dat_files:
 
 
     header=numpy.array(Header, dtype=object),
-    Fileout = OutDatDir + name + OutStrng + OutFileFmt
+    fileout = OutDatDir + name + OutStrng + OutFileFmt
 
     numpy.savez_compressed(
-        file=Fileout,
+        file=fileout,
         fl_data=file,
         fl_name=fl_name,
         header=header,
         aem_system=AEM_system,
-        ctrl = Ctrl,
         site_log =site_log,
         mod_ref=mod_apr,
         mod_act=mod_act,
@@ -592,12 +643,11 @@ for file in dat_files:
 
     if Uncert:
         numpy.savez_compressed(
-            file=Fileout,
+            file=fileout,
             fl_data=file,
             fl_name=fl_name,
             header=header,
             aem_system=AEM_system,
-            ctrl = Ctrl,
             site_log =site_log,
             mod_ref=mod_apr,
             mod_act=mod_act,
@@ -620,7 +670,7 @@ for file in dat_files:
             site_nump=site_nump)
 
 
-    print("\n\nResults stored to "+Fileout)
+    print("\n\nResults stored to "+fileout)
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))

@@ -1,6 +1,15 @@
+
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
+
+case "$0" in
+          -sh|sh|*/sh)	modules_shell=sh ;;
+       -ksh|ksh|*/ksh)	modules_shell=ksh ;;
+       -zsh|zsh|*/zsh)	modules_shell=zsh ;;
+    -bash|bash|*/bash)	modules_shell=bash ;;
+esac
+module() { eval `/usr/bin/tclsh8.6 /usr/lib/x86_64-linux-gnu/modulecmd.tcl $modules_shell $*`; }
 
 # If not running interactively, don't do anything
 case $- in
@@ -16,9 +25,8 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=20000
-HISTFILESIZE=20000
-
+HISTSIZE=
+HISTFILESIZE=
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -87,9 +95,9 @@ fi
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-set EDITOR='atom'
-export VISUAL='atom'
-export EDITOR='atom'
+set EDITOR='kate'
+export VISUAL='kate'
+export EDITOR='kate'
 
 # some more ls aliases
 alias ll='ls -alF'
@@ -109,35 +117,36 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
+
+alias zipl='zip --symlinks'
 alias tifon='ssh -X volker@tifon.fis.ucm.es'
 alias aria='ssh -X vrath@ariadne.dias.ie'
-alias scan_it='scangearmp2'
+alias dahu='ssh -Y dahu.ciment'
+
+alias scan_it='sudo ufw disable; scangearmp2; sudo ufw enable'
 
 alias conda_init='. /home/vrath/bin/conda_init'
 alias condi='. /home/vrath/bin/conda_init'
-alias condu='/home/vrath/bin/conda_update_all'
-alias conde='/home/vrath/bin/conda_export_all'
-alias EM='. /home/vrath/bin/conda_init; /home/vrath/bin/conda_update_all; conda activate EM'
+# alias MT='. /home/vrath/bin/conda_init; /home/vrath/bin/conda_update; conda activate Py4MT; cd Py4MT;  spyder --new-instance &'
+# alias AEM='. /home/vrath/bin/conda_init; /home/vrath/bin/conda_update; conda activate AEMpyX; cd AEMpyX; spyder --new-instance &'
+alias MT='. /home/vrath/bin/conda_init; mamba update --all; conda activate Py4MT; mamba update --all --yes; cd ~/Py4MT;  spyder --new-instance &'
+alias AEM='. /home/vrath/bin/conda_init; mamba update --all; conda activate AEMpyX; cd ~/AEMpyX; mamba update --all --yes; spyder --new-instance &'
+alias JAC='. /home/vrath/bin/conda_init; mamba update --all; conda activate JacoPyAn; mamba update --all --yes; cd ~/JacoPyAn;  spyder --new-instance &'
 
-#alias intel_init='. /home/vrath/.intel_init.sh'
 
-alias juliapro='/usr/local/JuliaPro/Launch_JuliaPro'
-
-alias go-froggy='ssh -Y froggy.ciment'
-alias froggy='ssh -Y froggy.ciment'
-alias frog='ssh -Y froggy.ciment'
 alias la='ls -lah'
 alias md='mkdir'
 alias gnome-control-center='env XDG_CURRENT_DESKTOP=GNOME gnome-control-center'
-alias jab="/opt/jabref/lib/runtime/bin/JabRef"
-alias jabref="/opt/jabref/lib/runtime/bin/JabRef"
-alias JabRef="/opt/jabref/lib/runtime/bin/JabRef"
 
-alias magick7="/usr/local/bin/magick"
+alias modclean='rm OAR*; rm Nod*; rm BAK*'
+alias tor='/usr/local/tor-browser/Browser/start-tor-browser'
+alias jabref='/opt/jabref/bin/JabRef'
 
-alias modclean='rm OAR*; rm Nod*'
-alias foxclean='pkill -9 FoxitReader'
-alias inkscape='/home/vrath/bin/Inkscape1.1.AppImage'
+alias nv='nordvpn'
+alias nvc='nordvpn connect'
+alias nvd='nordvpn disconnect'
+
+alias inkscape='inkscape --pdf-poppler'
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -156,9 +165,17 @@ export OMP_NUM_THREADS=8
 export PATH="/home/vrath/bin:$PATH"
 
 export QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
-
+alias upintel='sudo /opt/intel/oneapi/installer/installer'
+echo "   "
 echo " For activating intel oneapi enter:"
-echo ". /opt/intel/oneapi/setvars.sh intel64 ilp64"
+alias init_intel='. /opt/intel/oneapi/setvars.sh intel64 ilp64'
+#echo ". /opt/intel/oneapi/setvars.sh intel64 ilp64"
+echo "init_intel"
+
+echo "   "
+alias init_nvid='NVHPCSDK=/opt/nvidia/hpc_sdk; export NVHPCSDK;MANPATH=$MANPATH:$NVHPCSDK/Linux_x86_64/23.9/compilers/man;export MANPATH;PATH=$NVHPCSDK/Linux_x86_64/23.9/compilers/bin:$PATH; export PATH;'
+echo " For activating pgi/nvidia enter:"
+echo "init_nvid"
 
 export MKL_PARDISO_OOC_FILE_NAME=/tmp/.pardiso_ooc
 export MKL_PARDISO_OOC_PATH=/tmp/.pardiso_ooc
@@ -179,4 +196,11 @@ export GCM_CREDENTIAL_STORE=secretservice
 #fi
 #unset __conda_setup
 ## <<< conda initialize <<<
+# ssh-add
+# if [ $? -eq 2 ]
+# then
+#   echo lancement ssh-agent
+#   eval $(ssh-agent)
+#   ssh-add
+# fi
 

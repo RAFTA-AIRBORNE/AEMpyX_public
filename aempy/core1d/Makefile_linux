@@ -1,92 +1,75 @@
-# makefile created by mkmf $id: mkmf,v 18.0 2010/03/02 23:26:08 fms exp $
-FC=gfortran
+
+FC=x86_64-conda-linux-gnu-gfortran
 # x86_64-conda-linux-gnu-gfortran
-FFLAGS=  -g -fbounds-check -Wall  -fPIC -shared # -fno-underscoring
+FFLAGS= -O3  -g -fbounds-check -Wall -fPIC -shared # -fno-underscoring
 LD= gfortran
 # x86_64-conda-linux-gnu-gfortran
 LDFLAGS=-shared -o core1d.so
-f2pyexe=f2py3
-corelib=core1d.cpython-39-x86_64-linux-gnu.so
-#core1d.so
+f2pyexe=f2py
+
+
+OTHER =
+
 .default:
 	-echo $@ does not exist.
 
-Fexec1=BeoDriverGENESIS.x
-Fexec2=BeoDriverAEM05.x
-Fexec3=BeoDriverAEM95.x
-Fexec4=BeoDriverGEOTEM.x
 
-
-
-all: Fexec1 Fexec2 Pmodule Pinstall
-tests: Fexec1 Fexec2 Fexec3 Fexec4
-
-# driver routines
-BeoDriverGENESIS.o: ./BeoDriverGENESIS.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverGENESIS.f90
-BeoDriverAEM05.o: ./BeoDriverAEM05.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverAEM05.f90
-BeoDriverAEM95.o: ./BeoDriverAEM95.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverAEM95.f90
-BeoDriverGEOTEM.o: ./BeoDriverGEOTEM.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverGEOTEM.f90
+all: module install testGENESIS testAEM05
+tests: testGENESIS testAEM05 testAEM95 #testGEOTEM
 
 
 # modules
 
 filt_coef_q.o: ./filt_coef_q.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./filt_coef_q.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./filt_coef_q.f90
 frequency_select.o: ./frequency_select.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./frequency_select.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./frequency_select.f90
 
 # core routines
 core1d.o: ./core1d.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./core1d.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./core1d.f90
 part1d.o: ./part1d.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./part1d.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./part1d.f90
 
 # acquisition system-dependent
 AEM05.o: ./AEM05.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./AEM05.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./AEM05.f90
 AEM95.o: ./AEM95.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./AEM95.f90
-GEOTEM.o: ./GEOTEM.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./GEOTEM.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./AEM95.f90
+#GEOTEM.o: ./GEOTEM.f90
+#	$(FC) $(FFLAGS) $(OTHER) -c	./GEOTEM.f90
 GENESIS.o: ./GENESIS.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./GENESIS.f90
+	$(FC) $(FFLAGS) $(OTHER) -c	./GENESIS.f90
 
 
 
-src	  = filt_coef_q.f90 frequency_select.f90 core1d.f90 part1d.f90 AEM05.f90 AEM95.f90 GENESIS.f90 GEOTEM.f90
+src	  = filt_coef_q.f90 frequency_select.f90 core1d.f90 part1d.f90 AEM05.f90 AEM95.f90 GENESIS.f90 
+# GEOTEM.f90
 
-obj   = filt_coef_q.o frequency_select.o core1d.o part1d.o AEM05.o AEM95.o GENESIS.o GEOTEM.o
+obj   = filt_coef_q.o frequency_select.o core1d.o part1d.o AEM05.o AEM95.o GENESIS.o 
+# GEOTEM.o
 
 clean:
 	-rm -f $(tmpfiles)  $(obj)  $(exec)  *.mod *.pyf *.so *.pyc *.x *.o
 neat:
 	-rm -f $(tmpfiles)
 
-Fexec1: BeoDriverGENESIS.o $(obj)
-	$(LD)  BeoDriverGENESIS.o $(obj) -o $(Fexec1)
-	#cp $(Fexec1) ../test
-Fexec2: BeoDriverAEM05.o  $(obj)
-	$(LD) BeoDriverAEM05.o $(obj) -o $(Fexec2)
-	#cp $(Fexec2) ../test
-Fexec3: BeoDriverAEM95.o  $(obj)
-	$(LD) BeoDriverAEM95.o $(obj) -o $(Fexec3)
-	#cp $(Fexec3) ../test
-Fexec4: BeoDriverGEOTEM.o  $(obj)
-	$(LD) BeoDriverGEOTEM.o $(obj) -o $(Fexec4)
-	#cp $(Fexec4) ../test
 
+testGENESIS: BeoDriverGENESIS.f90 library
+	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverGENESIS.f90 $(src) -o BeoDriverGENESIS.x
+testAEM05: BeoDriverAEM05.f90   library
+	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverAEM05.f90 $(src) -o BeoDriverAEM05.x
+testAEM95: BeoDriverAEM95.f90   library
+	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverAEM95.f90 $(src) -o BeoDriverAEM95.x
+#testGEOTEM: BeoDriverGEOTEM.f90  library
+#	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverGEOTEM.f90 $(src) -o BeoDriverGEOTEM.x
 
-Pmodule: $(src)
-	$(f2pyexe) -c -m core1d $(src)
+library:  $(src) 
+	$(FC) $(FFLAGS) $(LDFLAGS) $(OTHER) $(src) -o libcore1d.so
 
-#	$(f2pyexe) -m core1d -h core1d.pyf $(src)
-#	$(f2pyexe) -c core1d.pyf $(src)
+module: $(src)
+	$(f2pyexe) -m core1d -c $(src)
 
-
-
-Pinstall: $(corelib)
-	cp $(corelib) ../modules/core1d.so
+install: module
+	#cp core1d.so ../modules/core1d.so
+	cp core1d.*.so ../modules/

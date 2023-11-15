@@ -1,4 +1,3 @@
-
 SUBROUTINE aem1d_fd(nfrq,freq,txcln,txa90,alt,zrx,xrx,   &
      &                     yrx,nlyr,res,reps,rmu,thk,calf,ctau,cfreq,   &
      &                     bfd)
@@ -152,7 +151,7 @@ SUBROUTINE aem1d_td(step,ider,nsx,swx,swy,npuls,pulse,ntypls,    &
 !  the extended response over NPULS bipolar cycles into 1 PULSE and then
 !  convolving this with the TX waveform.  It is during the convolution that we
 !  shift from teslas to nanoteslas or nT/s.
-
+!       wf(1:nfrq) = dlog(twopi*freq(1:nfrq))
       yfrq = 0.d0
       DO jc = 1 , 3
          DO jf = 1 , nfrq
@@ -257,12 +256,13 @@ SUBROUTINE hsmd_fd(nfrq,freq,alt,nrxf,txcln,txa90,zrx,xrx,yrx,&
       sig(1:nlyr) = 1./res(1:nlyr)
 
 
-!  Compute layered earth fields BLE_LYR at first station for each different altitude.
+!  Compute layered earth fields at first station for each different altitude.
 
       bfdd = Zero
 
       jq = 1
       DO jf = 1 , nfrq
+
          IF ( tdfd==2 ) jq = jf
          zrfd = 2.d0*alt - zrx(jq)
                                               ! Reflected distance from TX to ground to RX
@@ -286,7 +286,7 @@ SUBROUTINE hsmd_fd(nfrq,freq,alt,nrxf,txcln,txa90,zrx,xrx,yrx,&
 
          IF ( txa90 ) THEN
             bfdd(jf,2) = hlyr(3)
-        ELSE
+         ELSE
 
             sntx = dsin(txcln(jq))
             cstx = dcos(txcln(jq))

@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.14.7
+# ---
+
 
 import os
 import sys
@@ -14,7 +26,9 @@ import copy
 import numpy
 import scipy
 
-# %logstart -o
+# import multiprocessing
+
+
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
@@ -45,7 +59,7 @@ now = datetime.now()
 
 """
 System related settings.
-Data transformation is now allowed with three possible options:
+Data transformation is allowed with three possible options:
 DataTrans   = 0           raw data
             = 1           natural log of data
             = 2           asinh transformation
@@ -77,26 +91,45 @@ if "genes" in AEM_system.lower():
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 
-"""
-input formats are ".npz",".nc4",".asc"
-"""
+# """
+# configure moltiprocessing
+# """
+
+
+# nprocs = 8
+# if nprocs<0:
+#     nprocs=multiprocessing.cpu_count()
+    
+# print(str(nprocs)+" processors will be used in parallel")
+    
+# parpool = multiprocessing.Pool()
+
 ReverseDir = False
 
+
+
+FileList = "search"  # "search", "read"
 FileList = "set"  # "search", "read"
-InDatDir =  AEMPYX_DATA + "/Projects/Compare_systems/data_reduced/"
-SearchStrng = "SGL*k2*.npz"
+
+InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
+if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+
+# SearchStrng = "*PLM3s_k3.npz"
+SearchStrng = "*1379*k[1,2,3,5].npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
     # dat_files = []
-    dat_files = numpy.load(AEMPYX_DATA + "/Projects/Compare_systems/BundoranSubsets.npz")["setC"]
+    dat_files = [InDatDir+"A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3.npz"]
+    # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    
     dat_files = [os.path.basename(f) for f in dat_files]  
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
     dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
                               out= True, sort=True)
-    ns = numpy.size(dat_files)
+
 
 ns = numpy.size(dat_files)
 if ns ==0:
@@ -106,7 +139,8 @@ if ns ==0:
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutDatDir =  AEMPYX_DATA + "/Projects/Compare_systems/results/C/"
+OutDatDir =  InDatDir + "results_diffop"
+if not OutDatDir.endswith("/"): OutDatDir=OutDatDir+"/"
 print("Models written to dir: %s " % OutDatDir)
 
 
@@ -118,10 +152,11 @@ if not os.path.isdir(OutDatDir):
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
+
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -143,6 +178,7 @@ else:
 Tau1 = numpy.logspace(Tau1min, Tau1max, NTau1)
 nreg = NTau0 * NTau1
 
+
 """
 Model definition
 """
@@ -150,8 +186,8 @@ Model definition
 SetPrior = "set"
 ParaTrans = 1
 
-Nlyr =25
-dzstart = 5.
+Nlyr = 30
+dzstart = 2.5
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 z = numpy.append(0.0, numpy.cumsum(dz))
@@ -163,7 +199,7 @@ mod_act[0*Nlyr:1*Nlyr] = 1
 sizepar = numpy.shape(mod_act)
 mpara = sizepar[0]
 
-Guess_r = 3000.0  # initial guess for resistivity in mod_apr
+Guess_r = 100.0  # initial guess for resistivity in mod_apr
 Guess_s = 0.3   # mod_std defines standard deviation of mod_apr
 mod_apr[0*Nlyr:1*Nlyr] = Guess_r
 mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_s,2)
@@ -200,6 +236,7 @@ if "tikhopt" in  RunType.lower():
     """
     Prepare differential operator base methods for regularization matrices
     """
+    
     D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
     L = [D0 for D in range(7)]
     L0 = scipy.sparse.block_diag(L)
@@ -223,11 +260,17 @@ if "tikhopt" in  RunType.lower():
     RegShift = 1
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
-        ("inversion",[RunType, RegFun, Tau0, Tau1, Maxiter,ThreshRMS, LinPars, SetPrior, Delta, RegShift]),
-        ("covar", [L0, Cm0, L1, Cm1]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
-        ])
+        ("name", ""),
+        ("inversion",
+         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
+                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
+        ("covar", 
+         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert", 
+         Uncert)
+       ])
 
 if "occ" in RunType.lower():
     """
@@ -258,11 +301,17 @@ if "occ" in RunType.lower():
     TauSeq = [0.5]
     Delta = [1.e-5]
     Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("inversion",[RunType, TauSeq, Tau0, Maxiter,ThreshRMS, LinPars, SetPrior, Delta]),
-        ("covar", [L0, Cm0, L1, Cm1]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
+        ("system", [AEM_system, FwdCall]),        
+        ("name", ""),
+        ("inversion", 
+         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
+                      LinPars, SetPrior, Delta],dtype=object)),
+        ("covar", 
+         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert", 
+         Uncert)
        ])
 
 if "map" in  RunType.lower():
@@ -305,17 +354,27 @@ if "map" in  RunType.lower():
     Maxiter = 10
     Maxreduce = 5
     Rfact = 0.66
+    LinPars = [Maxreduce, Rfact]
+    
+    
+    
     ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     TauSeq = [0.5]
     RegShift = 1
     Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
+        ("system",
+         [AEM_system, FwdCall]),
+        ("name", ""),
         ("inversion",
-         [RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS, LinPars, SetPrior, Delta, RegShift]),
-        ("covar", [C, sC]),
-        ("transform", [DataTrans, ParaTrans]),
-        ("uncert", Uncert)
+         numpy.array([RunType, InvSpace, RegFun, Tau1, Maxiter,ThreshRMS,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
+        ("covar",
+         numpy.array([C, sC], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert",
+         Uncert)
        ])
 
 
@@ -328,33 +387,31 @@ if "rto" in RunType.lower():
     # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
 
     Ctrl["rto"] = [NSamples]
-    Ctrl["output"] = ["quant", Percentiles]  # ["ens "]
+    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
 
 if "eki" in RunType.lower():
     """
     Prepare pramters for ensemble kalman inversion (eki)
     """
     NSamples = 100
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
+    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.]  # linear
     # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
 
     Ctrl = dict([
-    ("system", [AEM_system, FwdCall]),
-    ("covar", [C, sC]),
-    ("transform", [DataTrans, ParaTrans]),
-    ("eki", [NSamples]),
-    ("output", ["quant", Percentiles])
-    ])# ["ens "]
-
+        ("system", [AEM_system, FwdCall]),
+        ("covar", numpy.array([C, sC], dtype=object)),
+        ("transform", [DataTrans, ParaTrans]),
+        ("eki", [NSamples]),
+        ("output", numpy.array(["quant", Percentiles], dtype=object))
+           ])
 
 if "jac" in RunType.lower():
     """
-    no new parametrres for jackknife estimates
+    no new parameteres for jackknife estimates
     """
     Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
     # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
-    Ctrl["output"] = ["quant", Percentiles]  # ["ens "]
+    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
     pass
 
 if "nul" in RunType.lower():
@@ -366,7 +423,7 @@ if "nul" in RunType.lower():
     Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
     # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
     Ctrl["nullspace"] = [NSing, NSamples]
-    Ctrl["output"] = ["quant", Percentiles]  # ["ens "]
+    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
     pass
 
 
@@ -375,13 +432,13 @@ if OutInfo:
     print(Ctrl.keys())
 
 
-OutStrng = "_nlyr"+str(Nlyr)\
+
+outstrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
             +"_"+RegFun\
             +"_Prior"+str(int(Guess_r))\
-            +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))\
-            +"_results"
-print("ID string: Iinput file + %s " % OutStrng)
+            +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
+print("ID string: input file + %s " % outstrng)
 
 
 fcount =0
@@ -391,14 +448,13 @@ for file in dat_files:
 
     fcount=fcount+1
 
-    name, ext =os.path.splitext(os.path.basename(file))
+    name, ext = os.path.splitext(file)
+    filein = InDatDir+file
+    fileout = OutDatDir + name + outstrng
 
+    numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
 
-    filein =os.path.basename(file)
-    name, ext =os.path.splitext(filein)
-    filein = InDatDir+filein
     print("\n Reading file " + filein)
-    
     DataObs, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
 
@@ -410,7 +466,7 @@ for file in dat_files:
     site_dem = DataObs[:, 5]
     dat_obs =  DataObs[:, 6:6+NN[2]]
     [nsite,ndata] = numpy.shape(dat_obs)
-
+    dat_act = numpy.tile(data_active,(nsite,1))
 
     if "read" in SetPrior.lower():
         halfspace ="halfspace_results"
@@ -445,6 +501,7 @@ for file in dat_files:
             mod_ini = mod_apr.copy()
 
         elif "upd" in SetPrior:
+
             if ii == 0:
                 mod_ini = mod_apr.copy()
                 model = mod_ini.copy()
@@ -468,7 +525,7 @@ for file in dat_files:
         """
         Setup data-related parameter dict
         """
-        dat_act = numpy.tile(data_active,(nsite,1))
+
         dat_err = numpy.zeros_like(dat_obs)
         dat_err[ii, :], _ = inverse.set_errors(dat_obs[ii, :],
                                                 daterr_add=DatErr_add,
@@ -510,7 +567,7 @@ for file in dat_files:
                 alg.run_eki(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
-        if "jcn" in RunType.lower():
+        if "jac" in RunType.lower():
             Results =\
                 alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
@@ -535,6 +592,7 @@ for file in dat_files:
         if ii==0:
             site_num  = numpy.array([ii])
             site_nrms = C[2]
+            site_smap = C[3]
             site_modl = M[0]
             site_merr = M[1]
             site_sens = M[2]
@@ -542,35 +600,32 @@ for file in dat_files:
             site_dcal = D[1].reshape((1,-1))
             site_derr = D[2].reshape((1,-1))
             # print("ii=0")
-            cc = numpy.hstack((C[0], C[1],
-                              C[2],
-                              C[3].ravel(),
+            cc = numpy.hstack((C[0], C[1], C[2], C[3],
                               C[4].ravel(),
                               C[5].ravel(),
-                              C[6].ravel()))
+                              C[6].ravel(),
+                              C[7].ravel()))
             site_log[ii,0:len(cc)] = cc
             if Uncert:
                 jacd = Results["jacd"]
                 site_jacd = jacd.reshape((1,numpy.size(jacd)))
                 pcov = Results["cpost"]
                 site_pcov = pcov.reshape((1,numpy.size(pcov)))
-                # gi = Results["gi"]
-                # site_ginv = gi.reshape((1,numpy.size(gi)))
         else:
            site_num = numpy.vstack((site_num, ii))
            site_nrms = numpy.vstack((site_nrms, C[2]))
+           site_smap = numpy.vstack((site_smap, C[3]))
            site_modl = numpy.vstack((site_modl, M[0]))
            site_merr = numpy.vstack((site_merr, M[1]))
            site_sens = numpy.vstack((site_sens, M[2]))
            site_dobs = numpy.vstack((site_dobs, D[0]))
            site_dcal = numpy.vstack((site_dcal, D[1]))
            site_derr = numpy.vstack((site_derr, D[2]))
-           cc = numpy.hstack((C[0], C[1],
-                              C[2],
-                              C[3].ravel(),
+           cc = numpy.hstack((C[0], C[1], C[2], C[3],
                               C[4].ravel(),
                               C[5].ravel(),
-                              C[6].ravel()))
+                              C[6].ravel(),
+                              C[7].ravel()))
            site_log[ii,0:len(cc)] = cc
 
            if Uncert:
@@ -578,20 +633,14 @@ for file in dat_files:
                site_jacd = numpy.vstack((site_jacd,jacd.reshape((1,numpy.size(jacd)))))
                pcov = Results["cpost"]
                site_pcov = numpy.vstack((site_pcov, pcov.reshape((1,numpy.size(pcov)))))
-               # gi = Results["gi"]
-               # site_ginv = numpy.vstack((site_ginv,gi.reshape((1,numpy.size(jacd)))))
 
 
-
-    Fileout = OutDatDir + name + OutStrng + OutFileFmt
 
     numpy.savez_compressed(
-        file=Fileout,
+        file=fileout+"_results.npz",
         fl_data=file,
         fl_name=fl_name,
         header=titstrng,
-        aem_system=AEM_system,
-        ctrl = Ctrl,
         site_log =site_log,
         mod_ref=mod_apr,
         mod_act=mod_act,
@@ -603,22 +652,20 @@ for file in dat_files:
         site_dcal=site_dcal,
         site_derr=site_derr,
         site_nrms=site_nrms,
+        site_smap=site_smap,
         site_num=site_num,
         site_y=site_y,
         site_x=site_x,
         site_gps=site_gps,
         site_alt=site_alt,
-        site_dem=site_dem
-        )
+        site_dem=site_dem)
 
     if Uncert:
-        numpy.savez_compressed(
-            file=Fileout,
+        numpy.savez_compressed(        
+            file=fileout+"_results.npz",
             fl_data=file,
             fl_name=fl_name,
             header=titstrng,
-            aem_system=AEM_system,
-            ctrl = Ctrl,
             site_log =site_log,
             mod_ref=mod_apr,
             mod_act=mod_act,
@@ -629,19 +676,18 @@ for file in dat_files:
             site_dobs=site_dobs,
             site_dcal=site_dcal,
             site_derr=site_derr,
-            site_nrms=site_nrms,
+            site_nrms=site_nrms,        
+            site_smap=site_smap,
             site_num=site_num,
             site_y=site_y,
             site_x=site_x,
             site_gps=site_gps,
             site_alt=site_alt,
             site_dem=site_dem,
-            site_jacd=site_jacd,
-            site_pcov=site_pcov,
-            # site_ginv=site_ginv
-            )
+            site_jacd= site_jacd,
+            site_pcov= site_pcov)
 
-    print("\n\nResults stored to "+Fileout)
+    print("\n\nResults stored to "+fileout)
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))

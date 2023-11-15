@@ -56,8 +56,6 @@
       ctau(1:nlyr)     = 0.D0
       cfreq(1:nlyr)    = 1.D0
 
-      write(*,*) thk(1:nlyr-1)
-
        mvec                    = 0.d0
        mvec(0*nlyr+1:1*nlyr)   = res(1:nlyr)
        mvec(1*nlyr+1:2*nlyr)   = reps(1:nlyr)
@@ -72,7 +70,7 @@
 
 
       CALL cpu_time(cmp1)
-
+ 
       DO js=0, nmods
 
              CALL aemfwd1d_genesis(nlyr, mvec, alt, calc_data)
