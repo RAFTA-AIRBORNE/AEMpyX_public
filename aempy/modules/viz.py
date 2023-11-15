@@ -31,6 +31,7 @@ import inverse
 import util
 
 def plot_depth_prof(
+        ThisAxis = None, 
         PlotFile = None,
         PlotFormat = ["png",],                    
         PlotTitle = None,                    
@@ -115,9 +116,9 @@ def plot_depth_prof(
 
     cm = 1/2.54  # centimeters in inches
     
-
-    fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
-    fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+    if ThisAxis==None:
+        fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
+        fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
     
     
 
@@ -250,17 +251,18 @@ def plot_depth_prof(
         ax.text(StrngPos[0], StrngPos[1],
                  PlotStrng, fontsize=Fontsizes[1]-1,transform=ax.transAxes,
                  bbox=dict(facecolor="white", alpha=0.5) )
-    
-        if Save:
+        
+        if ThisAxis==None:
             for F in PlotFormat:
                  matplotlib.pyplot.savefig(PlotFile+F)
         
             matplotlib.pyplot.show()
             matplotlib.pyplot.clf()
         
-        return fig, ax
+        return ax
 
 def plot_matrix(
+        ThisAxis = None, 
         PlotFile = None,
         PlotTitle = None,
         PlotFormat = ["png",],
@@ -307,13 +309,9 @@ def plot_matrix(
     if Matrix.ndim==1:
         np =math.isqrt(nn[0])
         Matrix = Matrix.reshape((np,np))
-
-    if Save:
+        
+    if ThisAxis==None:
         fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
-    
-    # fig.set_FigSize(FigSize)
-    # fig.set_figheight(FigSize)
-    
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
     
 
@@ -351,169 +349,17 @@ def plot_matrix(
                 transform=ax.transAxes, 
                 fontsize=Fontsizes[1],
                 verticalalignment="center", bbox=props)
+ 
 
-    if Save:
+    if ThisAxis==None:
         for F in PlotFormat:
              matplotlib.pyplot.savefig(PlotFile+F)
     
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
     
-    return fig, ax
+    return ax
 
-# def plot_model_all(
-#         PlotFile = None,
-#         PlotTitle = None,
-#         PlotFormat = ["png",],
-#         Depth = [],
-#         Param = [],
-#         Sensi = [],
-#         Labels=[],
-#         Linecolor=None,
-#         Linetypes=["-", ":",],
-#         Linewidth=[1],
-#         Marker = ["v"],
-#         Markersize =[4],
-#         Fontsizes=[10,10,12],
-#         MLimits= [],
-#         SLimits= [],
-#         DLimits= [],
-#         PlotStrng="",
-#         StrngPos=[0.05,0.05]):
-
-#     cm = 1/2.54  # centimeters in inches
-
-#     nn = numpy.shape(Param)
-#     d = Depth.reshape(-1,1)
-
-#     PlotParam = Param.size!=0
-#     PlotSensi = Sensi.size!=0
-
-#     if not PlotParam and not PlotSensi:
-#         print("plot_model: Nothing to do!")
-#         return
-
-#     if PlotParam and PlotSensi:
-#         fig, (ax1, ax2) =  matplotlib.pyplot.subplots(nrows=1, ncols=2,  sharey=True)
-#         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
-
-#         if nn[0]==1:
-#             p = Param[0, :].reshape(-1,1)
-#             ax1.step(p, d, where="post", linewidth= Linewidth, color=Linecolor[0])
-#         else:
-#             for pp in numpy.arange(nn[1]):
-#                 p = Param[pp, :].reshape(-1,1)
-#                 ax1.step(p, d, where="post", linewidth= Linewidth,
-#                              linestyle=Linetypes[pp], color= Linecolor[pp], label=Labels[pp])
-
-#         ax1.set_xlabel("Resistivitiy (ohm-m)",fontsize=Fontsizes[1])
-#         ax1.set_ylabel("Depth (m)",fontsize=Fontsizes[1])
-#         ax1.xaxis.set_label_position("top")
-#         ax1.xaxis.set_ticks_position("both")
-#         ax1.tick_params(labelsize=Fontsizes[0])
-#         ax1.legend(Labels, fontsize=Fontsizes[1]-2, loc="best", ncol=1)
-#         ax1.set_xscale("log")
-#         if MLimits != []:
-#             ax1.set_xlim(MLimits)
-#         if DLimits != []:
-#             ax1.set_ylim(DLimits)
-#         ax1.invert_yaxis()
-#         ax1.grid("major", "both", linestyle=":", lw=0.3)
-
-#         if nn[0]==1:
-#             s = Sensi[0, :].reshape(-1,1)
-#             ax2.step(s, d,
-#                      where="post", linewidth= Linewidth, color=Linecolor[0])
-#         else:
-#             for pp in numpy.arange(nn[1]):
-#                 s = Sensi[pp, :].reshape(-1,1)
-#                 ax2.step(s, d,
-#                          where="post", linewidth= Linewid,
-#                          linestyle=Linetypes[pp], color= Linecolor[pp], label=Labels[pp])
-
-
-#         ax2.set_xlabel("Sensitivity",fontsize=Fontsizes[1])
-#         ax2.set_ylabel("Depth (m)",fontsize=Fontsizes[1])
-#         ax2.xaxis.set_label_position("top")
-#         ax2.xaxis.set_ticks_position("both")
-#         ax2.tick_params(labelsize=Fontsizes[0])
-#         ax2.legend(Labels, fontsize=Fontsizes[1], loc="best", ncol=1)
-#         ax2.set_xscale("log")
-#         if SLimits != []:
-#             ax2.set_xlim(SLimits)
-#         if DLimits != []:
-#             ax2.set_ylim(DLimits)
-
-#         ax2.invert_yaxis()
-
-#         ax2.grid("major", "both", linestyle=":", lw=0.3)
-
-
-
-#     elif PlotParam:
-#         fig, (ax, ) =  matplotlib.pyplot.subplots(nrows=1, ncols=1,  sharey=True)
-#         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
-
-#         if nn[0]==1:
-#             p = Param[0, :].reshape(-1,1)
-#             ax.step(p, d, where="post", linewidth= Linewidth, color=Linecolor[0])
-#         else:
-#             for pp in numpy.arange(nn[1]):
-#                 p = Param[pp, :].reshape(-1,1)
-#                 ax.step(p, d, where="post", linewidth= Linewidth,
-#                              linestyle=Linetypes[pp], color= Linecolor[pp], label=Labels[pp])
-
-#         ax.set_xlabel("Resistivitiy (ohm-m)",fontsize=Fontsizes[1])
-#         ax.set_ylabel("Depth (m)",fontsize=Fontsizes[1])
-#         ax.xaxis.set_label_position("top")
-#         ax.xaxis.set_ticks_position("both")
-#         ax.tick_params(labelsize=Fontsizes[0])
-#         ax.legend(Labels, fontsize=Fontsizes[1]-2, loc="best", ncol=1)
-#         ax.set_xscale("log")
-#         if MLimits != []:
-#             ax.set_xlim(MLimits)
-#         if DLimits != []:
-#             ax.set_ylim(DLimits)
-#         ax.invert_yaxis()
-#         ax.grid("major", "both", linestyle=":", lw=0.3)
-
-
-#     elif PlotSensi:
-#         fig, (ax, ) =  matplotlib.pyplot.subplots(nrows=1, ncols=1,  sharey=True)
-#         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
-#         if nn[0]==1:
-#             s = Sensi[0, :].reshape(-1,1)
-#             ax.step(s, d,
-#                      where="post", linewidth= Linewidth, color=Linecolor[0])
-#         else:
-#             for pp in numpy.arange(nn[1]):
-#                 s = Sensi[pp, :].reshape(-1,1)
-#                 ax.step(s, d,
-#                          where="post", linewidth= Linewidth,
-#                          linestyle=Linetypes[pp], color= Linecolor[pp], label=Labels[pp])
-
-
-#         ax.set_xlabel("Sensitivity",fontsize=Fontsizes[1])
-#         ax.set_ylabel("Depth (m)",fontsize=Fontsizes[1])
-#         ax.xaxis.set_label_position("top")
-#         ax.xaxis.set_ticks_position("both")
-#         ax.tick_params(labelsize=Fontsizes[0])
-#         ax.legend(Labels, fontsize=Fontsizes[1], loc="best", ncol=1)
-#         ax.set_xscale("log")
-#         if SLimits != []:
-#             ax.set_xlim(SLimits)
-#         if DLimits != []:
-#             ax.set_ylim(DLimits)
-#             ax.invert_yaxis()
-#             ax.grid("major", "both", linestyle=":", lw=0.3)
-
-#     for F in PlotFormat:
-#         matplotlib.pyplot.savefig(PlotFile+F, dpi=DPI)
-
-#         matplotlib.pyplot.show()
-#         matplotlib.pyplot.clf()
-    
-#     return fig, ax
 
 def plot_data_genesis(
         PlotFile = None,
@@ -577,7 +423,7 @@ def plot_data_genesis(
                          color=Linecolor[ll-1],linewidth=Linewidth,
                          markersize=Markersize[ll], label = Labels[ll])
     ax1.set_xlabel("Time (ms)", fontsize=Fontsizes[0])
-    ax1.set_ylabel(Prefix+" B$_{inline}$ (fT)", fontsize=Fontsizes[0])
+    ax1.set_ylabel(Prefix+" B$_{inline}$ (ppm)", fontsize=Fontsizes[0])
     ax1.xaxis.set_tick_params(labelsize=Fontsizes[1])
     ax1.yaxis.set_tick_params(labelsize=Fontsizes[1])
     ax1.grid("major", "both", linestyle=":", lw=0.3)
@@ -616,7 +462,7 @@ def plot_data_genesis(
 
 
     ax2.set_xlabel("Time (ms)", fontsize=Fontsizes[0])
-    ax2.set_ylabel(Prefix+"B$_{vert}$ (fT)", fontsize=Fontsizes[0])
+    ax2.set_ylabel(Prefix+"B$_{vert}$ (ppm)", fontsize=Fontsizes[0])
     ax2.xaxis.set_tick_params(labelsize=Fontsizes[1])
     ax2.yaxis.set_tick_params(labelsize=Fontsizes[1])
     ax2.grid("major", "both", linestyle=":", lw=0.3)
@@ -671,7 +517,6 @@ def plot_data_aem05(
         StrngPos=[0.05,0.05],
         LogPlot = False,
         SymLog=False, 
-        Save=True,
         Invalid=1.e30):
 
     cm = 1/2.54  # centimeters in inches
