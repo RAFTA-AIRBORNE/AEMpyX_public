@@ -87,6 +87,8 @@ if ".pdf" in PlotFormat:
 else:
     print(" No pdfs generated. No catalog possible!")
     PDFCatalog = False
+
+PlotTrue = False #True
     
 """
 Placement of plots
@@ -122,7 +124,7 @@ DepthLimits = [0., 100.]
 
 # Percentiles = [10., 20., 30., 40.] # linear
 Percentiles = [2.3, 15.9 ]                   # 95/68
-PlotTrue = False #True
+
 
 
 PlotTitle = "Aem05: 3-layer Model"
@@ -201,7 +203,7 @@ for file in data_files:
     
     d_act    = tmp["dat_act"]
     d_ens    = tmp["ens_dcal"]
-    s_alt    = tmp["site_alt"]
+    m_alt    = tmp["mod_alt"]
     
     r_ens    = tmp["site_nrms"]
 
@@ -213,7 +215,14 @@ for file in data_files:
         inverse.calc_stat_ens(ensemble=d_ens, quantiles=Percentiles, sum_stats=True)    
     ens_nrms = \
         inverse.calc_stat_ens(ensemble=r_ens, quantiles=Percentiles, sum_stats=True)    
-    
+ 
+    if PlotTrue:
+       m_true = tmp["mod_true"]
+       d_true = tmp["dat_true"]    
+       l_true = inverse.get_nlyr(m_true)
+       z_true = inverse.set_znodes(m_true[6*nlyr:7*nlyr-1])      
+       m_true = m_true[0*nlyr:1*nlyr]
+ 
     
     nplots = 2
     if Horiz: 
@@ -234,7 +243,7 @@ for file in data_files:
     ax[0] = eviz.plot_model_ensemble(
             ThisAxis = ax[0], 
             PlotType = "percentiles", # lines, percentiles. iso
-            System  = "aem05",
+            System  = AEM_system,
             ModEns = m_ens,
             Depth = z_ens,
             Percentiles=[2.5, 16.],
@@ -252,11 +261,11 @@ for file in data_files:
     
     if PlotTrue:
         
-        ax[0] = eviz.plot_model_ensemble(
+        ax[0] = eviz.plot_model(
                 ThisAxis = ax[0], 
-                PlotType = "percentiles", # lines, percentiles. iso
-                System  = "aem05",
-                ModEns = m_ens,
+                PlotType = "lines", # lines, percentiles. iso
+                System  = AEM_system,
+                ModEns = m_true,
                 Depth = z_ens,
                 # DatEns = [],
                 Percentiles=[2.5, 16.],
@@ -276,7 +285,7 @@ for file in data_files:
     ax[1] = eviz.plot_data_ensemble(
             ThisAxis = ax[1],  
             PlotType = "percentiles", # lines, percentiles. iso
-            System  = "aem05",
+            System  = AEM_system,
             DatEns = d_ens,
             Percentiles=[2.5, 16.],
             Fillcolor=["0.8", "0.4"],
@@ -293,10 +302,10 @@ for file in data_files:
 
     if PlotTrue:
         
-        ax[1] = eviz.plot_data_ensemble(
+        ax[1] = eviz.plot_data(
                 ThisAxis = ax[1], 
                 PlotType = "points", # lines, percentiles. iso
-                System  = "aem05",
+                System  = AEM_system,
                 DatEns = [],
                 Percentiles=[2.5, 16.],
                 Fillcolor=["0.8", "0.4"],

@@ -41,12 +41,8 @@ def plot_model_ensemble(
         PlotType = ["lines"], # lines, Percentiles. iso
         PlotSize = [8.],
         System  = "aem05",
-        # ModTrue = [],
-        # DepthTrue = [],
-        # DatTrue = [],
         ModEns = [],
         Depth = [],
-        # DatEns = [],
         Percentiles=[2.5, 16.],
         Quantiles = [.025, .16],
         Fillcolor=["0.8", "0.4"],
@@ -154,7 +150,7 @@ def plot_model_ensemble(
         for ne in numpy.arange(nens):
             plabel = None
 
-            ax.step(ModEns[1], 
+            ax.step(ModEns[1], Depth,
                           where="pre",
                           linewidth=Linewidth[0],
                           color= Fillcolor[ne],
@@ -594,12 +590,11 @@ def plot_data_ensemble(
             
     return ax
 
-def plot_data_points(
+def plot_data(
         ThisAxis = None, 
         PlotFile = None,        
         PlotFormat = ["png",],
         PlotTitle = None,
-        PlotType = ["lines"], # lines, Percentiles. iso
         PlotSize = [8.],
         System  = "aem05",
         Data = [],
@@ -754,4 +749,77 @@ def plot_data_points(
             matplotlib.pyplot.show()
             matplotlib.pyplot.clf()
             
+    return ax
+
+
+def plot_model(
+        ThisAxis = None, 
+        PlotFile = None,        
+        PlotFormat = ["png",],
+        PlotTitle = None,
+        PlotSize = [8.],
+        System  = "aem05",
+        Model = [],
+        Depth = [],
+        Fillcolor=["0.8", "0.4"],
+        Alphas = [0.3 , 0.6],
+        Labels=[],
+        Linecolor=["k", "r", "g", "b", "y", "m"],
+        Linetype=["-", ":", ";"],
+        Linewidth=[1., 1.5, 2.],
+        Markers = ["v"],
+        Markersize =[4],
+        Fontsizes=[10,10,12],
+        XLimits= [],
+        YLimits=[],
+        PlotStrng="",
+        Invalid=1.e30):
+
+    """
+    
+    """
+    cm = 1/2.54  # centimeters to inches
+    
+    ax = ThisAxis
+    
+    if numpy.size(Model)==0:
+       error("No parameter set given!! Exit.")
+       # nopar=True
+
+    if ThisAxis==None:
+        nplots = 1
+        fig, ax = matplotlib.pyplot.subplots(1,
+                                          figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
+                                          gridspec_kw={"height_ratios": [1]})
+        fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+    
+
+        ax.step(Model, Depth,
+                          where="pre",
+                          linewidth=Linewidth[0],  linestyle=Linetype[0],           
+                          label=Labels)
+
+        # ax.step(medval, Depth,step="pre",
+        #     linewidth=Linewidth[0]+2, color= Linecolor[1],
+        #     label="medval")
+
+    ax.set_xscale("log")
+    ax.set_xlim(XLimits)
+    ax.set_xlabel("resistivity ($\Omega$m)",fontsize=Fontsizes[0])
+    ax.set_ylim(YLimits)
+    ax.set_ylabel("depth (m)",fontsize=Fontsizes[0])
+    ax.xaxis.set_label_position("top")
+    ax.xaxis.set_ticks_position("both")
+    ax.tick_params(labelsize=Fontsizes[1])
+    ax.legend(fontsize=Fontsizes[0]-1, loc="best")
+    ax.grid(True)
+    ax.invert_yaxis()
+    ax.grid("major", "both", linestyle=":", lw=0.3)
+
+    if ThisAxis==None:        
+        for F in PlotFormat:
+            matplotlib.pyplot.savefig(PlotFile+F)
+            matplotlib.pyplot.show()
+            matplotlib.pyplot.clf()
+        
     return ax

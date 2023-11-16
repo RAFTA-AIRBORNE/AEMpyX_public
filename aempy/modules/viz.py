@@ -119,7 +119,8 @@ def plot_depth_prof(
     if ThisAxis==None:
         fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
-    
+    else:
+        ax = ThisAxis
     
 
     for iparset in range(len(Params)):
@@ -313,7 +314,8 @@ def plot_matrix(
     if ThisAxis==None:
         fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
-    
+    else:
+        ax = ThisAxis
 
     im = ax.imshow(Matrix, cmap=ColorMap, origin="upper")
     
@@ -383,7 +385,6 @@ def plot_data_genesis(
         SymLog=False,
         TimeLog =True,
         DataTrans = 2, 
-        Save = True,
         Invalid=1.e30):
 
 
@@ -406,9 +407,8 @@ def plot_data_genesis(
         LogPlot = False
         Prefix = "arcsinh "
 
-    if Save:
-        fig, (ax1, ax2) =  matplotlib.pyplot.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
-        fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+    fig, (ax1, ax2) =  matplotlib.pyplot.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
+    fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
 
     if len(Errors) == 0:
         for ll in numpy.arange(0, nn[0]):
@@ -486,15 +486,14 @@ def plot_data_genesis(
 
 
 
-    if Save:
-        for F in PlotFormat:
-             matplotlib.pyplot.savefig(PlotFile+F, dpi=DPI)
-             
+    for F in PlotFormat:
+         matplotlib.pyplot.savefig(PlotFile+F, dpi=DPI)
+         
 
-        matplotlib.pyplot.show()
-        matplotlib.pyplot.clf()
+    matplotlib.pyplot.show()
+    matplotlib.pyplot.clf()
     
-    return fig,  ax1, ax2
+    return ax1, ax2
 
 def plot_data_aem05(
         PlotFile = None,
@@ -532,11 +531,8 @@ def plot_data_aem05(
         LogPlot = False
         Data, Errors, _=inverse.transform_data(d_vec=Data, e_vec=Errors, d_trn=DataTrans)
 
-
-
-    if Save:
-        fig, (ax1, ax2) =  matplotlib.pyplot.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
-        fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+    fig, (ax1, ax2) =  matplotlib.pyplot.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
+    fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
 
     if Errors.size == 0:
         for ll in numpy.arange(0, nn[0]-1):
@@ -589,14 +585,13 @@ def plot_data_aem05(
 
 
 
-    if Save:
-        for F in PlotFormat:
-             matplotlib.pyplot.savefig(PlotFile+F, dpi=DPI)
+    for F in PlotFormat:
+         matplotlib.pyplot.savefig(PlotFile+F, dpi=DPI)
 
-        matplotlib.pyplot.show()
-        matplotlib.pyplot.clf()
+    matplotlib.pyplot.show()
+    matplotlib.pyplot.clf()
     
-    return fig, ax1, ax2
+    return ax1, ax2
 
 
 
@@ -905,7 +900,7 @@ def plot_flightline_genesis(
     dunit = "(ppm)"
     if DataTrans==2:
         
-        XData = inverse.transform_data() numpy.arcsinh(XData)
+        XData = numpy.arcsinh(XData)
         ZData = numpy.arcsinh(ZData)
         LogPlot = False
         dunit = "(-)"
