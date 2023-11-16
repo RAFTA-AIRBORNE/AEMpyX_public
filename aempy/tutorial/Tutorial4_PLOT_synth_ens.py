@@ -88,7 +88,7 @@ else:
     print(" No pdfs generated. No catalog possible!")
     PDFCatalog = False
 
-PlotTrue = False #True
+PlotTrue = True #True
     
 """
 Placement of plots
@@ -119,8 +119,8 @@ if "genes" in AEM_system.lower():
 """
 Parameter for model plots
 """
-ModLimits = [10., 1000.]
-DepthLimits = [0., 100.]
+ModLimits = [1., 1000.]
+DepthLimits = [0., 200.]
 
 # Percentiles = [10., 20., 30., 40.] # linear
 Percentiles = [2.3, 15.9 ]                   # 95/68
@@ -151,10 +151,13 @@ Labelsize = Fontsize
 Titlesize = 12
 Fontsizes = [Fontsize, Labelsize, Titlesize]
 
-Linewidth = 1.5
+Linewidth = [1., 1., 0.75]
 Linetypes = ["-", ":", "--", ";"]
-Linecolors = ["k", "r", "g", "b", "y", "m"]
-Markersize = 4
+Linecolors = ["k", "r", "g", "b", "c", "m"]
+
+Markers = ["o"]
+Markersize = [5]
+
 
 ncols = len(Percentiles)+3
 
@@ -205,7 +208,7 @@ for file in data_files:
     d_ens    = tmp["ens_dcal"]
     m_alt    = tmp["mod_alt"]
     
-    r_ens    = tmp["site_nrms"]
+    r_ens    = tmp["stat_nrms"]
 
     nlyr = inverse.get_nlyr(m_ref)
 
@@ -252,34 +255,30 @@ for file in data_files:
             Labels=[],
             Linecolor=Linecolors,
             Linetype=Linetypes,
-            Linewidth=[1., 1.5, 2.],
+            Linewidth=Linewidth,
             Markers = ["v"],
             Markersize =[4],
             Fontsizes=Fontsizes,
-            XLimits= ModLimits,
-            ZLimits= DepthLimits)
+            XLimits=ModLimits,
+            YLimits= DepthLimits,
+            Legend=False)
     
     if PlotTrue:
-        
+        print(PlotTrue)
         ax[0] = eviz.plot_model(
                 ThisAxis = ax[0], 
-                PlotType = "lines", # lines, percentiles. iso
                 System  = AEM_system,
-                ModEns = m_true,
+                Model = m_true,
                 Depth = z_ens,
-                # DatEns = [],
-                Percentiles=[2.5, 16.],
-                Fillcolor=["0.8", "0.4"],
-                Alphas = [0.3 , 0.6],
                 Labels=[],
-                Linecolor=Linecolors,
+                Linecolor=["k","r","g","b"],
                 Linetype=Linetypes,
-                Linewidth=[1., 1.5, 2.],
+                Linewidth=Linewidth,
                 Markers = ["v"],
                 Markersize =[4],
                 Fontsizes=Fontsizes,
                 XLimits= ModLimits,
-                ZLimits= DepthLimits)
+                YLimits= DepthLimits)
     
     
     ax[1] = eviz.plot_data_ensemble(
@@ -293,31 +292,28 @@ for file in data_files:
             Labels=[],
             Linecolor=Linecolors,
             Linetype=Linetypes,
-            Linewidth=[1., 1.5, 2.],
+            Linewidth=Linewidth,
             Markers = ["v"],
             Markersize =[4],
             Fontsizes=Fontsizes, 
-            XLimits= TimeLimits,
-            YLimits= DataLimits)
+            XLimits= FreqLimits,
+            YLimits= DataLimits,
+            Legend=False)
 
     if PlotTrue:
         
         ax[1] = eviz.plot_data(
                 ThisAxis = ax[1], 
-                PlotType = "points", # lines, percentiles. iso
                 System  = AEM_system,
-                DatEns = [],
-                Percentiles=[2.5, 16.],
-                Fillcolor=["0.8", "0.4"],
-                Alphas = [0.3 , 0.6],
-                Labels=[],
-                Linecolor=Linecolors,
-                Linetype=Linetypes,
-                Linewidth=[1., 1.5, 2.],
-                Markers = ["v"],
-                Markersize =[4],
+                Data = d_true,
+                Errs = [],
+                Linecolor=["k","r","g","b"],
+                Linetype=[""],
+                Linewidth=Linewidth,
+                Markers = ["v", "o"],
+                Markersize = Markersize,
                 Fontsizes=Fontsizes, 
-                XLimits= TimeLimits,
+                XLimits= FreqLimits,
                 YLimits= DataLimits)
     
     for F in PlotFormat:

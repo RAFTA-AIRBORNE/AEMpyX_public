@@ -58,7 +58,8 @@ def plot_model_ensemble(
         YLimits=[],
         PlotStrng="",
         Invalid=1.e30,
-        Maxlines=30):
+        Maxlines=50,
+        Legend=True):
 
     """
     
@@ -77,9 +78,9 @@ def plot_model_ensemble(
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
                                           gridspec_kw={"height_ratios": [1]})
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+        Legend = True
     
-
-    avgval = numpy.mean(ModEns, axis=0)     
+     
 
     if "per" in PlotType.lower():
         nper = numpy.size(Percentiles)
@@ -105,9 +106,9 @@ def plot_model_ensemble(
             mlow = numpy.percentile(ModEns,      Percentiles[p], axis=0)
             mupp = numpy.percentile(ModEns, 100.-Percentiles[p], axis=0)
             ax.step(mlow, Depth, where="pre", 
-                    linewidth=Linewidth[0], color= Linecolor[p+2])
+                    linewidth=Linewidth[0]/2, color= Linecolor[p+2])
             ax.step(mupp, Depth, where="pre", 
-                    linewidth=Linewidth[0], color= Linecolor[p+2],
+                    linewidth=Linewidth[0]/2, color= Linecolor[p+2],
                     label=plabel)
     
     if "qua" in PlotType.lower():
@@ -134,9 +135,9 @@ def plot_model_ensemble(
             mlow = numpy.quantile(ModEns,      Quantiles[p], axis=0)
             mupp = numpy.quantile(ModEns, 1.-Quantiles[p], axis=0)
             ax.step(mlow, Depth, where="pre", 
-                    linewidth=Linewidth[0], color= Linecolor[p+2])
+                    linewidth=Linewidth[0]/2, color= Linecolor[p+2])
             ax.step(mupp, Depth, where="pre", 
-                    linewidth=Linewidth[0], color= Linecolor[p+2],
+                    linewidth=Linewidth[0]/2, color= Linecolor[p+2],
                     label=plabel)
     
     elif "lin" in PlotType.lower():
@@ -152,7 +153,7 @@ def plot_model_ensemble(
 
             ax.step(ModEns[1], Depth,
                           where="pre",
-                          linewidth=Linewidth[0],
+                          linewidth=Linewidth[0]/2,
                           color= Fillcolor[ne],
                           alpha= Alphas[ne],
                           label=plabel)
@@ -169,10 +170,13 @@ def plot_model_ensemble(
     ax.xaxis.set_label_position("top")
     ax.xaxis.set_ticks_position("both")
     ax.tick_params(labelsize=Fontsizes[1])
-    ax.legend(fontsize=Fontsizes[0]-1, loc="best")
+
     ax.grid(True)
     ax.invert_yaxis()
     ax.grid("major", "both", linestyle=":", lw=0.3)
+
+    if Legend:
+        ax.legend(fontsize=Fontsizes[0], loc="best")
 
     if ThisAxis==None:        
         for F in PlotFormat:
@@ -209,7 +213,8 @@ def plot_data_ensemble(
         XLimits=[],        
         XLabel = "frequency (kHz)",
         Invalid=1.e30,
-        Maxlines=30):
+        Maxlines=30,
+        Legend=True):
 
     cm = 1/2.54  # centimeters to inches
  
@@ -225,6 +230,7 @@ def plot_data_ensemble(
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
                                           gridspec_kw={"height_ratios": [1]})
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+        Legend = True
 
     _, NN, _, _, Pars =  aesys.get_system_params(System)
 
@@ -261,14 +267,14 @@ def plot_data_ensemble(
                     +str(100.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
  
             
             ax.plot(XAxis, medQens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="Q, median")
+                    label="median")
                   
             for p in numpy.arange(nper):
                  
@@ -288,14 +294,15 @@ def plot_data_ensemble(
                     +str(100.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+3])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2],
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+3],
                         label=plabel)
-                
+            
+            plabel = None  
             ax.plot(XAxis, medIens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="Q, median")            
+                    label=plabel)            
                 
         elif "qua" in PlotType.lower():
             
@@ -316,9 +323,9 @@ def plot_data_ensemble(
                     +str(100.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
  
             
             ax.plot(XAxis, medQens,
@@ -344,14 +351,14 @@ def plot_data_ensemble(
                     +str(100.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+3])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2],
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+3],
                         label=plabel)
-                
+            plabel = None   
             ax.plot(XAxis, medIens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="I, median")             
+                    label=plabel)             
 
 
         elif "lin" in PlotType.lower():
@@ -363,7 +370,7 @@ def plot_data_ensemble(
             plabel = None
             medQens = numpy.percentile(Qens, 50., axis=0) 
             ax.plot(XAxis, Qens,
-                        linewidth=Linewidth[0], 
+                        linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
             ax.plot(XAxis, medQens,
@@ -372,7 +379,7 @@ def plot_data_ensemble(
             
             medIens = numpy.percentile(Iens, 50., axis=0)  
             ax.plot(XAxis, Iens,
-                        linewidth=Linewidth[0], 
+                        linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
             ax.plot(XAxis, medIens,
@@ -391,11 +398,13 @@ def plot_data_ensemble(
         ax.xaxis.set_label_position("top")
         ax.xaxis.set_ticks_position("both")
         ax.tick_params(labelsize=Fontsizes[1])
-        ax.legend(fontsize=Fontsizes[0]-1, loc="best")
+        
         ax.grid(True)
-        ax.invert_yaxis()
+        # ax.invert_yaxis()
         ax.grid("major", "both", linestyle=":", lw=0.3)
         
+        if Legend:
+            ax.legend(fontsize=Fontsizes[0], loc="best")
         
         
     elif "gen" in System.lower():
@@ -442,14 +451,14 @@ def plot_data_ensemble(
                     +str(100.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
  
             
             ax.plot(XAxis, medHens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="H, median")
+                    label="medval")
                   
             medZens = numpy.percentile(Zens, 50., axis=0) 
             for p in numpy.arange(nper):
@@ -470,14 +479,14 @@ def plot_data_ensemble(
                     +str(100.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2],
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2],
                         label=plabel)
-                
+            plabel = None  
             ax.plot(XAxis, medIens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="Z, median")            
+                    label=plabel)            
                 
         elif "qua" in PlotType.lower():
             
@@ -498,16 +507,16 @@ def plot_data_ensemble(
                     +str(1.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
  
-            
+            plabel = "medval"
             ax.plot(XAxis, medHens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="H, median")
+                    label=plabel)
                   
-            medIens = numpy.percentile(Zens, 50., axis=0)                   
+            medZens = numpy.percentile(Zens, 50., axis=0)                   
             for p in numpy.arange(nper):
                  
 
@@ -526,14 +535,15 @@ def plot_data_ensemble(
                     +str(1.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0], color= Linecolor[p+2])
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0], color= Linecolor[p+2],
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2],
                         label=plabel)
                 
+            plabel = None   
             ax.plot(XAxis, medZens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="I, median")             
+                    label=plabel)             
 
 
         elif "lin" in PlotType.lower():
@@ -545,7 +555,7 @@ def plot_data_ensemble(
             plabel = None
             medHens = numpy.percentile(Hens, 50., axis=0) 
             ax.plot(XAxis, Hens,
-                        linewidth=Linewidth[0], 
+                        linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
             ax.plot(XAxis, medHens,
@@ -554,7 +564,7 @@ def plot_data_ensemble(
             
             medZens = numpy.percentile(Zens, 50., axis=0)  
             ax.plot(XAxis, Zens,
-                        linewidth=Linewidth[0], 
+                        linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
             ax.plot(XAxis, medZens,
@@ -576,11 +586,12 @@ def plot_data_ensemble(
         ax.xaxis.set_label_position("top")
         ax.xaxis.set_ticks_position("both")
         ax.tick_params(labelsize=Fontsizes[1])
-        ax.legend(fontsize=Fontsizes[0]-1, loc="best")
+ 
         ax.grid(True)
-        ax.invert_yaxis()
         ax.grid("major", "both", linestyle=":", lw=0.3)
-
+        
+        if Legend:
+            ax.legend(fontsize=Fontsizes[0], loc="best")
 
     if ThisAxis==None:
         for F in PlotFormat:
@@ -600,7 +611,7 @@ def plot_data(
         Data = [],
         Errs = [],
         Labels=[],
-        Linecolor=["k", "r", "g", "b", "y", "m"],
+        Linecolor=["k", "r", "g", "b", "c", "m"],
         Linetype=["-", ":", ";"],
         Linewidth=[1., 1.5, 2.],
         Markers = ["v"],
@@ -612,7 +623,8 @@ def plot_data(
         XLimits=[],        
         XLabel = "frequency (kHz)",
         Invalid=1.e30,
-        Maxlines=30):
+        Maxlines=30,
+        Legend=True):
 
     cm = 1/2.54  # centimeters to inches
  
@@ -628,6 +640,7 @@ def plot_data(
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
                                           gridspec_kw={"height_ratios": [1]})
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+        Legend = True
 
     _, NN, _, _, Pars =  aesys.get_system_params(System)
 
@@ -639,7 +652,7 @@ def plot_data(
         XAxis = Pars[0]/1000.
         
                 
-        Qd =   Data[:,0:4]        
+        Qd =   Data[0:4]        
            
         if len(Errs) == 0:
           
@@ -654,7 +667,7 @@ def plot_data(
                          color=Linecolor[1], linewidth=Linewidth[0],
                          markersize=Markersize[0], label="Q, observed" )
 
-        Id =   Data[:,4:8]
+        Id =   Data[4:8]
         
         if len(Errs) == 0:
           
@@ -675,8 +688,8 @@ def plot_data(
         YLabel = "H/Z (ppm)"
         XAxis = Pars[0]
         
-        Hd =   Data[:,0:11]        
-        Zd =   Data[:,11:22]
+        Hd =   Data[0:11]        
+        Zd =   Data[11:22]
         
         if DataTrans==2:
              S = numpy.amin(Data)        
@@ -737,11 +750,13 @@ def plot_data(
         ax.xaxis.set_label_position("top")
         ax.xaxis.set_ticks_position("both")
         ax.tick_params(labelsize=Fontsizes[1])
-        ax.legend(fontsize=Fontsizes[0]-1, loc="best")
+
         ax.grid(True)
         ax.invert_yaxis()
         ax.grid("major", "both", linestyle=":", lw=0.3)
-        
+      
+        if Legend:
+            ax.legend(fontsize=Fontsizes[0], loc="best")
 
     if ThisAxis==None:
         for F in PlotFormat:
@@ -764,7 +779,7 @@ def plot_model(
         Fillcolor=["0.8", "0.4"],
         Alphas = [0.3 , 0.6],
         Labels=[],
-        Linecolor=["k", "r", "g", "b", "y", "m"],
+        Linecolor=["k", "r", "g", "b", "c", "m"],
         Linetype=["-", ":", ";"],
         Linewidth=[1., 1.5, 2.],
         Markers = ["v"],
@@ -773,7 +788,8 @@ def plot_model(
         XLimits= [],
         YLimits=[],
         PlotStrng="",
-        Invalid=1.e30):
+        Invalid=1.e30,
+        Legend=True):
 
     """
     
@@ -792,10 +808,11 @@ def plot_model(
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
                                           gridspec_kw={"height_ratios": [1]})
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+        Legend = True
     
 
         ax.step(Model, Depth,
-                          where="pre",
+                          where="pre", color="k",
                           linewidth=Linewidth[0],  linestyle=Linetype[0],           
                           label=Labels)
 
@@ -811,11 +828,14 @@ def plot_model(
     ax.xaxis.set_label_position("top")
     ax.xaxis.set_ticks_position("both")
     ax.tick_params(labelsize=Fontsizes[1])
-    ax.legend(fontsize=Fontsizes[0]-1, loc="best")
+
     ax.grid(True)
     ax.invert_yaxis()
     ax.grid("major", "both", linestyle=":", lw=0.3)
 
+    if Legend: 
+        ax.legend(fontsize=Fontsizes[0], loc="best")
+        
     if ThisAxis==None:        
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)

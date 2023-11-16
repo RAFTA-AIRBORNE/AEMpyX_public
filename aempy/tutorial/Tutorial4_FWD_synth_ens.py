@@ -113,8 +113,11 @@ Should be adapted according to your needs.
 #Alt = [60., 120.]
 Alt = [60]
 
-
-IdString = AEM_system.upper()+"_5Layer"
+Nsamples = 1000
+# NSamples = 1
+Perturb = True
+SplitData= True
+IdString = AEM_system.upper()+"_5Layer_"+str(Nsamples+1)+"Sample"
 nlyr = 5
 Model_active, Model_base, model_var, m_bounds, m_state = inverse.init_1dmod(nlyr)
 Model_active[0 * nlyr:1 * nlyr] = numpy.ones((nlyr)).astype(int)
@@ -130,9 +133,9 @@ Model_active[0 * nlyr:1 * nlyr] = numpy.ones((nlyr)).astype(int)
 # Rho3 = [10., 1000]
 # Rhob = [100.]
 
-IdString = AEM_system.upper()+"_3Layer"
-Thick0 = [50.]
-Thick1 = [50.]
+IdString = AEM_system.upper()+"_3Layer_"+str(Nsamples+1)+"Sample"
+Thick0 = [25.]
+Thick1 = [25.]
 Thick2 = [1.]
 Thick3 = [1.]
 Rho0 = [ 100.]
@@ -145,10 +148,7 @@ Rhob = [100.]
 Generate Data
 
 """
-Nsamples = 300
-# NSamples = 1
-Perturb = True
-SplitData= True
+
 
 mod_num = -1
 for alt in Alt:

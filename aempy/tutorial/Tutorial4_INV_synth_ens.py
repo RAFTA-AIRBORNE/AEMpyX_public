@@ -95,7 +95,7 @@ input format is ".npz"
 """
 InDatDir = AEMPYX_DATA + "/SynthData/data/"
 FileList = "search"  # "search", "read"
-SearchStrng = "AEM05*3LayerMod*Alt_60*.npz"
+SearchStrng = "*.npz"
 # SearchStrng = "GEN*3LayerMod*Alt_120*.npz"
 
 if "set" in FileList.lower():
@@ -131,7 +131,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+RegFun = "mle" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -238,7 +238,7 @@ if "tikhopt" in  RunType.lower():
 
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
-    RegShift = 1
+    RegShift = 0
 
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
