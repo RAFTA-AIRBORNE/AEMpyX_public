@@ -63,7 +63,7 @@ FileList = "search"  # "search", "read"
 
 if "search" in FileList.lower():
 
-    SearchStrng = "*lcc*results.npz"
+    SearchStrng = "*results.npz"
     print("Search flightline ID string: %s " % SearchStrng)
     data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir)
     data_files = sorted(data_files)
@@ -189,11 +189,13 @@ for file in data_files:
     
     PlotFile = filename
     
-    tmp = numpy.load(InModDir+file)
+    results = numpy.load(InModDir+file)
 
-    m_act    = tmp["mod_act"]
-    m_ref    = tmp["mod_ref"]
-    m_ens    = tmp["ens_modl"]
+    
+
+    m_act    = results["mod_act"]
+    m_ref    = results["mod_ref"]
+    m_ens    = results["ens_modl"]
     
     print("minimum: ",numpy.amin(m_ens))
     print("maximum: ",numpy.amax(m_ens))
@@ -204,11 +206,15 @@ for file in data_files:
 
   
     
-    d_act    = tmp["dat_act"]
-    d_ens    = tmp["ens_dcal"]
-    m_alt    = tmp["mod_alt"]
+    d_act    = results["dat_act"]
+    d_ens    = results["ens_dcal"]
+    m_alt    = results["mod_alt"]
     
-    r_ens    = tmp["stat_nrms"]
+    r_ens    = results["stat_nrms"]
+    
+    control = numpy.load((InModDir+file).replace("_results","_ctrl"), allow_pickle=True)
+    method =  control["inversion"][1]
+    
 
     nlyr = inverse.get_nlyr(m_ref)
 
@@ -220,8 +226,8 @@ for file in data_files:
         inverse.calc_stat_ens(ensemble=r_ens, quantiles=Percentiles, sum_stats=True)    
  
     if PlotTrue:
-       m_true = tmp["mod_true"]
-       d_true = tmp["dat_true"]    
+       m_true = results["mod_true"]
+       d_true = results["dat_true"]    
        l_true = inverse.get_nlyr(m_true)
        z_true = inverse.set_znodes(m_true[6*nlyr:7*nlyr-1])      
        m_true = m_true[0*nlyr:1*nlyr]
@@ -240,7 +246,7 @@ for file in data_files:
                                       gridspec_kw={
                                           "height_ratios": [1.],
                                           "width_ratios": [1., 1.]})
-    fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+    fig.suptitle(PlotTitle+" ("+method+")", fontsize=Fontsizes[2])
 
     
     ax[0] = eviz.plot_model_ensemble(
@@ -264,7 +270,6 @@ for file in data_files:
             Legend=False)
     
     if PlotTrue:
-        print(PlotTrue)
         ax[0] = eviz.plot_model(
                 ThisAxis = ax[0], 
                 System  = AEM_system,
@@ -278,7 +283,8 @@ for file in data_files:
                 Markersize =[4],
                 Fontsizes=Fontsizes,
                 XLimits= ModLimits,
-                YLimits= DepthLimits)
+                YLimits= DepthLimits,
+                Legend=True)
     
     
     ax[1] = eviz.plot_data_ensemble(
@@ -293,7 +299,7 @@ for file in data_files:
             Linecolor=Linecolors,
             Linetype=Linetypes,
             Linewidth=Linewidth,
-            Markers = ["v"],
+            Markers = [""],
             Markersize =[4],
             Fontsizes=Fontsizes, 
             XLimits= FreqLimits,
@@ -301,7 +307,7 @@ for file in data_files:
             Legend=False)
 
     if PlotTrue:
-        
+      
         ax[1] = eviz.plot_data(
                 ThisAxis = ax[1], 
                 System  = AEM_system,
@@ -310,19 +316,20 @@ for file in data_files:
                 Linecolor=["k","r","g","b"],
                 Linetype=[""],
                 Linewidth=Linewidth,
-                Markers = ["v", "o"],
+                Markers = ["s", "o"],
                 Markersize = Markersize,
                 Fontsizes=Fontsizes, 
                 XLimits= FreqLimits,
-                YLimits= DataLimits)
+                YLimits= DataLimits,
+                Legend=True)
     
     for F in PlotFormat:
-        matplotlib.pyplot.savefig(PlotFile+F)
+        matplotlib.pyplot.savefig(PlotDir+PlotFile+F)
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
         
     if PDFCatalog:
-        pdf_list.append(PlotFile+".pdf")
+        pdf_list.append(PlotDir+PlotFile+".pdf")
 
 
 if PDFCatalog:

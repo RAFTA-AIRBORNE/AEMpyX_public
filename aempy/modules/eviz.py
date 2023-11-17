@@ -59,6 +59,7 @@ def plot_model_ensemble(
         PlotStrng="",
         Invalid=1.e30,
         Maxlines=50,
+        Median=True,
         Legend=True):
 
     """
@@ -83,10 +84,10 @@ def plot_model_ensemble(
      
 
     if "per" in PlotType.lower():
-        nper = numpy.size(Percentiles)
+        np = numpy.size(Percentiles)
         medval=numpy.percentile(ModEns, 50., axis=0)
   
-        for p in numpy.arange(nper):
+        for p in numpy.arange(np):
                 mlow = numpy.percentile(ModEns,      Percentiles[p], axis=0)
                 mupp = numpy.percentile(ModEns, 100.-Percentiles[p], axis=0)
                 plabel = None
@@ -100,7 +101,7 @@ def plot_model_ensemble(
             linewidth=Linewidth[0], color= Linecolor[1],
             label="medval")
 
-        for p in numpy.arange(nper):
+        for p in numpy.arange(np):
             plabel = "p="\
                 +str(100.-Percentiles[p]-Percentiles[p])+" %"
             mlow = numpy.percentile(ModEns,      Percentiles[p], axis=0)
@@ -112,10 +113,10 @@ def plot_model_ensemble(
                     label=plabel)
     
     if "qua" in PlotType.lower():
-        nper = numpy.size(Quantiles)
+        np = numpy.size(Quantiles)
         medval=numpy.quantile(ModEns, 0.5, axis=0)
   
-        for p in numpy.arange(nper):
+        for p in numpy.arange(np):
                 mlow = numpy.quantile(ModEns,      Quantiles[p], axis=0)
                 mupp = numpy.quantile(ModEns, 1.-Quantiles[p], axis=0)
                 plabel = None
@@ -129,7 +130,7 @@ def plot_model_ensemble(
             linewidth=Linewidth[0], color= Linecolor[1],
             label="medval")
 
-        for p in numpy.arange(nper):
+        for p in numpy.arange(np):
             plabel = "q="\
                 +str(1.-Quantiles[p]-Quantiles[p])
             mlow = numpy.quantile(ModEns,      Quantiles[p], axis=0)
@@ -214,7 +215,8 @@ def plot_data_ensemble(
         XLabel = "frequency (kHz)",
         Invalid=1.e30,
         Maxlines=30,
-        Legend=True):
+        Legend=True,
+        Median=True):
 
     cm = 1/2.54  # centimeters to inches
  
@@ -235,7 +237,7 @@ def plot_data_ensemble(
     _, NN, _, _, Pars =  aesys.get_system_params(System)
 
     
-    nper = numpy.size(Percentiles)
+    np = numpy.size(Percentiles)
     
     if "aem05" in System.lower(): 
         XLabel = "frequency (kHz)"
@@ -248,117 +250,86 @@ def plot_data_ensemble(
         Qens =   DatEns[:,0:4]        
         Iens =   DatEns[:,4:8]
         
-        if "per" in PlotType.lower():
+        if ("per" in PlotType.lower()) or ("qua" in PlotType.lower()):
             
-            medQens = numpy.percentile(Qens, 50., axis=0)
-            for p in numpy.arange(nper):
+
+            for p in numpy.arange(np):
                 
-                dlow = numpy.percentile(Qens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Qens, 100.-Percentiles[p], axis=0)
-        
-                plabel = None
-                ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
-                                        color= Fillcolor[p],
-                                        alpha= Alphas[p],
-                                        label=plabel)    
+                
+                
+                if "per" in PlotType.lower():
+                    medQens = numpy.percentile(Qens, 50., axis=0)
+                    plabel = "p="\
+                        +str(100.-Percentiles[p]-Percentiles[p])+" %"
+                   
+                    dlow = numpy.percentile(Qens,      Percentiles[p], axis=0)
+                    dupp = numpy.percentile(Qens, 100.-Percentiles[p], axis=0)
+                
+                else:
+                    medQens = numpy.percentile(Qens, 0.5, axis=0)
+                    plabel = "p="\
+                        +str(1.-Quantiles[p]-Quantiles[p])+" %"
+                    
+                    dlow = numpy.quantile(Qens,    Quantiles[p], axis=0)
+                    dupp = numpy.quantile(Qens, 1.-Quantiles[p], axis=0)
+
+                
+                
+            ax.fill_between(XAxis, dlow, dupp, 
+                                    linewidth=Linewidth[0]/2,
+                                    color= Fillcolor[p],
+                                    alpha= Alphas[p],
+                                    label=None)    
    
-                plabel = "p="\
-                    +str(100.-Percentiles[p]-Percentiles[p])+" %"
-    
-                ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
-                ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
+            ax.plot(XAxis, dlow,
+                    linewidth=Linewidth[0]/2, color= Linecolor[p+2])
+            ax.plot(XAxis, dupp,
+                    linewidth=Linewidth[0]/2, color= Linecolor[p+2])
  
             
-            ax.plot(XAxis, medQens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="median")
+            if Median:
+                ax.plot(XAxis, medQens,
+                        linewidth=Linewidth[0]/2, color= Linecolor[0], linestyle=Linetype[2],
+                        label="medval")
                   
-            for p in numpy.arange(nper):
+
+            for p in numpy.arange(np):
                  
-                medIens = numpy.percentile(Qens, 50., axis=0)   
-                dlow = numpy.percentile(Iens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Iens, 100.-Percentiles[p], axis=0)
-        
-                plabel = None
+                if "per" in PlotType.lower():
+                    medIens = numpy.percentile(Iens, 50., axis=0)
+                    plabel = "p="\
+                        +str(100.-Percentiles[p]-Percentiles[p])+" %"
+                   
+                    dlow = numpy.percentile(Iens,      Percentiles[p], axis=0)
+                    dupp = numpy.percentile(Iens, 100.-Percentiles[p], axis=0)
+                
+                else:
+                    medIens = numpy.percentile(Iens, 0.5, axis=0)
+                    plabel = "p="\
+                        +str(1.-Quantiles[p]-Quantiles[p])+" %"
+                    
+                    dlow = numpy.quantile(Iens,    Quantiles[p], axis=0)
+                    dupp = numpy.quantile(Iens, 1.-Quantiles[p], axis=0)
+
                 ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
+                                        linewidth=Linewidth[0]/2,
                                         color= Fillcolor[p],
                                         alpha= Alphas[p],
-                                        label=plabel)      
+                                        label=None)      
 
     
-                plabel = "p="\
-                    +str(100.-Percentiles[p]-Percentiles[p])+" %"
-    
-                ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+3])
-                ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+3],
-                        label=plabel)
-            
-            plabel = None  
-            ax.plot(XAxis, medIens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label=plabel)            
-                
-        elif "qua" in PlotType.lower():
-            
-            medQens = numpy.percentile(Qens, 50., axis=0)
-            for p in numpy.arange(nper):
-                
-                dlow = numpy.percentile(Qens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Qens, 100.-Percentiles[p], axis=0)
-        
-                plabel = None
-                ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
-                                        color= Fillcolor[p],
-                                        alpha= Alphas[p],
-                                        label=plabel)    
-   
-                plabel = "p="\
-                    +str(100.-Percentiles[p]-Percentiles[p])+" %"
     
                 ax.plot(XAxis, dlow,
                         linewidth=Linewidth[0]/2, color= Linecolor[p+2])
                 ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
- 
-            
-            ax.plot(XAxis, medQens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="Q, median")
-                  
-            medIens = numpy.percentile(Iens, 50., axis=0)                   
-            for p in numpy.arange(nper):
-                 
-
-                dlow = numpy.percentile(Iens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Iens, 100.-Percentiles[p], axis=0)
-        
-                plabel = None
-                ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
-                                        color= Fillcolor[p],
-                                        alpha= Alphas[p],
-                                        label=plabel)      
-
-    
-                plabel = "p="\
-                    +str(100.-Percentiles[p]-Percentiles[p])+" %"
-    
-                ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+3])
-                ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+3],
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2],
                         label=plabel)
-            plabel = None   
-            ax.plot(XAxis, medIens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label=plabel)             
+            if Median:           
+                ax.plot(XAxis, medIens,
+                        linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
+                        label=None)            
+                    
+           
 
 
         elif "lin" in PlotType.lower():
@@ -373,7 +344,9 @@ def plot_data_ensemble(
                         linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
-            ax.plot(XAxis, medQens,
+            
+            if Median: 
+                ax.plot(XAxis, medQens,
                     linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
                     label="Q, median")
             
@@ -382,9 +355,10 @@ def plot_data_ensemble(
                         linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
-            ax.plot(XAxis, medIens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="I, median")           
+            if Median:
+                ax.plot(XAxis, medIens,
+                        linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
+                        label="I, median")           
                 
         ax.set_xscale("log")
         if len(XLimits) !=0:
@@ -432,118 +406,86 @@ def plot_data_ensemble(
            YLabel = "H/Z (ppm)"   
            ax.set_yscale("log", nonpositive="clip")
 
-        if "per" in PlotType.lower():
+        
+        if ("per" in PlotType.lower()) or ("qua" in PlotType.lower()):
             
-            medHens = numpy.percentile(Hens, 50., axis=0)
-            for p in numpy.arange(nper):
+
+
+                for p in numpy.arange(np):
+                    
+                    if "per" in PlotType.lower():
+                        medHens = numpy.percentile(Hens, 50., axis=0)
+                        plabel = "p="\
+                            +str(100.-Percentiles[p]-Percentiles[p])+" %"
+                       
+                        dlow = numpy.percentile(Hens,      Percentiles[p], axis=0)
+                        dupp = numpy.percentile(Hens, 100.-Percentiles[p], axis=0)
+                    
+                    else:
+                        medHens = numpy.percentile(Hens, 0.5, axis=0)
+                        plabel = "p="\
+                            +str(1.-Quantiles[p]-Quantiles[p])
+                        
+                        dlow = numpy.quantile(Hens,    Quantiles[p], axis=0)
+                        dupp = numpy.quantile(Hens, 1.-Quantiles[p], axis=0)
                 
-                dlow = numpy.percentile(Hens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Hens, 100.-Percentiles[p], axis=0)
-        
-                plabel = None
-                ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
-                                        color= Fillcolor[p],
-                                        alpha= Alphas[p],
-                                        label=plabel)    
-   
-                plabel = "p="\
-                    +str(100.-Percentiles[p]-Percentiles[p])+" %"
-    
-                ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
-                ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
- 
             
-            ax.plot(XAxis, medHens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="medval")
-                  
-            medZens = numpy.percentile(Zens, 50., axis=0) 
-            for p in numpy.arange(nper):
-                 
-  
-                dlow = numpy.percentile(Zens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Zens, 100.-Percentiles[p], axis=0)
+                    ax.fill_between(XAxis, dlow, dupp, 
+                                            linewidth=Linewidth[0],
+                                            color= Fillcolor[p],
+                                            alpha= Alphas[p],
+                                            label=None)    
+       
         
-                plabel = None
-                ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
-                                        color= Fillcolor[p],
-                                        alpha= Alphas[p],
-                                        label=plabel)      
+                    ax.plot(XAxis, dlow,
+                            linewidth=Linewidth[0]/2, color= Linecolor[p+2])
+                    ax.plot(XAxis, dupp,
+                            linewidth=Linewidth[0]/2, color= Linecolor[p+2])
+     
+                if Median:
+                    ax.plot(XAxis, medHens,
+                            linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
+                            label="medval")
+                          
 
-    
-                plabel = "p="\
-                    +str(100.-Percentiles[p]-Percentiles[p])+" %"
-    
-                ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
-                ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2],
-                        label=plabel)
-            plabel = None  
-            ax.plot(XAxis, medIens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label=plabel)            
-                
-        elif "qua" in PlotType.lower():
+                for p in numpy.arange(np):
+                     
+                    if "per" in PlotType.lower():
+                        medZens = numpy.percentile(Zens, 50., axis=0)
+                        plabel = "p="\
+                            +str(100.-Percentiles[p]-Percentiles[p])+" %"
+                       
+                        dlow = numpy.percentile(Zens,      Percentiles[p], axis=0)
+                        dupp = numpy.percentile(Zens, 100.-Percentiles[p], axis=0)
+                    
+                    else:
+                        medZens = numpy.percentile(Zens, 0.5, axis=0)
+                        plabel = "p="\
+                            +str(1.-Quantiles[p]-Quantiles[p])
+                        
+                        dlow = numpy.quantile(Zens,    Quantiles[p], axis=0)
+                        dupp = numpy.quantile(Zens, 1.-Quantiles[p], axis=0)
             
-            medHens = numpy.percentile(Hens, 50., axis=0)
-            for p in numpy.arange(nper):
-                
-                dlow = numpy.percentile(Hens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Hens, 1.-Percentiles[p], axis=0)
+                    plabel = None
+                    ax.fill_between(XAxis, dlow, dupp, 
+                                            linewidth=Linewidth[0]/2,
+                                            color= Fillcolor[p],
+                                            alpha= Alphas[p],
+                                            label=None)      
+    
         
-                plabel = None
-                ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
-                                        color= Fillcolor[p],
-                                        alpha= Alphas[p],
-                                        label=plabel)    
-   
-                plabel = "p="\
-                    +str(1.-Percentiles[p]-Percentiles[p])+" %"
-    
-                ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
-                ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
- 
-            plabel = "medval"
-            ax.plot(XAxis, medHens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label=plabel)
-                  
-            medZens = numpy.percentile(Zens, 50., axis=0)                   
-            for p in numpy.arange(nper):
-                 
-
-                dlow = numpy.percentile(Zens,      Percentiles[p], axis=0)
-                dupp = numpy.percentile(Zens, 100.-Percentiles[p], axis=0)
         
-                plabel = None
-                ax.fill_between(XAxis, dlow, dupp, 
-                                        linewidth=Linewidth[0],
-                                        color= Fillcolor[p],
-                                        alpha= Alphas[p],
-                                        label=plabel)      
+                    ax.plot(XAxis, dlow,
+                            linewidth=Linewidth[0]/2, color= Linecolor[p+2])
+                    ax.plot(XAxis, dupp,
+                            linewidth=Linewidth[0]/2, color= Linecolor[p+2],
+                            label=plabel)
 
-    
-                plabel = "p="\
-                    +str(1.-Percentiles[p]-Percentiles[p])+" %"
-    
-                ax.plot(XAxis, dlow,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
-                ax.plot(XAxis, dupp,
-                        linewidth=Linewidth[0]/2, color= Linecolor[p+2],
-                        label=plabel)
-                
-            plabel = None   
-            ax.plot(XAxis, medZens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label=plabel)             
+                if Median:
+                    ax.plot(XAxis, medIens,
+                            linewidth=Linewidth[0]/2, color= Linecolor[2], linestyle=Linetype[2],
+                            label=None)            
+       
 
 
         elif "lin" in PlotType.lower():
@@ -558,18 +500,20 @@ def plot_data_ensemble(
                         linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
-            ax.plot(XAxis, medHens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    label="H, median")
-            
+            if Median:
+                ax.plot(XAxis, medHens,
+                        linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
+                        label="H, median")
+                
             medZens = numpy.percentile(Zens, 50., axis=0)  
             ax.plot(XAxis, Zens,
                         linewidth=Linewidth[0]/2, 
                         color= Linecolor[0], alpha=0.5,
                         label=plabel)
-            ax.plot(XAxis, medZens,
-                    linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
-                    )           
+            if Median:
+                ax.plot(XAxis, medZens,
+                        linewidth=Linewidth[0], color= Linecolor[2], linestyle=Linetype[2],
+                        )           
   
 
         
@@ -614,7 +558,7 @@ def plot_data(
         Linecolor=["k", "r", "g", "b", "c", "m"],
         Linetype=["-", ":", ";"],
         Linewidth=[1., 1.5, 2.],
-        Markers = ["v"],
+        Markers = ["o", "s"],
         Markersize =[4],
         Fontsizes=[10,10,12],
         DataTrans=0,
@@ -755,8 +699,8 @@ def plot_data(
         ax.invert_yaxis()
         ax.grid("major", "both", linestyle=":", lw=0.3)
       
-        if Legend:
-            ax.legend(fontsize=Fontsizes[0], loc="best")
+    if Legend:
+        ax.legend(fontsize=Fontsizes[0], loc="best")
 
     if ThisAxis==None:
         for F in PlotFormat:
@@ -812,7 +756,7 @@ def plot_model(
     
 
         ax.step(Model, Depth,
-                          where="pre", color="k",
+                          where="pre", color=Linecolor[0],
                           linewidth=Linewidth[0],  linestyle=Linetype[0],           
                           label=Labels)
 

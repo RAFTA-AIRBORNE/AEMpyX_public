@@ -382,8 +382,8 @@ for file in dat_files:
     print("\n Reading file " + filein)
 
 
-    fileout = OutDatDir + name + OutStrng
-    numpy.savez_compressed(file=fileout+"_ctrl.npz", **Ctrl)
+    fileout = (OutDatDir + name + OutStrng).replace("_results", "_ctrl")
+    numpy.savez_compressed(file=fileout, **Ctrl)
 
     tmp = numpy.load(filein, allow_pickle=True)
     #  numpy.savez_compressed(
