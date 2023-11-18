@@ -4,7 +4,7 @@ This is the public repository for the  Airborne Electromagnetic Inversion toolbo
 
 
 <p align="center">
-   <img src="img/3Layer_conductor.png" alt="Synthetics inversion results" width="500"/>
+   <img src="img/3Layer_conductor.png" alt="Synthetics inversion results" width="700"/>
 </p>
 
 <p align="center">   
