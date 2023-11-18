@@ -144,6 +144,16 @@ _jupyter lab mynotebook.ipynb_
 
 Both calls will open a new browser window, in which you can edit and run the notebook. The _jupiterlab_ is the future interface for notebooks, and there are many options not available with the classical call (https://jupyterlab.readthedocs.io). Remote clusters often offer a specialized server (JupyterHub) to develop and run notebooks. 
 
+Uncert_FL11379-0_site1497.0m
+<p align="center">
+   <img src="img/Uncert_FL11379-0_site1497.0m.png" alt="Synthetics inversion results" width="700"/>
+</p>
+
+<p align="center">   
+   Uncertainty-related plots for a site from Tellus A1 block. Top left: model with error bars. Bottom left: sensitivities. Top center: Parameter covariance a posteriori. Bottom center: Parameter correlation. Top right: paramtere resolution. Bottom right: Data resolution. 
+</p>
+
+
 Enjoy, read the docs, but please keep in mind that this is an experimental software, and may contain errors. Use at your own risk! However, we will frequently update the repository correcting bugs, and adding additional functionality.   
 
 D. Kiyan & V. Rath
