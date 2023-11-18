@@ -282,7 +282,7 @@ for file in data_files:
                 Labels=["true model"],
                 Linecolor=["k"],
                 Linetype=["--"],
-                Linewidth=[1.25],
+                Linewidth=[1],
                 Markers = ["v"],
                 Markersize =[4],
                 Fontsizes=Fontsizes,
