@@ -119,8 +119,8 @@ if "genes" in AEM_system.lower():
 """
 Parameter for model plots
 """
-ModLimits = [1., 1000.]
-DepthLimits = [0., 200.]
+ModLimits = [3., 3000.]
+DepthLimits = [0., 100.]
 
 # Percentiles = [10., 20., 30., 40.] # linear
 Percentiles = [2.3, 15.9 ]                   # 95/68
@@ -191,6 +191,7 @@ for file in data_files:
     
     results = numpy.load(InModDir+file)
 
+    print("Data loaded from file ", InModDir+file)
     
 
     m_act    = results["mod_act"]
@@ -229,9 +230,10 @@ for file in data_files:
        m_true = results["mod_true"]
        d_true = results["dat_true"]    
        l_true = inverse.get_nlyr(m_true)
-       z_true = inverse.set_znodes(m_true[6*nlyr:7*nlyr-1])      
-       m_true = m_true[0*nlyr:1*nlyr]
- 
+       z_true = inverse.set_znodes(m_true[6* l_true:7* l_true-1])     
+       z_true[-1] = 10000.
+       m_true = m_true[0*l_true:1*l_true]
+  
     
     nplots = 2
     if Horiz: 
@@ -270,15 +272,17 @@ for file in data_files:
             Legend=False)
     
     if PlotTrue:
+        # print(m_true) 
+        # print(z_true)
         ax[0] = eviz.plot_model(
                 ThisAxis = ax[0], 
                 System  = AEM_system,
                 Model = m_true,
-                Depth = z_ens,
-                Labels=[],
-                Linecolor=["k","r","g","b"],
-                Linetype=Linetypes,
-                Linewidth=Linewidth,
+                Depth = z_true,
+                Labels=["true model"],
+                Linecolor=["k"],
+                Linetype=["--"],
+                Linewidth=[1.25],
                 Markers = ["v"],
                 Markersize =[4],
                 Fontsizes=Fontsizes,
