@@ -35,9 +35,9 @@ import inverse
 
 def plot_model_ensemble(
         ThisAxis = None, 
-        PlotFile = None,        
+        PlotFile = "",        
         PlotFormat = ["png",],
-        PlotTitle = None,
+        PlotTitle = "",
         PlotType = ["lines"], # lines, Percentiles. iso
         PlotSize = [8.],
         System  = "aem05",
@@ -182,17 +182,17 @@ def plot_model_ensemble(
     if ThisAxis==None:        
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)
-            matplotlib.pyplot.show()
-            matplotlib.pyplot.clf()
+        # matplotlib.pyplot.show()
+        # matplotlib.pyplot.clf()      
         
     return ax
 
 
 def plot_data_ensemble(
         ThisAxis = None, 
-        PlotFile = None,        
-        PlotFormat = ["png",],
-        PlotTitle = None,
+        PlotFile = "",        
+        PlotFormat = [".png",],
+        PlotTitle = "",
         PlotType = ["lines"], # lines, Percentiles. iso
         PlotSize = [8.],
         System  = "aem05",
@@ -275,17 +275,17 @@ def plot_data_ensemble(
 
                 
                 
-            ax.fill_between(XAxis, dlow, dupp, 
-                                    linewidth=Linewidth[0]/2,
-                                    color= Fillcolor[p],
-                                    alpha= Alphas[p],
-                                    label=None)    
-   
-            ax.plot(XAxis, dlow,
-                    linewidth=Linewidth[0]/2, color= Linecolor[p+2])
-            ax.plot(XAxis, dupp,
-                    linewidth=Linewidth[0]/2, color= Linecolor[p+2])
- 
+                ax.fill_between(XAxis, dlow, dupp, 
+                                        linewidth=Linewidth[0]/2,
+                                        color= Fillcolor[p],
+                                        alpha= Alphas[p],
+                                        label=None)    
+       
+                ax.plot(XAxis, dlow,
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
+                ax.plot(XAxis, dupp,
+                        linewidth=Linewidth[0]/2, color= Linecolor[p+2])
+     
             
             if Median:
                 ax.plot(XAxis, medQens,
@@ -540,16 +540,16 @@ def plot_data_ensemble(
     if ThisAxis==None:
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)      
-            matplotlib.pyplot.show()
-            matplotlib.pyplot.clf()
+    # matplotlib.pyplot.show()
+    # matplotlib.pyplot.clf()
             
     return ax
 
 def plot_data(
         ThisAxis = None, 
-        PlotFile = None,        
+        PlotFile = "",        
         PlotFormat = ["png",],
-        PlotTitle = None,
+        PlotTitle = "",
         PlotSize = [8.],
         System  = "aem05",
         Data = [],
@@ -705,17 +705,17 @@ def plot_data(
     if ThisAxis==None:
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)      
-            matplotlib.pyplot.show()
-            matplotlib.pyplot.clf()
+        # matplotlib.pyplot.show()
+        # matplotlib.pyplot.clf()
             
     return ax
 
 
 def plot_model(
         ThisAxis = None, 
-        PlotFile = None,        
+        PlotFile = "",        
         PlotFormat = ["png",],
-        PlotTitle = None,
+        PlotTitle = "",
         PlotSize = [8.],
         System  = "aem05",
         Model = [],
@@ -783,7 +783,7 @@ def plot_model(
     if ThisAxis==None:        
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)
-            matplotlib.pyplot.show()
-            matplotlib.pyplot.clf()
+    # matplotlib.pyplot.show()
+    # matplotlib.pyplot.clf()
         
     return ax

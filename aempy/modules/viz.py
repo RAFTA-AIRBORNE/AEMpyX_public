@@ -32,9 +32,9 @@ import util
 
 def plot_depth_prof(
         ThisAxis = None, 
-        PlotFile = None,
+        PlotFile = "",
         PlotFormat = ["png",],                    
-        PlotTitle = None,                    
+        PlotTitle = "",                    
         FigSize = [8.5*0.3937, 8.5*0.3937],
         Depth = [],        
         DLimits = [],        
@@ -264,8 +264,8 @@ def plot_depth_prof(
 
 def plot_matrix(
         ThisAxis = None, 
-        PlotFile = None,
-        PlotTitle = None,
+        PlotFile = "",
+        PlotTitle = "",
         PlotFormat = ["png",],
         FigSize = [8.5*0.3937, 8.5*0.3937],
         Matrix = [],
@@ -279,7 +279,6 @@ def plot_matrix(
         PlotStrng="",
         StrngPos=[0.05,0.05],
         Aspect = "auto",
-        Save = True, 
         Invalid=1.e30):
     """
     Plots jacobians, covariance and resolution matrices.
@@ -352,20 +351,19 @@ def plot_matrix(
                 fontsize=Fontsizes[1],
                 verticalalignment="center", bbox=props)
  
-
     if ThisAxis==None:
         for F in PlotFormat:
              matplotlib.pyplot.savefig(PlotFile+F)
     
-        matplotlib.pyplot.show()
-        matplotlib.pyplot.clf()
+        # matplotlib.pyplot.show()
+        # matplotlib.pyplot.clf()
     
     return ax
 
 
 def plot_data_genesis(
-        PlotFile = None,
-        PlotTitle = None,
+        PlotFile = "",
+        PlotTitle = "",
         PlotFormat = ["png",],
         DPI = 400,
         Data=[],
@@ -496,8 +494,8 @@ def plot_data_genesis(
     return ax1, ax2
 
 def plot_data_aem05(
-        PlotFile = None,
-        PlotTitle = None,
+        PlotFile = "",
+        PlotTitle = "",
         PlotFormat = ["png",],
         DPI = 400,
         DataTrans=None,
