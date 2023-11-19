@@ -328,28 +328,37 @@ if "map" in  RunType.lower():
     """
     This setup is a workaround, correct only for rho-only inversion
     """
-
-    mvar  = mod_var[0*Nlyr:1*Nlyr]
+      mvar  = mod_var[0*Nlyr:1*Nlyr]
     # inverse.extract_mod(mod_var, mod_act)
-
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=True)
-        Cmi=inverse.extract_cov(Cmi, mod_act)
-        Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
-        CmiS=inverse.extract_cov(CmiS, mod_act)
-        CmiS = scipy.sparse.block_diag([CmiS for Cmis in range(7)])
-        C, sC = Cmi, CmiS
+                  var=mvar, sparse=False, thresh=0.05, inverse=True)
+
+
+        Cmi = inverse.full_cov([Cmi])
+        Cmi = inverse.extract_cov(Cmi, mod_act)
+        C = scipy.sparse.csr_matrix(Cmi)
+
+
+        CmiS = inverse.full_cov([CmiS])
+        CmiS = inverse.extract_cov(CmiS, mod_act)
+        sC = scipy.sparse.csr_matrix(CmiS)
+
+        print(numpy.shape(C),numpy.shape(sC))
     else:
         InvSpace = "dat"
         Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=False)
-        Cm=inverse.extract_cov(Cm, mod_act)
-        Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
-        CmS=inverse.extract_cov(CmS, mod_act)
-        CmS = scipy.sparse.block_diag([CmS for CmS in range(7)])
-        C, sC = Cm, CmS
+                  var=mvar, sparse=False, thresh=0.05, inverse=False)
+
+        Cm = inverse.full_cov([Cm])
+        Cm = inverse.extract_cov(Cm, mod_act)
+        C = scipy.sparse.csr_matrix(Cm)
+
+        CmS = inverse.full_cov([CmS])
+        CmS = inverse.extract_cov(CmS, mod_act)
+        sC = scipy.sparse.csr_matrix(CmS)
+
 
     Maxiter = 10
     Maxreduce = 5
@@ -361,7 +370,7 @@ if "map" in  RunType.lower():
     ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     TauSeq = [0.5]
-    RegShift = 1
+    RegShift = 0
     Ctrl = dict([
         ("system",
          [AEM_system, FwdCall]),

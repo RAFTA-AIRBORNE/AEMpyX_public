@@ -261,7 +261,6 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         Jd = Wd@Jac
         JJ = Jd.T@Jd
-        # JJT = Jac.T@Cdi@Jac
 
         sensi = inverse.calc_sensitivity(Jac=Jd)
 
@@ -994,15 +993,11 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 break
 
 
-        # Jac, _, _, _, _ = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
-        #                      m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
-        #                      d_act=d_act, d_vec=d_obs, d_err = d_err,
-        #                      d_trn=d_trn, d_state=d_state, delta=delta,
-        #                      scalejac=False, out=False)
         Jac  = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
                                 m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
                                 d_vec=d_obs, d_act=d_act, d_trn=d_trn,
                                 delta=delta, scalejac=False, out=False)
+        
 
         cal = inverse.extract_dat(d_cal, d_act)
 
@@ -1043,7 +1038,7 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 A = JJ + Cd
                 r = (obs - cal).T+Jac@diff_m.T
                 m_delta =Ctmp*Jac.T@scipy.linalg.solve(A,r)
-                # Cov a posteriori 
+                # cov a posteriori 
                 C = Ctmp + Ctmp*Jac.T@scipy.linalg.inv(A)@Jac*Ctmp
                 
                 

@@ -496,7 +496,7 @@ def calc_jac(
     if adaptive:
         count = 0
         for ipert in numpy.arange(numpy.size(m_act)):
-            if m_act[ipert] == 1:
+            if m_act[ipert]!=0:
                 count = count + 1
 
                 deliter = delta[0]
@@ -521,7 +521,7 @@ def calc_jac(
     else:
 
         for ipert in numpy.arange(numpy.size(m_act)):
-            if m_act[ipert] == 1:
+            if m_act[ipert]!=0:
 
                 m_current = m_vec.copy()
                 m_current[ipert] = m_current[ipert] + delta[0]
@@ -1220,7 +1220,7 @@ def insert_dat(D=numpy.array([]), d=numpy.array([]), d_act=numpy.array([])):
         A[d_act!=0] = d
     else:
         for ii in numpy.arange(A.shape[0]):
-            A[ii, d_act.flat==1]=d[ii,:]
+            A[ii, d_act.flat!=0]=d[ii,:]
 
     return A
 
@@ -1245,13 +1245,13 @@ def extract_dat(D=numpy.array([]), d_act=numpy.array([])):
     tmp = D.copy()
 
     if D.ndim==1:
-        d = tmp[d_act.flat == 1]
+        d = tmp[d_act.flat!=0]
     else:
         for ii in numpy.arange(D.shape[0]):
             if ii==0:
-                d = tmp[0, d_act.flat==1]
+                d = tmp[0, d_act.flat!=0]
             else:
-                d = numpy.vstack((d, tmp[ii, d_act.flat==1]))
+                d = numpy.vstack((d, tmp[ii, d_act.flat!=0]))
 
     return d
 
@@ -1281,7 +1281,7 @@ def insert_jac(M=numpy.array([]),
 
 
     A = M.copy()
-    A[m_act.flat==1, m_act.flat == 1]=m
+    A[d_act.flat!=0, m_act.flat!=0]=m
 
     return A
 
@@ -1304,8 +1304,8 @@ def extract_jac(J=numpy.array([]),
 
 
     tmp = J.copy()
-    tmp = tmp[d_act.flat == 1, :]
-    A = tmp[:, m_act.flat == 1]
+    tmp = tmp[d_act.flat!=0, :]
+    A = tmp[:, m_act.flat!=0]
 
     return A
 
@@ -1334,10 +1334,10 @@ def insert_mod(M=numpy.array([]),
     A = M.copy()
 
     if M.ndim==1:
-        A[m_act.flat==1]=m.flat
+        A[m_act.flat!=0]=m.flat
     else:
         for ii in numpy.arange(M.shape[0]):
-            A[ii, m_act.flat==1]=m[ii,:]
+            A[ii, m_act.flat!=0]=m[ii,:]
 
     return A
 
@@ -1357,10 +1357,10 @@ def extract_mod(M=numpy.array([]), m_act=numpy.array([])):
 
     tmp = M.copy()
     if M.ndim==1:
-        m =tmp[m_act.flat == 1]
+        m =tmp[m_act.flat!=0]
     else:
         for ii in numpy.arange(M.shape[0]):
-            m[ii,:] = tmp[ii, m_act.flat==1]
+            m[ii,:] = tmp[ii, m_act.flat!=0]
 
     return m
 
@@ -1395,8 +1395,8 @@ def extract_cov(C=numpy.array([]), m_act=numpy.array([])):
     print(numpy.shape(C),numpy.shape(m_act) )
     tmp =C.copy()
     # tmp = tmp.todense()
-    tmp = tmp[m_act.flat == 1, :]
-    A = tmp[:, m_act.flat == 1]
+    tmp = tmp.todense()[m_act.flat!=0, :]
+    A = tmp[:, m_act.flat!=0]
     A = scipy.sparse.csr_matrix(A)
 
     return A
@@ -1834,7 +1834,7 @@ def msreg(dz=None, m=None,
 
 def calc_regstart(D=numpy.array([]), M=numpy.array([]), Fac=1., out=True):
     """
-    Estimate starting regulaisation parameter value for
+    Estimate starting regularisation parameter value for
     methods like Occam and similar cooling schemes.
 
     see:
@@ -1887,7 +1887,7 @@ def calc_regstart(D=numpy.array([]), M=numpy.array([]), Fac=1., out=True):
 
 def calc_regstart_base(J=numpy.array([]), W=numpy.array([]), Fac=1., out=True):
     """
-    Get starting tau for Occam  or Cooling inversion
+    Get starting tau for Occam/Cooling inversion
 
     Inputs:
     -----------

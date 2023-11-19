@@ -232,46 +232,6 @@ if OutInfo:
 """
 Setup Controls for different Algorithms
 """
-if "tikhopt" in  RunType.lower():
-    """
-    Prepare differential operator base methods for regularization matrices
-    """
-    
-    D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
-    L = [D0 for D in range(7)]
-    L0 = scipy.sparse.block_diag(L)
-    Cm0 = L0.T@L0
-    Cm0 = inverse.extract_cov(Cm0, mod_act)
-
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
-    L = [D1 for D in range(7)]
-    L1 = scipy.sparse.block_diag(L)
-    Cm1 = L1.T@L1
-    Cm1 = inverse.extract_cov(Cm1, mod_act)
-
-    Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
-
-
-    ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
-    Delta = [1.e-5]
-    RegShift = 1
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion",
-         numpy.array([RunType, RegFun, Tau, Maxiter, ThreshRMS, 
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar", 
-         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
-
 if "map" in  RunType.lower():
 
     """
@@ -286,7 +246,7 @@ if "map" in  RunType.lower():
     This setup is a workaround, correct only for rho-only inversion
     """
 
-    mvar  = mod_var[0*Nlyr:1*Nlyr]
+    mvar  = numpymod_var[0*Nlyr:1*Nlyr]
     # inverse.extract_mod(mod_var, mod_act)
   
     if "par"in RunType.lower():
