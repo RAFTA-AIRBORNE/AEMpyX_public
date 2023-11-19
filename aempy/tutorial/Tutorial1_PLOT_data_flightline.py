@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 # ---
 
 
@@ -52,6 +52,11 @@ nan = numpy.nan  # float("NaN")
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
+"""
+Determine graphical parameter.
+=> print(matplotlib.pyplot.style.available)
+"""
+
 
 OutInfo = False
 now = datetime.now()
@@ -109,7 +114,7 @@ InDatDir =  AEMPYX_DATA + "/Projects/Compare_systems/data_reduced/"
 PlotDir  =  AEMPYX_DATA + "/Projects/Compare_systems/plots/"
 PlotStrng = " - data reduced"
 SearchStrng = "SGL*FL2060011-17*.npz"
-PdfCat = "Testlines_SGL_reduced.pdf"
+
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -135,6 +140,7 @@ print(dat_files)
 FilesOnly = False
 PlotFmt = [".pdf", ".png", ]
 PdfCatalog = True
+PdfCat = "Testlines_SGL_reduced.pdf"
 
 if ".pdf" in PlotFmt:
     pass
@@ -195,7 +201,7 @@ Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
 """
 
-matplotlib.pyplot.style.use("seaborn-paper")
+matplotlib.pyplot.style.use("seaborn-v0_8-paper")
 matplotlib.rcParams["figure.dpi"] = 400
 matplotlib.rcParams["axes.linewidth"] = 0.5
 matplotlib.rcParams["savefig.facecolor"] = "none"

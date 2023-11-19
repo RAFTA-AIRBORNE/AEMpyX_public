@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 # ---
 
 
@@ -101,11 +101,11 @@ dat_files = [""]
 ns = len(dat_files)
 if ns ==0:
     error("No data files set!. Exit.")
-    
+
 SampleType="dist"           # "dist", "site", "rand"
 if "dist" in SampleType.lower():
     SampleSites = [[500., 1000.],]
-    
+
 if "site" in SampleType.lower():
     SampleSites = [[ 300 ,  500],]
 
@@ -160,10 +160,10 @@ mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
 # mod_bnd = mumpy.array([])
 max_val = 1.e+30
 min_val = 1.e-30
-# max_val = mod_apr[mod_act==1] + 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 1] = max_val
-# min_val = mod_apr[mod_act==1] - 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 0] = min_val
+# max_val = mod_apr[mod_act!=0] + 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 1] = max_val
+# min_val = mod_apr[mod_act!=0] - 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 0] = min_val
 mod_bnd[:,0] = min_val
 mod_bnd[:,1] = max_val
 
@@ -183,14 +183,14 @@ zc = inverse.set_zcenters(dz)
 xc = numpy.zeros_like(zc)
 yc = numpy.zeros_like(zc)
 CorrL = numpy.array([30.0, 30.0, 30.0])
- 
+
 """
 This setup is a workaround, correct only for rho-only inversion
 """
- 
+
 mvar  = mod_var[0*Nlyr:1*Nlyr]
 # inverse.extract_mod(mod_var, mod_act)
- 
+
 InvSpace = "dat"
 Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
           var=mvar, sparse=True, thresh=0.05, inverse=False)
@@ -244,7 +244,7 @@ if "dream" in  RunType.lower():
         ("prior", 
          numpy.array([Cm], dtype=object)),
        ])
-    
+
 if "hmc" in  RunType.lower():
     NumSample = 10000
     NumChains = 8

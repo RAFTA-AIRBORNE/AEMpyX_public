@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 # ---
 
 
@@ -192,10 +192,10 @@ mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
 # mod_bnd = numpy.array([])
 max_val = 1.e+30
 min_val = 1.e-30
-# max_val = mod_apr[mod_act==1] + 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 1] = max_val
-# min_val = mod_apr[mod_act==1] - 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 0] = min_val
+# max_val = mod_apr[mod_act!=0] + 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 1] = max_val
+# min_val = mod_apr[mod_act!=0] - 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 0] = min_val
 mod_bnd[:,0] = min_val
 mod_bnd[:,1] = max_val
 
@@ -238,7 +238,7 @@ if "tikhopt" in  RunType.lower():
 
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
-    RegShift = 0
+    RegShift = 2
 
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
@@ -339,7 +339,7 @@ if "map" in  RunType.lower():
     ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     TauSeq = [0.5]
-    RegShift = 1
+    RegShift = 0
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
         ("name", ""),
@@ -391,7 +391,7 @@ for file in dat_files:
     imod_para = tmp["para"]
     imod_data = tmp["data"]
     imod_modl = tmp["model"]
-    print(numpy.shape(imod_data))
+    # print(numpy.shape(imod_data))
 
     imod_num = imod_data[:,0]
     imod_smp = imod_data[:,1]
@@ -411,7 +411,7 @@ for file in dat_files:
     dat_act = numpy.tile(data_active,(nsample,1))
     dat_obs = imod_data[:,3:]
     dat_err = numpy.zeros_like(dat_obs)
-    print(numpy.shape(dat_obs))
+    # print(numpy.shape(dat_obs))
 
     """
     Loop over samples

@@ -1158,8 +1158,8 @@ def init_1dmod(nlyr, npar=7):
     m_min = -1e30
     m_bounds[:, 0] = m_min
     m_bounds[:, 1] = m_max
-    #   =  6. #prior_avg[m_act==1] + 3*prior_std[m_act==1]
-    #   = -1. #prior_avg[m_act==1] - 3*prior_std[m_act==1]
+    #   =  6. #prior_avg[m_act!=0] + 3*prior_std[m_act!=0]
+    #   = -1. #prior_avg[m_act!=0] - 3*prior_std[m_act!=0]
 
     return m_act, m_prior, m_var, m_bounds, m_state
 
@@ -1217,7 +1217,7 @@ def insert_dat(D=numpy.array([]), d=numpy.array([]), d_act=numpy.array([])):
     A = D.copy()
 
     if d.ndim==1:
-        A[d_act == 1] = d
+        A[d_act!=0] = d
     else:
         for ii in numpy.arange(A.shape[0]):
             A[ii, d_act.flat==1]=d[ii,:]
@@ -1415,8 +1415,8 @@ def extract_wgt(W=numpy.array([]), m_act=numpy.array([])):
 
     tmp = W.copy()
     # tmp = tmp.todense()
-    tmp = tmp[m_act == 1, :]
-    A = tmp[:, m_act == 1]
+    tmp = tmp[m_act!=0, :]
+    A = tmp[:, m_act!=0]
     A = scipy.sparse.csr_matrix(A)
 
 

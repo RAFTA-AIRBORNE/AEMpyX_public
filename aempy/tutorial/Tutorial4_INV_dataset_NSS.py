@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 # ---
 
 
@@ -189,10 +189,10 @@ mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
 # mod_bnd = mumpy.array([])
 max_val = 1.e+30
 min_val = 1.e-30
-# max_val = mod_apr[mod_act==1] + 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 1] = max_val
-# min_val = mod_apr[mod_act==1] - 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 0] = min_val
+# max_val = mod_apr[mod_act!=0] + 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 1] = max_val
+# min_val = mod_apr[mod_act!=0] - 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 0] = min_val
 mod_bnd[:,0] = min_val
 mod_bnd[:,1] = max_val
 

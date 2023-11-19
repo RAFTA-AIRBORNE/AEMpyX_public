@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 # ---
 
 
@@ -25,6 +25,7 @@ import copy
 
 import numpy
 import scipy
+import random
 
 # %logstart -o
 
@@ -48,6 +49,7 @@ AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 rng = numpy.random.default_rng()
 nan = numpy.nan  # float("NaN")
 version, _ = versionstrg()
+
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
@@ -89,9 +91,7 @@ if "genes" in AEM_system.lower():
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 
-"""
-input formats are ".npz",".nc4",".asc"
-"""
+
 ReverseDir = False
 
 FileList = "search"  # "search", "read"
@@ -117,16 +117,29 @@ ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 
-"""
-Output format is ".npz"
-"""
-OutDatDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/"
-print("Models written to dir: %s " % OutDatDir)
+OutResDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/"
+print("Models written to dir: %s " % OutResDir)
+
+Plots=True
 
 
-if not os.path.isdir(OutDatDir):
-    print("File: %s does not exist, but will be created" % OutDatDir)
-    os.mkdir(OutDatDir)
+Sample = "random"
+# Sample = "distance list"
+# Sample = "distance list"
+if "rand" in Sample:
+    NSamples = 3
+
+elif "list" in Sample:
+    if "pos" in Sample:
+        Samplist = [100, 200]
+    if "dis" in Sample:
+        Distlist = [ 1500.]
+
+
+
+if not os.path.isdir(OutResDir):
+    print("File: %s does not exist, but will be created" % OutResDir)
+    os.mkdir(OutResDir)
 
 
 """
@@ -188,10 +201,10 @@ mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
 # mod_bnd = mumpy.array([])
 max_val = 1.e+30
 min_val = 1.e-30
-# max_val = mod_apr[mod_act==1] + 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 1] = max_val
-# min_val = mod_apr[mod_act==1] - 3*mod_std[mod_act==1]
-# mod_bnd[mod_act == 1, 0] = min_val
+# max_val = mod_apr[mod_act!=0] + 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 1] = max_val
+# min_val = mod_apr[mod_act!=0] - 3*mod_std[mod_act!=0]
+# mod_bnd[mod_act!=0, 0] = min_val
 mod_bnd[:,0] = min_val
 mod_bnd[:,1] = max_val
 
@@ -234,7 +247,7 @@ if "tikhopt" in  RunType.lower():
 
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
-    RegShift = 1
+    RegShift = 0
 
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
@@ -384,9 +397,9 @@ for file in dat_files:
     filein = InDatDir+file
     print("\n Reading file " + filein)
 
-    Fileout = OutDatDir + name + OutStrng
+    Fileout = OutResDir + name + OutStrng
 
-    numpy.savez_compressed(file=Fileout+"_ctrl.npz", **Ctrl)
+    numpy.savez_compressed(file=Fileout.replace("_results","_ctrl"), **Ctrl)
 
 
     DataObs, Header, _ = aesys.read_aempy(File=filein,
@@ -412,19 +425,35 @@ for file in dat_files:
     start = time.time()
     """
     Loop over sites
+
+    construct site_list
     """
-    sequence = range(nsite)
-    if ReverseDir:
-        sites = sequence[::-1]
+    
+    site_x = site_x - site_x[0]
+    site_y = site_y - site_y[0]
+    site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
+    
+    if "rand" in Sample:
+        site_list = random.sample(range(len(site_x)), NSamples)
+
+    elif "list" in Sample:
+        
+        if "posi" in Sample:
+            site_list = Samplist
+        if "dist" in Sample:
+            for nid in numpy.arange(len(Distlist)):
+                nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
+                site_list.append(nds)
     else:
-        sites = sequence
+        site_list = numpy.arange(len(site_x))
+    
+    
+    logsize = (2 + 7*Maxiter)  
+         
+    site_log = numpy.full((len(site_list),logsize), numpy.nan)
 
-
-    logsize = (2 + 7*Maxiter)
-    site_log = numpy.full((len(sites),logsize), numpy.nan)
-
-    for ii in sites:
-        print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
+    for ii in site_list:
+        print("\n Invert site #"+str(ii)+"/"+str(len(site_list)))
 
         """
         Setup model-related parameter dict
@@ -580,6 +609,156 @@ for file in dat_files:
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+ 
+    """
+    Plotting: will be moved to disticnt script
+    """
+ 
     
+    if Plots:
+        
+        import matplotlib
+        import matplotlib.pyplot
+        from cycler import cycler
+        import eviz
+        
+        cm = 1/2.54  # centimeters to inches
+        PlotFmt = [".pdf", ".png", ]
+        PdfCatalog = True
+        PdfCatName = "StGormans_JCN.pdf"
+        if ".pdf" in PlotFmt:
+            pass
+        else:
+            error(" No pdfs generated. No catalog possible!")
+            PdfCatalog = False
+        
+        
+        
+        OutPlotDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/plots/"
+        print("Models written to dir: %s " % OutPlotDir)
+        Horiz = True
+        FilesOnly = False
 
-print("\n\nAll done!")
+        """
+        Determine graphical parameter.
+        => print(matplotlib.pyplot.style.available)
+        """
+
+        matplotlib.pyplot.style.use("seaborn-v0_8-paper")
+        matplotlib.rcParams["figure.dpi"] = 400
+        matplotlib.rcParams["axes.linewidth"] = 0.5
+        matplotlib.rcParams["savefig.facecolor"] = "none"
+        matplotlib.rcParams["savefig.transparent"] = True
+        matplotlib.rcParams["savefig.bbox"] = "tight"
+        
+        PlotSize = [8., 8.]
+        
+        Fontsize = 8
+        Labelsize = Fontsize
+        Titlesize = 8
+        Fontsizes = [Fontsize, Labelsize, Titlesize]
+        
+        Linewidths= [0.6]
+        Markersize = 4
+        
+        ncols = 11
+        Colors = matplotlib.pyplot.cm.jet(numpy.linspace(0,1,ncols))
+        Grey = 0.7
+        Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
+                  * cycler("color", ["r", "g", "b", "y"]))
+        
+        """
+        For just plotting to files, choose the cairo backend (eps, pdf, ,png, jpg...).
+        If you need to see the plot. directly (plot. window, or jupyter), simatplotliby
+        comment out the following line. In this case matplotlib may run into
+        memory problems after a few hundreds of high-resolution plot..
+        """
+        if FilesOnly:
+            matplotlib.use("cairo")
+        
+        if PdfCatalog:
+            pdf_list = []
+            
+            
+            
+    PlotTitle = "JCN estimate: site "+str(ii) 
+    nplots = 2
+    if Horiz: 
+        horz = nplots
+        vert = 1
+    else:
+        horz = 1
+        vert = nplots
+        
+    fig, ax = matplotlib.pyplot.subplots(1,nplots,
+                                      figsize=(horz*PlotSize[0]*cm, vert*PlotSize[0]*cm),
+                                      gridspec_kw={
+                                          "height_ratios": [1.],
+                                          "width_ratios": [1., 1.]})
+    fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
+
+    
+    ax[0] = eviz.plot_model_ensemble(
+            ThisAxis = ax[0], 
+            PlotType = "percentiles", # lines, percentiles. iso
+            System  = AEM_system,
+            ModEns = m_ens,
+            Depth = z_ens,
+            Percentiles=[2.5, 16.],
+            Fillcolor=["0.8", "0.4"],
+            Alphas = [0.3 , 0.6],
+            Labels=[],
+            Linecolor=Linecolors,
+            Linetype=Linetypes,
+            Linewidth=Linewidth,
+            Markers = ["v"],
+            Markersize =[4],
+            Fontsizes=Fontsizes,
+            XLimits=ModLimits,
+            YLimits= DepthLimits,
+            Legend=False)
+    
+    ax[0] = eviz.plot_model(
+              ThisAxis = ax[0], 
+              System  = AEM_system,
+              Model = m_true,
+              Depth = z_ens,
+              Labels=[],
+              Linecolor=["k","r","g","b"],
+              Linetype=Linetypes,
+              Linewidth=Linewidth,
+              Markers = ["v"],
+              Markersize =[4],
+              Fontsizes=Fontsizes,
+              XLimits= ModLimits,
+              YLimits= DepthLimits,
+              Legend=True)
+     
+    
+    ax[1] = eviz.plot_data_ensemble(
+            ThisAxis = ax[1],  
+            PlotType = "percentiles", # lines, percentiles. iso
+            System  = AEM_system,
+            DatEns = d_ens,
+            Percentiles=[2.5, 16.],
+            Fillcolor=["0.8", "0.4"],
+            Alphas = [0.3 , 0.6],
+            Labels=[],
+            Linecolor=Linecolors,
+            Linetype=Linetypes,
+            Linewidth=Linewidth,
+            Markers = [""],
+            Markersize =[4],
+            Fontsizes=Fontsizes, 
+            XLimits= FreqLimits,
+            YLimits= DataLimits,
+            Legend=False)
+
+
+    
+    for F in PlotFormat:
+        matplotlib.pyplot.savefig(PlotDir+PlotFile+F)
+    # matplotlib.pyplot.show()
+    # matplotlib.pyplot.clf()
+
+

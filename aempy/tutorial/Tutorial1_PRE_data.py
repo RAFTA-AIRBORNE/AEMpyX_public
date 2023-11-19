@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: sphinx
 #       format_version: '1.1'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 # ---
 
 

@@ -9,7 +9,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.2
 # ---
 
 
@@ -124,7 +124,7 @@ if "model" in Plotlist:
     Modelwidth = [ 1,  1,  1,]
     ModelLimits = [1., 10000.] 
     DepthLimits = [0., 100.]
-    
+
 if "sens" in Plotlist:
     print("Sensitivities will be plotted")
     whichsens = ["raw","cov", "euc" , "cum"] 
@@ -148,15 +148,15 @@ if "resdat" in Plotlist:
     whichspread = "fro"   #, too"", "euc", "mic"
     print("   Spread type is "+whichspread)
     PhysAxes = True
-    
+
 if "cov" in Plotlist:
     print("Posterior covariance matrix will be plotted")
     NoHalfspace = True
-    
+
 if "cot" in Plotlist:
     print("Parameter correlation matrix will be plotted")
     NoHalfspace = True
-   
+
 if "jac" in Plotlist:
     print("Jacobian matrix will be plotted")
     NoHalfspace = True
@@ -167,7 +167,7 @@ if "jac" in Plotlist:
 Sample = "distance list"
 if "rand" in Sample:
     NSamples = 1
-    
+
 elif "list" in Sample:
     if "pos" in Sample:
         Samplist = [100, 200]
@@ -198,7 +198,7 @@ if "search" in FileList.lower():
     # how = ["read", FileList, InModDir]
     print("Method is ", how )
     mod_files = util.get_data_list(how, out= True, sort=True)
-    
+
 # FileList ="set" 
 # mod_files = ["A1*results.npz"]
 

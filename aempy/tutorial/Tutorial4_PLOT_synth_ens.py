@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.2
+# ---
+
 
 import os
 import os.path
@@ -50,14 +62,10 @@ print(titstrng+"\n\n")
 
 
 now = datetime.now()
-"""
-input format is npz
-"""
 
-InFileFmt = ".npz"
+
 InModDir = AEMPYX_DATA+"/SynthData/results/"
 print("Data/models read from dir:  %s" % InModDir)
-
 
 FileList = "search"  # "search", "read"
 
@@ -89,7 +97,7 @@ else:
     PDFCatalog = False
 
 PlotTrue = True #True
-    
+
 """
 Placement of plots
 """   
@@ -101,20 +109,20 @@ Parameter for data plot
 
 AEM_system = "aem05"
 # AEM_system = "genesis"
-    
+
 FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
 
 if "aem05" in AEM_system.lower():
 
     DataLimits = [0., 2500.]    
     FreqLimits = []
-    
+
 
 if "genes" in AEM_system.lower():
     # asinh trans (if negatives)
     DataLimits = []
     TimeLimits = []
-    
+
 
 """
 Parameter for model plots
@@ -329,8 +337,6 @@ for file in data_files:
     
     for F in PlotFormat:
         matplotlib.pyplot.savefig(PlotDir+PlotFile+F)
-        matplotlib.pyplot.show()
-        matplotlib.pyplot.clf()
         
     if PDFCatalog:
         pdf_list.append(PlotDir+PlotFile+".pdf")
