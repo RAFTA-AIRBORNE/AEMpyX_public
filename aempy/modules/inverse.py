@@ -1394,8 +1394,9 @@ def extract_cov(C=numpy.array([]), m_act=numpy.array([])):
         error("extract_cov: m_act not defined! Exit.")
     print(numpy.shape(C),numpy.shape(m_act) )
     tmp =C.copy()
-    # tmp = tmp.todense()
-    tmp = tmp.todense()[m_act.flat!=0, :]
+    if scipy.sparse.issparse(tmp):
+        tmp = tmp.todense()
+    tmp = tmp[m_act.flat!=0, :]
     A = tmp[:, m_act.flat!=0]
     A = scipy.sparse.csr_matrix(A)
 
