@@ -482,7 +482,7 @@ def plot_data_ensemble(
                             label=plabel)
 
                 if Median:
-                    ax.plot(XAxis, medIens,
+                    ax.plot(XAxis, medZens,
                             linewidth=Linewidth[0]/2, color= Linecolor[2], linestyle=Linetype[2],
                             label=None)            
        

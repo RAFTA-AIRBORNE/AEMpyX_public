@@ -345,6 +345,7 @@ def plot_matrix(
     cb.ax.set_title(Unit)
     
     if PlotStrng != "":
+        
         props = dict(facecolor="white", alpha=0.9) # boxstyle="round"
         ax.text(StrngPos[0], StrngPos[1], PlotStrng, 
                 transform=ax.transAxes, 

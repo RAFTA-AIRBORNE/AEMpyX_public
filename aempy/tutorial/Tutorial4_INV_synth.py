@@ -171,20 +171,41 @@ dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 z = numpy.append(0.0, numpy.cumsum(dz))
 
 zerolayer = numpy.zeros(Nlyr)
-izerolayer = zerolayer.astype(int)
-onelayer = numpy.ones(Nlyr)
-ionelayer = onelayer.astype(int)
 
+"""
+Background model: default settings is rho only, - IP is nonexistent 
+Neeeds to be adapted for reasonable IP
+""" 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
 
 mod_act[0*Nlyr:1*Nlyr] = 1
+"""
+For activating chargeability:
+"""
+# mod_act[2*Nlyr:3*Nlyr] = 1
+
+"""
+For activating Thicknesses (few layers only):
+"""
+# mod_act[6*Nlyr:7*Nlyr-1] = 1
+
+
 sizepar = numpy.shape(mod_act)
 mpara = sizepar[0]
-
-Guess_r = 100.0  # initial guess for resistivity in mod_apr
-Guess_s = 0.3   # mod_std defines standard deviation of mod_apr
-mod_apr[0*Nlyr:1*Nlyr] = Guess_r
-mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_s,2)
+"""
+All activated parameter need reasonable priors
+"""
+Guess_rv = 100.0  # initial guess for resistivity in mod_apr
+Guess_rs = 0.3    # std defines standard deviation 
+mod_apr[0*Nlyr:1*Nlyr] = Guess_rv
+mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_rs,2)
+Guess_mv = 0.5    # initial guess for chargeability in mod_apr
+Guess_ms = 0.05   # std defines standard deviation 
+mod_apr[2*Nlyr:3*Nlyr] = Guess_rv
+mod_var[2*Nlyr:3*Nlyr] = numpy.power(Guess_rs,2)
+"""
+Thicknesses are kept constant (not activated)
+"""
 mod_apr[6*Nlyr:7*Nlyr-1] = dz[0:Nlyr - 1]
 mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
 
@@ -205,8 +226,8 @@ if OutInfo:
     #   (" Parameter set for inverting: \n", mod_act)
     print(" Layer thicknesses: \n", dz)
     print(" Layer interface depths: \n", z)
-    print(" Initial halfspace resistivity of %6.2f Ohm*m" % (Guess_r))
-    print(" Log Standard error of %6.2f " % (Guess_s))
+    print(" Initial halfspace resistivity of %6.2f Ohm*m" % (Guess_rv))
+    print(" Log Standard error of %6.2f " % (Guess_rs))
     if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
         print(" Upper limits: \n", mod_bnd[:, 1])
         print(" Lower limits: \n", mod_bnd[:, 0])
@@ -364,7 +385,7 @@ if OutInfo:
 OutStrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
             +"_"+RegFun\
-            +"_Prior"+str(int(Guess_r))\
+            +"_Prior"+str(int(Guess_rv))\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))\
             +"_results"
 print("ID string: input file + %s " % OutStrng)

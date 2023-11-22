@@ -117,32 +117,46 @@ Nsamples = 1000
 # NSamples = 1
 Perturb = True
 SplitData= True
-IdString = AEM_system.upper()+"_5Layer_"+str(Nsamples+1)+"Sample"
-nlyr = 5
+
+"""
+Set up base model
+"""
+
+nlyr = 3
 Model_active, Model_base, model_var, m_bounds, m_state = inverse.init_1dmod(nlyr)
-Model_active[0 * nlyr:1 * nlyr] = numpy.ones((nlyr)).astype(int)
 
-# IdString = AEM_system.upper()+"_5Layer"
-# Thick0 = [25.]
-# Thick1 = [10., 20.]
-# Thick2 = [10., 20.]
-# Thick3 = [10., 20.]
-# Rho0 = [100.]
-# Rho1 = [10., 1000]
-# Rho2 = [100.]
-# Rho3 = [10., 1000]
-# Rhob = [100.]
+"""
+Background model: default settings is rho only, - IP is nonexistent 
+Neeeds to be adapted for reasonable IP
+""" 
+Model_base[0*nlyr:1*nlyr] =[100., 100., 100.]  #rho
+Model_base[6*nlyr:7*nlyr-1] =[30.,30.]
 
-IdString = AEM_system.upper()+"_3Layer_"+str(Nsamples+1)+"Sample"
-Thick0 = [25.]
-Thick1 = [25.]
-Thick2 = [1.]
-Thick3 = [1.]
-Rho0 = [ 100.]
-Rho1 = [ 10., 1000]
-Rho2 = [100.]
-Rho3 = [100.]
-Rhob = [100.]
+
+"""
+Currently, one parameter  and altitude can be varied within a loop. 
+"""
+
+"""
+rho for layer 1 (starting from 0!)
+"""
+
+FWDBaseName = "AEM05_Rho1"
+VarPar = [ 10., 100.,1000]
+VarInd = 0 * nlyr+1
+
+"""
+thickness of layer 1 (starting from 0!)
+"""
+# FWDBaseName = "AEM05_Thk1"
+# VarPar = [10., 30., 50.] 
+# VarInd = 6*nlyr+1
+"""
+chargeability of layer 1 (starting from 0!)
+"""
+# FWDBaseName = "AEM05_m1"
+# VarPar = [0.0001, 0.2, 0.4 0.6.0.8] 
+# VarInd = 2*nlyr+1 
 
 """
 Generate Data
@@ -151,103 +165,64 @@ Generate Data
 
 
 mod_num = -1
-for alt in Alt:
-    for thk0 in Thick0:
-        for thk1 in Thick1:
-            for thk2 in Thick2:
-                for thk3 in Thick3:
-                   for rho0 in Rho0:
-                        for rho1 in Rho1:
-                            for rho2 in Rho2:
-                                for rho3 in Rho3:
-                                    for rhob in Rhob:
+for par in numpy.arange(len(VarPar)):
 
-                                        mod_num += 1
+        mod_num += 1
+        
+        m_i = Model_base.copy()
 
-                                        p_i = [mod_num, alt,
-                                               thk0, thk1, thk2, thk3,
-                                               rho0, rho1,rho2, rho3, rhob,
-                                               DataTrans, DatErr_add, DatErr_mult]
-
-                                        description =    "{0:2d} ".format(p_i[0])\
-                                                        +"{0:.0f} ".format(p_i[1])\
-                                                        +"{0:.0f} ".format(p_i[2])\
-                                                        +"{0:.0f} ".format(p_i[3])\
-                                                        +"{0:.0f} ".format(p_i[4])\
-                                                        +"{0:.0f} ".format(p_i[5])\
-                                                        +"{0:.0f} ".format(p_i[6])\
-                                                        +"{0:.0f} ".format(p_i[7])\
-                                                        +"{0:.0f} ".format(p_i[8])\
-                                                        +"{0:.0f} ".format(p_i[9])\
-                                                        +"{0:.0f} ".format(p_i[10])\
-                                                        +"{0:2d} ".format(p_i[11])\
-                                                        +"{0:.0f}/{1:.2f} ".format(p_i[12],p_i[13])
-
-                                        print("\n\n\nModel description:")
-                                        print(description)
+        if VarInd==numpy.size(m_i):
+            alt = Alt[par]
+            p_i = numpy.array([mod_num, VarInd, Alt[par], DataTrans, DatErr_add, DatErr_mult])
 
 
-                                        m_i = Model_base.copy()
+        else:
+            m_i[VarInd] = VarPar[par]
+            p_i = numpy.array([mod_num, VarInd, VarPar[par], DataTrans, DatErr_add, DatErr_mult])
 
-                                        m_i[0 * nlyr:1 * nlyr]     = [rho0, rho1, rho2, rho3, rhob]
-                                        m_i[6 * nlyr:7 * nlyr - 1] = [thk0, thk1, thk2, thk1]
 
-                                        d_state = 0
-                                        m_state = 0
+       
 
-                                        m_current, m_state = inverse.transform_parameter(m_vec=m_i, m_trn=ParaTrans, m_state=m_state, mode="f")
-                                        d_ref, d_state = inverse.calc_fwdmodel(fwdcall=FwdCall, alt=alt,
-                                                                          m_vec = m_current, m_trn=ParaTrans, m_state=m_state,
-                                                                          d_trn=0, d_state=d_state, d_act = DataActive )
+        d_state = 0
+        m_state = 0
 
-                                        if mod_num==0:
-                                            Model = m_i
-                                            Info = [description]
-                                            Data = numpy.insert(d_ref,0,[mod_num, -1, alt])
-                                            Para = p_i
-                                        else:
-                                            Model = numpy.vstack((Model, m_i))
-                                            Info.append(description)
-                                            Data =  numpy.vstack((Data, numpy.insert(d_ref,0,[mod_num, -1, alt])))
-                                            Para =  numpy.vstack((Para, p_i))
-                                        # print(mod_num, numpy.shape(Model))
-                                       
-                                        for ismp in numpy.arange(Nsamples):
-                                            _, data_obs = inverse.set_errors(d_ref, DatErr_add, DatErr_mult, perturb=Perturb)
-                                            data_obs =numpy.insert(data_obs,0,[mod_num, ismp, alt])
-                                            Data =  numpy.vstack((Data, data_obs))
+        m_current, m_state = inverse.transform_parameter(m_vec=m_i, m_trn=ParaTrans, m_state=m_state, mode="f")
+        d_ref, d_state = inverse.calc_fwdmodel(fwdcall=FwdCall, alt=Alt,
+                                          m_vec = m_current, m_trn=ParaTrans, m_state=m_state,
+                                          d_trn=0, d_state=d_state, d_act = DataActive )
+
+        if mod_num==0:
+            Model = m_i
+            Data = numpy.insert(d_ref,0,[mod_num, -1, alt])
+            Para = p_i
+            print(numpy.shape(Para))
+        else:
+            Model = numpy.vstack((Model, m_i))
+            Data =  numpy.vstack((Data, numpy.insert(d_ref,0,[mod_num, -1, alt])))
+            Para =  numpy.vstack((Para, p_i))
+        # print(mod_num, numpy.shape(Model))
+       
+        for ismp in numpy.arange(Nsamples):
+            _, data_obs = inverse.set_errors(d_ref, DatErr_add, DatErr_mult, perturb=Perturb)
+            data_obs =numpy.insert(data_obs,0,[mod_num, ismp, alt])
+            Data =  numpy.vstack((Data, data_obs))
 
 if SplitData:
     for imod in numpy.arange(mod_num+1):
 
         p_s = Para[imod]
         m_s = Model[imod]
-        i_s = Info[imod]
         d_s = Data[numpy.isin(Data[:,0],imod)]
 
+        SplitStrng = "_model"+str(imod)+"_"+str(Nsamples)+"samples"
 
-        SplitStrng = "Mod"+"_"\
-                    +str(int(p_s[0]))+"_"\
-                    +"Alt"+"_"\
-                    +str(int(p_s[1]))+"_"\
-                    +"Thick"+"_"\
-                    +str(int(p_s[2]))+"_"\
-                    +str(int(p_s[3]))+"_"\
-                    +str(int(p_s[4]))+"_"\
-                    +str(int(p_s[5]))+"_"\
-                    +"Res"+"_"\
-                    +str(int(p_s[6]))+"_"\
-                    +str(int(p_s[7]))+"_"\
-                    +str(int(p_s[8]))+"_"\
-                    +str(int(p_s[9]))+"_"\
-                    +str(int(p_s[10]))
 
-        NPZSplit=OutDir+IdString+SplitStrng+".npz"
+        NPZSplit=OutDir+FWDBaseName+SplitStrng+".npz"
         print("Results written to "+NPZSplit)
-        numpy.savez_compressed(file=NPZSplit, model=m_s, data=d_s, para=p_s, info=i_s)
+        numpy.savez_compressed(file=NPZSplit, model=m_s, data=d_s, para=p_s)
 else:
     print(numpy.shape(Data))
-    NPZFile = OutDir+IdString+".npz"
+    NPZFile = OutDir+FWDBaseName+".npz"
     print("\n\nResults written to "+NPZFile)
     numpy.savez_compressed(
-        file=NPZFile, model=Model, data=Data, para=Para, info=Info)
+        file=NPZFile, model=Model, data=Data, para=Para)

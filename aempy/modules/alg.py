@@ -1153,8 +1153,10 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         # Quantification in Subsurface Flow Problems
         # Mathematical Geoscience, 2017, 49, 679-715
         if "par" in invspace.lower():
-            A = JJ + Cmi.multiply(tau[g_index])
+            JJ = Jac.T@Cdi@Jac
+            A = JJ + tau[g_index]*Cmi
             C = scipy.linalg.inv(A)
+
 
         else:
             Ctmp = tau[g_index]*Cm
@@ -1168,12 +1170,16 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         # Resolution martices & spread
         Rm = G@Jd
+        print(numpy.shape(Rm))
         Nm = numpy.sum(Rm.diagonal())
         Sm = scipy.linalg.norm(numpy.identity(numpy.shape(Rm)[0])-Rm)
 
-        Rd = Jd@G
+        Rd = Jd@G        
+        print(numpy.shape(Rd))
         Nd = numpy.sum(Rd.diagonal())
         Sd = scipy.linalg.norm(numpy.identity(numpy.shape(Rd)[0])-Rd)
+        
+        print("Nm =", str(Nm), "Nd =", str(Nd),)
 
         uncpars =\
             dict([
