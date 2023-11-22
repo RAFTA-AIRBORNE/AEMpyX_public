@@ -142,7 +142,7 @@ rho for layer 1 (starting from 0!)
 """
 
 FWDBaseName = "AEM05_Rho1"
-VarPar = [ 10., 100.,1000]
+VarPar = [ 10., 100.,1000.]
 VarInd = 0 * nlyr+1
 
 """

@@ -131,7 +131,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 
-RegFun = "mle" # "fix", "lcc", "gcv", "mle"
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)

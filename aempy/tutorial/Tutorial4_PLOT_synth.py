@@ -236,13 +236,16 @@ for file in data_files:
  
     if PlotTrue:
        m_true = results["mod_true"]
-       d_true = results["dat_true"]    
+       d_true = results["dat_true"]  
+       print("read: ",m_true)
        l_true = inverse.get_nlyr(m_true)
        z_true = inverse.set_znodes(m_true[6* l_true:7* l_true-1])     
-       z_true[-1] = 10000.
+       z_true = numpy.append(z_true, 10000.)
+       
        m_true = m_true[0*l_true:1*l_true]
-  
-    
+       m_true = numpy.append(m_true, m_true[-1])
+       print("calc: ", m_true)
+       print("calc: ", z_true)
     nplots = 2
     if Horiz: 
         horz = nplots
