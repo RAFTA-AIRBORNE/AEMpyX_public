@@ -120,35 +120,19 @@ if ns ==0:
 OutResDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/"
 print("Models written to dir: %s " % OutResDir)
 
-"""
-script offers several methods do choose sites:
-Sample = 
-"rand"                  choose Nsample random sites
-"step"                  choose sites with Start/Sop/Step
-"list suboption"        define list, with suboptions position and distance
-
-Any other string will choose full data set.
-
-"""
+Plots=True
 
 
+Sample = "random"
+# Sample = "distance list"
+# Sample = "distance list"
+if "rand" in Sample:
+    NSamples = 3
 
-
-Sample = [""]   # 
-
-if "rand" in Sample[0].lower():
-    Nsamples = 10
-    Sample.append(Nsamples)
-    
-elif "step" in Sample[0].lower():
-    Start, Stop, Step = 0, -1, 10
-    Sample.extend((Start, Stop, Step))
-
-elif "list" in Sample[0].lower():
-    
-    if "pos" in Sample[0].lower():
+elif "list" in Sample:
+    if "pos" in Sample:
         Samplist = [100, 200]
-    else:
+    if "dis" in Sample:
         Distlist = [ 1500.]
 
 
@@ -156,15 +140,14 @@ elif "list" in Sample[0].lower():
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
-    
 
-ReverseDir = False
+
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
-
 RunType = "TikhOpt-JCN" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
+Variant = 2
 RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
@@ -250,7 +233,7 @@ if "tikhopt" in  RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -290,7 +273,7 @@ if "occ" in RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -450,21 +433,20 @@ for file in dat_files:
     site_y = site_y - site_y[0]
     site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
     
-    site_list = numpy.arange(len(site_x)) 
-                             
-    if "rand" in Sample[0].lower() or "step" in Sample[0].lower():
-        site_list = util.sample_list(site_list, method=Sample)
-        
+    if "rand" in Sample:
+        site_list = random.sample(range(len(site_x)), NSamples)
 
-    elif "list" in Sample[0].lower():
+    elif "list" in Sample:
         
-        if "posi" in Sample[0].lower():
+        if "posi" in Sample:
             site_list = Samplist
-        if "dist" in Sample[0].lower():
+        if "dist" in Sample:
             for nid in numpy.arange(len(Distlist)):
                 nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
                 site_list.append(nds)
-   
+    else:
+        site_list = numpy.arange(len(site_x))
+    
     
     logsize = (2 + 7*Maxiter)  
          
@@ -550,8 +532,7 @@ for file in dat_files:
         if "ens" in Ctrl["output"]:
             jcn_ens = results["jcn_ens"]
         
-        site_num=numpy.array([])
-        if site_num.size==0:
+        if ii==0:
             site_num  = numpy.array([ii])
             site_nrms = C[2]
             site_modl = M[0]
@@ -592,12 +573,11 @@ for file in dat_files:
 
 
 
-    fl_orig = [site_x[0], site_y[0]]
+    
     numpy.savez_compressed(
         file=Fileout+".npz",
         fl_data=file,
         fl_name=fl_name,
-        fl_orig=fl_orig,
         header=titstrng,
         site_log =site_log,
         mod_ref=mod_apr,

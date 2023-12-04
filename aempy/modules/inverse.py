@@ -594,8 +594,8 @@ def calc_sensitivity(Jac=numpy.array([]),
             print("raw:", S)
         # else:
         #     print("raw sensitivities")
-        smax = numpy.max(Jac, axis = 0)
-        smin = numpy.max(Jac, axis = 0)
+        # smax = numpy.max(Jac, axis = 0)
+        # smin = numpy.max(Jac, axis = 0)
     elif "cov" in Type.lower():
         S = numpy.sum(numpy.abs(Jac),axis=0)
         if OutInfo: 

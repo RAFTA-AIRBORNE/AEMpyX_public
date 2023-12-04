@@ -92,7 +92,7 @@ if "genes" in AEM_system.lower():
 """
 input formats are ".npz",".nc4",".asc"
 """
-ReverseDir = False
+
 
 FileList = "search"  # "search", "read"
 InDatDir =  AEMPYX_DATA + "/Projects/StGormans/proc_delete_PLM3s/"
@@ -118,21 +118,51 @@ if ns ==0:
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutDatDir =  AEMPYX_DATA + "/Projects/Compare/results/New/"
-print("Models written to dir: %s " % OutDatDir)
+OutResDir =  AEMPYX_DATA + "/Projects/Compare/results/New/"
+print("Models written to dir: %s " % OutResDir)
 
 
-if not os.path.isdir(OutDatDir):
-    print("File: %s does not exist, but will be created" % OutDatDir)
-    os.mkdir(OutDatDir)
+if not os.path.isdir(OutResDir):
+    print("File: %s does not exist, but will be created" % OutResDir)
+    os.mkdir(OutResDir)
 
+
+"""
+script offers several methods do choose sites:
+Sample = 
+"rand"                  choose Nsample random sites
+"step"                  choose sites with Start/Sop/Step
+"list suboption"        define list, with suboptions position and distance
+
+Any other string will choose full data set.
+
+"""
+
+Sample = [""]   # 
+
+if "rand" in Sample[0].lower():
+    Nsamples = 10
+    Sample.append(Nsamples)
+    
+elif "step" in Sample[0].lower():
+    Start, Stop, Step = 0, -1, 10
+    Sample.extend((Start, Stop, Step))
+
+elif "list" in Sample[0].lower():
+    
+    if "pos" in Sample[0].lower():
+        Samplist = [100, 200]
+    else:
+        Distlist = [ 1500.]
+
+
+ReverseDir = False
 
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
 RunType = "TikhOpt RTO" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-Variant = 2
 RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
@@ -218,7 +248,7 @@ if "tikhopt" in  RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -349,15 +379,17 @@ for file in dat_files:
 
     start = time.time()
 
+    start = time.time()
+
     fcount=fcount+1
 
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
     print("\n Reading file " + filein)
 
-    fileout = OutDatDir + name + OutStrng
-    numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
+    Fileout = OutResDir + name + OutStrng
 
+    numpy.savez_compressed(file=Fileout.replace("_results","_ctrl"), **Ctrl)
 
     DataObs, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
@@ -385,17 +417,40 @@ for file in dat_files:
     """
     sequence = range(nsite)
     if ReverseDir:
-        sites = sequence[::-1]
+        site_list = sequence[::-1]
     else:
-        sites = sequence
+        site_list = sequence
+        
+        
+    site_x = site_x - site_x[0]
+    site_y = site_y - site_y[0]
+    site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
+    
+    site_list = numpy.arange(len(site_x)) 
+                             
+    if "rand" in Sample[0].lower() or "step" in Sample[0].lower():
+        site_list = util.sample_list(site_list, method=Sample)
+        
+
+    elif "list" in Sample[0].lower():
+        
+        if "posi" in Sample[0].lower():
+            site_list = Samplist
+        if "dist" in Sample[0].lower():
+            for nid in numpy.arange(len(Distlist)):
+                nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
+                site_list.append(nds)
+   
+
+
 
 
     logsize = (2 + 7*Maxiter)
-    site_log = numpy.full((len(sites),logsize), numpy.nan)
+    site_log = numpy.full((len(site_list),logsize), numpy.nan)
 
-    for ii in sites:
+    for ii in site_list:
 
-        print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
+        print("\n Invert site #"+str(ii)+"/"+str(len(site_list)))
         Ctrl["name"] = str(fl_name)+"/"+str(ii)
         print("\n Data set: " + str(fl_name))
         """
@@ -514,7 +569,7 @@ for file in dat_files:
             site_rto_prc = numpy.vstack((site_rto_prc, rto_prc))
             
             if "ens" in Ctrl["output"]:
-               site_rto_ens = numpy.vstack((site_rto_ens, model_ens))
+               site_rto_ens = numpy.vstack((site_rto_ens, rto_ens))
 
 
     numpy.savez_compressed(

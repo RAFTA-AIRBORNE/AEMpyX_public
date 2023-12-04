@@ -245,25 +245,27 @@ if "map" in  RunType.lower():
     """
     This setup is a workaround, correct only for rho-only inversion
     """
+    mvar  = mod_var[0*Nlyr:1*Nlyr]
+    v_act  = inverse.extract_mod(mod_var, mod_act)
 
-    mvar  = numpymod_var[0*Nlyr:1*Nlyr]
-    # inverse.extract_mod(mod_var, mod_act)
-  
+
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=True)
 
-        
+
         Cmi = inverse.full_cov([Cmi])
         Cmi = inverse.extract_cov(Cmi, mod_act)
         C = scipy.sparse.csr_matrix(Cmi)
-        
-  
+
+
         CmiS = inverse.full_cov([CmiS])
-        CmiS = inverse.extract_cov(CmiS, mod_act)        
+        CmiS = inverse.extract_cov(CmiS, mod_act)
         sC = scipy.sparse.csr_matrix(CmiS)
 
+        var = 1./v_act
+        err = numpy.sqrt(var)
         print(numpy.shape(C),numpy.shape(sC))
     else:
         InvSpace = "dat"
@@ -273,11 +275,15 @@ if "map" in  RunType.lower():
         Cm = inverse.full_cov([Cm])
         Cm = inverse.extract_cov(Cm, mod_act)
         C = scipy.sparse.csr_matrix(Cm)
-        
+
         CmS = inverse.full_cov([CmS])
         CmS = inverse.extract_cov(CmS, mod_act)
         sC = scipy.sparse.csr_matrix(CmS)
 
+        var = scipy.diag(v_act)
+        err = scipy.diag(numpy.sqrt(var))
+
+ 
         
     Maxiter = 10
     Maxreduce = 5

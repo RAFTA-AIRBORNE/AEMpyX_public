@@ -95,6 +95,9 @@ if "spl" in action.lower():
 if "cut" in action.lower():
     Interval = [1000., 2000.]
     interval = sorted(Interval)
+    
+
+
 """
 input formats are 'npz','nc4','ascii'
 """

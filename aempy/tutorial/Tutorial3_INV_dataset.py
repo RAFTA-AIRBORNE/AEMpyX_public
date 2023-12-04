@@ -328,8 +328,10 @@ if "map" in  RunType.lower():
     """
     This setup is a workaround, correct only for rho-only inversion
     """
-      mvar  = mod_var[0*Nlyr:1*Nlyr]
-    # inverse.extract_mod(mod_var, mod_act)
+    mvar  = mod_var[0*Nlyr:1*Nlyr]
+    v_act  = inverse.extract_mod(mod_var, mod_act)
+
+
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
@@ -345,6 +347,8 @@ if "map" in  RunType.lower():
         CmiS = inverse.extract_cov(CmiS, mod_act)
         sC = scipy.sparse.csr_matrix(CmiS)
 
+        var = 1./v_act
+        err = numpy.sqrt(var)
         print(numpy.shape(C),numpy.shape(sC))
     else:
         InvSpace = "dat"
@@ -359,6 +363,8 @@ if "map" in  RunType.lower():
         CmS = inverse.extract_cov(CmS, mod_act)
         sC = scipy.sparse.csr_matrix(CmS)
 
+        var = scipy.diag(v_act)
+        err = scipy.diag(numpy.sqrt(var))
 
     Maxiter = 10
     Maxreduce = 5

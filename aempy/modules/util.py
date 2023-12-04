@@ -14,6 +14,7 @@ import fnmatch
 from datetime import datetime
 
 import numpy
+import random
 import pyproj
 from pyproj import CRS, Transformer
 
@@ -55,7 +56,51 @@ def check_env(envar="CONDA_PREFIX", action="error"):
         if "err" in action.lower():
             error("Environment "+ act_env+"is not activated! Exit.")
             
-        
+def sample_list(in_list= [], method = ["sample", 10], out= True): 
+    """
+   
+
+    Parameters
+    ----------
+    inlist : list of items 
+        The default is [].
+    method : list
+        Determines samples . The default is ["sample", Nsample].
+    out : boolean
+        Output to stdout. The default is True.
+
+    Returns
+    -------
+    outlist : list of items
+    
+    Created  Dec 2023
+    @author: vrath
+
+    """     
+    if len[in_list]==0:
+        error("sample_list: list empty! Exit.")
+
+    if "pass" in method[0].lower() or method[0].lower()=="":
+        out_list = in_list
+        if out:
+           print("sample_list: return original list")       
+    
+    if "rand" in method[0].lower():
+        nsamples = method[1]
+        out_list = random.sample(range(len(in_list)), nsamples)
+        out_list = sorted(out_list)
+        if out:
+            print("sample_list: random samples = ", nsamples)
+    
+    if "step" in method[0].lower():
+
+        start, step, stop = method[1:]
+        out_list = in_list[start:stop:step]
+        if out:
+            print("sample_list: reduced list with start/stop/step = ", start,stop,step)
+    
+    return out_list 
+
 
 def get_data_list(how=["search", ".npz", "./"],
                   sort=True, fullpath=False, out= True):
