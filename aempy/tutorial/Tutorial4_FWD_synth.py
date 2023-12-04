@@ -80,7 +80,7 @@ mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
 """
 AEM_system = "aem05"
-# AEM_system = "genesis"
+AEM_system = "genesis"
 
 print("AEM system: " + AEM_system + "\n \n")
 
@@ -110,10 +110,9 @@ These are loops over different parameters, in this case for a 3-Layer case.
 Should be adapted according to your needs.
 """
 
-#Alt = [60., 120.]
-Alt = [60]
+Alt = [alt]
 
-Nsamples = 1000
+Nsamples = 300
 # NSamples = 1
 Perturb = True
 SplitData= True
@@ -127,36 +126,47 @@ Model_active, Model_base, model_var, m_bounds, m_state = inverse.init_1dmod(nlyr
 
 """
 Background model: default settings is rho only, - IP is nonexistent 
-Neeeds to be adapted for reasonable IP
+Adapted for reasonable IP values
 """ 
-Model_base[0*nlyr:1*nlyr] =[100., 100., 100.]  #rho
-Model_base[6*nlyr:7*nlyr-1] =[30.,30.]
+Model_base[0*nlyr:1*nlyr] =[100., 100., 100.]   #rho
+Model_base[6*nlyr:7*nlyr-1] =[30.,30.]          #layers 
+
+Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
+Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
+Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
 
 
 """
-Currently, one parameter  and altitude can be varied within a loop. 
+Currently, one parameter  and altitude can be varied within a loop.
+Examples below:
 """
 
 """
 rho for layer 1 (starting from 0!)
 """
-
-FWDBaseName = "AEM05_Rho1"
-VarPar = [ 10., 100.,1000.]
-VarInd = 0 * nlyr+1
+# FWDBaseName = AEM_system.upper()+"_Rho1"
+# VarPar = [ 10., 100.,1000.]
+# VarInd = 0 * nlyr+1
 
 """
 thickness of layer 1 (starting from 0!)
 """
-# FWDBaseName = "AEM05_Thk1"
+# FWDBaseName = AEM_system.upper()+"_Thk1"
 # VarPar = [10., 30., 50.] 
 # VarInd = 6*nlyr+1
 """
 chargeability of layer 1 (starting from 0!)
 """
-# FWDBaseName = "AEM05_m1"
-# VarPar = [0.0001, 0.2, 0.4 0.6.0.8] 
-# VarInd = 2*nlyr+1 
+# FWDBaseName = AEM_system.upper()+"_Chrg1"
+# VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
+# VarInd = 3*nlyr+1 
+
+"""
+chargeability of layer 1 (starting from 0!)
+"""
+FWDBaseName = AEM_system.upper()+"_Freq1"
+VarPar = [0.001, 0.01, 0.1, 1., 10., 100., 1000., 10000.] 
+VarInd = 5*nlyr+1 
 
 """
 Generate Data
