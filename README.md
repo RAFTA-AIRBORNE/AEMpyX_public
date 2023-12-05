@@ -58,6 +58,8 @@ The created local repository AEMpyX contains the following subdirectories:
 	conda environment. For linux and windows you can find special versions in the repective directories. 
 	The current AEMpyX environment contains some packages which are not strictly necessary for running 
 	aempy, but useful for related geoscientific work. 
+	
+	
 This version will run under Python 3.9+ (3.11 being the current development platform). For installing the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
 
 
