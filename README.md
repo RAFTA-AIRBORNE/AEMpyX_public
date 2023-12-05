@@ -19,11 +19,6 @@ _git clone https://github.com/RAFTA-AIRBORNE/AEMpyX_public.git_
 
 The created local repository AEMpyX contains the following subdirectories:
 
-- 	**environment**
-	Contains conda environment description files, and some useful helper files for working within the 
-	conda environment. For linux and windows you can find special versions in the repective directories. 
-	The current AEMpyX environment contains some packages which are not strictly necessary for running 
-	aempy, but useful for related geoscientific work. 
 
 - 	**aempy/tutorial**
  	Contains python scripts and jupyter notebooks for the most important scripts, explaining typical AEM preprocessing, 
@@ -57,7 +52,12 @@ The created local repository AEMpyX contains the following subdirectories:
 -	**aempy/info**
  	Documentation for software related to the toolbox, as python (including the most important extensions, numpy,
 	scipy, and matplotlib), and other tools. 
-
+	
+- 	**environment**
+	Contains conda environment description files, and some useful helper files for working within the 
+	conda environment. For linux and windows you can find special versions in the repective directories. 
+	The current AEMpyX environment contains some packages which are not strictly necessary for running 
+	aempy, but useful for related geoscientific work. 
 This version will run under Python 3.9+ (3.11 being the current development platform). For installing the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
 
 
