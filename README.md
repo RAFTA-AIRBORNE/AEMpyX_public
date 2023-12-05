@@ -152,7 +152,8 @@ Uncert_FL11379-0_site1497.0m
 </p>
 
 <p align="center">   
-   Uncertainty-related plots for a site from Tellus A1 block. Top left: model with error bars. Bottom left: sensitivities. Top center: Parameter covariance a posteriori. Bottom center: Parameter correlation. Top right: paramtere resolution. Bottom right: Data resolution. 
+   Uncertainty-related plots for a site from Tellus A1 block. Top left: model with error bars. Bottom left: sensitivities. Top center: Parameter covariance a posteriori. Bottom center: Parameter 
+correlation. Top right: Parameter resolution. Bottom right: Data resolution. 
 </p>
 
 
