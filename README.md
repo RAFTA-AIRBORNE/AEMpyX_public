@@ -38,26 +38,26 @@ The created local repository AEMpyX contains the following subdirectories:
 	respectively.
  	
 - 	**aempy/other_scripts**
- 	Contains a collection of scripts for processing, visualization, and other tasks releted to one-dimensional inversion of 
- 	AEM data;. Also included is a workflow for static shift correction of MT observations (work in progress). These scripts
-	come from different stages of the RAFTA project, solving specific problems. Thus they may noy be up to date. However, they
+    Contains a collection of scripts for processing, visualization, and other tasks related to one-dimensional inversion of 
+    AEM data;. Also included is a workflow for static shift correction of MT observations (work in progress). These scripts
+    come from different stages of the RAFTA project, solving specific problems. Thus they may not be up to date. However, they
   	represent a useful source for cannibalizing. 
 
 -	**aempy/util**
- 	Contains  useful helper shell scripts etc. 
+    Contains  useful helper shell scripts etc. 
 	
 -	**aempy/doc**
 	This is the place where the manual, but also publications/presentations are developed.
 
 -	**aempy/info**
- 	Documentation for software related to the toolbox, as python (including the most important extensions, numpy,
+	Documentation for software related to the toolbox, as python (including the most important extensions, numpy,
 	scipy, and matplotlib), and other tools. 
 	
 - 	**environment**
 	Contains conda environment description files, and some useful helper files for working within the 
-	conda environment. For linux and windows you can find special versions in the repective directories. 
+	conda environment. For linux and windows you can find special versions in the respective directories. 
 	The current AEMpyX environment contains some packages which are not strictly necessary for running 
-	aempy, but useful for related geoscientific work. 
+	the toolbox, but useful for related geoscientific work. 
 	
 	
 This version will run under Python 3.9+ (3.11 being the current development platform). For installing the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:

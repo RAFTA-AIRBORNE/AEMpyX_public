@@ -165,7 +165,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt-JCN" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -174,8 +174,8 @@ Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
     RegVal1Min = 0.1
-    RegVal1Max = 1000.
-    NTau1 =64
+    RegVal1Max = 10000.
+    NTau1 = 64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
 else:
@@ -445,7 +445,7 @@ for file in dat_files:
 
     construct site_list
     """
-    
+    fl_orig = [site_x[0], site_y[0]]
     site_x = site_x - site_x[0]
     site_y = site_y - site_y[0]
     site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
@@ -592,7 +592,7 @@ for file in dat_files:
 
 
 
-    fl_orig = [site_x[0], site_y[0]]
+
     numpy.savez_compressed(
         file=Fileout+".npz",
         fl_data=file,

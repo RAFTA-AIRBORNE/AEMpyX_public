@@ -118,7 +118,7 @@ if ns ==0:
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =  AEMPYX_DATA + "/Projects/Compare/results/New/"
+OutResDir =  AEMPYX_DATA + "/Projects/StGormans/results_rto/"
 print("Models written to dir: %s " % OutResDir)
 
 
@@ -138,7 +138,7 @@ Any other string will choose full data set.
 
 """
 
-Sample = [""]   # 
+Sample = ["random"]   # 
 
 if "rand" in Sample[0].lower():
     Nsamples = 10
@@ -357,7 +357,6 @@ if "rto" in RunType.lower():
     NSamples = 100
     Percentiles = numpy.array([10., 20., 30., 40., 50., 60., 70., 80., 90.]) # linear
     # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
     Ctrl["rto"] =  numpy.array([NSamples, Percentiles], dtype=object)
     Ctrl["output"] = ["ens "]
 
@@ -403,7 +402,8 @@ for file in dat_files:
     dat_obs =  DataObs[:, 6:6+NN[2]]
     [nsite,ndata] = numpy.shape(dat_obs)
     dat_act = numpy.tile(data_active,(nsite,1))
-
+    fl_orig = [site_x[0], site_y[0]]
+    
     if "read" in SetPrior.lower():
         halfspace ="halfspace_results"
         file, filext0 = os.path.splitext(file)
@@ -576,6 +576,7 @@ for file in dat_files:
         file=Fileout+OutFileFmt,
         fl_data=file,
         fl_name=fl_name,
+        fl_orig = fl_orig,
         header=titstrng,
         site_log =site_log,
         mod_ref=mod_apr,

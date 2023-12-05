@@ -77,7 +77,7 @@ def sample_list(in_list= [], method = ["sample", 10], out= True):
     @author: vrath
 
     """     
-    if len[in_list]==0:
+    if len(in_list)==0:
         error("sample_list: list empty! Exit.")
 
     if "pass" in method[0].lower() or method[0].lower()=="":

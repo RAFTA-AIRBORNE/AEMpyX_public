@@ -1411,11 +1411,6 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
         results =\
             run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                               OutInfo=OutInfo)
-    if "occ" in invtype.lower():
-        results =\
-            run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                              OutInfo=OutInfo)
-
     if "map" in invtype.lower():
         results =\
             run_map(Ctrl=Ctrl, Model=Model, Data=Data,
@@ -1454,7 +1449,6 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     M_Ens = inverse.generate_model_ensemble(Mref=mod_ref,
                                             Nens=nsamples,
-                                            Perturb=["Gauss" ,cov_ref],
                                             InChol = numpy.array([]),
                                             InCovar = cov_ref,
                                             OutInfo=OutInfo)
@@ -1468,6 +1462,7 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
         DataEns = Data
         Data["d_obs"] = D_Ens[isample,:]
         Model["m_apr"] = M_Ens[isample,:]
+        print(numpy.shape(M_Ens[isample,:]))
 
         if "opt" in invtype.lower():
 

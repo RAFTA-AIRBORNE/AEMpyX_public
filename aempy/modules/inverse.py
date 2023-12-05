@@ -204,15 +204,16 @@ def generate_data_ensemble(Dref=numpy.array([]),
         error("generate_ensemble: No Reference model given! Exit.")
 
     Ndat = numpy.shape(Dref)
+    
 
     for iens in numpy.arange(Nens):
 
         if iens==0:
-            base = Dref[iens,:].reshape((1,Ndat))
-            Dens = base + Perturb[1].flat*rng.standard_normal(numpy.shape(base))
+            base = Dref.reshape((1,Ndat[0]))
+            Dens = base + Perturb[1]*rng.standard_normal(numpy.shape(base))
         else:
-            base =Dref[iens,:].reshape((1,Ndat))
-            Dens= numpy.vstack((Dens, base + Perturb[1].flat*rng.standard_normal(numpy.shape(base))))
+            base =Dref.reshape((1,Ndat[0]))
+            Dens= numpy.vstack((Dens, base + Perturb[1]*rng.standard_normal(numpy.shape(base))))
 
     return Dens
 
@@ -255,10 +256,10 @@ def generate_model_ensemble(Mref=numpy.array([]),
 
         for iens in numpy.arange(Nens):
             if iens==0:
-                Mens = Mref + Perturb[2]*rng.standard_normal(Msiz)
+                Mens = Mref + L*rng.standard_normal(Msiz)
                 # print(numpy.shape(Mens))
             else:
-                Mens= numpy.vstack((Mens, Mref + Perturb[2]*rng.standard_normal(Msiz)*L))
+                Mens= numpy.vstack((Mens, Mref + L*rng.standard_normal(Msiz)))
 
 
     return Mens
