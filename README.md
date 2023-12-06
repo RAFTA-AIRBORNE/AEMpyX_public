@@ -88,8 +88,6 @@ _conda create --name AEMpyX --file AEMpyX.txt_
 in the command window (powershell under windows).
 
 This will set up a Python 3.11 environment with all dependencies for aempy. Don't forget to update also the used environment regularly, using _conda update --name AEMpyX --all_! 
-There is a replacement for _conda_, called _mamba_ (see https://github.com/mamba-org/mamba), which is not only considerably faster, but also better in keeping the environments consistent. It can be installed via _conda_ (i. e., _conda install mamba_), and has practically the same syntax as the original package manager.  
-
 
 (3) Activate this environment by:
 
