@@ -1402,6 +1402,8 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     nsamples, Percentiles = Ctrl["rto"]
 
     rto_out=  Ctrl["output"][0]
+    
+
 
     """
    run reference model
@@ -1411,16 +1413,11 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
         results =\
             run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                               OutInfo=OutInfo)
-    if "occ" in invtype.lower():
-        results =\
-            run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                              OutInfo=OutInfo)
-
     if "map" in invtype.lower():
         results =\
             run_map(Ctrl=Ctrl, Model=Model, Data=Data,
                               OutInfo=OutInfo)
-
+    # print(results.keys())
     rto_results = results
     
     
@@ -1433,41 +1430,48 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     d_obs = results["data"][0] #.reshape(-1,1)
     d_err = results["data"][2]
+    d_act = results["data"][4]
+    
 
 
     """
     unpack model 
     """
-    mod_ref = results["model"][0]
-    cov_ref = results["cpost"]
+    m_act = Model["m_act"]
+    m_bas = Model["m_apr"].copy()
+    m_opt = results["model"][0]
+    
+    m_ref = inverse.insert_mod(M=m_bas, m_act=m_act, m=m_opt)
+    c_ref = results["cpost"]
 
     """
     Draw perturbed data set: d  ̃ ∼ N (d, Cd)
     """
-    D_Ens = inverse.generate_data_ensemble(Dref=d_obs,
-                                          Nens=nsamples,
-                                          Perturb=["Gauss" ,0.,d_err],
-                                          OutInfo=OutInfo)
+    d_ens = inverse.generate_data_ensemble(dref=d_obs, dact=d_act,
+                                          nens=nsamples,
+                                          perturb=["gauss" ,0., d_err],
+                                          outinfo=OutInfo)
 
     """
     Draw prior model: m̃ ∼ N (0, 1 (LT L)−1 )
     """
-    M_Ens = inverse.generate_model_ensemble(Mref=mod_ref,
-                                            Nens=nsamples,
-                                            Perturb=["Gauss" ,cov_ref],
-                                            InChol = numpy.array([]),
-                                            InCovar = cov_ref,
-                                            OutInfo=OutInfo)
+    m_ens = inverse.generate_model_ensemble(mref=m_ref, mact = m_act,
+                                            nens=nsamples,
+                                            inchol = numpy.array([]),
+                                            incovar = c_ref,
+                                            outinfo=OutInfo)
     """
     Solve inverse problem for rto_ens
     """
-
-    rto_ens  = mod_ref
+    print(numpy.shape(m_ref))
+    rto_ens  = m_ref.copy()
 
     for isample in numpy.arange (nsamples):
-        DataEns = Data
-        Data["d_obs"] = D_Ens[isample,:]
-        Model["m_apr"] = M_Ens[isample,:]
+        Data["d_obs"] = d_ens[isample,:]
+        print(isample, numpy.shape(m_ref))
+        Model["m_apr"] = inverse.insert_mod(M=m_ref, m_act=m_act, 
+                                            m=m_ens[isample,:])
+
 
         if "opt" in invtype.lower():
 
@@ -1735,6 +1739,7 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     now calculate the SVD of the Jacobian
     """
     Jacd = results["jacd"]
+    
     if randsvd:
             U, S, Vt = inverse.rsvd(Jacd.T, rank=k, n_oversamples=0, n_subspace_iters=2)
     else:
@@ -1753,7 +1758,119 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     chek  how mauch of Jacd is explained by k 
     """
     D = U@scipy.sparse.diags(S[:])@Vt - Jacd.T
-    x_op = numpy.random.normal(size=numpy.shape(D)[1])
+    x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
+    n_op = numpy.linalg.norm(D@x_op)/numpy.linalg.norm(x_op)
+    j_op = numpy.linalg.norm(Jacd.T@x_op)/numpy.linalg.norm(x_op)
+    if OutInfo:
+        print(" Op-norm J_k = "+str(n_op)+", explains "
+              +str(100. - n_op*100./j_op)+"% of variations")
+    
+    
+    
+    print("This algorithm is not yet implemented! Exit.")
+    return nss_results
+
+def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
+    """
+    Algorithm given by  Osypov (2013)
+
+    Parameters
+    ----------
+
+    OutInfo : TYPE, optional
+        DESCRIPTION. The default is True.
+
+    Returns
+    -------
+    spcresults
+
+    References:
+
+    Osypov K, Yang Y, Fournier A, Ivanova N, Bachrach R, 
+    Can EY, You Y, Nichols D, Woodward M (2013)
+    Model-uncertainty quantification in seismic tomography: method and applications 
+    Geophysical Prospecting, 61, pp. 1114–1134, 2013, doi: 10.1111/1365-2478.12058.
+  
+
+    """
+    system, fwdcall = Ctrl["system"]
+    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
+    d_trn, m_trn = Ctrl["transform"]
+    L0, Cm0, L1, Cm1 = Ctrl["covar"] 
+    nsamples, perc, k, randsvd = Ctrl["nss"]
+    nss_out=  Ctrl["output"][0]
+    
+    """
+    unpack data block
+    Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
+    """
+    d_act = Data["d_act"] #.reshape(-1,1)
+    d_obs = Data["d_obs"] #.reshape(-1,1)
+    d_err = Data["d_err"]# .reshape(-1,1)
+    alt   = Data["alt"]
+
+    d_cal = numpy.nan * numpy.ones_like(d_obs)
+    
+    d_state = 0
+    d_obs, d_err, dobs_state = inverse.transform_data(d_vec=d_obs,
+                                              e_vec = d_err,
+                                              d_trn=d_trn,
+                                              d_state = d_state)
+    """
+    unpack model block
+    
+    Model =\
+    [model_act, model_prior, model_var, model_bounds, model_ini]
+    """
+    
+    m_act = Model["m_act"]
+    m_ref = Model["m_apr"]
+    
+    m_state = 0
+    m_ref, m_state = inverse.transform_parameter(m_vec=m_ref, m_trn=m_trn, m_state=m_state, mode="f")
+    """
+    run reference model
+    """
+    if "opt" in invtype.lower():
+        results =\
+        run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+                     OutInfo=OutInfo)
+    if "occ" in invtype.lower():
+        results =\
+        run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
+                     OutInfo=OutInfo)
+    
+    if "map" in invtype.lower():
+        results =\
+        run_map(Ctrl=Ctrl, Model=Model, Data=Data,
+                OutInfo=OutInfo)
+    
+    nss_results = results
+    
+    """
+    now calculate the SVD of the Jacobian
+    """
+    Jacd = results["jacd"]
+    
+    if randsvd:
+            U, S, Vt = inverse.rsvd(Jacd.T, rank=k, n_oversamples=0, n_subspace_iters=2)
+    else:
+            U, S, Vt = scipy.linalg.svd(Jacd.T, full_matrices=False)
+    
+    """
+    truncation
+    """
+
+    V = Vt.T
+    V = V[:, :k]
+    S = S[:k]
+    U = U[:, :k]
+    
+    """
+    chek  how mauch of Jacd is explained by k 
+    """
+    D = U@scipy.sparse.diags(S[:])@Vt - Jacd.T
+    x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
     n_op = numpy.linalg.norm(D@x_op)/numpy.linalg.norm(x_op)
     j_op = numpy.linalg.norm(Jacd.T@x_op)/numpy.linalg.norm(x_op)
     if OutInfo:

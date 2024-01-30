@@ -491,14 +491,14 @@ def run_mhsimple(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
        #    print('\n',n)
            #draw random numbers from the prior model (prior_avg)
-           m_g = np.random.randn(sizepar[0])
+           m_g = np.random.default_rng().normal(sizepar[0])
        #    print(' m_g   ',m_g[0*nlyr:1*nlyr])
            m_c = np.matmul(LC,m_g)
            m_s = step*mactive*m_c
        #    print(' m_s   ', m_s[0*nlyr:1*nlyr])
        #    print(' m_c   ', m_c[1*nlyr:2*nlyr])
        #    print(' m_s   ', m_s[1*nlyr:2*nlyr])
-           #m_sample = m_old + tep*prior_std*mactive*np.random.randn(sizepar[0])
+           #m_sample = m_old + tep*prior_std*mactive*np.random.default_rng().normal(sizepar[0])
            m_sample = m_old + m_s
        #    print(' m_smp   ', m_sample[1*nlyr:2*nlyr])
            if np.all(m_sample < m_upper) and np.all(m_sample > m_lower):

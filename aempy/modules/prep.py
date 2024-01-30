@@ -191,7 +191,7 @@ def handle_gaps(M, columns=[0, 0], Impute=["delete"], System = "aem05"):
         v_std = Impute[1]
         # print(numpy.shape(v_blk))
         # print(numpy.shape(v_std))
-        val = v_blk + v_std * numpy.random.randn(shapeT[0], shapeT[1])
+        val = v_blk + v_std * numpy.random.default_rng().normal(shapeT[0], shapeT[1])
         for irow in nanrows:
             for icol in nancols:
                 T[irow, icol] = val[irow, icol]

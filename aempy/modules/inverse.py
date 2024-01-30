@@ -30,11 +30,12 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 rng = numpy.random.default_rng()
 nan = numpy.nan  # float("NaN")
 
+
 def calc_fwdmodel(fwdcall=None,
                   alt=None,
-                  m_vec = numpy.array([]),
+                  m_vec=numpy.array([]),
                   m_trn=0,
-                  m_state = 0,
+                  m_state=0,
                   m_params=numpy.array([]),
                   d_act=numpy.array([]),
                   d_trn=0,
@@ -45,21 +46,21 @@ def calc_fwdmodel(fwdcall=None,
 
     last changes: VR 6/22
     """
-    if numpy.size(m_vec)==0:
+    if numpy.size(m_vec) == 0:
         error("calc_fwdmodel: No model given! Exit.")
 
     nlyr = get_nlyr(m_vec)
-    m, _ = transform_parameter(m_vec=m_vec, m_trn=m_trn, m_state=m_state, mode="b")
+    m, _ = transform_parameter(
+        m_vec=m_vec, m_trn=m_trn, m_state=m_state, mode="b")
 
     d_vec = eval(fwdcall)
 
-
-    if d_trn==0:
+    if d_trn == 0:
         pass
     else:
         d_vec, _, d_state = transform_data(d_vec=d_vec, d_trn=d_trn)
 
-    if numpy.size(d_act)==0:
+    if numpy.size(d_act) == 0:
         pass
     else:
         d_vec = extract_dat(D=d_vec, d_act=d_act)
@@ -68,12 +69,12 @@ def calc_fwdmodel(fwdcall=None,
 
 
 def run_linesearch(fwdcall, alt,
-                  d_obs=numpy.array([]), d_err=numpy.array([]),
-                  d_trn=0, d_act =numpy.array([]), d_state = 0,
-                  model = numpy.array([]), m_delta=numpy.array([]),
-                  m_act = numpy.array([]), m_trn=1, m_state=0,
-                  nrmse=999999.9, smape=999999.9, facreduce=0.6666, maxreduce=6,
-                  out=False):
+                   d_obs=numpy.array([]), d_err=numpy.array([]),
+                   d_trn=0, d_act=numpy.array([]), d_state=0,
+                   model=numpy.array([]), m_delta=numpy.array([]),
+                   m_act=numpy.array([]), m_trn=1, m_state=0,
+                   nrmse=999999.9, smape=999999.9, facreduce=0.6666, maxreduce=6,
+                   out=False):
     """
     Run simple line search with 0.>alpha<1.
 
@@ -111,21 +112,21 @@ def run_linesearch(fwdcall, alt,
     liniter = 0
     linrmse = nrmse
     linsms = smape
-    fact   = facreduce
+    fact = facreduce
     mbase = model.copy()
     mact = extract_mod(M=mbase, m_act=m_act)
     while (liniter < maxreduce) and (linrmse <= nrmse):
         liniter = liniter + 1
         mfull = mbase.copy()
         mtest = mact - fact*m_delta.reshape(numpy.size(mact))
-        m =insert_mod(M=mfull, m=mtest, m_act=m_act)
+        m = insert_mod(M=mfull, m=mtest, m_act=m_act)
         d_calc, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                      m_vec = m, m_trn=m_trn, m_state=m_state,
-                                      d_trn=d_trn, d_state=d_state)
+                                        m_vec=m, m_trn=m_trn, m_state=m_state,
+                                        d_trn=d_trn, d_state=d_state)
         linrmse_iter, linsms_iter = calc_rms(data_cal=d_calc,
-                                                     data_obs=d_obs,
-                                                     data_err=d_err,
-                                                     data_act=d_act)
+                                             data_obs=d_obs,
+                                             data_err=d_err,
+                                             data_act=d_act)
         # print (nrmse_iter,linrmse_iter)
         if out:
             print("Linesearch: "+str(linrmse)+"  /  "+str(linrmse_iter))
@@ -142,11 +143,11 @@ def run_linesearch(fwdcall, alt,
 
 
 def perturb_random(vbase=numpy.array([]),
-                           n_ens=128,
-                           std=1., avg=0.,
-                           covar = numpy.array([]),
-                           base_add=False,
-                           out=True):
+                   n_ens=128,
+                   std=1., avg=0.,
+                   covar=numpy.array([]),
+                   base_add=False,
+                   out=True):
     """
     Random perturbation of vector.
 
@@ -160,36 +161,36 @@ def perturb_random(vbase=numpy.array([]),
     if vbase.size == 0:
         error("generate_ensemble: No Reference model given! Exit.")
 
-
-    L = 1. 
-    if covar.ndim == 2:   
+    L = 1.
+    if covar.ndim == 2:
         L = scipy.linalg.cholesky(covar)
 
     nd = numpy.shape(vbase)
 
     for iens in numpy.arange(n_ens):
         p_normal = std*rng.standard_normal(nd)
-        
+
         pert = p_normal*L
-        
+
         if base_add:
-            pert= avg + pert
-        
-        if iens==0:
+            pert = avg + pert
+
+        if iens == 0:
             p_ens = pert
-                
+
         else:
-            p_ens= numpy.vstack((p_ens, pert))
+            p_ens = numpy.vstack((p_ens, pert))
 
     return p_ens
 
 
-
-def generate_data_ensemble(Dref=numpy.array([]),
-                           Dact=numpy.array([]),
-                           Nens=128,
-                           Perturb=["Gauss" ,0. ],
-                           OutInfo=True):
+def generate_data_ensemble(dref=numpy.array([]),
+                           dact=numpy.array([]),
+                           nens=128,
+                           perturb=["Gauss", 0.],
+                           inchol=numpy.array([]),
+                           incovar=numpy.array([]),
+                           outinfo=True):
     """
     Generate Data Ensemble for Kalman methods
 
@@ -200,31 +201,49 @@ def generate_data_ensemble(Dref=numpy.array([]),
     @author: vrath
 
     """
-    if Dref.size == 0:
-        error("generate_ensemble: No Reference model given! Exit.")
+    if dref.size == 0:
+        error("generate_data_ensemble: No Reference model given! Exit.")
 
-    Ndat = numpy.shape(Dref)
+    ndat = numpy.shape(dref[dact != 0])[0]
+    if ndat == 0:
+        error("generate_data_ensemble: no active data given! exit.")
 
-    for iens in numpy.arange(Nens):
+    dbas = dref[dact != 0]
+    dshp = numpy.shape(dbas)
 
-        if iens==0:
-            base = Dref[iens,:].reshape((1,Ndat))
-            Dens = base + Perturb[1].flat*rng.standard_normal(numpy.shape(base))
+    if incovar.size == 0:
+        for iens in numpy.arange(nens):
+
+            if iens == 0:
+                dens = dbas.copy() + perturb[1]*rng.standard_normal(dshp)
+            else:
+                dens = numpy.vstack((dens,
+                                    dbas.copy() + perturb[1]*rng.standard_normal(dshp)))
+    else:
+        if inchol.size == 0:
+            l = scipy.linalg.cholesky(incovar)
         else:
-            base =Dref[iens,:].reshape((1,Ndat))
-            Dens= numpy.vstack((Dens, base + Perturb[1].flat*rng.standard_normal(numpy.shape(base))))
+            l = inchol
 
-    return Dens
+        for iens in numpy.arange(nens):
+            if iens == 0:
+                dens = dbas.copy() + l @ rng.standard_normal(dshp)
+            else:
+                dens = numpy.vstack(
+                    (dens, dbas.copy() + l @ rng.standard_normal(dshp)))
+
+    return dens
 
 
-def generate_model_ensemble(Mref=numpy.array([]),
-                            Nens=128,
-                            Perturb=["Gauss" ,0. ,0.],
-                            InChol = numpy.array([]),
-                            InCovar = numpy.array([]),
-                            OutInfo=True):
+def generate_model_ensemble(mref=numpy.array([]),
+                            mact=numpy.array([]),
+                            nens=128,
+                            perturb=["Gauss", 0., 0.],
+                            inchol=numpy.array([]),
+                            incovar=numpy.array([]),
+                            outinfo=True):
     """
-    Generate model Ensemble for Kalman methods
+    Generate model Ensemble for Kalman-type methods
 
     Default draws perturbation from Gaussian.
 
@@ -233,40 +252,46 @@ def generate_model_ensemble(Mref=numpy.array([]),
     @author: vrath
 
     """
-    if Mref.size == 0:
-        error("generate_ensemble: No Reference model given! Exit.")
+    if mref.size == 0:
+        error("generate_model_ensemble: no reference model given! exit.")
 
-    Msiz = numpy.shape(Mref)
+    mpar = numpy.shape(mref[mact != 0])[0]
+    if mpar == 0:
+        error("generate_model_ensemble: no active parameter given! exit.")
 
-    if InCovar.size == 0:
-        for iens in numpy.arange(Nens):
-            if iens==0:
-                Mens = Mref + Perturb[2]*rng.standard_normal(Msiz)
-                # print(numpy.shape(Mens))
+    mbas = mref[mact != 0]
+    mshp = numpy.shape(mbas)
+
+    if incovar.size == 0:
+        for iens in numpy.arange(nens):
+            mtmp = mbas.copy() + perturb[2]*rng.standard_normal(mshp)
+            if iens == 0:
+                mens = mtmp
+                # print(numpy.shape(mens))
             else:
-                Mens= numpy.vstack((Mens, Mref + Perturb[2]*rng.standard_normal(Msiz)))
-                # print(numpy.shape(Mens))
+                mens = numpy.vstack((mens, mtmp))
+                # print(numpy.shape(mens))
     else:
 
-        if InChol.size==0:
-            L = scipy.linalg.cholesky(InCovar)
+        if inchol.size == 0:
+            l = scipy.linalg.cholesky(incovar)
         else:
-            L = InChol
+            l = inchol
 
-        for iens in numpy.arange(Nens):
-            if iens==0:
-                Mens = Mref + Perturb[2]*rng.standard_normal(Msiz)
-                # print(numpy.shape(Mens))
+        for iens in numpy.arange(nens):
+            mtmp = mbas.copy() + l @ rng.standard_normal(mshp)
+            if iens == 0:
+                mens = mtmp
             else:
-                Mens= numpy.vstack((Mens, Mref + Perturb[2]*rng.standard_normal(Msiz)*L))
+                mens = numpy.vstack((mens, mtmp))
 
+    return mens
 
-    return Mens
 
 def calc_ecovar(x=numpy.array([]),
                 y=numpy.array([]),
-                cscale = numpy.array([]),
-                method = 0, OutInfo=True):
+                cscale=numpy.array([]),
+                method=0, OutInfo=True):
     """
     Calculate empirical covariance for Kalman gain
 
@@ -280,32 +305,28 @@ def calc_ecovar(x=numpy.array([]),
     if (x.size == 0) and (y.size == 0):
         error("calc_ecovar: No data given! Exit.")
 
-
-    X = x-numpy.mean(x, axis = 0)
+    X = x-numpy.mean(x, axis=0)
     if (y.size == 0):
         Y = X
     else:
-        Y = y-numpy.mean(y, axis = 0)
-
+        Y = y-numpy.mean(y, axis=0)
 
     [N_e, N_x] = numpy.shape(X)
     [N_e, N_y] = numpy.shape(Y)
-
 
     if method == 0:
         # naive version, library versions probably faster)
         C = numpy.zeros((N_x, N_y))
         for n in numpy.arange(N_e):
             Cn = X.T@Y
-            C  = C + Cn
+            C = C + Cn
 
         C = C/(N_e-1)
-
 
     else:
         # numpy version
         for n in numpy.arange(N_e):
-            X = numpy.stack((X,Y), axis=0)
+            X = numpy.stack((X, Y), axis=0)
             # C = numpy.cov((X,Y))
             C = numpy.cov((X))
 
@@ -316,10 +337,10 @@ def calc_ecovar(x=numpy.array([]),
 
 
 def calc_keg_update(m=numpy.array([]), r=numpy.array([]),
-                Cxy=numpy.array([]),
-                Cyy=numpy.array([]),
-                Cd = numpy.array([]),
-                OutInfo=True):
+                    Cxy=numpy.array([]),
+                    Cyy=numpy.array([]),
+                    Cd=numpy.array([]),
+                    OutInfo=True):
     """
     Calculate Kalman update
 
@@ -346,10 +367,8 @@ def calc_keg_update(m=numpy.array([]), r=numpy.array([]),
 
     ms = numpy.shape(m)
     mr = numpy.shape(r)
-    if mr[0]!=ms[0]:
+    if mr[0] != ms[0]:
         error("calc_kupdate: Ensemble sizes don't match! Exit.")
-
-
 
     print(ms, mr)
     if (Cxy.size == 0) or (Cyy.size == 0):
@@ -364,16 +383,17 @@ def calc_keg_update(m=numpy.array([]), r=numpy.array([]),
 
     m_update = m.copy()
     for ii in numpy.arange(mr[0]):
-        m_update[ii,:]= m[ii,:] + K@r[ii,:]
+        m_update[ii, :] = m[ii, :] + K@r[ii, :]
 
     return m_update
 
+
 def calc_eki_update(m=numpy.array([]), r=numpy.array([]),
-                Cxx=numpy.array([]),
-                Cxy=numpy.array([]),
-                Cyy=numpy.array([]),
-                Cd = numpy.array([]),
-                OutInfo=True):
+                    Cxx=numpy.array([]),
+                    Cxy=numpy.array([]),
+                    Cyy=numpy.array([]),
+                    Cd=numpy.array([]),
+                    OutInfo=True):
     """
     Calculate Ensemble Kalman update
 
@@ -400,7 +420,7 @@ def calc_eki_update(m=numpy.array([]), r=numpy.array([]),
 
     ms = numpy.shape(m)
     mr = numpy.shape(r)
-    if mr[0]!=ms[0]:
+    if mr[0] != ms[0]:
         error("calc_kupdate: Ensemble sizes don't match! Exit.")
 
     if (Cxy.size == 0) or (Cyy.size == 0):
@@ -415,14 +435,14 @@ def calc_eki_update(m=numpy.array([]), r=numpy.array([]),
 
     m_update = m.copy()
     for ii in numpy.arange(mr[0]):
-        m_update[ii,:]= m[ii,:] + K@r[ii,:]
+        m_update[ii, :] = m[ii, :] + K@r[ii, :]
 
     return m_update
 
 
 def get_nlyr(model_vec=numpy.array([])):
 
-    if numpy.size(model_vec)==0 or numpy.size(model_vec)%7!=0:
+    if numpy.size(model_vec) == 0 or numpy.size(model_vec) % 7 != 0:
         error("get_nlyr: model_vec is 0 or not a multiple of 7! Exit.")
 
     nlyr = int(numpy.size(model_vec)/7)
@@ -431,11 +451,11 @@ def get_nlyr(model_vec=numpy.array([])):
 
 
 def calc_jac(
-    fwdcall=None,
-    alt=None,
-    m_vec=numpy.array([]), m_act=numpy.array([]), m_trn=0, m_state=0, m_params=None,
-    d_vec=numpy.array([]), d_act=numpy.array([]), d_trn=0,
-    delta=[1.0e-4], scalejac=False, out= False):
+        fwdcall=None,
+        alt=None,
+        m_vec=numpy.array([]), m_act=numpy.array([]), m_trn=0, m_state=0, m_params=None,
+        d_vec=numpy.array([]), d_act=numpy.array([]), d_trn=0,
+        delta=[1.0e-4], scalejac=False, out=False):
     """
     Calculate Jacobian
 
@@ -485,18 +505,18 @@ def calc_jac(
     jacobian = numpy.zeros((numpy.size(d_vec), numpy.shape(m_vec)[0]))
 
     data0, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                  m_vec=m_vec, m_trn=m_trn, m_state=m_state,
-                                  d_trn=d_trn)
-    
+                                   m_vec=m_vec, m_trn=m_trn, m_state=m_state,
+                                   d_trn=d_trn)
+
     adaptive = False
-    if delta[0]< 0:        
+    if delta[0] < 0:
         adaptive = True
         delta = [1.e-2,  0.1, 1.e-8, 1.e-8]
-    
+
     if adaptive:
         count = 0
         for ipert in numpy.arange(numpy.size(m_act)):
-            if m_act[ipert]!=0:
+            if m_act[ipert] != 0:
                 count = count + 1
 
                 deliter = delta[0]
@@ -506,38 +526,39 @@ def calc_jac(
                     m_current = m_vec.copy()
                     m_current[ipert] = m_current[ipert] + deliter
                     data1, _ = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                                  m_vec = m_current, m_trn=m_trn, m_state=m_state,
-                                                  d_trn=d_trn)
+                                             m_vec=m_current, m_trn=m_trn, m_state=m_state,
+                                             d_trn=d_trn)
                     mcurrent = m_vec.copy()
                     mcurrent[ipert] = mcurrent[ipert] - deliter
                     data2, _ = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                                  m_vec = m_current, m_trn=m_trn, m_state=m_state,
-                                                  d_trn=d_trn)
-                    deljacb = numpy.linalg.norm(((data1-data0) - (data0-data2))/deliter)
+                                             m_vec=m_current, m_trn=m_trn, m_state=m_state,
+                                             d_trn=d_trn)
+                    deljacb = numpy.linalg.norm(
+                        ((data1-data0) - (data0-data2))/deliter)
                     # print(deljacb, ipert, deliter)
                     jacobian[:, ipert] = 0.5*(data1 - data2) / (deliter)
                     deliter = deliter*delta[1]
-                    
+
     else:
 
         for ipert in numpy.arange(numpy.size(m_act)):
-            if m_act[ipert]!=0:
+            if m_act[ipert] != 0:
 
                 m_current = m_vec.copy()
                 m_current[ipert] = m_current[ipert] + delta[0]
                 data1, _ = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                                 m_vec=m_current, m_trn=m_trn, m_state=m_state,
-                                                 d_trn=d_trn)
+                                         m_vec=m_current, m_trn=m_trn, m_state=m_state,
+                                         d_trn=d_trn)
                 jacobian[:, ipert] = (data1 - data0) / delta[0]
 
-    if numpy.size(d_act)>0 and numpy.size(m_act)>0:
-            jacobian = extract_jac(J=jacobian, m_act=m_act, d_act=d_act)
+    if numpy.size(d_act) > 0 and numpy.size(m_act) > 0:
+        jacobian = extract_jac(J=jacobian, m_act=m_act, d_act=d_act)
 
     return jacobian
 
 
-def calc_sensitivity(Jac=numpy.array([]), 
-                     Type = "euclidean", UseSigma = False, OutInfo = False):
+def calc_sensitivity(Jac=numpy.array([]),
+                     Type="euclidean", UseSigma=False, OutInfo=False):
     """
     Calculate sensitivities.
     Expects that Jacobian is already sclaed, i.e Jac = C^(-1/2)*J.
@@ -551,25 +572,25 @@ def calc_sensitivity(Jac=numpy.array([]),
         "euc"     squared sensitivities summed along the data axis.
         "cum"     cummulated sensitivities as proposed by 
                   Christiansen & Auken, 2012. Not usable for negative data. 
-                  
+
     Usesigma:
         if true, sensitivities with respect to sigma  are calculated. 
 
     Christiansen, A. V. & Auken, E.
     A global measure for depth of investigation
     Geophysics, 2012, 77, WB171-WB177
-    
+
     from UBC:
     def depth_of_investigation_christiansen_2012(self, std, thres_hold=0.8):
         pred = self.survey._pred.copy()
-        delta_d = std * np.log(abs(self.survey.dobs))
+        delta_d = std * numpy.log(abs(self.survey.dobs))
         J = self.getJ(self.model)
         J_sum = abs(Utils.sdiag(1/delta_d/pred) * J).sum(axis=0)
-        S = np.cumsum(J_sum[::-1])[::-1]
+        S = numpy.cumsum(J_sum[::-1])[::-1]
         active = S-thres_hold > 0.
         doi = abs(self.survey.depth[active]).max()
         return doi, active
-    
+
     T. Guenther
     Inversion Methods and Resolution Analysis for the 2D/3D Reconstruction
     of Resistivity Structures from DC Measurements
@@ -580,65 +601,63 @@ def calc_sensitivity(Jac=numpy.array([]),
 
     """
 
-    if numpy.size(Jac)==0:
+    if numpy.size(Jac) == 0:
         error("calc_sensitivity: Jacobian size is 0! Exit.")
-        
+
     if UseSigma:
         Jac = -Jac
-        
 
-    
-    if "raw" in  Type.lower():
-        S = numpy.sum(Jac,axis=0)
-        if OutInfo: 
+    if "raw" in Type.lower():
+        S = numpy.sum(Jac, axis=0)
+        if OutInfo:
             print("raw:", S)
         # else:
         #     print("raw sensitivities")
-        smax = numpy.max(Jac, axis = 0)
-        smin = numpy.max(Jac, axis = 0)
+        # smax = numpy.max(Jac, axis = 0)
+        # smin = numpy.max(Jac, axis = 0)
     elif "cov" in Type.lower():
-        S = numpy.sum(numpy.abs(Jac),axis=0)
-        if OutInfo: 
+        S = numpy.sum(numpy.abs(Jac), axis=0)
+        if OutInfo:
             print("cov:", S)
         # else:
         #     print("coverage")
-            
+
     elif "euc" in Type.lower():
-        S = numpy.sum(numpy.power(Jac,2),axis=0)
-        if OutInfo: 
+        S = numpy.sum(numpy.power(Jac, 2), axis=0)
+        if OutInfo:
             print("euc:", S)
         # else:
         #     print("euclidean (default)")
-            
+
     elif "cum" in Type.lower():
-        S = numpy.sum(numpy.abs(Jac),axis=0)
+        S = numpy.sum(numpy.abs(Jac), axis=0)
         print(numpy.shape(S))
         # S = numpy.sum(Jac,axis=0)
-        
+
         S = numpy.append(0.+1.e-10, numpy.cumsum(S[-1:0:-1]))
         S = numpy.flipud(S)
-        if OutInfo: 
-           print("cumulative:", S)
+        if OutInfo:
+            print("cumulative:", S)
         # else:
         #    print("cumulative sensitivity")
-       
+
     else:
         print("calc_sensitivity: Type "
-              +Type.lower()+" not implemented! Default assumed.")
-        S = numpy.sum(numpy.power(Jac,2),axis=0)
+              + Type.lower()+" not implemented! Default assumed.")
+        S = numpy.sum(numpy.power(Jac, 2), axis=0)
 
-        if OutInfo: 
+        if OutInfo:
             print("euc (default):", S)
         # else:
         #     print("euclidean (default)")
-            
+
         # S = S.reshape[-1,1]
-        
-        
+
     return S
 
+
 def transform_sensitivity(S=numpy.array([]), V=numpy.array([]),
-                          Transform=["size","max", "sqrt"], OutInfo=False):
+                          Transform=["size", "max", "sqrt"], OutInfo=False):
     """
     Transform sensitivities.
 
@@ -654,52 +673,52 @@ def transform_sensitivity(S=numpy.array([]), V=numpy.array([]),
         "sqr"       Take the square root. Only usefull for euc sensitivities. 
         "log"       Take the logaritm. This should always be the 
                     last value in Transform list
-        
+
 
     author:VR 4/23
 
     """
 
-    if numpy.size(S)==0:
+    if numpy.size(S) == 0:
         error("Transform_sensitivity: Sensitivity size is 0! Exit.")
-    
+
     ns = numpy.shape(S)
     # print("S0", numpy.shape(S))
     # S = S.ravel()
     # print("S0", numpy.shape(S))
     # reshape((ns,1))
 
-    for item in Transform:       
-        
+    for item in Transform:
+
         if "siz" in item.lower():
-             print("trans_sensitivity: Transformed by layer thickness.")
-             if numpy.size(V)==0:
-                 error("Transform_sensitivity: No thicknesses given! Exit.")
-             else:
-                 V = V.reshape(ns)
-                 S = S/V
-                 # print("S0v", numpy.shape(S))
-                 # print("S0v", numpy.shape(V))
-                 
+            print("trans_sensitivity: Transformed by layer thickness.")
+            if numpy.size(V) == 0:
+                error("Transform_sensitivity: No thicknesses given! Exit.")
+            else:
+                V = V.reshape(ns)
+                S = S/V
+                # print("S0v", numpy.shape(S))
+                # print("S0v", numpy.shape(V))
+
         if "max" in item.lower():
-             print("trans_sensitivity: Transformed by maximum value.")
-             maxval = numpy.amax(numpy.abs(S))
-             print("maximum value: ", maxval)
-             S = S/maxval
-             # print("S0m", numpy.shape(S))
-            
+            print("trans_sensitivity: Transformed by maximum value.")
+            maxval = numpy.amax(numpy.abs(S))
+            print("maximum value: ", maxval)
+            S = S/maxval
+            # print("S0m", numpy.shape(S))
+
         elif "sur" in item.lower():
             S = S/S[0]
-            
 
         if "sqr" in item.lower():
             S = numpy.sqrt(S)
             # print("S0s", numpy.shape(S))
-            
-        if "log" in item.lower():    
+
+        if "log" in item.lower():
             S = numpy.log10(S)
-            
+
     return S
+
 
 def calc_resolution_matrices(J=numpy.array([]), G=numpy.array([]),
                              OutInfo=True):
@@ -719,17 +738,18 @@ def calc_resolution_matrices(J=numpy.array([]), G=numpy.array([]),
 
     author:VR  last change 3/23
     """
-    if numpy.size(J)==0 or numpy.size(G)==0:
-            error("calc_resolution_matrices: J or G not given. Exit")
+    if numpy.size(J) == 0 or numpy.size(G) == 0:
+        error("calc_resolution_matrices: J or G not given. Exit")
 
     Rd = J@G
     Rm = G@J
 
     return Rm, Rd
 
+
 def calc_model_resolution(J=numpy.array([]), G=numpy.array([]),
                           Spread=[],
-                          alpha = 1.E-6,
+                          alpha=1.E-6,
                           OutInfo=True):
     """
     Calculate coverages.
@@ -762,16 +782,16 @@ def calc_model_resolution(J=numpy.array([]), G=numpy.array([]),
     author:VR  last change 4/23
     """
 
-    if numpy.size(J)==0 or numpy.size(G)==0:
+    if numpy.size(J) == 0 or numpy.size(G) == 0:
         error("calc_model_resolution: J or G not given. Exit")
-    
+
     smallval = 100.*numpy.finfo(float).eps
 
     Rm = G@J
 
     N = numpy.shape(Rm)[0]
 
-    if len(Spread)!=0:
+    if len(Spread) != 0:
         stype = Spread[0]
         if OutInfo:
             print("calc_model_resolution: Spread definition is "+stype.lower())
@@ -780,15 +800,14 @@ def calc_model_resolution(J=numpy.array([]), G=numpy.array([]),
             R = Rm - numpy.eye(N)
             S = numpy.linalg.norm(R)
 
-
-        W =numpy.zeros((N, N))
-        if "too" in stype.lower() or"back" in stype.lower():
+        W = numpy.zeros((N, N))
+        if "too" in stype.lower() or "back" in stype.lower():
             lam = 2
             if len(Spread) > 1:
                 lam = Spread[1]
             for i1 in numpy.arange(N):
                 for i2 in numpy.arange(N):
-                    W[i1,i2] = numpy.abs(i1-i2)
+                    W[i1, i2] = numpy.abs(i1-i2)
 
             R = numpy.power((W * Rm), lam)
             S = numpy.sum(R, axis=0)
@@ -802,28 +821,27 @@ def calc_model_resolution(J=numpy.array([]), G=numpy.array([]),
 
             for i1 in numpy.arange(N):
                 for i2 in numpy.arange(N):
-                    W[i1,i2] = 1.0 + numpy.power(numpy.abs(i1-i2),lam)
+                    W[i1, i2] = 1.0 + numpy.power(numpy.abs(i1-i2), lam)
 
             S = numpy.sum(W * R**2, axis=0)
             D = alpha + numpy.sum(Rm, axis=0)
-            S= S/D
-            
+            S = S/D
+
         if "mic" in stype.lower():
             d = numpy.zeros_like(Rm)
             S = numpy.zeros(N)
 
-            for i1 in numpy.arange(N):                
-                for i2 in numpy.arange(N):            
+            for i1 in numpy.arange(N):
+                for i2 in numpy.arange(N):
                     d[i2] = numpy.abs(i1-i2)
-                    
-                R = Rm[i1,:]
+
+                R = Rm[i1, :]
                 D = d[:]
                 f = 1./scipy.linalg.norm(R+smallval)
-                S[i1] = numpy.log(f*numpy.sum(numpy.power((f*R),2)*D))
-
+                S[i1] = numpy.log(f*numpy.sum(numpy.power((f*R), 2)*D))
 
         return Rm, S
-    
+
     else:
         if OutInfo:
             print("calc_model_resolution: Spread not calculated. Exit")
@@ -831,7 +849,7 @@ def calc_model_resolution(J=numpy.array([]), G=numpy.array([]),
 
 
 def transform_data(d_vec=numpy.array([]), e_vec=numpy.array([]),
-                   d_trn=0, d_state=0, get_weights=False, S=1000., OutInfo = False):
+                   d_trn=0, d_state=0, get_weights=False, S=1000., OutInfo=False):
     """
 
     Transform data.
@@ -872,28 +890,29 @@ def transform_data(d_vec=numpy.array([]), e_vec=numpy.array([]),
     author: VR 2/22
     """
 
-    if numpy.size(d_vec)==0:
+    if numpy.size(d_vec) == 0:
         error("transform_data: No data given! Exit.")
 
-    if numpy.size(e_vec)==0:
+    if numpy.size(e_vec) == 0:
         e_vec = numpy.ones_like(d_vec)
         if OutInfo:
             print("transform_data: No errors given! Set = 1.")
 
     if d_state != 0:
-            error("transform_data: no transform possible, d_trans !=0! Exit.")
+        error("transform_data: no transform possible, d_trans !=0! Exit.")
 
-    e_trans =  numpy.zeros_like(d_vec)
-    w_trans =  numpy.zeros_like(d_vec)
+    e_trans = numpy.zeros_like(d_vec)
+    w_trans = numpy.zeros_like(d_vec)
 
     if numpy.abs(d_trn) == 0:
         d_trans = d_vec
         if get_weights:
 
-            w_trans = w_trans + numpy.abs(numpy.ones_like(e_vec)/e_vec).reshape(numpy.shape(w_trans))
+            w_trans = w_trans + \
+                numpy.abs(numpy.ones_like(e_vec) /
+                          e_vec).reshape(numpy.shape(w_trans))
         else:
             e_trans = e_vec
-
 
     elif numpy.abs(d_trn) == 1:
         if OutInfo:
@@ -903,9 +922,9 @@ def transform_data(d_vec=numpy.array([]), e_vec=numpy.array([]),
         d_trans = numpy.log(d_vec)
 
         if get_weights:
-            w_trans =w_trans +  (d_vec/e_vec).reshape(numpy.shape(w_trans))
+            w_trans = w_trans + (d_vec/e_vec).reshape(numpy.shape(w_trans))
         else:
-            e_trans =e_trans +  (e_vec/d_vec).reshape(numpy.shape(e_trans))
+            e_trans = e_trans + (e_vec/d_vec).reshape(numpy.shape(e_trans))
 
     elif numpy.abs(d_trn) == 2:
         if OutInfo:
@@ -921,14 +940,16 @@ def transform_data(d_vec=numpy.array([]), e_vec=numpy.array([]),
         d_trans = numpy.arcsinh(d_vec/S)
 
         if get_weights:
-            w_trans = w_trans + (numpy.sqrt(d_vec**2 + S**2)/e_vec).reshape(numpy.shape(w_trans))
+            w_trans = w_trans + (numpy.sqrt(d_vec**2 + S**2) /
+                                 e_vec).reshape(numpy.shape(w_trans))
         else:
-            e_trans = e_trans + (e_vec/numpy.sqrt(d_vec**2 + S**2)).reshape(numpy.shape(e_trans))
+            e_trans = e_trans + \
+                (e_vec/numpy.sqrt(d_vec**2 + S**2)).reshape(numpy.shape(e_trans))
 
     else:
         error(
             "Data transformation " + str(d_trn) + " not implemented! Exit."
-            )
+        )
 
     d_state_new = d_trn
 
@@ -939,7 +960,8 @@ def transform_data(d_vec=numpy.array([]), e_vec=numpy.array([]),
 
         return d_trans, e_trans, d_state_new
 
-def get_S(d=numpy.array([]), F=0.1, method = "other", OutInfo = False):
+
+def get_S(d=numpy.array([]), F=0.1, method="other", OutInfo=False):
     """
     Get optimal Scale for arcsin transformation.
 
@@ -962,7 +984,7 @@ def get_S(d=numpy.array([]), F=0.1, method = "other", OutInfo = False):
 
     """
 
-    if numpy.size(d)==0:
+    if numpy.size(d) == 0:
         error("get_S: No data given! Exit.")
 
     if "s2007" in method.lower():
@@ -971,7 +993,7 @@ def get_S(d=numpy.array([]), F=0.1, method = "other", OutInfo = False):
     else:
         dmax = numpy.nanmax(numpy.abs(d))
         dmin = numpy.nanmin(numpy.abs(d))
-        denom =F *(numpy.log(dmax)-numpy.log(dmin))
+        denom = F * (numpy.log(dmax)-numpy.log(dmin))
         S = numpy.abs(dmax/denom)
 
     if OutInfo:
@@ -982,7 +1004,7 @@ def get_S(d=numpy.array([]), F=0.1, method = "other", OutInfo = False):
 
 def transform_parameter(m_vec=numpy.array([]),
                         mode="fwd", m_trn=0, m_state=0,
-                        bounds = None, dp=False, deltap=numpy.array([1.e-5]), npar=7):
+                        bounds=None, dp=False, deltap=numpy.array([1.e-5]), npar=7):
     """
     m_trn model to different parametrizations.
 
@@ -998,14 +1020,14 @@ def transform_parameter(m_vec=numpy.array([]),
     author: VR 2/22
     """
 
-    if m_vec.size==0:
-            error("transform_para: transform possible, no model given! Exit.")
+    if m_vec.size == 0:
+        error("transform_para: transform possible, no model given! Exit.")
 
-    mshape =numpy.shape(m_vec)
-    nlyr=mshape[0]//npar
+    mshape = numpy.shape(m_vec)
+    nlyr = mshape[0]//npar
 
     m_trans = m_vec.copy()
-    m_trans = numpy.reshape(m_trans, (npar,nlyr))
+    m_trans = numpy.reshape(m_trans, (npar, nlyr))
 
     if "b" in mode:
         dp = False
@@ -1013,33 +1035,36 @@ def transform_parameter(m_vec=numpy.array([]),
             pass
 
         elif numpy.abs(m_trn) == 1:
-            m_trans[0,:] = numpy.exp(m_trans[0,:])
+            m_trans[0, :] = numpy.exp(m_trans[0, :])
 
         elif numpy.abs(m_trn) == 2:
-           m_trans[0,:] = numpy.exp(m_trans[0,:])
-           m_trans[6,:-1] = numpy.exp(m_trans[6,:-2])
+            m_trans[0, :] = numpy.exp(m_trans[0, :])
+            m_trans[6, :-1] = numpy.exp(m_trans[6, :-2])
 
         elif numpy.abs(m_trn) == 3:
             # e^mu/(e^mu + 1), INVERSE normalized chargeability Ghorbani 2007
-            m_trans[0,:] = numpy.exp(m_trans[0,:])
-            m_trans[3,:] = numpy.exp(m_trans[3,:])/(numpy.exp(m_trans[3,:]) + 1.0e0)
-            m_trans[4,:] = numpy.exp(m_trans[4,:])
-            m_trans[6,:-1] = numpy.exp(m_trans[6,:-2])
+            m_trans[0, :] = numpy.exp(m_trans[0, :])
+            m_trans[3, :] = numpy.exp(m_trans[3, :]) / \
+                (numpy.exp(m_trans[3, :]) + 1.0e0)
+            m_trans[4, :] = numpy.exp(m_trans[4, :])
+            m_trans[6, :-1] = numpy.exp(m_trans[6, :-2])
 
         else:
             error(
-                "Parameter transformation " + str(m_trn) + " not implemented! Exit."
-                )
+                "Parameter transformation " +
+                str(m_trn) + " not implemented! Exit."
+            )
 
         m_state_new = 0
 
     elif "f" in mode:
 
-        if m_state !=0:
-            error("transform_parameter: no transform possible, m status is "+str(m_state)+"! Exit.")
+        if m_state != 0:
+            error("transform_parameter: no transform possible, m status is " +
+                  str(m_state)+"! Exit.")
 
         if dp:
-            if deltap.size==1:
+            if deltap.size == 1:
                 delt = deltap * numpy.ones_like(m_vec)
             else:
                 delt = numpy.ones_like(m_vec)*deltap
@@ -1047,29 +1072,28 @@ def transform_parameter(m_vec=numpy.array([]),
         if numpy.abs(m_trn) == 0:
             pass
 
-
         elif numpy.abs(m_trn) == 1:
-            m_trans[0,:] = numpy.log(m_trans[0,:])
+            m_trans[0, :] = numpy.log(m_trans[0, :])
         elif numpy.abs(m_trn) == 2:
-            m_trans[0,:] = numpy.log(m_trans[0,:])
-            m_trans[6,:-1] = numpy.log(m_trans[6,:-2])
+            m_trans[0, :] = numpy.log(m_trans[0, :])
+            m_trans[6, :-1] = numpy.log(m_trans[6, :-2])
 
         elif numpy.abs(m_trn) == 3:
             # e^mu/(1e^mu + 1), INVERSE normalized chargeability Ghorbani 200npar
-            m_trans[0,:] = numpy.log(m_trans[0,:])
-            m_trans[3,:] = numpy.log(m_trans[3,:] / (1e0 - m_trans[3,:]))
-            m_trans[4,:] = numpy.log(m_trans[4,:])
-            m_trans[6,:-1] = numpy.log(m_trans[6,:-2])
+            m_trans[0, :] = numpy.log(m_trans[0, :])
+            m_trans[3, :] = numpy.log(m_trans[3, :] / (1e0 - m_trans[3, :]))
+            m_trans[4, :] = numpy.log(m_trans[4, :])
+            m_trans[6, :-1] = numpy.log(m_trans[6, :-2])
         else:
             error(
-                "Parameter transformation " + str(m_trn) + " not implemented! Exit."
-                )
+                "Parameter transformation " +
+                str(m_trn) + " not implemented! Exit."
+            )
 
         m_state_new = m_trn
 
-
     if not bounds == None:
-           m_trans = impose_bounds(m=m_trans, bounds= bounds, mode = mode)
+        m_trans = impose_bounds(m=m_trans, bounds=bounds, mode=mode)
 
     m_trans = numpy.reshape(m_trans, mshape)
 
@@ -1079,7 +1103,7 @@ def transform_parameter(m_vec=numpy.array([]),
         return m_trans, m_state_new
 
 
-def impose_bounds(m=None, bounds=None, f = 1., mode = "fwd"):
+def impose_bounds(m=None, bounds=None, f=1., mode="fwd"):
     """
     Generate barrier operator used for enforcing limits for parameters.
 
@@ -1118,7 +1142,7 @@ def init_obsdata(nD, value="active"):
     onobs = numpy.ones(nD)
     d_obs = numpy.zeros(nD)
 
-    if  value.lower() == "active":
+    if value.lower() == "active":
         d_act = onobs.astype("int8")
     elif value.lower() == "inactive":
         d_act = 0 * onobs.astype("int8")
@@ -1139,7 +1163,7 @@ def init_1dmod(nlyr, npar=7):
     last changes: VR 04/23
     """
     epsi = 1.e-12
-    m_state =0
+    m_state = 0
 
     # m_act determines the active paramteters, currently npar per layer
     m_act = numpy.zeros((npar*nlyr)).astype("int8")
@@ -1150,7 +1174,7 @@ def init_1dmod(nlyr, npar=7):
     m_prior[4*nlyr:5*nlyr] = epsi
 
     # mvar is the default prior variance
-    m_var= numpy.ones((npar*nlyr))
+    m_var = numpy.ones((npar*nlyr))
 
     # m_bounds are bounds on the parameters (currently no used)
     m_bounds = numpy.ones((npar*nlyr, 2))
@@ -1191,14 +1215,15 @@ def calc_aniso_euclidean_norm(x1, x2, scale=None):
     anisotropic scaling for radial basic function interpolation
     """
 
-    if scale==None:
-        fn=numpy.sqrt( ((x1 - x2)**2).sum(axis=0) )
+    if scale == None:
+        fn = numpy.sqrt(((x1 - x2)**2).sum(axis=0))
     else:
-        scale=scale/numpy.sum(scale)
+        scale = scale/numpy.sum(scale)
         f = scale*(x1 - x2)**2
-        fn=numpy.sqrt( (f).sum(axis=0) )
+        fn = numpy.sqrt((f).sum(axis=0))
 
     return fn
+
 
 def insert_dat(D=numpy.array([]), d=numpy.array([]), d_act=numpy.array([])):
     """
@@ -1207,22 +1232,23 @@ def insert_dat(D=numpy.array([]), d=numpy.array([]), d_act=numpy.array([])):
     VR Jan 2021
 
     """
-    if numpy.size(D)==0:
+    if numpy.size(D) == 0:
         error("insert_dat: D not defined! Exit.")
-    if numpy.size(d)==0:
+    if numpy.size(d) == 0:
         error("insert_dat: d not defined! Exit.")
-    if numpy.size(d_act)==0:
+    if numpy.size(d_act) == 0:
         error("insert_dat: d_act not defined! Exit.")
 
     A = D.copy()
 
-    if d.ndim==1:
-        A[d_act!=0] = d
+    if d.ndim == 1:
+        A[d_act != 0] = d
     else:
         for ii in numpy.arange(A.shape[0]):
-            A[ii, d_act.flat!=0]=d[ii,:]
+            A[ii, d_act.flat != 0] = d[ii, :]
 
     return A
+
 
 def extract_dat(D=numpy.array([]), d_act=numpy.array([])):
     """
@@ -1231,27 +1257,25 @@ def extract_dat(D=numpy.array([]), d_act=numpy.array([])):
     VR Jan 2021
 
     """
-    if numpy.size(D)==0:
+    if numpy.size(D) == 0:
         error("extract_dat: D not defined! Exit.")
 
-    if numpy.size(d_act)==0:
+    if numpy.size(d_act) == 0:
         error("extract_dat: d_act not defined! Exit.")
 
-    if numpy.size(d_act)!=numpy.size(D):
+    if numpy.size(d_act) != numpy.size(D):
         error("extract_dat: sizes do not match! Exit.")
-
-
 
     tmp = D.copy()
 
-    if D.ndim==1:
-        d = tmp[d_act.flat!=0]
+    if D.ndim == 1:
+        d = tmp[d_act.flat != 0]
     else:
         for ii in numpy.arange(D.shape[0]):
-            if ii==0:
-                d = tmp[0, d_act.flat!=0]
+            if ii == 0:
+                d = tmp[0, d_act.flat != 0]
             else:
-                d = numpy.vstack((d, tmp[ii, d_act.flat!=0]))
+                d = numpy.vstack((d, tmp[ii, d_act.flat != 0]))
 
     return d
 
@@ -1260,28 +1284,26 @@ def insert_jac(M=numpy.array([]),
                m=numpy.array([]),
                m_act=numpy.array([]),
                d_act=numpy.array([])):
-
     """
     Unfold Jacobian according to m_act and d_act.
 
     VR Jun 2022
 
     """
-    if numpy.size(M)==0:
+    if numpy.size(M) == 0:
         error("insert_dat: M not defined! Exit.")
 
-    if m.size==0:
+    if m.size == 0:
         error("insert_dat: m not defined! Exit.")
 
-    if numpy.size(m_act)==0:
-     error("insert_dat: m_act not defined! Exit.")
+    if numpy.size(m_act) == 0:
+        error("insert_dat: m_act not defined! Exit.")
 
-    if numpy.size(d_act)==0:
-     error("insert_jac: d_act not defined! Exit.")
-
+    if numpy.size(d_act) == 0:
+        error("insert_jac: d_act not defined! Exit.")
 
     A = M.copy()
-    A[d_act.flat!=0, m_act.flat!=0]=m
+    A[d_act.flat != 0, m_act.flat != 0] = m
 
     return A
 
@@ -1295,25 +1317,23 @@ def extract_jac(J=numpy.array([]),
     VR Jan 2021
 
     """
-    if J.size==0:
+    if J.size == 0:
         error("extract_jac: J not defined! Exit.")
-    if numpy.size(m_act)==0:
+    if numpy.size(m_act) == 0:
         error("extract_jac: m_act not defined! Exit.")
-    if numpy.size(d_act)==0:
+    if numpy.size(d_act) == 0:
         error("extract_jac: d_act not defined! Exit.")
 
-
     tmp = J.copy()
-    tmp = tmp[d_act.flat!=0, :]
-    A = tmp[:, m_act.flat!=0]
+    tmp = tmp[d_act.flat != 0, :]
+    A = tmp[:, m_act.flat != 0]
 
     return A
 
 
 def insert_mod(M=numpy.array([]),
-             m=numpy.array([]),
-             m_act=numpy.array([])):
-
+               m=numpy.array([]),
+               m_act=numpy.array([])):
     """
     insert according to m_act.
     Allows for mdel ensemble .
@@ -1321,23 +1341,22 @@ def insert_mod(M=numpy.array([]),
     VR Jul 2022
 
     """
-    if numpy.size(M)==0:
+    if numpy.size(M) == 0:
         error("insert_dat: M not defined! Exit.")
 
-    if numpy.size(m)==0:
+    if numpy.size(m) == 0:
         error("insert_dat: m not defined! Exit.")
 
-    if numpy.size(m_act)==0:
-     error("insert_dat: m_act not defined! Exit.")
-
+    if numpy.size(m_act) == 0:
+        error("insert_dat: m_act not defined! Exit.")
 
     A = M.copy()
-
-    if M.ndim==1:
-        A[m_act.flat!=0]=m.flat
+    # print(numpy.shape(A), numpy.shape(m), numpy.shape(m_act),)
+    if M.ndim == 1:
+        A[m_act.flat != 0] = m.flat
     else:
         for ii in numpy.arange(M.shape[0]):
-            A[ii, m_act.flat!=0]=m[ii,:]
+            A[ii, m_act.flat != 0] = m[ii, :]
 
     return A
 
@@ -1350,37 +1369,39 @@ def extract_mod(M=numpy.array([]), m_act=numpy.array([])):
     VR Jul 2021
 
     """
-    if numpy.size(M)==0:
-         error("extract_mod: M not defined! Exit.")
-    if numpy.size(m_act)==0:
-         error("extract_mod: m_act not defined! Exit.")
+    if numpy.size(M) == 0:
+        error("extract_mod: M not defined! Exit.")
+    if numpy.size(m_act) == 0:
+        error("extract_mod: m_act not defined! Exit.")
 
     tmp = M.copy()
-    if M.ndim==1:
-        m =tmp[m_act.flat!=0]
+    if M.ndim == 1:
+        m = tmp[m_act.flat != 0]
     else:
         for ii in numpy.arange(M.shape[0]):
-            m[ii,:] = tmp[ii, m_act.flat!=0]
+            m[ii, :] = tmp[ii, m_act.flat != 0]
 
     return m
+
 
 def full_cov(C=[numpy.array([])]):
     """
     setup full block-diagonal covar matrix
     """
     # CmiS = scipy.sparse.block_diag([CmiS for ii in range(7)])
-       
-    if len(C)==0:
+
+    if len(C) == 0:
         error("ful_cov: C not defined! Exit.")
-   
-    if len(C)==1:
-        tmp  = [C[0] for ii in numpy.arange(7) ]
+
+    if len(C) == 1:
+        tmp = [C[0] for ii in numpy.arange(7)]
         block_cov = scipy.linalg.block_diag(*tmp)
     else:
         block_cov = scipy.linalg.block_diag(*C)
-                
+
     return block_cov
-        
+
+
 def extract_cov(C=numpy.array([]), m_act=numpy.array([])):
     """
     extract covariance according to m_act.
@@ -1388,19 +1409,20 @@ def extract_cov(C=numpy.array([]), m_act=numpy.array([])):
     VR Jan 2021
 
     """
-    if C.size==0:
+    if C.size == 0:
         error("extract_cov: C not defined! Exit.")
-    if numpy.size(m_act)==0:
+    if numpy.size(m_act) == 0:
         error("extract_cov: m_act not defined! Exit.")
-    print(numpy.shape(C),numpy.shape(m_act) )
-    tmp =C.copy()
+    print(numpy.shape(C), numpy.shape(m_act))
+    tmp = C.copy()
     if scipy.sparse.issparse(tmp):
         tmp = tmp.todense()
-    tmp = tmp[m_act.flat!=0, :]
-    A = tmp[:, m_act.flat!=0]
+    tmp = tmp[m_act.flat != 0, :]
+    A = tmp[:, m_act.flat != 0]
     A = scipy.sparse.csr_matrix(A)
 
     return A
+
 
 def extract_wgt(W=numpy.array([]), m_act=numpy.array([])):
     """
@@ -1409,22 +1431,22 @@ def extract_wgt(W=numpy.array([]), m_act=numpy.array([])):
     VR Jan 2021
 
     """
-    if W.size==0:
+    if W.size == 0:
         error("extract_wgt: W not defined! Exit.")
-    if numpy.size(m_act)==0:
+    if numpy.size(m_act) == 0:
         error("extract_wgt: m_act not defined! Exit.")
 
     tmp = W.copy()
     # tmp = tmp.todense()
-    tmp = tmp[m_act!=0, :]
-    A = tmp[:, m_act!=0]
+    tmp = tmp[m_act != 0, :]
+    A = tmp[:, m_act != 0]
     A = scipy.sparse.csr_matrix(A)
-
 
     return A
 
-def load_prior(prior_file=None, 
-               m_ref=numpy.array([]), 
+
+def load_prior(prior_file=None,
+               m_ref=numpy.array([]),
                m_act=numpy.array([]),
                OutInfo=False):
     """
@@ -1437,8 +1459,8 @@ def load_prior(prior_file=None,
         name of the prior file.
     m_ref, m_act : numpy.arrays
         reference model and activation flag. 
-        
-    
+
+
     OutInfo : TYPE, optional
         determines outputs.
 
@@ -1452,46 +1474,44 @@ def load_prior(prior_file=None,
     VR April 2023
 
     """
-    if prior_file==None:
+    if prior_file == None:
         error("No prior file given! Exit.")
 
     if not os.path.exists(prior_file):
         error("Prior file "+prior_file+" does not exist! Exit.")
 
     tmp = numpy.load(prior_file, allow_pickle=True)
-    
+
     prior_ref = tmp["mod_ref"]
     prior_act = tmp["mod_act"]
     # prior run with same base model
     prior_sit = tmp["site_modl"]
     prior_mod = prior_sit
 
+    # if (numpy.shape(prior_ref)==numpy.shape(m_ref))\
+    #     and (numpy.shape(prior_act)==numpy.shape(m_act)):
 
-        # if (numpy.shape(prior_ref)==numpy.shape(m_ref))\
-        #     and (numpy.shape(prior_act)==numpy.shape(m_act)):
-        
-        #     # prior run with same base model
-        #     prior_sit = tmp["site_modl"]
-        #     prior_mod = prior_sit
-            
-        # prior_mod = numpy.zeros_like(prior_sit)
-        # nsit = numpy.arange(numpy.shape(prior_sit)[0])
-        # for isit in nsit:
-        #     prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], prior_act)
-        
+    #     # prior run with same base model
+    #     prior_sit = tmp["site_modl"]
+    #     prior_mod = prior_sit
+
+    # prior_mod = numpy.zeros_like(prior_sit)
+    # nsit = numpy.arange(numpy.shape(prior_sit)[0])
+    # for isit in nsit:
+    #     prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], prior_act)
+
     # elif get_nlyr(prior_ref)==1:
     #     # halfspace-prior
     #     m_sit = m_ref[prior_act]
     #     print(numpy.shape(m_sit))
     #     m_sit = prior_sit*numpy.ones_like(m_sit)
     #     mod_apr = insert_mod(m_ref, m_sit, m_act)
-        
-        
-    return prior_mod   
+
+    return prior_mod
 
 
 def diffops(dz=None, der=False,
-            otype="L0", variant=0, mtype="sparse", mform="csr",flip=False):
+            otype="L0", variant=0, mtype="sparse", mform="csr", flip=False):
     """
     Generate differential operators L0-L2 potentially based on dz.
 
@@ -1499,26 +1519,26 @@ def diffops(dz=None, der=False,
     P. C. Hansen
     Discrete inverse problems: Insight and algorithms, SIAM, 2010
     pp 173ff
-    
+
     A. Doicu, T. Trautmann, and F. Schreier
     Numerical regularization for atmospheric inverse problems,
     Springer, 2010.
-    
+
     J. Xu, R. Lanlan, F. Schreier, D. Efremenko, A. Doicu, and T. Trautmann
     Insight into Construction of Tikhonov-Type Regularization for
     Atmospheric Retrievals,
     Atmosphere, 11, doi:10.3390/atmos11101052, 2020.
-    
+
     M. Donatelli and L. Reichel
     Square smoothing regularization matrices with accurate boundary conditions,
     J. Comp. Appl. Math., 272, doi:10.1016/j.cam.2013.08.015, 2014.
-    
+
     C. Scholl, S. Helwig, B. Tezkan, M. Goldman, U. Kafri (2009)
     1-D multimodel joint inversion of TEM-data over multidimensional structures 
     Geophys J Int  , Vol. 176(1), 81-94
-    
-    
-    
+
+
+
     Last change :VR July 2023
 
     """
@@ -1528,7 +1548,6 @@ def diffops(dz=None, der=False,
     if otype == "L0":
         d = numpy.ones((1, nlyr))
         L = scipy.sparse.spdiags(d, [0], nlyr, nlyr, format=mform)
-
 
     elif otype == "L1":
 
@@ -1542,11 +1561,12 @@ def diffops(dz=None, der=False,
         if variant == 0:
             d = numpy.zeros((2, nlyr))
             d[0, :] = -1.
-            d[1, :] =  1.
+            d[1, :] = 1.
             if der:
-                d[:,1:]=d[:, 1:]*h[:]
+                d[:, 1:] = d[:, 1:]*h[:]
 
-            L = scipy.sparse.spdiags(d, [0, -1], nlyr, nlyr-1, format=mform).transpose()
+            L = scipy.sparse.spdiags(
+                d, [0, -1], nlyr, nlyr-1, format=mform).transpose()
             # if der:
             #     L = scipy.sparse.spdiags(h, [0], nlyr-1, nlyr-1, format=mform)*L
             print("L1 matrix is "+str(numpy.shape(L)))
@@ -1554,66 +1574,71 @@ def diffops(dz=None, der=False,
         elif variant == 1:
             alpha = 1.
             d = numpy.zeros((2, nlyr))
-            d[0, 1:] =  1.
+            d[0, 1:] = 1.
             d[1, 1:] = -1.
             d[0, 0] = alpha
             if der:
-                d[:,1:]=d[:, 1:]*h[:]
+                d[:, 1:] = d[:, 1:]*h[:]
 
-            L = scipy.sparse.spdiags(d, [0, 1], nlyr, nlyr, format=mform).transpose()
+            L = scipy.sparse.spdiags(
+                d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
             print("L1 matrix is "+str(numpy.shape(L)))
 
         elif variant == 2:
             alpha = 1.e-6
             d = numpy.zeros((2, nlyr))
-            d[0, 1:] =  1.
+            d[0, 1:] = 1.
             d[1, 1:] = -1.
             d[0, 0] = alpha
             if der:
-                d[:,1:]=d[:, 1:]*h[:]
+                d[:, 1:] = d[:, 1:]*h[:]
 
-            L = scipy.sparse.spdiags(d, [0, 1], nlyr, nlyr, format=mform).transpose()
+            L = scipy.sparse.spdiags(
+                d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
             print("L1 matrix is "+str(numpy.shape(L)))
-            
+
         elif variant == 3:
-             alpha = 1.e-6
-             d = numpy.zeros((2, nlyr))
-             d[0, 1:] =  1.
-             d[1, 1:] = -1.
-             d[0,0] = alpha
-             d[-1,-1] = 1.
-             if der:
-                 d[:,1:]=d[:, 1:]*h[:]
+            alpha = 1.e-6
+            d = numpy.zeros((2, nlyr))
+            d[0, 1:] = 1.
+            d[1, 1:] = -1.
+            d[0, 0] = alpha
+            d[-1, -1] = 1.
+            if der:
+                d[:, 1:] = d[:, 1:]*h[:]
 
-             L = scipy.sparse.spdiags(d, [0, 1], nlyr, nlyr, format=mform).transpose()
+            L = scipy.sparse.spdiags(
+                d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
-             print("L1 matrix is "+str(numpy.shape(L))) 
-             
+            print("L1 matrix is "+str(numpy.shape(L)))
+
         elif variant == -1:
             alpha = 1.
             d = numpy.zeros((2, nlyr))
-            d[0, :-1] =  1.
+            d[0, :-1] = 1.
             d[1, :-1] = -1.
-            d[-1,-1] = alpha
+            d[-1, -1] = alpha
             if der:
-                d[:,1:]=d[:, 1:]*h[:]
+                d[:, 1:] = d[:, 1:]*h[:]
 
-            L = scipy.sparse.spdiags(d, [0, 1], nlyr, nlyr, format=mform).transpose()
+            L = scipy.sparse.spdiags(
+                d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
             print("L1 matrix is "+str(numpy.shape(L)))
 
         elif variant == -2:
             alpha = 1.e-6
             d = numpy.zeros((2, nlyr))
-            d[0, :-1] =  1.
+            d[0, :-1] = 1.
             d[1, :-1] = -1.
-            d[-1,-1] = alpha
+            d[-1, -1] = alpha
             if der:
-                d[:,1:]=d[:, 1:]*h[:]
+                d[:, 1:] = d[:, 1:]*h[:]
 
-            L = scipy.sparse.spdiags(d, [0, 1], nlyr, nlyr, format=mform).transpose()
+            L = scipy.sparse.spdiags(
+                d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
         else:
             error("DiffOperator variant " + variant + " not implemeted ! Exit.")
@@ -1627,6 +1652,7 @@ def diffops(dz=None, der=False,
     # print("\nRegularisation weight matrix dims:")
     # print(numpy.shape(L))
     return L
+
 
 def matern(dist=numpy.array([]), var=numpy.array([]), nu=1):
     """
@@ -1646,21 +1672,20 @@ def matern(dist=numpy.array([]), var=numpy.array([]), nu=1):
         nu = 100.
         print("matern: input argument nu too large! Set to 100.")
 
-
-    dd = numpy.clip(dist.ravel,1.e-8, None)
+    dd = numpy.clip(dist.ravel, 1.e-8, None)
 
     f1 = numpy.power(2., nu-1.)/scipy.special.gamma(nu)
     f2 = dd * numpy.sqrt(2.*nu)
-
 
     matern = f1 * numpy.power(f2, nu) * scipy.special.kv(nu, f2)
 
     return matern
 
+
 def covar(dx, dy, dz,
-            covtype= ["exp", numpy.array([1.0, 1.0, 1.0])],
-            var=numpy.array([]), sparse=False, thresh=0.05,
-            dist=False,inverse=True, OutInfo=True):
+          covtype=["exp", numpy.array([1.0, 1.0, 1.0])],
+          var=numpy.array([]), sparse=False, thresh=0.05,
+          dist=False, inverse=True, OutInfo=True):
     """
     Calculate exponential, matern, or gaussian 3D covariance.
 
@@ -1684,15 +1709,15 @@ def covar(dx, dy, dz,
             for il in range(npoints):
                 for jl in range(il, npoints):
                     wdist = -(numpy.abs(x[il] - x[jl]) / L[0]
-                            + numpy.abs(y[il] - y[jl]) / L[1]
-                            + numpy.abs(z[il] - z[jl]) / L[2])
+                              + numpy.abs(y[il] - y[jl]) / L[1]
+                              + numpy.abs(z[il] - z[jl]) / L[2])
                     Cov[jl, il] = numpy.exp(wdist)
                     Cov[il, jl] = Cov[jl, il]
         else:
             for il in range(npoints):
                 for jl in range(il, npoints):
                     ll = numpy.abs(il - jl)
-                    wdist = -(ll/L[0] + ll/L[1] + ll/ L[2])
+                    wdist = -(ll/L[0] + ll/L[1] + ll / L[2])
                     Cov[jl, il] = numpy.exp(wdist)
                     Cov[il, jl] = Cov[jl, il]
 
@@ -1700,13 +1725,13 @@ def covar(dx, dy, dz,
         L = covtype[1]
         if OutInfo:
             print(str(npoints)+" gaussian covariance")
-        
+
         if dist:
             for il in range(npoints):
                 for jl in range(il, npoints):
                     wdist = -(numpy.power(numpy.abs(x[il] - x[jl])/L[0], 2)
-                            + numpy.power(numpy.abs(y[il] - y[jl])/L[1], 2)
-                            + numpy.power(numpy.abs(z[il] - z[jl])/L[2], 2))
+                              + numpy.power(numpy.abs(y[il] - y[jl])/L[1], 2)
+                              + numpy.power(numpy.abs(z[il] - z[jl])/L[2], 2))
                     Cov[jl, il] = numpy.exp(wdist)
                     Cov[il, jl] = Cov[jl, il]
         else:
@@ -1714,11 +1739,11 @@ def covar(dx, dy, dz,
                 for jl in range(il, npoints):
                     ll = numpy.abs(il - jl)
                     wdist = -(numpy.power(ll/L[0], 2)
-                            + numpy.power(ll/L[1], 2)
-                            + numpy.power(ll/L[2], 2))
+                              + numpy.power(ll/L[1], 2)
+                              + numpy.power(ll/L[2], 2))
                     Cov[jl, il] = numpy.exp(wdist)
-                    Cov[il, jl] = Cov[jl, il]            
-            
+                    Cov[il, jl] = Cov[jl, il]
+
         # enforce positive definiteness
         threshpd = 1.0e2 * numpy.finfo(float).eps
         eigval, eigvec = numpy.linalg.eig(Cov)
@@ -1729,54 +1754,57 @@ def covar(dx, dy, dz,
     if "mat" in covtype[0].lower():
 
         L = covtype[1]
-        nu  = covtype[2]
-
+        nu = covtype[2]
 
         if OutInfo:
-             print(str(npoints)+" matern covariance")
+            print(str(npoints)+" matern covariance")
 
         if nu <= 0.:
-             error("matern: input argument nu must be positive! Exit.")
+            error("matern: input argument nu must be positive! Exit.")
         if nu > 100:
-             nu = 100.
-             print("matern: input argument nu too large! Set to 100.")
+            nu = 100.
+            print("matern: input argument nu too large! Set to 100.")
 
         f1 = numpy.power(2., nu-1.)/scipy.special.gamma(nu)
         f2 = numpy.sqrt(2.*nu)
-        
+
         if dist:
 
             for il in range(npoints):
                 for jl in range(il, npoints):
                     wdist = numpy.sqrt(
-                              numpy.power(numpy.abs(x[il] - x[jl])/L[0], 2)
-                            + numpy.power(numpy.abs(y[il] - y[jl])/L[1], 2)
-                            + numpy.power(numpy.abs(z[il] - z[jl])/L[2], 2)
-                            )
-    
-                    if wdist<=1.e-8: wdist = 1.e-8  
+                        numpy.power(numpy.abs(x[il] - x[jl])/L[0], 2)
+                        + numpy.power(numpy.abs(y[il] - y[jl])/L[1], 2)
+                        + numpy.power(numpy.abs(z[il] - z[jl])/L[2], 2)
+                    )
 
-                    Cov[jl, il]  = f1 * numpy.power(f2*wdist, nu) * scipy.special.kv(nu, f2*wdist)
+                    if wdist <= 1.e-8:
+                        wdist = 1.e-8
+
+                    Cov[jl, il] = f1 * \
+                        numpy.power(f2*wdist, nu) * \
+                        scipy.special.kv(nu, f2*wdist)
                     Cov[il, jl] = Cov[jl, il]
         else:
             for il in range(npoints):
                 for jl in range(il, npoints):
                     ll = numpy.abs(il - jl)
                     wdist = numpy.sqrt(numpy.power(ll/L[0], 2)
-                                        + numpy.power(ll/L[1], 2)
-                                        + numpy.power(ll/L[2], 2))
-    
-                    if wdist<=1.e-8: wdist = 1.e-8  
-                    Cov[jl, il]  = f1 * numpy.power(f2*wdist, nu) * scipy.special.kv(nu, f2*wdist)
+                                       + numpy.power(ll/L[1], 2)
+                                       + numpy.power(ll/L[2], 2))
+
+                    if wdist <= 1.e-8:
+                        wdist = 1.e-8
+                    Cov[jl, il] = f1 * \
+                        numpy.power(f2*wdist, nu) * \
+                        scipy.special.kv(nu, f2*wdist)
                     Cov[il, jl] = Cov[jl, il]
-                    
-                    
+
     print(numpy.shape(Cov))
-    
+
     if numpy.size(var) > 0:
 
         Cov = numpy.dot(Cov, numpy.diag(var))
-
 
     if inverse:
         C = scipy.linalg.inv(Cov)
@@ -1784,16 +1812,15 @@ def covar(dx, dy, dz,
     else:
         C = Cov
         SqrtC = msqrt(C, "cholesky")
-        
-   
+
     if sparse:
-        
-        threshC =thresh*numpy.amax(numpy.diag(C))        
-        threshS =thresh*numpy.amax(numpy.diag(SqrtC))
-        
+
+        threshC = thresh*numpy.amax(numpy.diag(C))
+        threshS = thresh*numpy.amax(numpy.diag(SqrtC))
+
         C[numpy.abs(C) < threshC] = 0.0
         C = scipy.sparse.csr_matrix(C)
-        
+
         SqrtC[numpy.abs(SqrtC) < threshS] = 0.0
         SqrtC = scipy.sparse.csr_matrix(SqrtC)
 
@@ -1801,7 +1828,7 @@ def covar(dx, dy, dz,
 
 
 def msreg(dz=None, m=None,
-            seps=1.e-4, otype="MS", diffop=None, mtype="sparse", mform="csr"):
+          seps=1.e-4, otype="MS", diffop=None, mtype="sparse", mform="csr"):
     """
     Calculate minimum support weights for MS or MGS.
     Literature:
@@ -1810,7 +1837,7 @@ def msreg(dz=None, m=None,
     """
     if otype == "MS":
         mabs = numpy.abs(m)
-        W = 1./ (mabs + seps*seps)
+        W = 1. / (mabs + seps*seps)
 
     elif otype == "MGS":
 
@@ -1832,6 +1859,7 @@ def msreg(dz=None, m=None,
         W = W.todense()
 
     return W
+
 
 def calc_regstart(D=numpy.array([]), M=numpy.array([]), Fac=1., out=True):
     """
@@ -1860,31 +1888,33 @@ def calc_regstart(D=numpy.array([]), M=numpy.array([]), Fac=1., out=True):
         Estimate of
 
     """
-    if D.size==0 or M.size==0:
+    if D.size == 0 or M.size == 0:
         error("cal_regstart: D or M are 0! Exit.")
 
     taustart = numpy.nan
 
-    if numpy.size(D)>1:
+    if numpy.size(D) > 1:
         if scipy.sparse.issparse(D):
             D0 = scipy.sparse.linalg.norm(D)
         else:
             D0 = scipy.linalg.norm(D)
     else:
-        D0=D
+        D0 = D
 
-    if numpy.size(M)>1:
+    if numpy.size(M) > 1:
         if scipy.sparse.issparse(M):
             M0 = scipy.sparse.linalg.norm(M)
         else:
             M0 = scipy.linalg.norm(M)
     else:
-        M0=M
+        M0 = M
 
     taustart = Fac * D0/M0
-    if out: print("Initial Tau = ",taustart)
+    if out:
+        print("Initial Tau = ", taustart)
 
     return taustart
+
 
 def calc_regstart_base(J=numpy.array([]), W=numpy.array([]), Fac=1., out=True):
     """
@@ -1909,7 +1939,7 @@ def calc_regstart_base(J=numpy.array([]), W=numpy.array([]), Fac=1., out=True):
 
     vr feb 20, 2023
     """
-    if J.size==0 or W.size==0:
+    if J.size == 0 or W.size == 0:
         error("cal_regstart: J or D are 0! Exit.")
 
     taustart = numpy.nan
@@ -1922,6 +1952,7 @@ def calc_regstart_base(J=numpy.array([]), W=numpy.array([]), Fac=1., out=True):
     taustart = Fac*t1/t2
 
     return taustart
+
 
 def rademacher_sample(N=None):
     """
@@ -1944,6 +1975,7 @@ def rademacher_sample(N=None):
 
     return v
 
+
 def msqrt(M=numpy.array([]), method="eig"):
     """
     Computes a matrix square-root.
@@ -1965,10 +1997,9 @@ def msqrt(M=numpy.array([]), method="eig"):
         SqrtM = Mevecs * numpy.sqrt(Mevals)
         return SqrtM, Mevals, Mevecs
 
-
     if "cho" in method.lower():
         SqrtM = scipy.linalg.cholesky(M)
-        
+
         return SqrtM
 
 
@@ -1992,7 +2023,8 @@ def msqrt_sparse(A=numpy.array([])):
 
     """
     n = A.shape[0]
-    LU = scipy.sparse.linalg.splu(A, diag_pivot_thresh=0)  # sparse LU decomposition
+    LU = scipy.sparse.linalg.splu(
+        A, diag_pivot_thresh=0)  # sparse LU decomposition
 
     # check the matrix A is positive definite.
     if (LU.perm_r == numpy.arange(n)).all() and (LU.U.diagonal() > 0).all():
@@ -2000,6 +2032,7 @@ def msqrt_sparse(A=numpy.array([])):
         return CholA
     else:
         error("The matrix is not positive definite")
+
 
 def rsvd(A, rank=300,
          n_oversamples=300,
@@ -2035,7 +2068,7 @@ def rsvd(A, rank=300,
     # Stage B.
     # print(' stage B')
     B = Q.T @ A
-    # print(np.shape(B))
+    # print(numpy.shape(B))
     # print(' stage B before linalg')
     U_tilde, S, Vt = numpy.linalg.svd(B)
     # print(' stage B after linalg')
@@ -2066,7 +2099,7 @@ def find_range(A, n_samples, n_subspace_iters=None):
     """
     # print('here we are in range-finder')
     m, n = A.shape
-    O = numpy.random.randn(n, n_samples)
+    O = numpy.random.default_rng().normal(n, n_samples)
     Y = A @ O
 
     if n_subspace_iters:
@@ -2129,7 +2162,7 @@ def project_nullspace(U=numpy.array([]), m_test=numpy.array([])):
         projected model
 
     """
-    if numpy.size(U)==0:
+    if numpy.size(U) == 0:
         error("project_nullspace: V not defined! Exit.")
 
     m_proj = m_test - U@(U.T@m_test)
@@ -2144,14 +2177,16 @@ def project_nullspace(U=numpy.array([]), m_test=numpy.array([])):
 #     author: vrath
 #     last changed: Sep 25, 2020
 #     """
-#     b = np.dot(U.T, m)
+#     b = numpy.dot(U.T, m)
 #     # print(m.shape)
 #     # print(b.shape)
 #     # print(U.shape)
 
-#     mp = m - np.dot(U, b)
+#     mp = m - numpy.dot(U, b)
 
 #     return mp
+
+
 def calc_upr(dnorm=numpy.array([]), M=numpy.array([]), err=numpy.array([])):
     """
     Calculates UPRE.
@@ -2180,12 +2215,12 @@ def calc_upr(dnorm=numpy.array([]), M=numpy.array([]), err=numpy.array([])):
 
     VR May 2022
     """
-    if (numpy.size(dnorm)==0) or (numpy.size(M)==0)  or (numpy.size(err)==0):
+    if (numpy.size(dnorm) == 0) or (numpy.size(M) == 0) or (numpy.size(err) == 0):
         error("calc_upr: parameters missing! Exit.")
 
     nd = numpy.size(err)
-    traceM=numpy.trace(M)
-    sqerr =numpy.linalg.norm(err, 2)
+    traceM = numpy.trace(M)
+    sqerr = numpy.linalg.norm(err, 2)
     upr_val = numpy.power(dnorm, 2)/nd + (2.*sqerr/nd)*traceM - sqerr
 
     return upr_val
@@ -2226,15 +2261,16 @@ def calc_mle(M=numpy.array([]),
 
     VR Apr 2022
     """
-    if (numpy.size(M)==0)  or (numpy.size(d)==0):
+    if (numpy.size(M) == 0) or (numpy.size(d) == 0):
         error("calc_mle: parameters missing! Exit.")
 
     nd = numpy.size(d)
     m1 = (d*numpy.trace(numpy.eye(nd) - M)*d.T)
-    m2 =numpy.power(numpy.det(numpy.eye(nd) - M),1./nd)
+    m2 = numpy.power(numpy.det(numpy.eye(nd) - M), 1./nd)
     mle_val = m1/m2
 
     return mle_val
+
 
 def calc_lc_corner(dnorm=numpy.array([]), mnorm=numpy.array([])):
     """
@@ -2267,14 +2303,15 @@ def calc_lc_corner(dnorm=numpy.array([]), mnorm=numpy.array([])):
 
     VR June 2022
     """
-    if (numpy.size(dnorm)==0) or (numpy.size(mnorm)==0):
+    if (numpy.size(dnorm) == 0) or (numpy.size(mnorm) == 0):
         error("calc_lcc: parameters missing! Exit.")
 
-    lcurvature =curvature(numpy.log(dnorm),numpy.log(mnorm))
+    lcurvature = curvature(numpy.log(dnorm), numpy.log(mnorm))
 
     indexmax = numpy.argmax(lcurvature)
 
-    return  indexmax
+    return indexmax
+
 
 def calc_gcv(dnorm=numpy.array([]), M=numpy.array([]), a=1.):
     """
@@ -2308,12 +2345,12 @@ def calc_gcv(dnorm=numpy.array([]), M=numpy.array([]), a=1.):
 
     VR May 2021
     """
-    if (numpy.size(dnorm)==0) or (numpy.size(M)==0):
+    if (numpy.size(dnorm) == 0) or (numpy.size(M) == 0):
         error("calc_gcv: parameters missing! Exit.")
 
     nd = numpy.shape(M)[0]
-    gcv_val = (nd* numpy.power(dnorm, 2)
-                           / numpy.power(numpy.trace(numpy.eye(nd) - a*M), 2))
+    gcv_val = (nd * numpy.power(dnorm, 2)
+               / numpy.power(numpy.trace(numpy.eye(nd) - a*M), 2))
 
     return gcv_val
 
@@ -2341,18 +2378,18 @@ def calc_ufc(dnorm=numpy.array([]),
 
     VR March 2023
     """
-    if numpy.size(dnorm)==0 or numpy.size(mnorm)==0:
+    if numpy.size(dnorm) == 0 or numpy.size(mnorm) == 0:
         error("No model or data norms given! Exit.")
 
-    sqdnorm = numpy.power(dnorm,2)
-    sqmnorm = numpy.power(mnorm,2)
+    sqdnorm = numpy.power(dnorm, 2)
+    sqmnorm = numpy.power(mnorm, 2)
 
     u_val = numpy.log(1./sqdnorm + 1./sqmnorm)
 
-    return  u_val
+    return u_val
 
 
-def curvature(x_data,y_data):
+def curvature(x_data, y_data):
     """
     Calculates curvature for all interior points
     on a curve whose coordinates are provided
@@ -2366,16 +2403,16 @@ def curvature(x_data,y_data):
     originally written by Hunter Ratliff on 2019-02-03
     """
     curvature = []
-    for i in range(1,len(x_data)-1):
-        R = circumradius(x_data[i-1:i+2],y_data[i-1:i+2])
-        if ( R == 0 ):
+    for i in range(1, len(x_data)-1):
+        R = circumradius(x_data[i-1:i+2], y_data[i-1:i+2])
+        if (R == 0):
             print("Failed: points are either collinear or not distinct")
             return 0
         curvature.append(1/R)
     return curvature
 
 
-def circumradius(xvals,yvals):
+def circumradius(xvals, yvals):
     """
     Calculates the circumradius for three 2D points
 
@@ -2383,17 +2420,18 @@ def circumradius(xvals,yvals):
     """
     x1, x2, x3, y1, y2, y3 = xvals[0], xvals[1], xvals[2], yvals[0], yvals[1], yvals[2]
     den = 2.*((x2-x1)*(y3-y2)-(y2-y1)*(x3-x2))
-    num = ( (((x2-x1)**2) + ((y2-y1)**2))
+    num = ((((x2-x1)**2) + ((y2-y1)**2))
            * (((x3-x2)**2)+((y3-y2)**2))
-           * (((x1-x3)**2)+((y1-y3)**2)) )**(0.5)
-    if ( den == 0. ):
+           * (((x1-x3)**2)+((y1-y3)**2)))**(0.5)
+    if (den == 0.):
         print("Failed: points are either collinear or not distinct")
         return 0.
     R = abs(num/den)
 
     return R
 
-def circumcenter(xvals,yvals):
+
+def circumcenter(xvals, yvals):
     """
     Calculates the circumcenter for three 2D points
 
@@ -2401,20 +2439,21 @@ def circumcenter(xvals,yvals):
     """
     x1, x2, x3, y1, y2, y3 = xvals[0], xvals[1], xvals[2], yvals[0], yvals[1], yvals[2]
     A = 0.5*((x2-x1)*(y3-y2)-(y2-y1)*(x3-x2))
-    if ( A == 0 ):
+    if (A == 0):
         print("Failed: points are either collinear or not distinct")
         return 0
-    xnum = ((y3 - y1)*(y2 - y1)*(y3 - y2)) - ((x2**2 - x1**2)*(y3 - y2)) + ((x3**2 - x2**2)*(y2 - y1))
+    xnum = ((y3 - y1)*(y2 - y1)*(y3 - y2)) - \
+        ((x2**2 - x1**2)*(y3 - y2)) + ((x3**2 - x2**2)*(y2 - y1))
     x = xnum/(-4*A)
-    y =  (-1*(x2 - x1)/(y2 - y1))*(x-0.5*(x1 + x2)) + 0.5*(y1 + y2)
+    y = (-1*(x2 - x1)/(y2 - y1))*(x-0.5*(x1 + x2)) + 0.5*(y1 + y2)
     return x, y
 
 
 def calc_dnorm(data_obs=numpy.array([]),
-                 data_cal=numpy.array([]),
-                 data_act=numpy.array([]),
-                 data_err=numpy.array([]),
-                 p=2, calc_res=False):
+               data_cal=numpy.array([]),
+               data_act=numpy.array([]),
+               data_err=numpy.array([]),
+               p=2, calc_res=False):
     """
     Calculate the p-norm of the residuals.
 
@@ -2422,12 +2461,12 @@ def calc_dnorm(data_obs=numpy.array([]),
 
     """
 
-    if (numpy.size(data_obs)==0 or
-        numpy.size(data_cal)==0 or
-        numpy.size(data_err)==0):
+    if (numpy.size(data_obs) == 0 or
+        numpy.size(data_cal) == 0 or
+            numpy.size(data_err) == 0):
         error("calc_dnorm: parameters missing! Exit.")
 
-    if numpy.size(data_act)==0:
+    if numpy.size(data_act) == 0:
         dat_obs = data_obs
         dat_cal = data_cal
         dat_err = data_err
@@ -2441,14 +2480,15 @@ def calc_dnorm(data_obs=numpy.array([]),
     else:
         w = 1./dat_err
 
-    resid = w *(dat_obs - dat_cal)
+    resid = w * (dat_obs - dat_cal)
 
-    rnorm = numpy.linalg.norm(resid,p)
+    rnorm = numpy.linalg.norm(resid, p)
 
     if calc_res:
         return rnorm, resid
     else:
         return rnorm
+
 
 def calc_rms(data_obs=numpy.array([]),
              data_cal=numpy.array([]),
@@ -2467,12 +2507,12 @@ def calc_rms(data_obs=numpy.array([]),
         Jun 2022
     """
 
-    if (numpy.size(data_obs)==0 or
-        numpy.size(data_cal)==0 or
-        numpy.size(data_err)==0):
+    if (numpy.size(data_obs) == 0 or
+        numpy.size(data_cal) == 0 or
+            numpy.size(data_err) == 0):
         error("calc_rms: parameters missing! Exit.")
 
-    if numpy.size(data_act)==0:
+    if numpy.size(data_act) == 0:
         dat_obs = data_obs
         dat_cal = data_cal
         dat_err = data_err
@@ -2480,15 +2520,14 @@ def calc_rms(data_obs=numpy.array([]),
         dat_obs = extract_dat(D=data_obs, d_act=data_act)
         dat_cal = extract_dat(D=data_cal, d_act=data_act)
 
-
-    if numpy.ndim(data_err) ==1:
+    if numpy.ndim(data_err) == 1:
         dat_err = extract_dat(D=data_err, d_act=data_act)
         w = 1./dat_err
     else:
         w = 1./dat_err
 
     nd = numpy.size(dat_cal)
-    rscal =w*(dat_obs - dat_cal)
+    rscal = w*(dat_obs - dat_cal)
     # normalized root mean square error
     nrmse = numpy.sqrt(numpy.sum(numpy.power(abs(rscal), 2)) / nd)
 
@@ -2502,8 +2541,9 @@ def calc_rms(data_obs=numpy.array([]),
 
     return nrmse, smape
 
+
 def set_errors(data_obs=numpy.array([]),
-               daterr_add=0., daterr_mult=0., perturb = False, pdf=["gauss",0., 0.]):
+               daterr_add=0., daterr_mult=0., perturb=False, pdf=["gauss", 0., 0.]):
     """
     Generate errors.
 
@@ -2522,34 +2562,30 @@ def set_errors(data_obs=numpy.array([]),
     VR Apr 2021
 
     """
-    data_obs = data_obs.reshape(numpy.size(data_obs),1)
+    data_obs = data_obs.reshape(numpy.size(data_obs), 1)
 
-
-
-    if daterr_add ==0. and daterr_mult==0:
+    if daterr_add == 0. and daterr_mult == 0:
         error("set_errors: additive and multiplicative error is zero! Exit.")
 
     daterr_a = daterr_add * numpy.ones_like(data_obs)
     daterr_m = daterr_mult * numpy.ones_like(data_obs)
 
-
     data_err = \
-        numpy.sqrt(numpy.power(daterr_m * data_obs, 2) + numpy.power(daterr_a, 2))
+        numpy.sqrt(numpy.power(daterr_m * data_obs, 2) +
+                   numpy.power(daterr_a, 2))
 
     # print(numpy.shape(data_err))
 
     if perturb:
-        data_perturb = perturb_data(data_obs=data_obs, pdf=["gauss",data_err])
+        data_perturb = perturb_data(data_obs=data_obs, pdf=["gauss", data_err])
 
     else:
         data_perturb = data_obs
 
-
     return data_err.flatten(), data_perturb.flatten()
 
 
-
-def perturb_data(data_obs=numpy.array([]), pdf=["gauss",0.,]):
+def perturb_data(data_obs=numpy.array([]), pdf=["gauss", 0.,]):
     """
     Generate errors.
 
@@ -2568,16 +2604,17 @@ def perturb_data(data_obs=numpy.array([]), pdf=["gauss",0.,]):
     VR Apr 2021
 
     """
-    data_obs = data_obs.reshape(numpy.size(data_obs),1)
+    data_obs = data_obs.reshape(numpy.size(data_obs), 1)
 
     if "gau" in pdf[0].lower() or "nor" in pdf.lower():
         perturb = pdf[1] * numpy.random.standard_normal(numpy.shape(data_obs))
     if "uni" in pdf[0].lower():
-        perturb = numpy.random.uniform(-pdf[1] ,+pdf[1] ,numpy.shape(data_obs))
+        perturb = numpy.random.uniform(-pdf[1], +pdf[1], numpy.shape(data_obs))
 
     data_perturb = data_obs + perturb
 
     return data_perturb
+
 
 def set_zcenters(dz):
     """
@@ -2606,6 +2643,7 @@ def set_znodes(dz):
     zn = numpy.append(0.0, numpy.cumsum(dz))
 
     return zn
+
 
 def get_taustart(Jacd=None, W=None, out=True):
     """
@@ -2639,6 +2677,7 @@ def get_taustart(Jacd=None, W=None, out=True):
 
     return taustart
 
+
 def impute_matrix_isvd(Y, k=None, tol=1E-3, maxiter=10):
     """
     Approximate SVD on data with missing values via expectation-maximization
@@ -2657,7 +2696,8 @@ def impute_matrix_isvd(Y, k=None, tol=1E-3, maxiter=10):
     U, s, Vt:   singular values and vectors (see numpy.linalg.svd and
                 scipy.sparse.linalg.svds for details)
 
-   vr oct 29, 2022
+
+    vr oct 29, 2022
     """
 
     if k is None:
@@ -2697,6 +2737,7 @@ def impute_matrix_isvd(Y, k=None, tol=1E-3, maxiter=10):
 
     return Y_hat, mu_hat, U, s, Vt
 
+
 def calc_mad(datavec=numpy.array([]), median=None, Out=False):
     """
     Calculate Median Absolute Deviation (MAD)
@@ -2713,10 +2754,10 @@ def calc_mad(datavec=numpy.array([]), median=None, Out=False):
     MAD
 
     """
-    if numpy.size(datavec)==0:
+    if numpy.size(datavec) == 0:
         error("find_nearest: No vector given! exit.")
 
-    if median==None:
+    if median == None:
         median = numpy.nanmedian(datavec)
 
     d = numpy.abs(datavec - median)
@@ -2728,9 +2769,9 @@ def calc_mad(datavec=numpy.array([]), median=None, Out=False):
     return mad, median
 
 
-def calc_stat_ens(ensemble=numpy.array([]), 
-                  quantiles=[2.3, 15.9,], 
-                  qmode="perc", 
+def calc_stat_ens(ensemble=numpy.array([]),
+                  quantiles=[2.3, 15.9,],
+                  qmode="perc",
                   sum_stats=False):
     """
     calculates basic statistics  for ensemble
@@ -2738,7 +2779,7 @@ def calc_stat_ens(ensemble=numpy.array([]),
     Parameters
     ----------
     ensemble : numpy.array
-        Ensemble of models or data sets. The default is np.array([]).
+        Ensemble of models or data sets. The default is numpy.array([]).
     quantiles : list of floats, optional
         quantiles or percentiles. The default is [2.3, 15.9,] in percent
     inmode : strng, optional
@@ -2747,42 +2788,44 @@ def calc_stat_ens(ensemble=numpy.array([]),
     Returns
     -------
     if sum_stat = False:
-        median, mupp, mlow : np.array of floats
+        median, mupp, mlow : numpy.array of floats
             Median snd symmetric quantiles corresponding to quantiles.
     else:  
         additional mean, standard dev, skew, kurtosis, mode
-        
+
     Last change: vrath, May 18, 2023
 
     """
     if ensemble.size == 0:
         error("calc_stat_ens: ensemble not defined")
-    
+
     if ("quant" in qmode.lower()) and numpy.any(quantiles > 1.):
         inmode = "perc"
-        
-  
+
     quants = numpy.median(ensemble, axis=0)
 
     if "quant" in qmode.lower():
         for per in numpy.arange(len(quantiles)):
-            qc = [quantiles[per],1.-quantiles[per]]
-            quants = numpy.vstack([quants, numpy.quantile(ensemble, qc, axis=0)])
+            qc = [quantiles[per], 1.-quantiles[per]]
+            quants = numpy.vstack(
+                [quants, numpy.quantile(ensemble, qc, axis=0)])
     else:
         for per in numpy.arange(len(quantiles)):
-            qc = [quantiles[per],100.-quantiles[per]]
-            quants = numpy.vstack([quants, numpy.percentile(ensemble, qc, axis=0)])     
-    
+            qc = [quantiles[per], 100.-quantiles[per]]
+            quants = numpy.vstack(
+                [quants, numpy.percentile(ensemble, qc, axis=0)])
+
     if sum_stats:
-        mean  = numpy.mean(ensemble, axis=0)    
-        stdv  = numpy.std(ensemble, axis=0)   
-        mode  = scipy.stats.mode(ensemble, axis=0)
-        kurt  = scipy.stats.kurtosis(ensemble, axis=0)
-        skew  = scipy.stats.skew(ensemble, axis=0)
-        return  quants, mean, stdv, skew, kurt, mode
-    
+        mean = numpy.mean(ensemble, axis=0)
+        stdv = numpy.std(ensemble, axis=0)
+        mode = scipy.stats.mode(ensemble, axis=0)
+        kurt = scipy.stats.kurtosis(ensemble, axis=0)
+        skew = scipy.stats.skew(ensemble, axis=0)
+        return quants, mean, stdv, skew, kurt, mode
+
     else:
-        return  quants
+        return quants
+
 
 def calc_made(ensemble=numpy.array([]), median=None, Out=False):
     """
@@ -2800,10 +2843,10 @@ def calc_made(ensemble=numpy.array([]), median=None, Out=False):
     MAD
 
     """
-    if numpy.size(ensemble)==0:
+    if numpy.size(ensemble) == 0:
         error("find_nearest: No vector uiven! exit.")
 
-    if median==None:
+    if median == None:
         median = numpy.nanmedian(ensemble, axis=0)
 
     d = numpy.abs(ensemble - median)
@@ -2814,6 +2857,7 @@ def calc_made(ensemble=numpy.array([]), median=None, Out=False):
 
     return mad, median
 
+
 def dctn(x, norm="ortho"):
     """
     Discrete cosine transform (fwd)
@@ -2823,6 +2867,7 @@ def dctn(x, norm="ortho"):
     for i in range(x.ndim):
         x = scipy.fftpack.dct(x, axis=i, norm=norm)
     return x
+
 
 def idctn(x, norm="ortho"):
     """
@@ -2835,7 +2880,8 @@ def idctn(x, norm="ortho"):
         x = scipy.fftpack.idct(x, axis=i, norm=norm)
     return x
 
-def KLD(P=numpy.array([]), Q=numpy.array([]), epsilon= 1.e-8):
+
+def KLD(P=numpy.array([]), Q=numpy.array([]), epsilon=1.e-8):
     """
     Calculates Kullback-Leibler distance
 
@@ -2849,26 +2895,26 @@ def KLD(P=numpy.array([]), Q=numpy.array([]), epsilon= 1.e-8):
 
     Returns
     -------
-    
+
     distance: float
         KL distance
 
 
     """
-    if P.size * Q.size==0:
+    if P.size * Q.size == 0:
         error("KLD: P or Q not defined! Exit.")
-        
+
     # You may want to instead make copies to avoid changing the np arrays.
     PP = P.copy()+epsilon
     QQ = Q.copy()+epsilon
 
     distance = numpy.sum(PP*numpy.log(PP/QQ))
-    
+
     return distance
 
-    
-def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None, 
-                    reference=None, scale = [1., 1., -1.], trans="LINEAR",
+
+def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None,
+                    reference=None, scale=[1., 1., -1.], trans="LINEAR",
                     out=True):
     """
     write 3D model to vtk 
@@ -2879,13 +2925,57 @@ def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None,
 
     """
     from evtk.hl import gridToVTK
-    
-   
-    N =  numpy.append(0.0, numpy.cumsum(dx))*scale[0] 
-    E =  numpy.append(0.0, numpy.cumsum(dy))*scale[1]
-    D =  numpy.append(0.0, numpy.cumsum(dz))*scale[2]
-    
-   
-    gridToVTK(ModFile, N, E, D, cellData = {'resistivity (in Ohm)' : rho})
+
+    N = numpy.append(0.0, numpy.cumsum(dx))*scale[0]
+    E = numpy.append(0.0, numpy.cumsum(dy))*scale[1]
+    D = numpy.append(0.0, numpy.cumsum(dz))*scale[2]
+
+    gridToVTK(ModFile, N, E, D, cellData={'resistivity (in Ohm)': rho})
     print("model-like parameter written to %s" % (ModFile))
-    
+
+
+def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
+                  nsamp=1, small=1.0e-14, out=True):
+    """
+    Sample Posterior Covariance.
+    Algorithm given by  Osypov (2013)
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    spc_sanple
+
+    References:
+
+    Osypov K, Yang Y, Fournier A, Ivanova N, Bachrach R, 
+    Can EY, You Y, Nichols D, Woodward M (2013)
+    Model-uncertainty quantification in seismic tomography: method and applications 
+    Geophysical Prospecting, 61, pp. 1114–1134, 2013, doi: 10.1111/1365-2478.12058.
+
+
+    """
+    error("sample_pcovar: Not yet fully implemented! Exit.")
+
+    if (cpsqrti == None) or (m == None):
+        error("sample_pcovar: No covariance or ref model given! Exit.")
+
+    if m.ndim(m) > 1:
+        m = m.flatten(order="F")
+
+    if tst_sample == None:
+        print("sample_pcovar: "+str(nsamp)+" sample models will be generated!")
+        if nsamp == 0:
+            error("sample_pcovar: No number of samples given! Exit.")
+        tst_sample = numpy.random.default_rng().normal(0., 1., (nsamp, len(m)))
+
+    else:
+        nsamp = numpy.shape(tst_sample)[0]
+
+    spc_sample = numpy.zeros(nsamp, len(m))
+
+    for isamp in numpy.arange(nsamp):
+        spc_sample[isamp, :] = m + cpsqrti@tst_sample[isamp, :]
+
+    return spc_sample
