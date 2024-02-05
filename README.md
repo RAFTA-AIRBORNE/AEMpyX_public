@@ -19,11 +19,6 @@ _git clone https://github.com/RAFTA-AIRBORNE/AEMpyX_public.git_
 
 The created local repository AEMpyX contains the following subdirectories:
 
-- 	**environment**
-	Contains conda environment description files, and some useful helper files for working within the 
-	conda environment. For linux and windows you can find special versions in the repective directories. 
-	The current AEMpyX environment contains some packages which are not strictly necessary for running 
-	aempy, but useful for related geoscientific work. 
 
 - 	**aempy/tutorial**
  	Contains python scripts and jupyter notebooks for the most important scripts, explaining typical AEM preprocessing, 
@@ -43,21 +38,28 @@ The created local repository AEMpyX contains the following subdirectories:
 	respectively.
  	
 - 	**aempy/other_scripts**
- 	Contains a collection of scripts for processing, visualization, and other tasks releted to one-dimensional inversion of 
- 	AEM data;. Also included is a workflow for static shift correction of MT observations (work in progress). These scripts
-	come from different stages of the RAFTA project, solving specific problems. Thus they may noy be up to date. However, they
+    Contains a collection of scripts for processing, visualization, and other tasks related to one-dimensional inversion of 
+    AEM data;. Also included is a workflow for static shift correction of MT observations (work in progress). These scripts
+    come from different stages of the RAFTA project, solving specific problems. Thus they may not be up to date. However, they
   	represent a useful source for cannibalizing. 
 
 -	**aempy/util**
- 	Contains  useful helper shell scripts etc. 
+    Contains  useful helper shell scripts etc. 
 	
 -	**aempy/doc**
 	This is the place where the manual, but also publications/presentations are developed.
 
 -	**aempy/info**
- 	Documentation for software related to the toolbox, as python (including the most important extensions, numpy,
+	Documentation for software related to the toolbox, as python (including the most important extensions, numpy,
 	scipy, and matplotlib), and other tools. 
-
+	
+- 	**environment**
+	Contains conda environment description files, and some useful helper files for working within the 
+	conda environment. For linux and windows you can find special versions in the respective directories. 
+	The current AEMpyX environment contains some packages which are not strictly necessary for running 
+	the toolbox, but useful for related geoscientific work. 
+	
+	
 This version will run under Python 3.9+ (3.11 being the current development platform). For installing the python environment in any Linux environment (e.g. Ubuntu, SuSE), you need to do the following:
 
 
@@ -86,8 +88,6 @@ _conda create --name AEMpyX --file AEMpyX.txt_
 in the command window (powershell under windows).
 
 This will set up a Python 3.11 environment with all dependencies for aempy. Don't forget to update also the used environment regularly, using _conda update --name AEMpyX --all_! 
-There is a replacement for _conda_, called _mamba_ (see https://github.com/mamba-org/mamba), which is not only considerably faster, but also better in keeping the environments consistent. It can be installed via _conda_ (i. e., _conda install mamba_), and has practically the same syntax as the original package manager.  
-
 
 (3) Activate this environment by:
 
@@ -150,7 +150,8 @@ Uncert_FL11379-0_site1497.0m
 </p>
 
 <p align="center">   
-   Uncertainty-related plots for a site from Tellus A1 block. Top left: model with error bars. Bottom left: sensitivities. Top center: Parameter covariance a posteriori. Bottom center: Parameter correlation. Top right: paramtere resolution. Bottom right: Data resolution. 
+   Uncertainty-related plots for a site from Tellus A1 block. Top left: model with error bars. Bottom left: sensitivities. Top center: Parameter covariance a posteriori. Bottom center: Parameter 
+correlation. Top right: Parameter resolution. Bottom right: Data resolution. 
 </p>
 
 

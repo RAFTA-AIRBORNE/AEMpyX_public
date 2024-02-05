@@ -80,7 +80,7 @@ mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
 """
 AEM_system = "aem05"
-AEM_system = "genesis"
+# AEM_system = "genesis"
 
 print("AEM system: " + AEM_system + "\n \n")
 
@@ -110,9 +110,10 @@ These are loops over different parameters, in this case for a 3-Layer case.
 Should be adapted according to your needs.
 """
 
-Alt = [alt]
+#Alt = [60., 120.]
+Alt = [60]
 
-Nsamples = 300
+Nsamples = 1000
 # NSamples = 1
 Perturb = True
 SplitData= True
@@ -136,37 +137,31 @@ Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
 Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
 
 
+
 """
-Currently, one parameter  and altitude can be varied within a loop.
-Examples below:
+Currently, one parameter  and altitude can be varied within a loop. 
 """
 
 """
 rho for layer 1 (starting from 0!)
 """
-# FWDBaseName = AEM_system.upper()+"_Rho1"
+
+# FWDBaseName = "AEM05_Rho1"
 # VarPar = [ 10., 100.,1000.]
 # VarInd = 0 * nlyr+1
 
 """
 thickness of layer 1 (starting from 0!)
 """
-# FWDBaseName = AEM_system.upper()+"_Thk1"
+# FWDBaseName = "AEM05_Thk1"
 # VarPar = [10., 30., 50.] 
 # VarInd = 6*nlyr+1
 """
 chargeability of layer 1 (starting from 0!)
 """
-# FWDBaseName = AEM_system.upper()+"_Chrg1"
-# VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
-# VarInd = 3*nlyr+1 
-
-"""
-chargeability of layer 1 (starting from 0!)
-"""
-FWDBaseName = AEM_system.upper()+"_Freq1"
-VarPar = [0.001, 0.01, 0.1, 1., 10., 100., 1000., 10000.] 
-VarInd = 5*nlyr+1 
+FWDBaseName = "AEM05_m1"
+VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
+VarInd = 3*nlyr+1 
 
 """
 Generate Data

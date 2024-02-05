@@ -120,19 +120,35 @@ if ns ==0:
 OutResDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/"
 print("Models written to dir: %s " % OutResDir)
 
-Plots=True
+"""
+script offers several methods do choose sites:
+Sample = 
+"rand"                  choose Nsample random sites
+"step"                  choose sites with Start/Sop/Step
+"list suboption"        define list, with suboptions position and distance
+
+Any other string will choose full data set.
+
+"""
 
 
-Sample = "random"
-# Sample = "distance list"
-# Sample = "distance list"
-if "rand" in Sample:
-    NSamples = 3
 
-elif "list" in Sample:
-    if "pos" in Sample:
+
+Sample = [""]   # 
+
+if "rand" in Sample[0].lower():
+    Nsamples = 10
+    Sample.append(Nsamples)
+    
+elif "step" in Sample[0].lower():
+    Start, Stop, Step = 0, -1, 10
+    Sample.extend((Start, Stop, Step))
+
+elif "list" in Sample[0].lower():
+    
+    if "pos" in Sample[0].lower():
         Samplist = [100, 200]
-    if "dis" in Sample:
+    else:
         Distlist = [ 1500.]
 
 
@@ -140,15 +156,16 @@ elif "list" in Sample:
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
+    
 
-
+ReverseDir = False
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
+
 RunType = "TikhOpt-JCN" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-Variant = 2
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -157,8 +174,8 @@ Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
     RegVal1Min = 0.1
-    RegVal1Max = 1000.
-    NTau1 =64
+    RegVal1Max = 10000.
+    NTau1 = 64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
 else:
@@ -233,7 +250,7 @@ if "tikhopt" in  RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -273,7 +290,7 @@ if "occ" in RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -428,25 +445,26 @@ for file in dat_files:
 
     construct site_list
     """
-    
+    fl_orig = [site_x[0], site_y[0]]
     site_x = site_x - site_x[0]
     site_y = site_y - site_y[0]
     site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
     
-    if "rand" in Sample:
-        site_list = random.sample(range(len(site_x)), NSamples)
-
-    elif "list" in Sample:
+    site_list = numpy.arange(len(site_x)) 
+                             
+    if "rand" in Sample[0].lower() or "step" in Sample[0].lower():
+        site_list = util.sample_list(site_list, method=Sample)
         
-        if "posi" in Sample:
+
+    elif "list" in Sample[0].lower():
+        
+        if "posi" in Sample[0].lower():
             site_list = Samplist
-        if "dist" in Sample:
+        if "dist" in Sample[0].lower():
             for nid in numpy.arange(len(Distlist)):
                 nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
                 site_list.append(nds)
-    else:
-        site_list = numpy.arange(len(site_x))
-    
+   
     
     logsize = (2 + 7*Maxiter)  
          
@@ -532,7 +550,8 @@ for file in dat_files:
         if "ens" in Ctrl["output"]:
             jcn_ens = results["jcn_ens"]
         
-        if ii==0:
+        site_num=numpy.array([])
+        if site_num.size==0:
             site_num  = numpy.array([ii])
             site_nrms = C[2]
             site_modl = M[0]
@@ -572,10 +591,13 @@ for file in dat_files:
                site_jcn_ens = numpy.hstack((site_jcn_ens, jcn_ens))
 
 
+
+
     numpy.savez_compressed(
         file=Fileout+".npz",
         fl_data=file,
         fl_name=fl_name,
+        fl_orig=fl_orig,
         header=titstrng,
         site_log =site_log,
         mod_ref=mod_apr,
@@ -610,155 +632,5 @@ for file in dat_files:
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
  
-    """
-    Plotting: will be moved to disticnt script
-    """
  
-    
-    if Plots:
-        
-        import matplotlib
-        import matplotlib.pyplot
-        from cycler import cycler
-        import eviz
-        
-        cm = 1/2.54  # centimeters to inches
-        PlotFmt = [".pdf", ".png", ]
-        PdfCatalog = True
-        PdfCatName = "StGormans_JCN.pdf"
-        if ".pdf" in PlotFmt:
-            pass
-        else:
-            error(" No pdfs generated. No catalog possible!")
-            PdfCatalog = False
-        
-        
-        
-        OutPlotDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/plots/"
-        print("Models written to dir: %s " % OutPlotDir)
-        Horiz = True
-        FilesOnly = False
-
-        """
-        Determine graphical parameter.
-        => print(matplotlib.pyplot.style.available)
-        """
-
-        matplotlib.pyplot.style.use("seaborn-v0_8-paper")
-        matplotlib.rcParams["figure.dpi"] = 400
-        matplotlib.rcParams["axes.linewidth"] = 0.5
-        matplotlib.rcParams["savefig.facecolor"] = "none"
-        matplotlib.rcParams["savefig.transparent"] = True
-        matplotlib.rcParams["savefig.bbox"] = "tight"
-        
-        PlotSize = [8., 8.]
-        
-        Fontsize = 8
-        Labelsize = Fontsize
-        Titlesize = 8
-        Fontsizes = [Fontsize, Labelsize, Titlesize]
-        
-        Linewidths= [0.6]
-        Markersize = 4
-        
-        ncols = 11
-        Colors = matplotlib.pyplot.cm.jet(numpy.linspace(0,1,ncols))
-        Grey = 0.7
-        Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
-                  * cycler("color", ["r", "g", "b", "y"]))
-        
-        """
-        For just plotting to files, choose the cairo backend (eps, pdf, ,png, jpg...).
-        If you need to see the plot. directly (plot. window, or jupyter), simatplotliby
-        comment out the following line. In this case matplotlib may run into
-        memory problems after a few hundreds of high-resolution plot..
-        """
-        if FilesOnly:
-            matplotlib.use("cairo")
-        
-        if PdfCatalog:
-            pdf_list = []
-            
-            
-            
-    PlotTitle = "JCN estimate: site "+str(ii) 
-    nplots = 2
-    if Horiz: 
-        horz = nplots
-        vert = 1
-    else:
-        horz = 1
-        vert = nplots
-        
-    fig, ax = matplotlib.pyplot.subplots(1,nplots,
-                                      figsize=(horz*PlotSize[0]*cm, vert*PlotSize[0]*cm),
-                                      gridspec_kw={
-                                          "height_ratios": [1.],
-                                          "width_ratios": [1., 1.]})
-    fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
-
-    
-    ax[0] = eviz.plot_model_ensemble(
-            ThisAxis = ax[0], 
-            PlotType = "percentiles", # lines, percentiles. iso
-            System  = AEM_system,
-            ModEns = m_ens,
-            Depth = z_ens,
-            Percentiles=[2.5, 16.],
-            Fillcolor=["0.8", "0.4"],
-            Alphas = [0.3 , 0.6],
-            Labels=[],
-            Linecolor=Linecolors,
-            Linetype=Linetypes,
-            Linewidth=Linewidth,
-            Markers = ["v"],
-            Markersize =[4],
-            Fontsizes=Fontsizes,
-            XLimits=ModLimits,
-            YLimits= DepthLimits,
-            Legend=False)
-    
-    ax[0] = eviz.plot_model(
-              ThisAxis = ax[0], 
-              System  = AEM_system,
-              Model = m_true,
-              Depth = z_ens,
-              Labels=[],
-              Linecolor=["k","r","g","b"],
-              Linetype=Linetypes,
-              Linewidth=Linewidth,
-              Markers = ["v"],
-              Markersize =[4],
-              Fontsizes=Fontsizes,
-              XLimits= ModLimits,
-              YLimits= DepthLimits,
-              Legend=True)
-     
-    
-    ax[1] = eviz.plot_data_ensemble(
-            ThisAxis = ax[1],  
-            PlotType = "percentiles", # lines, percentiles. iso
-            System  = AEM_system,
-            DatEns = d_ens,
-            Percentiles=[2.5, 16.],
-            Fillcolor=["0.8", "0.4"],
-            Alphas = [0.3 , 0.6],
-            Labels=[],
-            Linecolor=Linecolors,
-            Linetype=Linetypes,
-            Linewidth=Linewidth,
-            Markers = [""],
-            Markersize =[4],
-            Fontsizes=Fontsizes, 
-            XLimits= FreqLimits,
-            YLimits= DataLimits,
-            Legend=False)
-
-
-    
-    for F in PlotFormat:
-        matplotlib.pyplot.savefig(PlotDir+PlotFile+F)
-    # matplotlib.pyplot.show()
-    # matplotlib.pyplot.clf()
-
-
+  
