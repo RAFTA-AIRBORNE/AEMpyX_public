@@ -122,16 +122,19 @@ alias zipl='zip --symlinks'
 alias tifon='ssh -X volker@tifon.fis.ucm.es'
 alias aria='ssh -X vrath@ariadne.dias.ie'
 alias dahu='ssh -Y dahu.ciment'
+alias big='ssh -Y bigfoot.ciment'
 
 alias scan_it='sudo ufw disable; scangearmp2; sudo ufw enable'
 
 alias conda_init='. /home/vrath/bin/conda_init'
 alias condi='. /home/vrath/bin/conda_init'
-# alias MT='. /home/vrath/bin/conda_init; /home/vrath/bin/conda_update; conda activate Py4MT; cd Py4MT;  spyder --new-instance &'
-# alias AEM='. /home/vrath/bin/conda_init; /home/vrath/bin/conda_update; conda activate AEMpyX; cd AEMpyX; spyder --new-instance &'
-alias MT='. /home/vrath/bin/conda_init; mamba update --all; conda activate Py4MT; mamba update --all --yes; cd ~/Py4MT;  spyder --new-instance &'
-alias AEM='. /home/vrath/bin/conda_init; mamba update --all; conda activate AEMpyX; cd ~/AEMpyX; mamba update --all --yes; spyder --new-instance &'
-alias JAC='. /home/vrath/bin/conda_init; mamba update --all; conda activate JacoPyAn; mamba update --all --yes; cd ~/JacoPyAn;  spyder --new-instance &'
+alias cu='/home/vrath/bin/conda_update'
+alias ci='. /home/vrath/bin/conda_init'
+# alias cinit='~/.Miniconda24/bin/conda init bash'
+
+alias MTX='. /home/vrath/bin/conda_init; conda update --all --yes; conda activate MTX; conda update --all --yes; cd ~/Py4MT; spyder --new-instance --project ~/Py4MT/py4mt/ &'
+alias AEM='. /home/vrath/bin/conda_init; conda update --all --yes ; conda activate AEM; conda update --all --yes; cd ~/AEMpyX; spyder --new-instance --project ~/AEMpyX/aempy/ &'
+alias JAC='. /home/vrath/bin/conda_init; conda update --all --yes; conda activate JAC; conda update --all --yes; cd ~/JacoPyAn; spyder --new-instance --project ~/JacoPyAn/ &'
 
 
 alias la='ls -lah'
@@ -165,6 +168,7 @@ export OMP_NUM_THREADS=8
 export PATH="/home/vrath/bin:$PATH"
 
 export QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
+
 alias upintel='sudo /opt/intel/oneapi/installer/installer'
 echo "   "
 echo " For activating intel oneapi enter:"
@@ -181,6 +185,12 @@ export MKL_PARDISO_OOC_FILE_NAME=/tmp/.pardiso_ooc
 export MKL_PARDISO_OOC_PATH=/tmp/.pardiso_ooc
 
 export GCM_CREDENTIAL_STORE=secretservice
+
+
+nordvpn set technology openvpn
+nordvpn set protocol tcp  #udp
+
+
 
 ## >>> conda initialize >>>
 ## !! Contents within this block are managed by 'conda init' !!
@@ -204,3 +214,18 @@ export GCM_CREDENTIAL_STORE=secretservice
 #   ssh-add
 # fi
 
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+case ":$PATH:" in
+    *:/home/vrath/.juliaup/bin:*)
+        ;;
+
+    *)
+        export PATH=/home/vrath/.juliaup/bin${PATH:+:${PATH}}
+        ;;
+esac
+
+# <<< juliaup initialize <<<
