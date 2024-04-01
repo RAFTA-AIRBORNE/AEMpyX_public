@@ -320,7 +320,7 @@ if "map" in  RunType.lower():
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=True)
+                  var=mvar, sparse=False, thresh=0.05, inverse=True)
         Cmi=inverse.extract_cov(Cmi, mod_act)
         Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
         CmiS=inverse.extract_cov(CmiS, mod_act)
@@ -329,7 +329,7 @@ if "map" in  RunType.lower():
     else:
         InvSpace = "dat"
         Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=False)
+                  var=mvar, sparse=False, thresh=0.05, inverse=False)
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
         CmS=inverse.extract_cov(CmS, mod_act)
@@ -356,57 +356,6 @@ if "map" in  RunType.lower():
         ("uncert",
          Uncert)
        ])
-
-
-if "rto" in RunType.lower():
-    """
-    Prepre parameters for rto (randomize-then-optimize) algorithm
-    """
-    NSamples = 100
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
-    Ctrl["rto"] = [NSamples]
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-
-if "eki" in RunType.lower():
-    """
-    Prepare pramters for ensemble kalman inversion (eki)
-    """
-    NSamples = 100
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.]  # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("covar", numpy.array([C, sC], dtype=object)),
-        ("transform", [DataTrans, ParaTrans]),
-        ("eki", [NSamples]),
-        ("output", numpy.array(["quant", Percentiles], dtype=object))
-           ])
-
-if "jac" in RunType.lower():
-    """
-    no new parameteres for jackknife estimates
-    """
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-    pass
-
-if "nul" in RunType.lower():
-    """
-    no new parametrres for nullspace projection
-    """
-    NSing = 3
-    NSamples = 1000
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-    Ctrl["nullspace"] = [NSing, NSamples]
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-    pass
-
-
 
 if OutInfo:
     print(Ctrl.keys())
@@ -529,22 +478,6 @@ for file in dat_files:
         if "map" in RunType.lower():
             Results =\
                 alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "rto" in RunType.lower():
-
-            Results =\
-                alg.run_rto(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "eki" in RunType.lower():
-            Results =\
-                alg.run_eki(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "jac" in RunType.lower():
-            Results =\
-                alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
 

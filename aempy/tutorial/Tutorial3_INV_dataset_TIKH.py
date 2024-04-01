@@ -27,7 +27,7 @@ import numpy
 import scipy
 
 # import multiprocessing
-
+# from numba import njit
 
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
@@ -109,18 +109,19 @@ ReverseDir = False
 
 
 FileList = "search"  # "search", "read"
-FileList = "set"  # "search", "read"
+# FileList = "set"  # "search", "read"
+SearchStrng = "*.npz"
 
-InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
+
+# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
+InDatDir =  AEMPYX_ROOT + "/aempy/data/AEM05/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
-# SearchStrng = "*PLM3s_k3.npz"
-SearchStrng = "*1379*k2.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
     # dat_files = []
-    dat_files = [InDatDir+"A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k2.npz"]
+    dat_files = [InDatDir+"StGormans_FL11379-0_k3.npz"]
     # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
     
     dat_files = [os.path.basename(f) for f in dat_files]  
@@ -139,15 +140,13 @@ if ns ==0:
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutDatDir =  InDatDir + "results_diffop"
-OutDatDir = "/home/vrath/DuyguPoster/FD_uncert/"
-if not OutDatDir.endswith("/"): OutDatDir=OutDatDir+"/"
-print("Models written to dir: %s " % OutDatDir)
+OutResDir =  InDatDir + "results_doi/"
 
-
-if not os.path.isdir(OutDatDir):
-    print("File: %s does not exist, but will be created" % OutDatDir)
-    os.mkdir(OutDatDir)
+if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
+print("Models written to dir: %s " % OutResDir)
+if not os.path.isdir(OutResDir):
+    print("File: %s does not exist, but will be created" % OutResDir)
+    os.mkdir(OutResDir)
 
 
 """
@@ -201,7 +200,9 @@ sizepar = numpy.shape(mod_act)
 mpara = sizepar[0]
 
 Guess_r = 100.0  # initial guess for resistivity in mod_apr
-Guess_s = 0.3   # mod_std defines standard deviation of mod_apr
+# Guess_r = 10.0    # low value for DoI estimate
+# Guess_r = 1000.0  # high value for DoI estimate
+Guess_s = 0.3   # mod_std (logscale) defines standard deviation of mod_apr
 mod_apr[0*Nlyr:1*Nlyr] = Guess_r
 mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_s,2)
 mod_apr[6*Nlyr:7*Nlyr-1] = dz[0:Nlyr - 1]
@@ -336,7 +337,7 @@ if "map" in  RunType.lower():
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=True)
+                  var=mvar, sparse=False, thresh=0.05, inverse=True)
         Cmi=inverse.extract_cov(Cmi, mod_act)
         Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
         CmiS=inverse.extract_cov(CmiS, mod_act)
@@ -345,7 +346,7 @@ if "map" in  RunType.lower():
     else:
         InvSpace = "dat"
         Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=False)
+                  var=mvar, sparse=False, thresh=0.05, inverse=False)
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
         CmS=inverse.extract_cov(CmS, mod_act)
@@ -379,55 +380,6 @@ if "map" in  RunType.lower():
        ])
 
 
-if "rto" in RunType.lower():
-    """
-    Prepre parameters for rto (randomize-then-optimize) algorithm
-    """
-    NSamples = 100
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
-    Ctrl["rto"] = [NSamples]
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-
-if "eki" in RunType.lower():
-    """
-    Prepare pramters for ensemble kalman inversion (eki)
-    """
-    NSamples = 100
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.]  # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("covar", numpy.array([C, sC], dtype=object)),
-        ("transform", [DataTrans, ParaTrans]),
-        ("eki", [NSamples]),
-        ("output", numpy.array(["quant", Percentiles], dtype=object))
-           ])
-
-if "jac" in RunType.lower():
-    """
-    no new parameteres for jackknife estimates
-    """
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-    pass
-
-if "nul" in RunType.lower():
-    """
-    no new parametrres for nullspace projection
-    """
-    NSing = 3
-    NSamples = 1000
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-    Ctrl["nullspace"] = [NSing, NSamples]
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-    pass
-
-
 
 if OutInfo:
     print(Ctrl.keys())
@@ -451,7 +403,7 @@ for file in dat_files:
 
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
-    fileout = OutDatDir + name + outstrng
+    fileout = OutResDir + name + outstrng
 
     numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
 
@@ -555,27 +507,6 @@ for file in dat_files:
         if "map" in RunType.lower():
             Results =\
                 alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "rto" in RunType.lower():
-
-            Results =\
-                alg.run_rto(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "eki" in RunType.lower():
-            Results =\
-                alg.run_eki(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "jac" in RunType.lower():
-            Results =\
-                alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "nul" in RunType.lower():
-            Results =\
-                alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
 

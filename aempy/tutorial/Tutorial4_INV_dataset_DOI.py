@@ -28,8 +28,8 @@ import os
 import sys
 from sys import exit as error
 from datetime import datetime
-from time import process_time
-from random import randrange
+# from time import process_time
+# from random import randrange
 import time
 import warnings
 
@@ -46,7 +46,7 @@ for pth in mypath:
 
 from version import versionstrg
 
-import aesys
+# import aesys
 import util
 import inverse
 
@@ -59,12 +59,8 @@ rng = numpy.random.default_rng()
 nan = numpy.nan  # float("NaN")
 
 version, _ = versionstrg()
-now = datetime.now()
-Strng = "AEMpyX Version "+version
-print("\n\n"+Strng)
-print("Inversion Domain-of-Investigation"+"\n"+"".join("Date " + now.strftime("%m/%d/%Y, %H:%M:%S")))
-print("\n\n")
-
+titstrng = util.print_title(version=version, fname=__file__, out=False)
+print(titstrng+"\n\n")
 
 OutInfo = True
 now = datetime.now()
@@ -72,41 +68,54 @@ now = datetime.now()
 Method = "Oldenburg1999"
 Method = "Variance"
 
+# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
+InModDir =  AEMPYX_ROOT + "/aempy/data/AEM05/results_doi/"
+if not InModDir.endswith("/"): InModDir=InModDir+"/"
+
+
+# Method = "Oldenburg1999"
+# FileList = "set" 
+# SearchStrng = ""
+
+Method = "Variance"
+FileList = "search"  
+SearchStrng = "*results.npz"
+
+
+# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
+InDatDir =  AEMPYX_ROOT + "/aempy/data/AEM05/"
+if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+
+
+if "set" in FileList.lower():
+    print("Data files read from dir:  %s" % InDatDir)
+    # dat_files = []
+    mod_files = ["StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior10_Err_a75-m5_results.npz",
+                 "StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior1000_Err_a75-m5_results.npz"]  
+    # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    
+else:
+    # how = ["search", SearchStrng, InDatDir]
+    # how = ["read", FileList, InDatDir]
+    mod_files = util.get_data_list(how=["search", SearchStrng, InModDir],
+                              out= True, sort=True)
+
+    mod_files = [os.path.basename(f) for f in mod_files]  
+
+ns = numpy.size(mod_files)
+if ns ==0: error("No files set!. Exit.")
+
 """
-input and output format is ".npz",
+Output format is ".npz"
 """
-InModDir = AEMPYX_DATA + "/Projects/StGormans/results_doi/"
-# InModDir = AEMPYX_DATA + "/Intersection/geophysics/data/Geophysics_R12A/"
-# InModDir = AEMPYX_DATA + "/Tests/"
-print("Models read from dir:  %s" % InModDir)
-OutModDir = InModDir
-print("Models written to dir: %s " % OutModDir)
+OutFileFmt = ".npz"
+OutModDir =  InModDir
+print("Results written to dir: %s " % OutModDir)
+
 if not os.path.isdir(OutModDir):
     print("File: %s does not exist, but will be created" % OutModDir)
     os.mkdir(OutModDir)
 
-FileList = "set"  # "search", "read"
-
-if "set" in FileList.lower():
-    mod_files = [
-    "A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3_nlyr36_TikhOpt_gcv_L11_Prior30_Err_a50-m3_results.npz",
-    "A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3_nlyr36_TikhOpt_gcv_L11_Prior3000_Err_a50-m3_results.npz",
-    ]
-
-
-if "search" in FileList.lower():
-    
-    dat_files = util.get_data_list(how=["search", SearchStrng, InModDir],
-                              out= True, sort=True)
-    
-    SearchStrng = "StGormans_*k5*.asc"
-    print("Search string: %s " % SearchStrng)
-    mod_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir)
-    mod_files = sorted(mod_files)
-
-ns = numpy.size(mod_files)
-if ns ==0:
-    error("No files found!. Exit.")
 
 Fileout = OutModDir +"AEM05_TikhOpt_P30-3000_DoI_"+Method+".npz"
 Header = "DoI from FD models"
@@ -125,7 +134,7 @@ numpy.savez_compressed(Fileout,
         site_dact = results["dat_act"],
         site_dobs = results["site_dobs"],
         site_derr = results["site_derr"],
-        doimethod = Method,
+        doimethod = Method.lower(),
         )
 
 
@@ -134,7 +143,7 @@ if "old" in Method.lower():
     for file in mod_files:
         icount = icount+1
 
-        m = numpy.load(OutModDir +file)
+        m = numpy.load(OutModDir+file)
         m_ref = m["mod_ref"]
         m_act = m["mod_act"]
         nsit = len(m["site_num"])

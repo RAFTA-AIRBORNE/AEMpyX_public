@@ -84,8 +84,8 @@ if "genes" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add = 100.
-    DatErr_mult = 0.01
+    DatErr_add = 300.
+    DatErr_mult = 0.03
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
@@ -95,11 +95,13 @@ if "genes" in AEM_system.lower():
 ReverseDir = False
 
 FileList = "search"  # "search", "read"
-InDatDir =  AEMPYX_DATA + "/Projects/StGormans/proc_delete_PLM3s/"
-SearchStrng = "A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3.npz"
-#FileList = "set"  # "search", "read"
-#InDatDir =  AEMPYX_DATA + "/Projects/Compare/data_reduced/"
-#SearchStrng = "SGL*k1*.npz"
+SearchStrng = "*k3*.npz"
+
+
+# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
+InDatDir =  AEMPYX_ROOT + "/aempy/data/AEM05/"
+if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -117,7 +119,17 @@ ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 
-OutResDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/"
+"""
+Output format is ".npz"
+"""
+OutResDir =  InDatDir + "/results_jcn/"
+if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
+print("Results written to dir: %s " % OutResDir)
+
+
+if not os.path.isdir(OutResDir):
+    print("File: %s does not exist, but will be created" % OutResDir)
+    os.mkdir(OutResDir)
 print("Models written to dir: %s " % OutResDir)
 
 """
@@ -132,16 +144,14 @@ Any other string will choose full data set.
 """
 
 
-
-
-Sample = [""]   # 
+Sample = ["step"]   # 
 
 if "rand" in Sample[0].lower():
-    Nsamples = 10
-    Sample.append(Nsamples)
+    Num_samples = 10
+    Sample.append(Num_samples)
     
 elif "step" in Sample[0].lower():
-    Start, Stop, Step = 0, -1, 10
+    Start, Stop, Step = 0, -1, 20
     Sample.extend((Start, Stop, Step))
 
 elif "list" in Sample[0].lower():
@@ -165,7 +175,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt-JCN" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -343,7 +353,7 @@ if "map" in  RunType.lower():
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=True)
+                  var=mvar, sparse=False, thresh=0.05, inverse=True)
         Cmi=inverse.extract_cov(Cmi, mod_act)
         Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
         CmiS=inverse.extract_cov(CmiS, mod_act)
@@ -352,7 +362,7 @@ if "map" in  RunType.lower():
     else:
         InvSpace = "dat"
         Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=False)
+                  var=mvar, sparse=False, thresh=0.05, inverse=False)
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
         CmS=inverse.extract_cov(CmS, mod_act)
@@ -394,7 +404,7 @@ if OutInfo:
 
 
 
-OutStrng = "_nlyr"+str(Nlyr)\
+OutStrng = "_JCN_nlyr"+str(Nlyr)\
             +"_"+RunType.replace(" ","_")\
             +"_"+RegFun\
             +"_Prior"+str(int(Guess_r))\
@@ -630,7 +640,7 @@ for file in dat_files:
     print("\n\nResults stored to "+Fileout)
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+    print (" Average %7.4f sec/site\n" % (elapsed/(len(site_list))))
  
  
   
