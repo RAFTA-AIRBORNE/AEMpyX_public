@@ -368,7 +368,7 @@ for filein in dat_files:
 
     if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
         xi= numpy.linspace(E_min,E_max,numIndexes[0])
-        yi= numpy.linspace(N_min,N_max,numIndexes[1]
+        yi= numpy.linspace(N_min,N_max,numIndexes[1])
         dx = numpy.around(numpy.diff(xi)[0]/XYFact, decimals=0)
         dy = numpy.around(numpy.diff(yi)[0]/XYFact, decimals=0)
         print("Interpolation mesh, dx = "+ str(dx)+" m, dy ="+ str(dy)+" m")

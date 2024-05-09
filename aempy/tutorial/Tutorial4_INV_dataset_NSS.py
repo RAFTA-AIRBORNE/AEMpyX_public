@@ -25,7 +25,6 @@ import copy
 
 import numpy
 import scipy
-import random
 
 # %logstart -o
 
@@ -49,7 +48,6 @@ AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 rng = numpy.random.default_rng()
 nan = numpy.nan  # float("NaN")
 version, _ = versionstrg()
-
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
@@ -84,19 +82,19 @@ if "genes" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add = 300.
-    DatErr_mult = 0.03
+    DatErr_add = 100.
+    DatErr_mult = 0.01
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 
 
-ReverseDir = False
-
-FileList = "search"  # "search", "read"
+"""
+input formats are ".npz",".nc4",".asc"
+"""
+FileList = "search"  # "search", "read". "set"
 SearchStrng = "*k3*.npz"
-
 
 # InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
 InDatDir =  AEMPYX_ROOT + "/aempy/data/AEM05/"
@@ -113,7 +111,7 @@ else:
     # how = ["read", FileList, InDatDir]
     dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
                               out= True, sort=True)
-    ns = numpy.size(dat_files)
+
 
 ns = numpy.size(dat_files)
 if ns ==0:
@@ -122,15 +120,16 @@ if ns ==0:
 """
 Output format is ".npz"
 """
-OutResDir =  InDatDir + "/results_jcn/"
-if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
-print("Results written to dir: %s " % OutResDir)
+OutFileFmt = ".npz"
+OutDatDir =  AEMPYX_DATA + "/Projects/Compare/results/JCN/"
+print("Models written to dir: %s " % OutDatDir)
 
 
-if not os.path.isdir(OutResDir):
-    print("File: %s does not exist, but will be created" % OutResDir)
-    os.mkdir(OutResDir)
-print("Models written to dir: %s " % OutResDir)
+if not os.path.isdir(OutDatDir):
+    print("File: %s does not exist, but will be created" % OutDatDir)
+    os.mkdir(OutDatDir)
+
+
 
 """
 script offers several methods do choose sites:
@@ -142,7 +141,6 @@ Sample =
 Any other string will choose full data set.
 
 """
-
 
 Sample = ["step"]   # 
 
@@ -161,20 +159,14 @@ elif "list" in Sample[0].lower():
     else:
         Distlist = [ 1500.]
 
-
-
-if not os.path.isdir(OutResDir):
-    print("File: %s does not exist, but will be created" % OutResDir)
-    os.mkdir(OutResDir)
-    
-
 ReverseDir = False
+
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
-
-RunType = "TikhOpt-JCN" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
+RunType = "TikhOpt NSS" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
+Variant = 2
 RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
@@ -184,8 +176,8 @@ Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
     RegVal1Min = 0.1
-    RegVal1Max = 10000.
-    NTau1 = 64
+    RegVal1Max = 1000.
+    NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
 else:
@@ -260,7 +252,7 @@ if "tikhopt" in  RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -274,8 +266,7 @@ if "tikhopt" in  RunType.lower():
 
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
-    RegShift = 0
-
+    RegShift = 1
     Ctrl = dict([
         ("system", [AEM_system, FwdCall]),
         ("name", ""),
@@ -300,7 +291,7 @@ if "occ" in RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -377,7 +368,8 @@ if "map" in  RunType.lower():
     TauSeq = [0.5]
     RegShift = 1
     Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
+        ("system",
+         [AEM_system, FwdCall]),
         ("name", ""),
         ("inversion",
          numpy.array([RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS,
@@ -391,12 +383,18 @@ if "map" in  RunType.lower():
        ])
 
 
-if "jcn" in RunType.lower():
+if "nss" in RunType.lower():
     """
     no new input parameteres for jackknife estimates
     """
+    Nsamples = 1000
+    Percentiles = numpy.array([10., 20., 30., 40., 50., 60., 70., 80., 90.]) # linear
+        # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
+    NumSingVal = 3 
+    RandSVD = True
+    Ctrl["nss"] = numpy.array([Nsamples, Percentiles, NumSingVal, RandSVD], dtype=object)
     Ctrl["output"] = ["ens"] # ["ens "]
-    pass
+
 
 
 if OutInfo:
@@ -404,14 +402,13 @@ if OutInfo:
 
 
 
-OutStrng = "_JCN_nlyr"+str(Nlyr)\
-            +"_"+RunType.replace(" ","_")\
+OutStrng = "_nlyr"+str(Nlyr)\
+            +"_"+RunType\
             +"_"+RegFun\
             +"_Prior"+str(int(Guess_r))\
             +"_results"
-print("ID string: input file + %s " % OutStrng)
+print("ID string: Iinput file + %s " % OutStrng)
 
-# sys.exit()
 
 fcount =0
 for file in dat_files:
@@ -424,9 +421,9 @@ for file in dat_files:
     filein = InDatDir+file
     print("\n Reading file " + filein)
 
-    Fileout = OutResDir + name + OutStrng
+    Fileout = OutDatDir + name + OutStrng
 
-    numpy.savez_compressed(file=Fileout.replace("_results","_ctrl"), **Ctrl)
+    numpy.savez_compressed(file=Fileout+"_ctrl"+OutFileFmt,**Ctrl)
 
 
     DataObs, Header, _ = aesys.read_aempy(File=filein,
@@ -452,40 +449,49 @@ for file in dat_files:
     start = time.time()
     """
     Loop over sites
-
-    construct site_list
     """
-    fl_orig = [site_x[0], site_y[0]]
+    sequence = range(nsite)
+    if ReverseDir:
+        site_list = sequence[::-1]
+    else:
+        site_list = sequence
+
     site_x = site_x - site_x[0]
     site_y = site_y - site_y[0]
     site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
     
     site_list = numpy.arange(len(site_x)) 
-                             
-    if "rand" in Sample[0].lower() or "step" in Sample[0].lower():
-        site_list = util.sample_list(site_list, method=Sample)
         
-
-    elif "list" in Sample[0].lower():
-        
-        if "posi" in Sample[0].lower():
-            site_list = Samplist
-        if "dist" in Sample[0].lower():
-            for nid in numpy.arange(len(Distlist)):
-                nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
-                site_list.append(nds)
-   
-    
-    logsize = (2 + 7*Maxiter)  
-         
+    logsize = (2 + 7*Maxiter)
     site_log = numpy.full((len(site_list),logsize), numpy.nan)
 
     for ii in site_list:
         print("\n Invert site #"+str(ii)+"/"+str(len(site_list)))
+        
+        
+                                  
+        if "rand" in Sample[0].lower() or "step" in Sample[0].lower():
+            site_list = util.sample_list(in_list=site_list, method=Sample)
+            
+            
+        elif "list" in Sample[0].lower():
+            
+            if "posi" in Sample[0].lower():
+                site_list = Samplist
+            if "dist" in Sample[0].lower():
+                for nid in numpy.arange(len(Distlist)):
+                    nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
+                    site_list.append(nds)
+   
+
+
 
         """
         Setup model-related parameter dict
         """
+        site_name = str(fl_name)+"/"+str(ii)
+        Ctrl["name"] = site_name
+        print("\n Data set: " + site_name)
 
         if "read" in SetPrior.lower():
             mod_apr = mod_prior[ii]
@@ -499,7 +505,6 @@ for file in dat_files:
             else:
                 mod_ini = model.copy()
                 model = mod_ini.copy()
-
 
         elif "set" in SetPrior:
 
@@ -534,17 +539,18 @@ for file in dat_files:
         Call inversion algorithms
         """
 
-        if "jcn" in RunType.lower():
+        if "nss" in RunType.lower():
+           
             results =\
-                alg.run_jcn(Ctrl=Ctrl, Model=Model, Data=Data,
+                alg.run_nullspace(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
-
+            print(type(results))
         """
         Store inversion Results
         """
         if OutInfo:
             print("Results: ",results.keys())
-       
+        
         M = results["model"]
         D = results["data"]
         C = results["log"]            
@@ -560,8 +566,7 @@ for file in dat_files:
         if "ens" in Ctrl["output"]:
             jcn_ens = results["jcn_ens"]
         
-        site_num=numpy.array([])
-        if site_num.size==0:
+        if ii==0:
             site_num  = numpy.array([ii])
             site_nrms = C[2]
             site_modl = M[0]
@@ -593,21 +598,18 @@ for file in dat_files:
             site_jacd = numpy.vstack((site_jacd, jacd.reshape((1,numpy.size(jacd)))))
             site_pcov = numpy.vstack((site_pcov, pcov.reshape((1,numpy.size(pcov)))))
 
-            site_jcn_avg = numpy.hstack((site_jcn_avg, jcn_avg))
-            site_jcn_var = numpy.hstack((site_jcn_var, jcn_var))
-            site_jcn_med = numpy.hstack((site_jcn_med, jcn_med))  
-            site_jcn_mad = numpy.hstack((site_jcn_mad, jcn_mad))
+            site_jcn_avg = numpy.vstack((site_jcn_avg, jcn_avg))
+            site_jcn_var = numpy.vstack((site_jcn_var, jcn_var))
+            site_jcn_med = numpy.vstack((site_jcn_med, jcn_med))  
+            site_jcn_mad = numpy.vstack((site_jcn_mad, jcn_mad))
             if "ens" in Ctrl["output"]:
-               site_jcn_ens = numpy.hstack((site_jcn_ens, jcn_ens))
-
-
+               site_jcn_ens = numpy.vstack((site_jcn_ens, jcn_ens))
 
 
     numpy.savez_compressed(
-        file=Fileout+".npz",
+        file=Fileout+OutFileFmt,
         fl_data=file,
         fl_name=fl_name,
-        fl_orig=fl_orig,
         header=titstrng,
         site_log =site_log,
         mod_ref=mod_apr,
@@ -634,13 +636,12 @@ for file in dat_files:
         site_jcn_mad=site_jcn_mad)
            
     if "ens" in Ctrl["output"]:
-        util.add_object_npz(filein=Fileout+".npz",
+        util.add_object_npz(filein=Fileout+OutFileFmt,
                    xkey = ["site_jcn_ens"], xobject=[site_jcn_ens])
 
     print("\n\nResults stored to "+Fileout)
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(len(site_list))))
- 
- 
-  
+    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+
+print("\n\nAll done!")

@@ -338,7 +338,7 @@ if "map" in  RunType.lower():
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=True)
+                  var=mvar, sparse=False, thresh=0.05, inverse=True)
         Cmi=inverse.extract_cov(Cmi, mod_act)
         Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
         CmiS=inverse.extract_cov(CmiS, mod_act)
@@ -347,7 +347,7 @@ if "map" in  RunType.lower():
     else:
         InvSpace = "dat"
         Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=True, thresh=0.05, inverse=False)
+                  var=mvar, sparse=False, thresh=0.05, inverse=False)
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
         CmS=inverse.extract_cov(CmS, mod_act)

@@ -82,40 +82,44 @@ if "genes" in AEM_system.lower():
 
 
 # Define the path to your data-files
-data_dir = AEMPYX_DATA+"/Projects/LoughGur/"
-print(" data files read from: %s" % data_dir)
-indatdir = data_dir+"/raw/"
-inpltdir = data_dir+"/raw/plots/"
+# DataDir =  AEMPYX_ROOT + "/work/data/raw/nan/"
+# print(" data files read from: %s" % DataDir)
+# PlotDir  =  AEMPYX_ROOT + "/work/data/raw/plots/"
+# print(" plots read from: %s" % PlotDir)
 
-if (not os.path.isdir(indatdir)) or (not os.path.isdir(inpltdir)):
-    error(" File: %s or %s does not exist! Exit." % (indatdir, inpltdir))
+DataDir =  AEMPYX_ROOT + "/work/data//proc_delete_PLM3s//nan/"
+print(" data files read from: %s" % DataDir)
+PlotDir  =  AEMPYX_ROOT + "/work/data/proc_delete_PLM3s/plots/"
+print(" plots read from: %s" % PlotDir)
+
 
 SearchStrng = "*.npz"
-# Fline_files = [data_dir+"TD_TB_Nearest_FDLines.txt",
-#                data_dir+"TD_A1_Nearest_FDLines.txt",
-#                data_dir+"TD_A2_Nearest_FDLines.txt",]
+data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=DataDir, fullpath=False)
+data_files = sorted(data_files)
+ns = numpy.size(data_files)
+
+KMLDir = DataDir
+KLMFile = KMLDir+"Limerick_shale_proc"
 
 MarkStartPoints = True
 MarkEndPoints = False
 MarkCenterPoints = False
 AddImages = True
 ImageWidth= 600
+plots_fmt = ".png"
+
+MarkEvery = 50
 
 
 # Determine what is added to the KML-tags:
 
-plots_fmt = ".png"
 
-kml_dir = data_dir
-kml_file = kml_dir+"LoughGur"
 kml = False
 kmz = True
 
 # Define the path for saving  kml files
 
 icon_dir = AEMPYX_ROOT+"/aempy/share/icons/"
-
-PlotStep = 10
 
 line_icon =  icon_dir + "star.png"
 line_iscale = 1.5
@@ -135,19 +139,17 @@ data_tcolor = simplekml.Color.yellow
 # Determine which geographical info is added to the KML-tags:
 # define empty list
 kml = simplekml.Kml(open=1)
-
-
 line_iref = kml.addfile(line_icon)
 data_iref = kml.addfile(data_icon)
 
-data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=indatdir, fullpath=False)
-data_files = sorted(data_files)
-ns = numpy.size(data_files)
+
+if (not os.path.isdir(DataDir)) or (not os.path.isdir(PlotDir)):
+    error(" File: %s or %s does not exist! Exit." % (DataDir, PlotDir))
 
 for f in data_files:
     print(f)
 
-    file = indatdir+f
+    file = DataDir+f
     name,  ext = os.path.splitext(f)
     Data, _, _ = aesys.read_aempy(File=file, System=AEM_system, OutInfo=False)
 
@@ -160,7 +162,7 @@ for f in data_files:
 
     for idt in numpy.arange(nd):
 
-        if numpy.mod(idt, PlotStep) == 0:
+        if numpy.mod(idt, MarkEvery) == 0:
             d = folder_line.newpoint()
             d.coords = [(lon[idt], lat[idt])]
             d.style.iconstyle.icon.href = data_iref
@@ -170,7 +172,7 @@ for f in data_files:
 
 
     if AddImages:
-        d_plot = inpltdir+name+ plots_fmt
+        d_plot = PlotDir+name+ plots_fmt
         if os.path.exists(d_plot)==True:
             src= kml.addfile(d_plot)
             imstring ='<img width="'+str(ImageWidth)+'" align="left" src="' + src + '"/>'
@@ -184,7 +186,7 @@ for f in data_files:
         d.style.labelstyle.color = data_tcolor
         d.style.labelstyle.scale = data_tscale
         d.style.iconstyle.icon.href = data_iref
-        d.style.iconstyle.scale = data_iscale*1.2
+        d.style.iconstyle.scale = data_iscale*1.5
         d.style.iconstyle.color = line_icolor
         d.coords = [(lon[0], lat[0])]
         d.description = (imstring)
@@ -193,21 +195,20 @@ for f in data_files:
         d.style.labelstyle.color = data_tcolor
         d.style.labelstyle.scale = data_tscale
         d.style.iconstyle.icon.href = data_iref
-        d.style.iconstyle.scale = data_iscale*1.2
-        d.style.iconstyle.color = line_icolor
+        d.style.iconstyle.scale = data_iscale*1.5
         d.coords = [(lon[nd-1], lat[nd-1])]
         d.description = (imstring)
-if MarkCenterPoints:
+    if MarkCenterPoints:
         d = folder_line.newpoint(name=str(data[round(nd/2),0]))
         d.coords = [(lon[round(nd/2)], lat[round(nd/2)])]
         d.style.labelstyle.color = data_tcolor
         d.style.labelstyle.scale = data_tscale
         d.style.iconstyle.icon.href = data_iref
-        d.style.iconstyle.scale = data_iscale*1.2
+        d.style.iconstyle.scale = data_iscale*1.5
         d.style.iconstyle.color = line_icolor
         d.description = (imstring)
 
 
     # Compressed kmz file:
 
-kml.savekmz(kml_file + ".kmz")
+kml.savekmz(KLMFile + ".kmz")

@@ -105,15 +105,22 @@ now = datetime.now()
 """
 input formats are .npz, .nc4, 'ascii'
 """
-InStrng = " proc"
+InStrng = ""
 PlotStrng = " - data "+InStrng
 
-SearchStrng = "*.npz"
-FileList = "search"  # "search", "read"
-InDatDir =  AEMPYX_DATA + "/Projects/Compare_systems/data_reduced/"
-PlotDir  =  AEMPYX_DATA + "/Projects/Compare_systems/plots/"
-PlotStrng = " - data reduced"
-SearchStrng = "SGL*FL2060011-17*.npz"
+
+FileList = "search"  
+SearchStrng = "*nan*.npz"# "search", "read"
+
+
+# InDatDir =  AEMPYX_ROOT + "/work/data/raw/"
+# PlotDir  =  AEMPYX_ROOT + "/work/data/raw/plots/"
+# PlotStrng = " - data raw"
+
+InDatDir =  AEMPYX_ROOT + "/work/data/proc_delete_PLM3s/"
+PlotDir  =  AEMPYX_ROOT + "/work/data/proc_delete_PLM3s/plots/"
+PlotStrng = " - data proc"
+
 
 
 if "set" in FileList.lower():
@@ -136,11 +143,14 @@ if ns ==0:
 
 print(dat_files)
 
-
+if not os.path.isdir(PlotDir):
+    print("File: %s does not exist, but will be created" % PlotDir)
+    os.mkdir(PlotDir)
+    
 FilesOnly = False
 PlotFmt = [".pdf", ".png", ]
 PdfCatalog = True
-PdfCat = "Testlines_SGL_reduced.pdf"
+PdfCatName = PlotDir+"Limerick_shale_raw.pdf"
 
 if ".pdf" in PlotFmt:
     pass
@@ -284,8 +294,8 @@ for file in dat_files:
             HLimits = HLimits,
             PLimits = PLimits,
             ProfLabel=ProfLabel,
-            Colors=Colors,
-            Linewidths=Linewidths,
+            Linecolor=Colors,
+            Linewidth=Linewidths,
             Fontsizes=Fontsizes,
             Logparams=Logparams,
             PlotStrng=PlotStrng,
@@ -305,12 +315,12 @@ for file in dat_files:
             ZLimits =ZLimits,
             HLimits =[],
             ProfLabel=ProfLabel,
-            Colors=Colors,
-            Linewidths=Linewidths,
+            Linecolor=Colors,
+            Linewidth=Linewidths,
             Fontsizes=Fontsizes,
             Logparams=Logparams,
             PlotStrng=PlotStrng)
 
 
 if PdfCatalog:
-    viz.make_pdf_catalog(PdfList=pdf_list, FileName=PlotDir+PdfCat)
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PdfCatName)

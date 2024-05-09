@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 # ---
 # jupyter:
 #   jupytext:
@@ -25,8 +25,8 @@ import copy
 
 import numpy
 import scipy
-import random
 
+from numba import jit
 # %logstart -o
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
@@ -49,7 +49,6 @@ AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 rng = numpy.random.default_rng()
 nan = numpy.nan  # float("NaN")
 version, _ = versionstrg()
-
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
@@ -91,11 +90,14 @@ if "genes" in AEM_system.lower():
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 
+"""
+input formats are ".npz",".nc4",".asc"
+"""
 
-ReverseDir = False
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*k3*.npz"
+# FileList = "set"  # "search", "read"
+SearchStrng = "*.npz"
 
 
 # InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
@@ -122,28 +124,28 @@ if ns ==0:
 """
 Output format is ".npz"
 """
-OutResDir =  InDatDir + "/results_jcn/"
-if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
-print("Results written to dir: %s " % OutResDir)
+OutFileFmt = ".npz"
+OutResDir =  AEMPYX_DATA + "/Projects/StGormans/results_enk/"
+print("Models written to dir: %s " % OutResDir)
 
 
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
-print("Models written to dir: %s " % OutResDir)
+
 
 """
 script offers several methods do choose sites:
 Sample = 
 "rand"                  choose Nsample random sites
-"step"                  choose sites with Start/Sop/Step
+"step"                  choose sites with Start/Stop/Step
 "list suboption"        define list, with suboptions position and distance
 
 Any other string will choose full data set.
 
 """
 
-
+# Sample = ["random"]   # 
 Sample = ["step"]   # 
 
 if "rand" in Sample[0].lower():
@@ -161,19 +163,12 @@ elif "list" in Sample[0].lower():
     else:
         Distlist = [ 1500.]
 
-
-
-if not os.path.isdir(OutResDir):
-    print("File: %s does not exist, but will be created" % OutResDir)
-    os.mkdir(OutResDir)
-    
-
 ReverseDir = False
+
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
-
-RunType = "TikhOpt-JCN" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
+RunType = "TikhOpt ENK" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
@@ -183,9 +178,9 @@ Tau0max = numpy.log10(RegVal0)
 Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
-    RegVal1Min = 0.1
+    RegVal1Min = 1.
     RegVal1Max = 10000.
-    NTau1 = 64
+    NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
 else:
@@ -260,11 +255,13 @@ if "tikhopt" in  RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
+
     D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
     Cm1 = inverse.extract_cov(Cm1, mod_act)
+    Cm1 = Cm1.todense()
 
     Maxiter = 10
     Maxreduce = 5
@@ -274,58 +271,14 @@ if "tikhopt" in  RunType.lower():
 
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
-    RegShift = 0
-
+    RegShift = 1
     Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
+        ("system", [AEM_system, FwdCall]),  ("name", ""),
         ("inversion",
          numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
                       LinPars, SetPrior, Delta, RegShift], dtype=object)),
         ("covar", 
          numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
-
-if "occ" in RunType.lower():
-    """
-    Prepare differential operator base methods for regularization matrices
-    """
-    D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
-    L = [D0 for D in range(7)]
-    L0 = scipy.sparse.block_diag(L)
-    Cm0 = L0.T@L0
-    Cm0 = inverse.extract_cov(Cm0, mod_act)
-
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
-    L = [D1 for D in range(7)]
-    L1 = scipy.sparse.block_diag(L)
-    Cm1 = L1.T@L1
-    Cm1 = inverse.extract_cov(Cm1, mod_act)
-
-    Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
-
-    Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
-    L = L1
-    TauSeq = [0.5]
-    Delta = [1.e-5]
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion", 
-         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
-                      LinPars, SetPrior, Delta],dtype=object)),
-        ("covar", 
-         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
         ("transform",
          [DataTrans, ParaTrans]),
         ("uncert", 
@@ -341,46 +294,61 @@ if "map" in  RunType.lower():
     zc = inverse.set_zcenters(dz)
     xc = numpy.zeros_like(zc)
     yc = numpy.zeros_like(zc)
-    CorrL = numpy.array([30.0, 30.0, 30.0])
 
     """
     This setup is a workaround, correct only for rho-only inversion
     """
-
+    Tau = Tau1
+    CorrL = 40.
     mvar  = mod_var[0*Nlyr:1*Nlyr]
     # inverse.extract_mod(mod_var, mod_act)
-
+  
     if "par"in RunType.lower():
         InvSpace = "par"
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=True)
-        Cmi=inverse.extract_cov(Cmi, mod_act)
-        Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
-        CmiS=inverse.extract_cov(CmiS, mod_act)
-        CmiS = scipy.sparse.block_diag([CmiS for Cmis in range(7)])
-        C, sC = Cmi, CmiS
+
+        
+        Cmi = inverse.full_cov([Cmi])
+        Cmi = inverse.extract_cov(Cmi, mod_act)
+        C = scipy.sparse.csr_matrix(Cmi)
+        
+  
+        CmiS = inverse.full_cov([CmiS])
+        CmiS = inverse.extract_cov(CmiS, mod_act)        
+        sC = scipy.sparse.csr_matrix(CmiS)
+
+        print(numpy.shape(C),numpy.shape(sC))
     else:
         InvSpace = "dat"
         Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=False)
-        Cm=inverse.extract_cov(Cm, mod_act)
-        Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
-        CmS=inverse.extract_cov(CmS, mod_act)
-        CmS = scipy.sparse.block_diag([CmS for CmS in range(7)])
-        C, sC = Cm, CmS
 
+        Cm = inverse.full_cov([Cm])
+        Cm = inverse.extract_cov(Cm, mod_act)
+        C = scipy.sparse.csr_matrix(Cm)
+        
+        CmS = inverse.full_cov([CmS])
+        CmS = inverse.extract_cov(CmS, mod_act)
+        sC = scipy.sparse.csr_matrix(CmS)
+
+        
     Maxiter = 10
     Maxreduce = 5
     Rfact = 0.66
+    LinPars = [Maxreduce, Rfact]
+        
+
     ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     TauSeq = [0.5]
     RegShift = 1
     Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
+        ("system",
+         [AEM_system, FwdCall]),
         ("name", ""),
         ("inversion",
-         numpy.array([RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS,
+         numpy.array([RunType, InvSpace, RegFun, Tau, Maxiter,ThreshRMS,
                       LinPars, SetPrior, Delta, RegShift], dtype=object)),
         ("covar",
          numpy.array([C, sC], dtype=object)),
@@ -391,31 +359,33 @@ if "map" in  RunType.lower():
        ])
 
 
-if "jcn" in RunType.lower():
+if "enk" in RunType.lower():
     """
-    no new input parameteres for jackknife estimates
+    Prepre parameters for rto (randomize-then-optimize) algorithm
     """
-    Ctrl["output"] = ["ens"] # ["ens "]
-    pass
-
+    NSamples = 16
+    Percentiles = numpy.array([10., 20., 30., 40., 50., 60., 70., 80., 90.]) # linear
+    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
+    Ctrl["enk"] =  numpy.array([NSamples, Percentiles], dtype=object)
+    Ctrl["output"] = ["ens "]
 
 if OutInfo:
     print(Ctrl.keys())
 
 
 
-OutStrng = "_JCN_nlyr"+str(Nlyr)\
-            +"_"+RunType.replace(" ","_")\
+OutStrng = "_ENK_nlyr"+str(Nlyr)\
+            +"_"+RunType\
             +"_"+RegFun\
             +"_Prior"+str(int(Guess_r))\
             +"_results"
 print("ID string: input file + %s " % OutStrng)
 
-# sys.exit()
 
 fcount =0
 for file in dat_files:
 
+    
     start = time.time()
 
     fcount=fcount+1
@@ -427,7 +397,6 @@ for file in dat_files:
     Fileout = OutResDir + name + OutStrng
 
     numpy.savez_compressed(file=Fileout.replace("_results","_ctrl"), **Ctrl)
-
 
     DataObs, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
@@ -441,7 +410,8 @@ for file in dat_files:
     dat_obs =  DataObs[:, 6:6+NN[2]]
     [nsite,ndata] = numpy.shape(dat_obs)
     dat_act = numpy.tile(data_active,(nsite,1))
-
+    fl_orig = [site_x[0], site_y[0]]
+    
     if "read" in SetPrior.lower():
         halfspace ="halfspace_results"
         file, filext0 = os.path.splitext(file)
@@ -452,10 +422,14 @@ for file in dat_files:
     start = time.time()
     """
     Loop over sites
-
-    construct site_list
     """
-    fl_orig = [site_x[0], site_y[0]]
+    sequence = range(nsite)
+    if ReverseDir:
+        site_list = sequence[::-1]
+    else:
+        site_list = sequence
+        
+        
     site_x = site_x - site_x[0]
     site_y = site_y - site_y[0]
     site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
@@ -475,14 +449,19 @@ for file in dat_files:
                 nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
                 site_list.append(nds)
    
-    
-    logsize = (2 + 7*Maxiter)  
-         
+
+
+
+
+    logsize = (2 + 7*Maxiter)
     site_log = numpy.full((len(site_list),logsize), numpy.nan)
-
+    num_site = -1
     for ii in site_list:
+        num_site = num_site+1
+        
         print("\n Invert site #"+str(ii)+"/"+str(len(site_list)))
-
+        Ctrl["name"] = str(fl_name)+"/"+str(ii)
+        print("\n Data set: " + str(fl_name))
         """
         Setup model-related parameter dict
         """
@@ -499,7 +478,6 @@ for file in dat_files:
             else:
                 mod_ini = model.copy()
                 model = mod_ini.copy()
-
 
         elif "set" in SetPrior:
 
@@ -534,9 +512,9 @@ for file in dat_files:
         Call inversion algorithms
         """
 
-        if "jcn" in RunType.lower():
+        if "enk" in RunType.lower():
             results =\
-                alg.run_jcn(Ctrl=Ctrl, Model=Model, Data=Data,
+                alg.run_EnK(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         """
@@ -552,17 +530,17 @@ for file in dat_files:
         jacd = results["jacd"]
         pcov = results["cpost"]
 
-
-        jcn_avg = results["jcn_avg"]
-        jcn_var = results["jcn_var"]
-        jcn_med = results["jcn_med"]
-        jcn_mad = results["jcn_mad"]
-        if "ens" in Ctrl["output"]:
-            jcn_ens = results["jcn_ens"]
+        eki_avg = results["eki_avg"]
+        eki_var = results["eki_var"]
+        eki_med = results["eki_med"]
+        eki_mad = results["eki_mad"]
+        eki_prc = results["eki_prc"]
         
-        site_num=numpy.array([])
-        if site_num.size==0:
-            site_num  = numpy.array([ii])
+        if "ens" in Ctrl["output"]:
+           eki_ens = results["eki_ens"]
+        
+        if num_site==0:
+            site_num  = numpy.array([num_site])
             site_nrms = C[2]
             site_modl = M[0]
             site_merr = M[1]
@@ -572,17 +550,18 @@ for file in dat_files:
             site_derr = D[2].reshape((1,-1))
             site_jacd = jacd.reshape((1,numpy.size(jacd)))
             site_pcov = pcov.reshape((1,numpy.size(pcov)))
-            site_jcn_avg = jcn_avg
-            site_jcn_var = jcn_var
-            site_jcn_med = jcn_med            
-            site_jcn_mad = jcn_mad
+            site_eki_avg = eki_avg
+            site_eki_var = eki_var
+            site_eki_med = eki_med            
+            site_eki_mad = eki_mad
+            site_eki_prc = eki_prc
             
             if "ens" in Ctrl["output"]:
-                site_jcn_ens = jcn_ens
+                site_eki_ens = eki_ens
                 
                 
         else:
-            site_num = numpy.vstack((site_num, ii))
+            site_num = numpy.vstack((site_num, num_site))
             site_nrms = numpy.vstack((site_nrms, C[2]))
             site_modl = numpy.vstack((site_modl, M[0]))
             site_merr = numpy.vstack((site_merr, M[1]))
@@ -592,22 +571,21 @@ for file in dat_files:
             site_derr = numpy.vstack((site_derr, D[2]))               
             site_jacd = numpy.vstack((site_jacd, jacd.reshape((1,numpy.size(jacd)))))
             site_pcov = numpy.vstack((site_pcov, pcov.reshape((1,numpy.size(pcov)))))
-
-            site_jcn_avg = numpy.hstack((site_jcn_avg, jcn_avg))
-            site_jcn_var = numpy.hstack((site_jcn_var, jcn_var))
-            site_jcn_med = numpy.hstack((site_jcn_med, jcn_med))  
-            site_jcn_mad = numpy.hstack((site_jcn_mad, jcn_mad))
+            site_eki_avg = numpy.vstack((site_eki_avg, eki_avg))
+            site_eki_var = numpy.vstack((site_eki_var, eki_var))
+            site_eki_med = numpy.vstack((site_eki_med, eki_med))  
+            site_eki_mad = numpy.vstack((site_eki_mad, eki_mad))
+            site_eki_prc = numpy.vstack((site_eki_prc, eki_prc))
+            
             if "ens" in Ctrl["output"]:
-               site_jcn_ens = numpy.hstack((site_jcn_ens, jcn_ens))
-
-
+               site_eki_ens = numpy.vstack((site_eki_ens, eki_ens))
 
 
     numpy.savez_compressed(
-        file=Fileout+".npz",
+        file=Fileout+OutFileFmt,
         fl_data=file,
         fl_name=fl_name,
-        fl_orig=fl_orig,
+        fl_orig = fl_orig,
         header=titstrng,
         site_log =site_log,
         mod_ref=mod_apr,
@@ -625,22 +603,23 @@ for file in dat_files:
         site_x=site_x,
         site_gps=site_gps,
         site_alt=site_alt,
-        site_dem=site_dem,
-        site_jacd= site_jacd,
-        site_pcov= site_pcov,
-        site_jcn_avg=site_jcn_avg,
-        site_jcn_var=site_jcn_var,
-        site_jcn_med=site_jcn_med,
-        site_jcn_mad=site_jcn_mad)
+        site_dem=site_dem,            
+        site_jacd=site_jacd,
+        site_pcov=site_pcov,
+        site_eki_avg=site_eki_avg,
+        site_eki_var=site_eki_var,
+        site_eki_med=site_eki_med,
+        site_eki_mad=site_eki_mad,
+        site_eki_prc=site_eki_prc)
            
     if "ens" in Ctrl["output"]:
-        util.add_object_npz(filein=Fileout+".npz",
-                   xkey = ["site_jcn_ens"], xobject=[site_jcn_ens])
+        util.add_object_npz(filein=Fileout+OutFileFmt,
+                   xkey = ["site_eki_ens"], xobject=[site_eki_ens])
 
     print("\n\nResults stored to "+Fileout)
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(len(site_list))))
- 
- 
-  
+    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+
+print("\n\nAll done!")
+

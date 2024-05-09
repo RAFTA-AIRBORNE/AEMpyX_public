@@ -66,10 +66,11 @@ impute = ["delete", 0.]
 plmthresh = 3.
 kmax = 5
 DatErr_add = 50.
-DatErr_mult = 0.
+DatErr_mult = 0.05
 
 OutNaN = True
-OutRes = True
+OutRes = False
+
 
 """
 input formats are '.npz','.nc4','.asc'
@@ -84,8 +85,8 @@ Output formats are '.npz','.nc4','.asc'
 OutFileFmt = ".npz"
 OutNameStrng = "proc_"+impute[0]+"_PLM"+str(int(plmthresh))+"s"
 
-InpDatDir = AEMPYX_DATA+"/Projects/StGormans/raw/"
-OutDatDir = AEMPYX_DATA+"/Projects/StGormans/"+OutNameStrng+"/"
+InpDatDir =  AEMPYX_ROOT + "/work/data/raw/"
+OutDatDir  =  AEMPYX_ROOT + "/work/data/"+OutNameStrng+"/"
 
 print("\n\n")
 print("Data read from dir:  %s" % InpDatDir)
@@ -181,7 +182,7 @@ for filename in dat_files:
                                     System=AEM_system)
 
     action = "less than"
-    threshval = -300.0
+    threshval = -500.0
     columns = [6, 14]
     print("\n Proc action: " + action)
     print(" columns: ", columns)

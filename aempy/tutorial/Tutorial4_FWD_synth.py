@@ -61,8 +61,8 @@ print(titstrng+"\n\n")
 OutInfo = False
 now = datetime.now()
 
-
-OutDir  = AEMPYX_DATA+"/SynthData/data/"
+# OutDir  = AEMPYX_DATA+"/SynthData/data/"
+OutDir  = AEMPYX_ROOT+"/aempy/data/SYNTH/"
 
 if not os.path.isdir(OutDir):
     print("File: %s does not exist, but will be created" % OutDir)
@@ -80,7 +80,7 @@ mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
 """
 AEM_system = "aem05"
-AEM_system = "genesis"
+# AEM_system = "genesis"
 
 print("AEM system: " + AEM_system + "\n \n")
 
@@ -131,9 +131,9 @@ Adapted for reasonable IP values
 Model_base[0*nlyr:1*nlyr] =[100., 100., 100.]   #rho
 Model_base[6*nlyr:7*nlyr-1] =[30.,30.]          #layers 
 
-Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
-Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
-Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
+# Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
+# Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
+# Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
 
 
 """
@@ -144,9 +144,9 @@ Examples below:
 """
 rho for layer 1 (starting from 0!)
 """
-# FWDBaseName = AEM_system.upper()+"_Rho1"
-# VarPar = [ 10., 100.,1000.]
-# VarInd = 0 * nlyr+1
+FWDBaseName = AEM_system.upper()+"_Rho1"
+VarPar = [ 10., 100.,1000.]
+VarInd = 0 * nlyr+1
 
 """
 thickness of layer 1 (starting from 0!)
@@ -162,11 +162,11 @@ chargeability of layer 1 (starting from 0!)
 # VarInd = 3*nlyr+1 
 
 """
-chargeability of layer 1 (starting from 0!)
+center frequency of layer 1 (starting from 0!)
 """
-FWDBaseName = AEM_system.upper()+"_Freq1"
-VarPar = [0.001, 0.01, 0.1, 1., 10., 100., 1000., 10000.] 
-VarInd = 5*nlyr+1 
+# FWDBaseName = AEM_system.upper()+"_Freq1"
+# VarPar = [0.001, 0.01, 0.1, 1., 10., 100., 1000., 10000.] 
+# VarInd = 5*nlyr+1 
 
 """
 Generate Data

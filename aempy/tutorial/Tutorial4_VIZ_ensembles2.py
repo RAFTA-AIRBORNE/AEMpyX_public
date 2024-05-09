@@ -84,8 +84,8 @@ if "genes" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add = 300.
-    DatErr_mult = 0.03
+    DatErr_add = 100.
+    DatErr_mult = 0.01
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
@@ -95,13 +95,11 @@ if "genes" in AEM_system.lower():
 ReverseDir = False
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*k3*.npz"
-
-
-# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
-InDatDir =  AEMPYX_ROOT + "/aempy/data/AEM05/"
-if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
-
+InDatDir =  AEMPYX_DATA + "/Projects/StGormans/proc_delete_PLM3s/"
+SearchStrng = "A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3.npz"
+#FileList = "set"  # "search", "read"
+#InDatDir =  AEMPYX_DATA + "/Projects/Compare/data_reduced/"
+#SearchStrng = "SGL*k1*.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -119,17 +117,7 @@ ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 
-"""
-Output format is ".npz"
-"""
-OutResDir =  InDatDir + "/results_jcn/"
-if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
-print("Results written to dir: %s " % OutResDir)
-
-
-if not os.path.isdir(OutResDir):
-    print("File: %s does not exist, but will be created" % OutResDir)
-    os.mkdir(OutResDir)
+OutResDir =  AEMPYX_DATA + "/Projects/StGormans/results_jcn/"
 print("Models written to dir: %s " % OutResDir)
 
 """
@@ -144,21 +132,23 @@ Any other string will choose full data set.
 """
 
 
-Sample = ["step"]   # 
 
-if "rand" in Sample[0].lower():
-    Num_samples = 10
-    Sample.append(Num_samples)
-    
-elif "step" in Sample[0].lower():
-    Start, Stop, Step = 0, -1, 20
-    Sample.extend((Start, Stop, Step))
 
-elif "list" in Sample[0].lower():
+Sample = ""    # 
+# Sample = "distance list"
+# Sample = "distance list"
+
+if "rand" in Sample.lower():
+    Nsamples = 10
     
-    if "pos" in Sample[0].lower():
+elif "step" in Sample.lower():
+    Start, Stop, Step = 0, -1, 10
+
+elif "list" in Sample.lower():
+    
+    if "pos" in Sample.lower():
         Samplist = [100, 200]
-    else:
+    if "dis" in Sample:
         Distlist = [ 1500.]
 
 
@@ -166,15 +156,16 @@ elif "list" in Sample[0].lower():
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
-    
 
-ReverseDir = False
+
+
+
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
-
 RunType = "TikhOpt-JCN" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
+Variant = 2
 RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
@@ -184,8 +175,8 @@ Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
     RegVal1Min = 0.1
-    RegVal1Max = 10000.
-    NTau1 = 64
+    RegVal1Max = 1000.
+    NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
 else:
@@ -260,7 +251,7 @@ if "tikhopt" in  RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -300,7 +291,7 @@ if "occ" in RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=Variant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -404,7 +395,7 @@ if OutInfo:
 
 
 
-OutStrng = "_JCN_nlyr"+str(Nlyr)\
+OutStrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType.replace(" ","_")\
             +"_"+RegFun\
             +"_Prior"+str(int(Guess_r))\
@@ -455,26 +446,25 @@ for file in dat_files:
 
     construct site_list
     """
-    fl_orig = [site_x[0], site_y[0]]
+    
     site_x = site_x - site_x[0]
     site_y = site_y - site_y[0]
     site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
     
-    site_list = numpy.arange(len(site_x)) 
-                             
-    if "rand" in Sample[0].lower() or "step" in Sample[0].lower():
-        site_list = util.sample_list(site_list, method=Sample)
-        
+    if "rand" in Sample:
+        site_list = random.sample(range(len(site_x)), NSamples)
 
-    elif "list" in Sample[0].lower():
+    elif "list" in Sample:
         
-        if "posi" in Sample[0].lower():
+        if "posi" in Sample:
             site_list = Samplist
-        if "dist" in Sample[0].lower():
+        if "dist" in Sample:
             for nid in numpy.arange(len(Distlist)):
                 nds = (numpy.abs(Distlist[nid] - site_r)).argmin()
                 site_list.append(nds)
-   
+    else:
+        site_list = numpy.arange(len(site_x))
+    
     
     logsize = (2 + 7*Maxiter)  
          
@@ -560,8 +550,7 @@ for file in dat_files:
         if "ens" in Ctrl["output"]:
             jcn_ens = results["jcn_ens"]
         
-        site_num=numpy.array([])
-        if site_num.size==0:
+        if ii==0:
             site_num  = numpy.array([ii])
             site_nrms = C[2]
             site_modl = M[0]
@@ -602,12 +591,11 @@ for file in dat_files:
 
 
 
-
+    
     numpy.savez_compressed(
         file=Fileout+".npz",
         fl_data=file,
         fl_name=fl_name,
-        fl_orig=fl_orig,
         header=titstrng,
         site_log =site_log,
         mod_ref=mod_apr,
@@ -640,7 +628,7 @@ for file in dat_files:
     print("\n\nResults stored to "+Fileout)
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(len(site_list))))
+    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
  
  
   
