@@ -37,11 +37,15 @@ The created local repository AEMpyX contains the following subdirectories:
 	directory also contains makefiles for both operating systems, named _Makefile_linux_ or _Makefile_windows_, 
 	respectively.
  	
+- 	**aempy/scripts**
+ 	Contains a collection of scripts for processing, visualization, and other tasks related to one-dimensional inversion of
+ 	AEM data.
+
 - 	**aempy/other_scripts**
-    Contains a collection of scripts for processing, visualization, and other tasks related to one-dimensional inversion of 
-    AEM data;. Also included is a workflow for static shift correction of MT observations (work in progress). These scripts
-    come from different stages of the RAFTA project, solving specific problems. Thus they may not be up to date. However, they
-  	represent a useful source for cannibalizing. 
+ 	Contains a collection of various scripts for processing, visualization, and other tasks related to one-dimensional inversion of
+ 	AEM data. Also included is a workflow for static shift correction of MT observations (work in progress). These scripts
+	come from different stages of the RAFTA project, solving specific/local problems. Thus they may noy be up to date. However, they
+  	represent a useful source. Happy cannibalizing!
 
 -	**aempy/util**
     Contains  useful helper shell scripts etc. 
@@ -77,15 +81,15 @@ _conda update --all_
 Do this regularly to keep everything consistent! 
 
 
-(2) Create an appropriate conda environment (including the necessary prerequisites) from the files AEMpyX.yml or AEMpyX.txt found in the AEMpyX/environment  directories by entering
+(2)  Create an appropriate conda environment (including the necessary prerequisites) from the files AEM.yml or AEM.txt found in the AEMpyX/environment  directories by entering
 
-_conda env create -f AEMpyX.yml_
+_conda env create -f AEM.yml_
 
 or
 
-_conda create --name AEMpyX --file AEMpyX.txt_
+_conda create --name AEMpyX --file AEM.txt_
 
-in the command window (powershell under windows).
+in the command window (powershell under windows). Not that the former will create an environment called _AEM_, the latter one called _AEMpyX_. In that case you can choose an arbitrary name.
 
 This will set up a Python 3.11 environment with all dependencies for aempy. Don't forget to update also the used environment regularly, using _conda update --name AEMpyX --all_! 
 
@@ -159,4 +163,4 @@ Enjoy, read the docs, but please keep in mind that this is an experimental softw
 
 D. Kiyan & V. Rath
 
-November 18, 2023
+May 9, 2024
