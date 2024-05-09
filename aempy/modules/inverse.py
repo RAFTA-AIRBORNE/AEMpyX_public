@@ -17,10 +17,12 @@ import scipy
 import scipy.linalg
 import scipy.sparse.linalg
 import scipy.special
+import scipy.fftpack
+
 from numba import njit, prange
 import numpy
 import functools
-import scipy.fftpack
+
 
 import core1d
 
@@ -56,12 +58,12 @@ def calc_fwdmodel(fwdcall=None,
     d_vec = eval(fwdcall)
 
     if d_trn == 0:
-        pass
+        return d_vec, d_state
     else:
         d_vec, _, d_state = transform_data(d_vec=d_vec, d_trn=d_trn)
 
     if numpy.size(d_act) == 0:
-        pass
+        return d_vec, d_state
     else:
         d_vec = extract_dat(D=d_vec, d_act=d_act)
 
@@ -255,13 +257,11 @@ def generate_data_ensemble(dref=numpy.array([]),
     return dens
 
 
-def generate_model_ensemble(mref=numpy.array([]),
+def generate_param_ensemble(mref=numpy.array([]),
                             mact=numpy.array([]),
-                            mtrn=1,
+                            mtrn=1, mstate=1,
                             nens=128,
                             perturb=["Gauss", 1.],
-                            inchol=numpy.array([]),
-                            incovar=numpy.array([]),
                             out=True):
     """
     Generate model Ensemble for Kalman-type methods
@@ -274,69 +274,90 @@ def generate_model_ensemble(mref=numpy.array([]),
 
     """
     if mref.size == 0:
-        error("generate_model_ensemble: no reference model given! exit.")
+        error("generate_param_ensemble: no reference model given! exit.")
 
     mpar = numpy.shape(mref[mact != 0])[0]
     if mpar == 0:
-        error("generate_model_ensemble: no active parameter given! exit.")
+        error("generate_param_ensemble: no active parameter given! exit.")
 
+    
+    meth = perturb[0]
+    covm = perturb[1]
+    chol = numpy.array([])
+    if len(perturb)==3: chol = perturb[2]
+    
     
     # print("mbas")
     # print(mref[mact != 0])
-    mbas, mtrn = transform_parameter(m_vec= mref.copy(), mode="f", m_trn=mtrn, m_state=0)
+    mbas, mtrn = transform_parameter(m_vec= mref.copy(), mode="f", 
+                                     m_trn=mtrn, m_state=mstate)
     
     mwrk = mbas[mact != 0]
     mshp = numpy.shape(mwrk)
     
     # print(mshp)
-    # print("mbas")
-    # print(mbas)
+    # print("mbas", mbas)
     # print(numpy.exp(mbas))
     
-    if incovar.size == 0:
-        for iens in numpy.arange(nens):
-            mtmp = mwrk.copy() + perturb[2]*rng.standard_normal(mshp)
-            print(mtmp[1:5])
-            mtmp = insert_mod(M=mbas.copy(), m=mtmp, m_act=mact)
-            mtmp, _ = transform_parameter(m_vec= mtmp, mode="b", m_trn=mtrn, m_state=1)
-            mtmp = mtmp[mact != 0]
-            if iens == 0:
-                mens = mtmp
-                # print(numpy.shape(mens))
-            else:
-                mens = numpy.vstack((mens, mtmp))
-                # print(numpy.shape(mens))
-            print(mtmp[0:5])
-
-    else:
-        print(numpy.shape(incovar))
-        if inchol.size == 0:
-            if scipy.sparse.issparse(incovar):
-                l = msqrt_sparse(incovar)
-            else:
-                l = msqrt(incovar)
-           # l = scipy.linalg.cholesky(incovar)
+    if "gau" in meth.lower():
+        print("generate_param_ensemble: normal perturbation assumed.")
+        covm = perturb[1]
+        chol = numpy.array([])
+        if len(perturb)==3: chol = perturb[2]
+        if chol.size != 0:
+            for iens in numpy.arange(nens):
+                p = perturb[2]*rng.standard_normal(mshp)
+                mtmp = mwrk.copy() + p
+                # print(mtmp[1:5])
+                mtmp = insert_mod(M=mbas.copy(), m=mtmp, m_act=mact)[mact != 0]
+                if iens == 0:
+                    mens = mtmp
+                    # print(numpy.shape(mens))
+                else:
+                    mens = numpy.vstack((mens, mtmp))
+                    # print(numpy.shape(mens))
+                # print(mtmp[0:5])
+    
         else:
-            l = inchol
-        print(inchol.size)
-        
+            # print(numpy.shape(covm))
+            if scipy.sparse.issparse(covm):
+                l = msqrt_sparse(covm)
+            else:
+                l = msqrt(covm)
+               # l = scipy.linalg.cholesky(covm)
+    
+            # print(inchol.size)
+            # print(" mwrk", mwrk[0:7])
+            
+            for iens in numpy.arange(nens):
+                mtmp = mwrk.copy() + l @ rng.standard_normal(mshp)                 
+                # print(mtmp[1:5])       
+                mtmp = insert_mod(M=mbas.copy(), m=mtmp, m_act=mact)[mact != 0]
+                # mtmp, _ = transform_parameter(m_vec= mtmp, mode="b", m_trn=mtrn, m_state=1)
+                if iens == 0:
+                    mens = mtmp
+                else:
+                    mens = numpy.vstack((mens, mtmp))
+                
+                print(mtmp[0:7])
+                
+    else:
+        print("generate_param_ensemble: uniform perturbation assumed. ")
+        low, high = perturb[1]
         for iens in numpy.arange(nens):
-            mtmp = mwrk.copy() + l @ rng.standard_normal(mshp)                 
-            print(mtmp[1:5])       
-            mtmp = insert_mod(M=mbas.copy(), m=mtmp, m_act=mact)
-            mtmp, _ = transform_parameter(m_vec= mtmp, mode="b", m_trn=mtrn, m_state=1)
-            mtmp = mtmp[mact != 0]
+            mtmp = mwrk.copy() + rng.uniform(low=low, high=high, size=mshp)                 
+            # print(mtmp[1:5])       
+            mtmp = insert_mod(M=mbas.copy(), m=mtmp, m_act=mact)[mact != 0]
+            # mtmp, _ = transform_parameter(m_vec= mtmp, mode="b", m_trn=mtrn, m_state=1)
             if iens == 0:
                 mens = mtmp
             else:
                 mens = numpy.vstack((mens, mtmp))
-            
-            print(mtmp[0:5])
     
     return mens
 
 
-def calc_ecovar(x=numpy.array([]),
+def calc_encovar(x=numpy.array([]),
                 y=numpy.array([]),
                 cscale=numpy.array([]),
                 method=0, out=True):
@@ -351,22 +372,26 @@ def calc_ecovar(x=numpy.array([]),
     """
 
     if (x.size == 0) and (y.size == 0):
-        error("calc_ecovar: No data given! Exit.")
+        error("calc_encovar: No data given! Exit.")
 
-    X = x-numpy.mean(x, axis=0)
+    X = x - numpy.mean(x, axis=0)
     if (y.size == 0):
         Y = X
     else:
-        Y = y-numpy.mean(y, axis=0)
+        Y = y - numpy.mean(y, axis=0)
 
     [N_e, N_x] = numpy.shape(X)
     [N_e, N_y] = numpy.shape(Y)
 
     if method == 0:
+        # print(N_e, N_x, N_y)
         # naive version, library versions probably faster)
         C = numpy.zeros((N_x, N_y))
         for n in numpy.arange(N_e):
+            # print("XT  ",X.T)           
+            # print("Y   ",Y)
             Cn = X.T@Y
+            # print(Cn)
             C = C + Cn
 
         C = C/(N_e-1)
@@ -947,7 +972,8 @@ def transform_data(d_vec=numpy.array([]), e_vec=numpy.array([]),
             print("transform_data: No errors given! Set = 1.")
 
     if d_state != 0:
-        error("transform_data: no transform possible, d_trans !=0! Exit.")
+        print("transform_data: no transform possible, d_trans !=0!")
+        return d_vec, e_vec, d_state
 
     e_trans = numpy.zeros_like(d_vec)
     w_trans = numpy.zeros_like(d_vec)
@@ -1080,7 +1106,9 @@ def transform_parameter(m_vec=numpy.array([]),
     if "b" in mode:
         dp = False
         if m_state == 0:
-            pass
+            print("transform_parameter: no transform possible, m status is " +
+                  str(m_state)+"!")
+            return m_vec, m_state
 
         elif numpy.abs(m_trn) == 1:
             m_trans[0, :] = numpy.exp(m_trans[0, :])
@@ -1108,8 +1136,9 @@ def transform_parameter(m_vec=numpy.array([]),
     elif "f" in mode:
 
         if m_state != 0:
-            error("transform_parameter: no transform possible, m status is " +
-                  str(m_state)+"! Exit.")
+            print("transform_parameter: no transform possible, m status is " +
+                  str(m_state)+"!")
+            return m_vec, m_state
 
         if dp:
             if deltap.size == 1:
@@ -1151,7 +1180,8 @@ def transform_parameter(m_vec=numpy.array([]),
         return m_trans, m_state_new
 
 
-def impose_bounds(m=None, bounds=None, f=1., mode="fwd"):
+def impose_bounds(m=None, bounds=None, mode="fwd",
+                  method = "kim",f=1.):
     """
     Generate barrier operator used for enforcing limits for parameters.
 
@@ -1163,18 +1193,31 @@ def impose_bounds(m=None, bounds=None, f=1., mode="fwd"):
     f = 1.  results in  the scheme described in Kim (1999).
     f = 2.  results in  the scheme described by Commer (2008)
             or Abubakar (2008).
+            
+    The logistic sigmoid transform is suggested in SimPEG's documentation at:
+        https://docs.simpeg.xyz/content/api/generated/SimPEG.maps.LogisticSigmoidMap.dot.html
 
-    VR Apr 2021
+    VR Apr 2024
 
     """
     lower = bounds[0]
     upper = bounds[1]
+    
+    if "kim" in method.lower():
 
-    if mode[0:1] == "f":
-        m_trans = 1./f*numpy.log((m-lower)/(upper-m))
-    elif mode[0:1] == "b":
-        ex = numpy.exp(f*m)
-        m_trans = (lower + upper*ex)/(1. + ex)
+        if mode[0:1] == "f":
+            m_trans = 1./f*numpy.log((m-lower)/(upper-m))
+        elif mode[0:1] == "b":
+            ex = numpy.exp(f*m)
+            m_trans = (lower + upper*ex)/(1. + ex)#
+            
+            
+    elif "sig" in method.lower():
+        
+        if mode[0:1] == "f":
+            m_trans = scipy.special.expit(m)
+        elif mode[0:1] == "b":
+            m_trans = scipy.special.logit(m)
 
     return m_trans
 
@@ -2187,8 +2230,12 @@ def find_range(A, n_samples, n_subspace_iters=None):
     :return:                 Orthonormal basis for approximate range of A.
     """
     # print('here we are in range-finder')
+    rng = numpy.random.default_rng()
+    
     m, n = A.shape
-    O = numpy.random.default_rng().normal(n, n_samples)
+    # print(A.shape)
+    O = rng.normal(size=(n, n_samples))
+    # print(O.shape)
     Y = A @ O
 
     if n_subspace_iters:
@@ -3069,4 +3116,3 @@ def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
 
     return spc_sample
 
-  

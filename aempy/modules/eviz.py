@@ -73,7 +73,7 @@ def plot_model_ensemble(
        error("No parameter ensemble given!! Exit.")
        # nopar=True
 
-    if ThisAxis==None:
+    if ThisAxis is None:
         nplots = 1
         fig, ax = matplotlib.pyplot.subplots(1,
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
@@ -179,7 +179,7 @@ def plot_model_ensemble(
     if Legend:
         ax.legend(fontsize=Fontsizes[0], loc="best")
 
-    if ThisAxis==None:        
+    if ThisAxis is None:
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)
         # matplotlib.pyplot.show()
@@ -226,7 +226,7 @@ def plot_data_ensemble(
    
     ax = ThisAxis
 
-    if ThisAxis==None:
+    if ThisAxis is None:
         nplots = 1
         fig, ax = matplotlib.pyplot.subplots(1,
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
@@ -537,7 +537,7 @@ def plot_data_ensemble(
         if Legend:
             ax.legend(fontsize=Fontsizes[0], loc="best")
 
-    if ThisAxis==None:
+    if ThisAxis is None:
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)      
     # matplotlib.pyplot.show()
@@ -578,7 +578,7 @@ def plot_data(
    
     ax = ThisAxis
 
-    if ThisAxis==None:
+    if ThisAxis is None:
         nplots = 1
         fig, ax = matplotlib.pyplot.subplots(1,
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
@@ -702,7 +702,7 @@ def plot_data(
     if Legend:
         ax.legend(fontsize=Fontsizes[0], loc="best")
 
-    if ThisAxis==None:
+    if ThisAxis is None:
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)      
         # matplotlib.pyplot.show()
@@ -746,7 +746,7 @@ def plot_model(
        error("No parameter set given!! Exit.")
        # nopar=True
 
-    if ThisAxis==None:
+    if ThisAxis is None:
         nplots = 1
         fig, ax = matplotlib.pyplot.subplots(1,
                                           figsize=(PlotSize[0]*cm, nplots*PlotSize[0]*cm),
@@ -780,7 +780,7 @@ def plot_model(
     if Legend: 
         ax.legend(fontsize=Fontsizes[0], loc="best")
         
-    if ThisAxis==None:        
+    if ThisAxis is None:
         for F in PlotFormat:
             matplotlib.pyplot.savefig(PlotFile+F)
     # matplotlib.pyplot.show()

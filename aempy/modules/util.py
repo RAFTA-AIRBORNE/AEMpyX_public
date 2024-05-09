@@ -26,6 +26,7 @@ import scipy.spatial
 import matplotlib
 import matplotlib.pyplot
 
+from numba import jit
 
 # import skimage.filters
 
@@ -94,11 +95,11 @@ def sample_list(in_list= [], method = ["sample", 10], out= True):
     
     if "step" in method[0].lower():
 
-        start, step, stop = method[1:]
+        start, stop, step = method[1:]
         out_list = in_list[start:stop:step]
         if out:
             print("sample_list: reduced list with start/stop/step = ", start,stop,step)
-    
+        print(out_list)
     return out_list 
 
 
@@ -201,7 +202,8 @@ def get_filelist(searchstr=["*"], searchpath="./", sortedlist =True, fullpath=Fa
     return filelist
 
 
-def merge_data_sets(infile_list=None, outfile_name="./tmp.npz", aem_system="aem05", dictout=False, out=False):
+def merge_data_sets(infile_list=None, outfile_name="./dat_tmp.npz", 
+                    aem_system="aem05", dictout=False, out=False):
     """
     Merge data sets from file list
     Created on Sun Jan 22 12:18:58 2023
@@ -219,7 +221,7 @@ def merge_data_sets(infile_list=None, outfile_name="./tmp.npz", aem_system="aem0
             merged_data = data_k
         else:
             merged_data = numpy.vstack((merged_data, data_k))
-    if outfile_name!=None:
+    if outfile_name is not None:
         header = "merged data set:"+"".join("Date " + datetime.now().strftime(dateform))
         aesys.write_aempy(File=outfile_name, Data=merged_data, System=aem_system,
                 Header=header, OutInfo=out)
@@ -237,7 +239,8 @@ def merge_data_sets(infile_list=None, outfile_name="./tmp.npz", aem_system="aem0
 
     return merged_data
 
-def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, out=False):
+def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz", 
+                     dictout=True, out=False):
     """
     Merge models from file list
     Created on Sun Jan 22 12:18:58 2023
@@ -252,8 +255,13 @@ def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, 
         k = k+1
         print("\nData read from: %s" % file)
         results = numpy.load(file, allow_pickle=True)
-        ctrl = results["ctrl"]
-
+        
+        # ctrl = numpy.load(file.replace("_results.npz","_ctrl.npz")) 
+        # ctrl = results["ctrl"]
+        ctrl = file.replace("_results.npz","_ctrl.npz")
+        
+        print(list(results.keys()))
+        
         mod_ref = results["mod_ref"]
         mod_act = results["mod_act"]
 
@@ -266,8 +274,11 @@ def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, 
         site_gps = results["site_gps"]
         site_alt = results["site_alt"]
         site_dem = results["site_dem"]
+        site_cov = results["site_pcov"]
 
-
+        tmp = results["site_log"]
+        site_log = numpy.array([tmp[1], tmp[2], tmp[3]])
+    
         site_d = numpy.zeros_like(site_mod)
         site_z = numpy.zeros_like(site_mod)
 
@@ -284,6 +295,7 @@ def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, 
         # print(numpy.shape(site_z))
 
         if k == 1:
+            merged_log = site_log
             merged_mod = site_mod
             merged_sns = site_sns
             merged_rms = site_rms
@@ -294,8 +306,10 @@ def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, 
             merged_gps = site_gps.reshape(-1,1)
             merged_alt = site_alt.reshape(-1,1)
             merged_dem = site_dem.reshape(-1,1)
+            merged_cov = site_cov.ravel(order="F")
 
         else:
+            merged_log = numpy.vstack((merged_log, site_log))
             merged_mod = numpy.vstack((merged_mod, site_mod))
             merged_sns = numpy.vstack((merged_sns, site_sns))
             merged_rms = numpy.vstack((merged_rms, site_rms))
@@ -306,9 +320,9 @@ def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, 
             merged_gps = numpy.vstack((merged_gps, site_gps.reshape(-1,1)))
             merged_alt = numpy.vstack((merged_alt, site_alt.reshape(-1,1)))
             merged_dem = numpy.vstack((merged_dem, site_dem.reshape(-1,1)))
+            merged_cov = numpy.vstack((site_cov, site_cov.ravel(order="F")))
 
-
-    if outfile_name!=None:
+    if outfile_name is not None:
         if not ".npz" in os.path.splitext(outfile_name)[1]:
             error("merge_model_sets: Only npz format implemented.! Exit.")
 
@@ -316,12 +330,12 @@ def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, 
         numpy.savez_compressed(
             file=outfile_name,
             header=header,
-            ctrl = ctrl,
             mod_act=mod_act,
             mod_ref=mod_ref,
             mod=merged_mod,
             sns=merged_sns,
             rms=merged_rms,
+            cov = merged_cov,
             x=merged_x,
             y=merged_y,
             z=merged_z,
@@ -335,7 +349,7 @@ def merge_model_sets(infile_list=None, outfile_name="./tmp.npz", dictout= True, 
                 "ctrl": ctrl,
                 "mod_ref": mod_ref,
                 "mod_act": mod_act,
-
+                "cov": merged_cov,
                 "mod": merged_mod,
                 "sns": merged_sns,
                 "rms": merged_rms,
@@ -775,7 +789,7 @@ def point_inside_polygon(x, y, poly, method = "shapely"):
     Based on shapelyp.geometry module(method="shapely") or pure python
     VR 8/21
     """
-    if method==None:
+    if method is None:
         error("point_inside_polygon: No method given")
 
     if "sha" in method.lower():
@@ -1368,9 +1382,9 @@ def add_object_npz(filein=None,
     vr Oct 31, 2022
     """
 
-    if filein==None:
+    if filein is None:
         error("File not given! Exit.")
-    if fileout==None:
+    if fileout is None:
         fileout=filein
 
     if len(xobject)==0 or len(xkey)==0:
@@ -1405,13 +1419,13 @@ def del_object_npz(filein=None,
     vr Nov 12, 2022
     """
 
-    if filein==None:
+    if filein is None:
         error("File not given! Exit.")
 
-    if xkey==None:
+    if xkey is None:
         error("No key  not given! Exit.")
 
-    if fileout==None:
+    if fileout is None:
         fileout=filein
 
     tmp = numpy.load(filein, allow_pickle=True)
@@ -1437,15 +1451,15 @@ def stack_ragged(array_list, axis=0):
     Parameters
     ----------
     array_list : list
-        list of np.arrays.
+        list of numpy.arrays.
     axis : TYPE, optional
         The default is 0.
 
     Returns
     -------
-    stacked : np.array
+    stacked : numpy.array
         stacked array.
-    idx : np.array
+    idx : numpy.array
         points to end of stacked arrays.
 
     """
@@ -1467,15 +1481,15 @@ def save_stacked_array(fname, array_list, axis=0, compressed =True):
     fnane: str
         filename
     array_list : list
-        list of np.arrays.
+        list of numpy.arrays.
     axis : TYPE, optional
         The default is 0.
 
     Returns
     -------
-    stacked : np.array
+    stacked : numpy.array
         stacked array.
-    idx : np.array
+    idx : numpy.array
         points to end of stacked arrays.
     """
     stacked, idx = stack_ragged(array_list, axis=axis)
@@ -1501,9 +1515,9 @@ def load_stacked_arrays(fname, axis=0):
 
     Returns
     -------
-    stacked : np.array
+    stacked : numpy.array
         stacked array.
-    idx : np.array
+    idx : numpy.array
         points to end of stacked arrays.
     """
     npzfile = numpy.load(fname)
@@ -1769,3 +1783,90 @@ def anisodiff3(stack,niter=1,kappa=50,gamma=0.1,step=(1.,1.,1.),option=1):
 def ms2ohmm(ms):
     s = 1.e-3*ms
     return 1./s
+
+def calc_rhoa_phas(freq=None, Z=None):
+    
+    mu0 = 4.0e-7 * numpy.pi  # Magnetic Permeability (H/m)
+    omega = 2.*numpy.pi*freq
+    
+    rhoa = numpy.power(numpy.abs(Z), 2) / (mu0 * omega)
+    # phi = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
+    phi = numpy.angle(Z, deg=True)
+    
+    return rhoa, phi
+
+def mt1dfwd(freq, sig, d, inmod="r", out="imp", magfield="b"):
+    """
+    Calulate 1D magnetotelluric forward response.
+
+    based on A. Pethik's script at www.digitalearthlab.com
+    Last change vr Nov 20, 2020
+    """
+    mu0 = 4.0e-7 * numpy.pi  # Magnetic Permeability (H/m)
+
+    sig = numpy.array(sig)
+    freq = numpy.array(freq)
+    d = numpy.array(d)
+
+    if inmod[0] == "c":
+        sig = numpy.array(sig)
+    elif inmod[0] == "r":
+        sig = 1.0 / numpy.array(sig)
+
+    if sig.ndim > 1:
+        error("IP not yet implemented")
+
+    n = numpy.size(sig)
+
+    Z = numpy.zeros_like(freq) + 1j * numpy.zeros_like(freq)
+    w = numpy.zeros_like(freq)
+
+    ifr = -1
+    for f in freq:
+        ifr = ifr + 1
+        w[ifr] = 2.0 * numpy.pi * f
+        imp = numpy.array(range(n)) + numpy.array(range(n)) * 1j
+
+        # compute basement impedance
+        imp[n - 1] = numpy.sqrt(1j * w[ifr] * mu0 / sig[n - 1])
+
+        for layer in range(n - 2, -1, -1):
+            sl = sig[layer]
+            dl = d[layer]
+            # 3. Compute apparent rho from top layer impedance
+            # Step 2. Iterate from bottom layer to top(not the basement)
+            #   Step 2.1 Calculate the intrinsic impedance of current layer
+            dj = numpy.sqrt(1j * w[ifr] * mu0 * sl)
+            wj = dj / sl
+            #   Step 2.2 Calculate Exponential factor from intrinsic impedance
+            ej = numpy.exp(-2 * dl * dj)
+
+            #   Step 2.3 Calculate reflection coeficient using current layer
+            #          intrinsic impedance and the below layer impedance
+            impb = imp[layer + 1]
+            rj = (wj - impb) / (wj + impb)
+            re = rj * ej
+            Zj = wj * ((1 - re) / (1 + re))
+            imp[layer] = Zj
+
+        Z[ifr] = imp[0]
+        # print(Z[ifr])
+
+    if out.lower() == "imp":
+
+        if magfield.lower() =="b":
+            return Z/mu0
+        else:
+            return Z
+
+    elif out.lower() == "rho":
+        absZ = numpy.abs(Z)
+        rhoa = (absZ * absZ) / (mu0 * w)
+        phase = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
+
+        return rhoa, phase
+    else:
+        absZ = numpy.abs(Z)
+        rhoa = (absZ * absZ) / (mu0 * w)
+        phase = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
+        return Z, rhoa, phase

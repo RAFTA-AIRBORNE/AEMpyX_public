@@ -14,6 +14,7 @@ from datetime import datetime
 import util
 import netCDF4 as nc
 
+from numba import njit
 
 def get_system_params(System="aem05", OutInfo = True):
     """
@@ -1473,3 +1474,48 @@ def read_aempy_ncd(File=None, Data=None, Split=False, OutInfo=False):
         return f, x, y, g, c, e, p, q, d, h, s
     else:
         return Data, Header, System
+
+
+def merge_data_files(File_list=[], 
+                     Merged="merged_data", MergedHeader=None, 
+                     AEM_system="aem05", OutInfo=False):
+    """
+    
+
+    Parameters
+    ----------
+    f_list : list of strings
+        List of data files (npz), with full paths.
+    merged : string, optional
+        Merged data files. The default is merged.npz.
+
+    Returns
+    -------
+    None.
+
+    """
+    nf = len (File_list)
+    if nf==0:
+        error("merge_data_files: file list is empty! Exit.")
+    
+    
+   
+    for ifile in numpy.arange(nf):
+        filein = File_list[ifile]
+        print("\n Reading file " + filein)
+        data_in, header, system = read_aempy_npz(File=filein, OutInfo=False)
+        # print(numpy.shape(data_in))
+        if ifile==0:
+            system_out = system
+            data_out = data_in.copy()
+            # print(numpy.shape(data_out))
+        else: 
+            data_out = numpy.vstack((data_out, data_in))
+            # print(numpy.shape(data_out))    
+     
+    print("\n\n", numpy.shape(data_out), " data written to ", Merged )    
+             
+    write_aempy_npz(File=Merged, Data=data_out, Header=MergedHeader, 
+                        System=system_out , OutInfo=False)
+        
+    return data_out

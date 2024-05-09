@@ -1326,12 +1326,10 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     jackknife average & variance
     """
-    print(numpy.shape(m_jcn[1:,:]))
     
     jcn_avg = numpy.mean(m_jcn, axis=1).reshape((-1, 1))
     fac =(jcn_num-1)/jcn_num
-    print(numpy.shape(m_jcn.T))
-    jcn_var = fac * numpy.sum((m_jcn.T - numpy.tile(jcn_avg, (jcn_num,1))**2))
+    jcn_var = fac * numpy.sum((m_jcn - jcn_avg)**2)
 
     jcn_med = numpy.median(m_jcn, axis=1).reshape((-1, 1))
     d = numpy.abs(m_jcn - jcn_med)
@@ -1353,6 +1351,7 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
         jcn_results["jcn_ens"] = jcn_ens
 
     return  jcn_results
+
 
 def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
@@ -1463,10 +1462,9 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     Draw prior model: m̃ ∼ N (0, 1 (LT L)−1 )
     """
-    m_ens = inverse.generate_model_ensemble(mref=m_ref, mact = m_act,
+    m_ens = inverse.generate_param_ensemble(mref=m_ref, mact = m_act,
                                             nens=nsamples,
-                                            inchol = numpy.array([]),
-                                            incovar = c_ref,
+                                            perturb=["gauss", c_ref, numpy.array([])],
                                             out=OutInfo)
     """
     Solve inverse problem for rto_ens
@@ -1499,10 +1497,10 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     # rto_std = numpy.std(rto_ens, axis=1)
     rto_var = numpy.var(rto_ens, axis=1)
     rto_med = numpy.median(rto_ens, axis=1)
-    print(numpy.shape(rto_ens), numpy.shape(rto_med))
-    print(ne)
+    # print(numpy.shape(rto_ens), numpy.shape(rto_med))
+    # print(ne)
     mm = numpy.tile(rto_med,(ne[1], 1))
-    print(numpy.shape(mm))
+    # print(numpy.shape(mm))
     
     rto_mad = numpy.median(numpy.abs(rto_ens.T -  numpy.tile(rto_med, (ne[1],1))))
 
@@ -1583,7 +1581,7 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
     nsamples, percentiles = Ctrl["enk"]
 
     ens_out=  Ctrl["output"][0]
-    print(Cm1)
+    # print(Cm1)
 
     """
     unpack data block
@@ -1595,7 +1593,7 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
     alt   = Data["alt"]
     n_data = round(numpy.sum(d_act[d_act!=0]/d_act[d_act!=0]))
     
-    print(nsamples, n_data)
+    print("N_samples=",nsamples,",   N_data=",n_data)
     d_cal = 0. * numpy.ones((nsamples,n_data))    
     d_res = 0. * numpy.ones((nsamples,n_data))
 
@@ -1605,6 +1603,8 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
                                                       d_trn=d_trn,
                                                       d_state = d_state)
     
+    Cd = numpy.diag(d_err**2,0)
+    CdiSq = numpy.diag(1./d_err)
 
     
     """
@@ -1616,36 +1616,26 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
     m_act = Model["m_act"]
     m_ref = Model["m_apr"]
-
+    # print(" mref", m_ref[:36])
     m_state = 0
     m_ref, m_state = inverse.transform_parameter(m_vec=m_ref, 
-                                                 m_trn=m_trn, m_state=m_state, mode="f")
+                                                  m_trn=m_trn, m_state=m_state, mode="f")
 
-
-    # """
-    # Draw perturbed data set: d  ̃ ∼ N (d, Cd)
-    # """
-    # D_Ens = inverse.perturb_data_ensemble(Dref=d_obs,
-    #                                       Nens=nsamples,
-    #                                       Perturb=["Gauss" ,0.,Cd],
-    #                                       out=OutInfo)
-
+    # print(m_state, " mref", m_ref[:36])
     """
     Draw prior model: m_p∼ N (0, 1 (LT L)−1 )
     """
-    m_ens = inverse.generate_model_ensemble(mref=m_ref, mact = m_act,
+    m_ens = inverse.generate_param_ensemble(mref=m_ref, mact = m_act,
                                             nens=nsamples,
                                             perturb=["gauss" ,Cm1],
-                                            # inchol = numpy.array([]),
-                                            incovar = Cm1,
                                             out=OutInfo)
-    """
-    Draw perturbed data set: d  ̃ ∼ N (d, Cd)
-    """
-    d_ens = inverse.generate_data_ensemble(dref=d_obs, dact = d_act,
-                                          nens=nsamples,
-                                          perturb=["gauss" ,0.,d_err],
-                                          out=OutInfo)
+    #"""
+    # Draw perturbed data set: d  ̃ ∼ N (d, Cd)
+    # """
+    # d_ens = inverse.generate_data_ensemble(dref=d_obs, dact = d_act,
+    #                                       nens=nsamples,
+    #                                       perturb=["gauss" ,0.,Cd],
+    #                                       out=OutInfo)
 
     """
     Solve inverse problem for ensemble
@@ -1658,42 +1648,52 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
         """
 
         for isample in numpy.arange (nsamples):
-            model = m_ref.copy
+            # print("XXX ",numpy.shape(m_ref))           
+            # print("XXX ",type(m_ref))
+            model = m_ref.copy()
             m_smp=m_ens[isample,:]
+            # print(isample, " m_ens ", m_smp)
+            # print("model", model[m_act!=0])
+            print(m_state)
             m= inverse.insert_mod(model, m_smp, m_act)
-            d_cal[isample,:],_ = inverse.calc_fwdmodel(
-                fwdcall=fwdcall,
-                alt=alt,
-                m_vec=m,
-                m_trn=m_trn,
-                m_state=m_state,
-                d_act=d_act,
-                d_trn=d_trn,
-                d_state = d_state,
-                out=True)
-        
-            d_res[isample,:] = (d_ens[isample,:]-d_cal[isample,:])/d_err[:]
-        
+            d_cal[isample,:],_ = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt,
+                m_vec=m, m_trn=m_trn, m_state=m_state,
+                d_act=d_act, d_trn=d_trn, d_state = d_state, out=True)
+            print(" dobs ", d_obs)
+            print(" dcal ", d_cal[isample,:])
+            d_res[isample,:] = CdiSq@(d_obs[:]-d_cal[isample,:])
+            print(" dres", d_res[isample,:])
         """
         Analysis
         """
-        norm_resens =numpy.sqrt( numpy.sum(d_res**2, axis=0))/(n_data*nsamples)         
-        s, alpha =update_reg(s=s, ens_norm=norm_resens)
+        a =numpy.sum(d_res**2)/(n_data*nsamples)    
+        s, alpha = update_reg(s=s, alpha_ast=a)
+        print("s, a,  alpha:  ",  s, a, alpha)
         
-        Gyy = inverse.calc_ecovar(x=d_ens, y=d_ens, method = 0, out=True)
-        Gxy = inverse.calc_ecovar(x=m_ens, y=d_ens, method = 0, out=True)
+        Gyy = inverse.calc_encovar(x=d_cal, y=d_cal, method = 0, out=True)
+        Gxy = inverse.calc_encovar(x=m_ens, y=d_cal, method = 0, out=True)
+        
+        #print("Gyy ",Gyy)
 
         """
         Ensemble update
         """
         
+        sqalph = numpy.sqrt(alpha)
+        
         for isample in numpy.arange (nsamples):
 
-            pert = d_err.flatten*rng.standard_normal(numpy.shape(d_err))
-            rhs = d_obs + numpy.sqrt(alpha)*pert - d_ens[isample,:]
-            sol = numpy.linalg.solve(Gyy + alpha*d_err,rhs )
+            p = sqalph*Cd @ rng.standard_normal(numpy.shape(d_err))
+            rhs = d_obs - d_cal[isample,:] + p 
+            sol = numpy.linalg.solve(Gyy + alpha*Cd,rhs )
+            # print("pert  ",numpy.shape(p),numpy.shape(pert))
+            # print("rhs  ",numpy.shape(rhs))
+            # print(numpy.shape(Gxy))
+            # print(numpy.shape(sol))
+
             m_ens[isample,:] = m_ens[isample,:] + Gxy@sol
-            
+        
+        if s >= 1.: break
         
     mod_avg = numpy.mean(m_ens, axis=1)
     mod_std = numpy.std(m_ens, axis=1)
@@ -1712,7 +1712,7 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
     return  ekiresults
 
-def update_reg(s=None, ens_norm=None):
+def update_reg(s=None, alpha_ast=None):
     """
     Update regularisation parameter in EKI 
 
@@ -1737,14 +1737,14 @@ def update_reg(s=None, ens_norm=None):
 
     """
     
-    alphast = ens_norm
+    alphast = alpha_ast
     
     if (s+1./alphast)>=1.:
-        alpha = 1./(1-s)
+        alpha = 1./(1-s) 
         s = 1. 
     else:
         alpha = alphast
-        s = s + alpha
+        s = s + 1./alpha
 
     return s, alpha
 
@@ -1781,8 +1781,11 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
     d_trn, m_trn = Ctrl["transform"]
     L0, Cm0, L1, Cm1 = Ctrl["covar"] 
-    nsamples, perc, k, randsvd = Ctrl["nss"]
-    nss_out=  Ctrl["output"][0]
+    nsamples, percentiles, k, randsvd = Ctrl["nss"]
+    ens_out=  Ctrl["output"][0]
+    
+    
+ 
     
     """
     unpack data block
@@ -1805,13 +1808,12 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     
     Model =\
     [model_act, model_prior, model_var, model_bounds, model_ini]
+    unpack model 
     """
-    
     m_act = Model["m_act"]
-    m_ref = Model["m_apr"]
+    m_bas = Model["m_apr"].copy()
+
     
-    m_state = 0
-    m_ref, m_state = inverse.transform_parameter(m_vec=m_ref, m_trn=m_trn, m_state=m_state, mode="f")
     """
     run reference model
     """
@@ -1829,7 +1831,10 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
         run_map(Ctrl=Ctrl, Model=Model, Data=Data,
                 OutInfo=OutInfo)
     
-    nss_results = results
+    
+    m_opt = results["model"][0]
+    m_ref = inverse.insert_mod(M=m_bas, m_act=m_act, m=m_opt)
+    c_ref = results["cpost"]
     
     """
     now calculate the SVD of the Jacobian
@@ -1837,9 +1842,9 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     Jacd = results["jacd"]
     
     if randsvd:
-            U, S, Vt = inverse.rsvd(Jacd.T, rank=k, n_oversamples=0, n_subspace_iters=2)
+            U, S, Vt = inverse.rsvd(Jacd, rank=k, n_oversamples=0, n_subspace_iters=2)
     else:
-            U, S, Vt = scipy.linalg.svd(Jacd.T, full_matrices=False)
+            U, S, Vt = scipy.linalg.svd(Jacd, full_matrices=False)
     
     """
     truncation
@@ -1853,17 +1858,42 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
     chek  how mauch of Jacd is explained by k 
     """
-    D = U@scipy.sparse.diags(S[:])@Vt - Jacd.T
+    D = U@scipy.sparse.diags(S[:])@Vt - Jacd
     x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
     n_op = numpy.linalg.norm(D@x_op)/numpy.linalg.norm(x_op)
-    j_op = numpy.linalg.norm(Jacd.T@x_op)/numpy.linalg.norm(x_op)
+    j_op = numpy.linalg.norm(Jacd@x_op)/numpy.linalg.norm(x_op)
     if OutInfo:
         print(" Op-norm J_k = "+str(n_op)+", explains "
               +str(100. - n_op*100./j_op)+"% of variations")
+        
+    
+    """
+    Draw prior model: m̃ ∼ N (0, 1 (LT L)−1 )
+    """
+    m_ens = inverse.generate_model_ensemble(mref=m_ref, mact = m_act,
+                                            nens=nsamples, 
+                                            perturb=["gauss", c_ref, numpy.array([])],
+                                            out=OutInfo)     
+    
+    m_prj = numpy.zeros_like(m_ens)
+    for isample in numpy.arange(nsamples):
+        m_prj[isample,:] = inverse.project_nullspace(U=U, m_test=m_ens[isample,:])
+    
+    nss_avg = numpy.mean(m_ens, axis=1)
+    nss_std = numpy.std(m_ens, axis=1)
+    nss_med = numpy.percentile(m_ens, 50.)
+    nss_prc = numpy.percentile(m_ens, percentiles)
     
     
     
-    print("This algorithm is not yet implemented! Exit.")
+    nss_results = results
+    nss_results["nss_avg"] = nss_avg
+    nss_results["nss_std"] = nss_std
+    nss_results["nss_med"] = nss_med
+    nss_results["nss_percentiles"]=nss_prc
+    if ens_out:
+        nss_results["ens"] = m_ens
+        nss_results["prj"] = m_prj
     return nss_results
 
 def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):

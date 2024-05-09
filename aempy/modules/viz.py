@@ -116,7 +116,7 @@ def plot_depth_prof(
 
     cm = 1/2.54  # centimeters in inches
     
-    if ThisAxis==None:
+    if ThisAxis is None:
         fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
     else:
@@ -253,7 +253,7 @@ def plot_depth_prof(
                  PlotStrng, fontsize=Fontsizes[1]-1,transform=ax.transAxes,
                  bbox=dict(facecolor="white", alpha=0.5) )
         
-        if ThisAxis==None:
+        if ThisAxis is None:
             for F in PlotFormat:
                  matplotlib.pyplot.savefig(PlotFile+F)
         
@@ -310,7 +310,7 @@ def plot_matrix(
         np =math.isqrt(nn[0])
         Matrix = Matrix.reshape((np,np))
         
-    if ThisAxis==None:
+    if ThisAxis is None:
         fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
     else:
@@ -352,7 +352,7 @@ def plot_matrix(
                 fontsize=Fontsizes[1],
                 verticalalignment="center", bbox=props)
  
-    if ThisAxis==None:
+    if ThisAxis is None:
         for F in PlotFormat:
              matplotlib.pyplot.savefig(PlotFile+F)
     
@@ -612,7 +612,7 @@ def plot_flightline_aem05(
         PosDegrees=False,
         EPSG=32629,
         Linecolor=None,
-        Linetypess=["-", ":",],
+        Linetypes=["-", ":",],
         Linewidth=[1,2,],
         Fontsizes=[12,10,16],
         Grey=[0.7],

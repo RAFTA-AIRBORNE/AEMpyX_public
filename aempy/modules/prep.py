@@ -380,6 +380,8 @@ def reduce_data(datavec=numpy.array([]), System="aem05",
 
     _, nD, _, _, _, = aesys.get_system_params(System)
 
+    print(nD)
+    
     meth, blocksize  = Method
 
     if blocksize != 1:
