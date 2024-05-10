@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
 
@@ -143,7 +143,7 @@ Sample = ["random"]   #
 if "rand" in Sample[0].lower():
     Num_samples = 10
     Sample.append(Num_samples)
-    
+
 elif "step" in Sample[0].lower():
     Start, Stop, Step = 0, -1, 10
     Sample.extend((Start, Stop, Step))

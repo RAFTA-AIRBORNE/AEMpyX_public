@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.2
+# ---
+
 
 import os
 import sys
@@ -135,7 +147,7 @@ Sample = ["step"]   #
 if "rand" in Sample[0].lower():
     Num_samples = 10
     Sample.append(Num_samples)
-    
+
 elif "step" in Sample[0].lower():
     Start, Stop, Step = 0, -1, 20
     Sample.extend((Start, Stop, Step))

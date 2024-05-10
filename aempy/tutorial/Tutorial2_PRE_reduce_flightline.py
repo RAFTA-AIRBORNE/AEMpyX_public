@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
 
@@ -73,7 +73,7 @@ if "spl" in Action.lower():
 if "cut" in Action.lower():
     Interval = [1000., 2000.]
     interval = sorted(Interval)
-    
+
 
 
 """

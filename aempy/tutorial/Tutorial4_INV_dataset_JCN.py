@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
 
@@ -149,7 +149,7 @@ Sample = ["step"]   #
 if "rand" in Sample[0].lower():
     Num_samples = 10
     Sample.append(Num_samples)
-    
+
 elif "step" in Sample[0].lower():
     Start, Stop, Step = 0, -1, 20
     Sample.extend((Start, Stop, Step))
@@ -166,7 +166,7 @@ elif "list" in Sample[0].lower():
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
-    
+
 
 ReverseDir = False
 """
@@ -641,6 +641,6 @@ for file in dat_files:
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(len(site_list))))
+
  
- 
-  
+

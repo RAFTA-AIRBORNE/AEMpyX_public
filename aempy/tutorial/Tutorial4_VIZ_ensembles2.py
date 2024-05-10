@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
 
@@ -140,7 +140,7 @@ Sample = ""    #
 
 if "rand" in Sample.lower():
     Nsamples = 10
-    
+
 elif "step" in Sample.lower():
     Start, Stop, Step = 0, -1, 10
 
@@ -629,6 +629,6 @@ for file in dat_files:
     elapsed = (time.time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+
  
- 
-  
+

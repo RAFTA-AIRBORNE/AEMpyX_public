@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
 
@@ -146,7 +146,7 @@ print(dat_files)
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
     os.mkdir(PlotDir)
-    
+
 FilesOnly = False
 PlotFmt = [".pdf", ".png", ]
 PdfCatalog = True

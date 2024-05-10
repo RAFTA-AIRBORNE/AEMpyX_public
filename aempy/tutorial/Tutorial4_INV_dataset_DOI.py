@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
     # ! /usr/bin/python
@@ -93,7 +93,7 @@ if "set" in FileList.lower():
     mod_files = ["StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior10_Err_a75-m5_results.npz",
                  "StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior1000_Err_a75-m5_results.npz"]  
     # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
-    
+
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
