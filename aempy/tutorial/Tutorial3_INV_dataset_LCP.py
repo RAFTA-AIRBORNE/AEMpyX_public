@@ -1,15 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.16.2
-# ---
-
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -167,7 +155,7 @@ if MergeModels:
                                    outfile_name=corrfile,
                                    dictout= True, out=False)
     mod_files = [corrfile]
-
+    
 """
 read  data set
 """
@@ -200,7 +188,7 @@ for filein in mod_files:
     
 
     if ParaTrans==1:
-       m = numpy.log10(m)
+       m = numpy.log(m)
 
     mod_cor = m.copy()
     
@@ -248,16 +236,26 @@ for filein in mod_files:
             nsit, nlyr = numpy.shape(m_tile)
             print("Tile",itile,"contains", nsit, "sites with", nlyr, "layers.")
             
-            
-            c_tile = numpy.reshape(c_tile, (nsit, nlyr, nlyr))
-            
-            points = numpy.stack([ e_tile.ravel(),   n_tile.ravel()], -1)
-            dists  = scipy.spatial.distance.squareform(
-                scipy.spatial.distance.pdist(points, metric="euclidean"))
-            cov_s = numpy.exp(dists/Scale)
-            
-                       
             if nsit > TileMinSites:
+            
+                c_tile = numpy.reshape(c_tile, (nsit, nlyr, nlyr))
+                
+                if LayerWise:
+                    points = numpy.stack(      
+                        [ e_tile.ravel(order="F"),   
+                          n_tile.ravel(order="F")
+                        ], -1)
+                else:
+                    points = numpy.stack(      
+                        [ e_tile.ravel(order="F"),   
+                          n_tile.ravel(order="F"),
+                          d_tile.ravel(order="F")
+                        ], -1)
+                    
+                dists  = scipy.spatial.distance.squareform(
+                    scipy.spatial.distance.pdist(points, metric="euclidean"))
+                cov_s = numpy.linalg.inv(numpy.exp(-dists/Scale))
+            
                 cov_i = c_tile.copy()       
                           # for isit  in numpy.arange(nsit):               
                 #    cov_i[isit,:, :] = scipy.linalg.inv(c_tile[isit,:,:])
@@ -280,12 +278,16 @@ for filein in mod_files:
                     
                
             else:
+                
                 print("Not enough sites in tile.")
                 
+                
+
             mod_cor[inside[0],:] = m_tile
+          
             
-            
-            
+            print("Tile",itile,", norm of differences:", 
+                  numpy.linalg.norm(mod_cor[inside[0]]-m[inside[0]])/(nsit*nlyr)) 
                 
             
     elapsed = process_time()
@@ -306,20 +308,20 @@ for filein in mod_files:
 
 
                  
-    """
-    Step 3:
-    Run either forward models to check data fit or re-run inversion with 
-    correlated models as prior. 
+    # """
+    # Step 3:
+    # Run either forward models to check data fit or re-run inversion with 
+    # correlated models as prior. 
         
-    """
-    start  = process_time()    
+    # """
+    # start  = process_time()    
     
     
     
-    print("\n\n")
-    print("Time used for recalulating models:", elapsed-start,"s")
+    # print("\n\n")
+    # print("Time used for recalulating models:", elapsed-start,"s")
 
-    elapsed = process_time()
+    # elapsed = process_time()
     
     elapsed = process_time()
     print("\n\n")

@@ -9,38 +9,15 @@
 #       format_name: sphinx
 #       format_version: '1.1'
 #       jupytext_version: 1.16.2
-# ---
-
-
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: title,-all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.11.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
 """
-
-This script present a work flow preparing data for further
-preprocessing with PREP_Process.
-
-Current options are :
-    - change projection for spatial coordinates
-    - split data into flightOutLines
-    - choose data subset by rectangle (polygon in preparation)
-    - write as ASCII file and NETCDF
-    (- project data to profile in preparation)
-
+This script presents a work flow for ingesting AEM data for further
+preprocessing.
 @author: vrath nov 2020
 """
 import os
@@ -49,7 +26,6 @@ from sys import exit as error
 from time import process_time
 from datetime import datetime
 import warnings
-# import pickle
 
 import numpy
 
@@ -64,216 +40,110 @@ from version import versionstrg
 import util
 import aesys
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
-
-
-OutInfo = True
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
-
+""
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
 now = datetime.now()
 Header = titstrng
-
+###############################################################################
+# Now some parameters controlling the work flow need to be defined. 
+#
+# \textit{OutInfo = True} will activate the output of some intermediate information.
+# This parameter, as well as most of the header, is common to all tutorial scripts.
+# \begin{description}
+# \item[OutInfo = True] 
+#  will activate the output of some intermediate information.
+# This parameter, as well as most of the header, is common to all tutorial scripts.
+# \item[FileList = "search"] will choose a search of files to be read based on a 
+# string search (including wildcards). This parameter, as well as most of the header, 
+# is common to all tutorial scripts.
+# \item[SearchStr = ".xyz"] is only necessary when "search" is chosen.
+# \item[FileList = "set"] will require a list of files stored in the variable 
+# \textit{DataSet}. 
+#  
+# \end{description}
 
 OutInfo = True
 
-
-OutFileFmt = ".npz"#".asc" #".npz"
-FileList = "search"  # "search", "read"
-LinesOut = True
-LinesMin = 30
-CheckNaN = True
-MergeOut = True
+FileList = "search"  
 SearchStr = ".xyz"
-"""
-Change data projection
+DataSet = []
 
-"""
+# FileList = "set"
+# DataSet = ["File1", "File2"]
+###############################################################################
+# The following parameter control the treatment and output of data. 
+# \textit{CheckNaN = True} will look for invalid data (e.g., "*" when 
+# exported by Geosoft). \textit{MergeOut = True} and 
+# \textit{LinesOut = True} will activate the output of full data set and 
+# individual fligh tlines, respectively. The former is convenient for any 
+# task requiring spatial information. The minimum number of sites can be 
+# set, if individual flight lines are exported.  
+#
+# We suggest using the ".npz" ouput format, as it  is the easiest and 
+# fastest to be read by any python software, an uses compression, leading 
+# to smaller file sizes.  
+
+CheckNaN = True
+MergeOut = True   
+LinesOut = True  
+LinesMin = 30
+
+OutFileFmt = ".npz" #".asc"
+###############################################################################
+# The following two parameters allow to change the projections (now redundant, 
+# as this is already done in module \textit{aesys.py}). GSI chose the ITM system 
+# (EPSG=2157), which is not known to many useful software, e.g., google earth. 
+# Within \textit{AEMpyX}, the coordinates are in UTM (Zone 29N, EPSG==32629). Flight 
+# lines should also be stored in the same direction, setting 
+# \textit{CorrectDirection=True}. This is convenient for practical reasons, as comparing plots. 
+
 SetProj = False
 if SetProj:
     ProjInp = ""
     ProjOut = ""
 
-"""
-Put all flightlines in same direction
-"""
+""
 TellusAng = 345.
 Spread = 5.
 CorrectDirection = True
 
 
 """
-Data selection
+The following block defines the choice of date to be processed. Most often the 
+choice is simply a rectangle, as demonstrated here. The original data files 
+provided by GSI are too large to be stored with git, thus need to be downloaded from 
+https://www.gsi.ie/en-ie/data-and-maps/Pages/Geophysics.aspx, and stored in a local 
+directory of the user's choice (see below). 
 
 """
-""
-
+###############################################################################
+# We need define some necessary paramters controlling the reading of the original 
+# data, and the choice of an appropriate subset. In this case it is a rectangle 
+# covering the outcrops of black shapes in Co. Limerick, south of the Shannon estuary.
 RectCorners = []
 PolyFiles = []
 DataSelect = ""
 
-###############################################################################
-# Full Blocks
-# ##############################################################################
+""
 AEM_system = "aem05"
 _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
 
-# InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A1/raw/"
-# InSurvey = "A1"
-# InPoly = "A1_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A2/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A2/raw/"
-# InSurvey = "A2"
-# InPoly = "A2_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A3/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A3/raw/"
-# InSurvey = "A3"
-# InPoly = "A3_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A4/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A4/raw/"
-# InSurvey = "A4"
-# InPoly = "A4_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A5/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A5/raw/"
-# InSurvey = "A5"
-# InPoly = "A5_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A6/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A6/raw/"
-# InSurvey = "A6"
-# InPoly = "A6_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A7/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A7/raw/"
-# InSurvey = "A7"
-# InPoly = "A7_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A8/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A8/raw/"
-# InSurvey = "A8"
-# # InPoly = "A7_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/A9/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/A9/raw/"
-# InSurvey = "A9"
-# # InPoly = "A7_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/TB/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/TB/raw/"
-# InSurvey = "TB"
-# InPoly = "TB_2019_utm.npz"
-# OutStrng = InSurvey
-
-# InDatDir = AEMPYX_DATA+"/Blocks/WF/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/WF/raw/"
-# InSurvey = "WF"
-# InPoly = "WF_2019_utm.npz"
-# OutStrng = InSurvey
-
-###############################################################################
-# StGormans
-# ##############################################################################
-
-# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-# InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
-# OutDatDir = AEMPYX_DATA+"/Projects/StGormans/raw/"
-# RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
-# InSurvey = "A1"
-# OutStrng = InSurvey+"_rect_StGormans"
-###############################################################################
-# LoughGur
-# ##############################################################################
-# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-# InDatDir = AEMPYX_DATA+"/Blocks/A5/orig/"
-# OutDatDir = AEMPYX_DATA+"/Projects/LoughGur/raw/"
-# RectCorners = [529600., 5816800., 534200., 5820250.] # StGormans
-# InSurvey = "A5"
-# OutStrng = InSurvey+"_rect_LoughGur"
-
-###############################################################################
-# # Limerick
-# ###############################################################################
-# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-# InDatDir = AEMPYX_ROOT+"/work/data/"
-# OutDatDir = AEMPYX_DATA+"/Projects/LoughGur/raw/"
-# RectCorners = [486000., 5815000., 498000., 5828000.] # StGormans
-# InSurvey = "A5"
-# OutStrng = InSurvey+"_rect_shale"
-
-###############################################################################
-# Munster
-# ##############################################################################
-# ##############################################################################
-# Munster
-# ##############################################################################
-
+AEMPYX_DATA = AEMPYX_ROOT+"/work/"
 DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-InDatDir = AEMPYX_DATA+"/Blocks/A9/orig/"
-OutDatDir = AEMPYX_DATA+"/Projects/Munster/raw/"
-# RectCorners = [516860.94, 5786658.92,   536925.58, 5768259.04 ]# Munster
-RectCorners = [516000., 5768000.,   541000., 5788000. ]# Munster
-InSurvey = "A9"
-OutStrng = InSurvey+"_rect_Munster"
+InDatDir = AEMPYX_DATA+"/Limerick/"
+OutDatDir = InDatDir+"/raw/"
+RectCorners = [486000., 5815000., 498000., 5828000.] 
+InSurvey = "A5"
+OutStrng = InSurvey+"_rect_shale"
 
 
 ###############################################################################
-# CGG NM
-# ##############################################################################
-# AEM_system = "genesis"
-# _, NN, _, _, _, = aesys.get_system_params(AEM_system)
-# nD = NN[0]
-# InDatDir = AEMPYX_DATA+"/Blocks/NM/orig/"
-# OutDatDir = AEMPYX_DATA+"/Blocks/NM/raw/"
-# InSurvey = "NM"
-# # InPoly = "NM_2019_utm.npz"
-# OutStrng = InSurvey
-
-###############################################################################
-# Overlap Area
-# ##############################################################################
-# InSurvey = "A1"
-# InPoly = "A1_2019_utm.npz"
-# InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
-# OutStrng = InSurvey+"_NM_intersection"
-
-# InSurvey = "A2"
-# InPoly = "A2_2019_utm.npz"
-# InDatDir = AEMPYX_DATA+"/Blocks/A2/orig/"
-# OutStrng = InSurvey+"_NM_intersection"
-
-# InSurvey = "TB"
-# InPoly = "TB_2019_utm.npz"
-# InDatDir = AEMPYX_DATA+"/Blocks/TB/orig/"
-# OutStrng = InSurvey+"_NM_intersection"
-
-# DataSelect = "Intersection"   # "Polygon", "Intersection", "Union"
-# OutDatDir = AEMPYX_DATA+"/RAFTA/Intersection/raw/"
-# PolyDir = AEMPYX_DATA+"/RAFTA/Intersection/polygons/"
-# PolyFiles = [PolyDir+InPoly,PolyDir+"TNM_2019_utm.npz"]
-
-
-"""
-Output formats are "npz","nc4","asc"
-"""
-
+# After this, generally no code changes are necessary. 
 
 
 print("Data read from dir:  %s" % InDatDir)
@@ -288,9 +158,6 @@ if "search" in FileList.lower():
         # print(entry)
         if SearchStr in entry.lower():
             DataSet.append(entry)
-
-if "set" in FileList.lower():
-    DataSet = []
 
 DataSet = sorted(DataSet)
 ns = numpy.size(DataSet)
@@ -435,3 +302,6 @@ if LinesOut:
 
     print("Flight line data, time taken = ",
           process_time() - startlines, "s \n")
+
+""
+
