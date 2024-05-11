@@ -10,16 +10,18 @@
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
 # ---
 
-"""
-@author: vr May 2022
-"""
+# +
+# #!/usr/bin/env python3
 
-# Import required modules
-
+# +
 import os
 import sys
 from sys import exit as error
@@ -38,58 +40,54 @@ for pth in mypath:
         # sys.path.append(pth)
         sys.path.insert(0,pth)
 
-
 import aesys
 import util
 import viz
-
 from version import versionstrg
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  
+# -
+
 version, _ = versionstrg()
+fname = "Tutorial1_PRE_data.py"
+# fname = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
+Header = titstrng
 
 OutInfo = False
-now = datetime.now()
 
 
-"""
-System related settings.
-Data transformation is now allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
-# AEM_systemtem = "genesis"
+
+# Get system related settings, here for frequency-domain AEM, \textit{aem05}.
+
+# +
+# AEM_system = "genesis"
 AEM_system = "aem05"
 
 if "aem05" in AEM_system.lower():
-    FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
+    _, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
 
 if "genes" in AEM_system.lower():
-    FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
+    _, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
+# -
 
 
-# Define the path to your data-files
-# DataDir =  AEMPYX_ROOT + "/work/data/raw/nan/"
+# Now Define the path to your data files. For this tutorial we have stored 
+# the flightlines under \textit{AEMPYX_ROOT + "/work/data/raw/"}, and the 
 # print(" data files read from: %s" % DataDir)
 # PlotDir  =  AEMPYX_ROOT + "/work/data/raw/plots/"
 # print(" plots read from: %s" % PlotDir)
 
-DataDir =  AEMPYX_ROOT + "/work/data//proc_delete_PLM3s//nan/"
+AEMPYX_DATA =  AEMPYX_ROOT+"/work/data/"
+DataDir =  AEMPYX_DATA + "Limerick/raw/"
 print(" data files read from: %s" % DataDir)
-PlotDir  =  AEMPYX_ROOT + "/work/data/proc_delete_PLM3s/plots/"
+PlotDir  =  DataDir+"plots/"
 print(" plots read from: %s" % PlotDir)
 
 
@@ -99,16 +97,18 @@ data_files = sorted(data_files)
 ns = numpy.size(data_files)
 
 KMLDir = DataDir
-KLMFile = KMLDir+"Limerick_shale_proc"
+KLMFile = KMLDir+"Limerick_shale_raw"
 
 MarkStartPoints = True
 MarkEndPoints = False
 MarkCenterPoints = False
+MarkEvery = 50
+
 AddImages = True
 ImageWidth= 600
 plots_fmt = ".png"
 
-MarkEvery = 50
+
 
 
 # Determine what is added to the KML-tags:

@@ -3,11 +3,11 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: py:sphinx,ipynb
+#     formats: py,ipynb
 #     text_representation:
 #       extension: .py
-#       format_name: sphinx
-#       format_version: '1.1'
+#       format_name: light
+#       format_version: '1.5'
 #       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
@@ -15,11 +15,16 @@
 #     name: python3
 # ---
 
+# +
+# #!/usr/bin/env python3
+
+# + [markdown]
 """
 This script presents a work flow for ingesting AEM data for further
 preprocessing.
 @author: vrath nov 2020
 """
+# +
 import os
 import sys
 from sys import exit as error
@@ -41,14 +46,13 @@ import util
 import aesys
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
-""
+# -
 version, _ = versionstrg()
+fname = "Tutorial1_PRE_data.py"
+# fname = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
-
-now = datetime.now()
 Header = titstrng
-###############################################################################
 # Now some parameters controlling the work flow need to be defined. 
 #
 # \textit{OutInfo = True} will activate the output of some intermediate information.
@@ -66,6 +70,7 @@ Header = titstrng
 #  
 # \end{description}
 
+# +
 OutInfo = True
 
 FileList = "search"  
@@ -74,7 +79,7 @@ DataSet = []
 
 # FileList = "set"
 # DataSet = ["File1", "File2"]
-###############################################################################
+# -
 # The following parameter control the treatment and output of data. 
 # \textit{CheckNaN = True} will look for invalid data (e.g., "*" when 
 # exported by Geosoft). \textit{MergeOut = True} and 
@@ -87,13 +92,14 @@ DataSet = []
 # fastest to be read by any python software, an uses compression, leading 
 # to smaller file sizes.  
 
+# +
 CheckNaN = True
 MergeOut = True   
 LinesOut = True  
 LinesMin = 30
 
 OutFileFmt = ".npz" #".asc"
-###############################################################################
+# -
 # The following two parameters allow to change the projections (now redundant, 
 # as this is already done in module \textit{aesys.py}). GSI chose the ITM system 
 # (EPSG=2157), which is not known to many useful software, e.g., google earth. 
@@ -106,21 +112,20 @@ if SetProj:
     ProjInp = ""
     ProjOut = ""
 
-""
 TellusAng = 345.
 Spread = 5.
 CorrectDirection = True
 
 
+# + [markdown]
 """
 The following block defines the choice of date to be processed. Most often the 
 choice is simply a rectangle, as demonstrated here. The original data files 
 provided by GSI are too large to be stored with git, thus need to be downloaded from 
 https://www.gsi.ie/en-ie/data-and-maps/Pages/Geophysics.aspx, and stored in a local 
 directory of the user's choice (see below). 
-
 """
-###############################################################################
+# -
 # We need define some necessary paramters controlling the reading of the original 
 # data, and the choice of an appropriate subset. In this case it is a rectangle 
 # covering the outcrops of black shapes in Co. Limerick, south of the Shannon estuary.
@@ -128,23 +133,24 @@ RectCorners = []
 PolyFiles = []
 DataSelect = ""
 
-""
+# +
 AEM_system = "aem05"
 _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
 
 AEMPYX_DATA = AEMPYX_ROOT+"/work/"
 DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-InDatDir = AEMPYX_DATA+"/Limerick/"
-OutDatDir = InDatDir+"/raw/"
+InDatDir = AEMPYX_DATA+"/Limerick/orig/"
+OutDatDir = AEMPYX_DATA+"/Limerick/raw/"
 RectCorners = [486000., 5815000., 498000., 5828000.] 
 InSurvey = "A5"
 OutStrng = InSurvey+"_rect_shale"
 
+# -
 
-###############################################################################
 # After this, generally no code changes are necessary. 
 
+# +
 
 print("Data read from dir:  %s" % InDatDir)
 print("Data written to dir: %s" % OutDatDir)
@@ -192,9 +198,11 @@ if SetProj:
     print("Projection time taken = ", process_time() - start, "s \n")
 
 
+# + [markdown]
 """
 Data subsets based on rectangle, polygons or operators on polygons
 """
+# +
 start = process_time()
 print("In: "+str(numpy.shape(Data)))
 print("Data select is "+DataSelect+" \n")
@@ -302,6 +310,3 @@ if LinesOut:
 
     print("Flight line data, time taken = ",
           process_time() - startlines, "s \n")
-
-""
-

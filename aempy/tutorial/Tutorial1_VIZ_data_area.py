@@ -8,28 +8,19 @@
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: "1.5"
-#       jupytext_version: 1.11.4
-# ---
+# +
+# #!/usr/bin/env python3
+# -
 
-"""
-Created on Tue Aug  3 17:03:39 2021
+# This script plots data over an spatial area. 
 
-@author: vrath
-"""
-
+# +
 import os
 import sys
 from sys import exit as error
@@ -44,14 +35,10 @@ import matplotlib.ticker
 import matplotlib.axis
 import mpl_toolkits.axes_grid1
 
-
 import scipy.interpolate
 import scipy.spatial
 import skgstat
 import shapely
-# import rasterio
-# from rasterio import features
-# import affine
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
@@ -64,6 +51,7 @@ import util
 import aesys
 import viz
 import inverse
+# -
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 cm = 1/2.54
@@ -72,25 +60,32 @@ OutInfo = True
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 version, _ = versionstrg()
+fname = "Tutorial1_VIZ_data_area.py"
+# fname = __file__  # this only works in python, not jupyter nodrnppl
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
+Header = titstrng
 
 now = datetime.now()
 
-"""
-System related settings.
-Data transformation is now allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
+# The following cell gives values to AEM-system related settings. Data 
+# transformation is activated by the variable \textit{DataTrans}. Currently 
+# three possible options are allowed:
+# \begin{description}
+# \item[DataTrans = 0]. No transformation, i.e., the raw data are used.
+# \item[DataTrans = 1]. The natural log of data is used, only allowed for 
+# strictly positive values.
+# \item[DataTrans = 2]. If data scale logarithmically, an asinh transformation 
+# introduced by Scholl (2000)is applied. It allows negatives, which may occur 
+# in TDEM, when IP effects are present.)
+# \end{description}           
+# A general additive/multiplicative error model is applied on the raw data
+# before transformation, and errors are also transformed."""
+
 # AEM_system = "genesis"
 AEM_system = "aem05"
 if "aem05" in AEM_system.lower():
-    FwdCall,NN, _, _, Misc, = aesys.get_system_params(System=AEM_system)
+    _, NN, _, _, Misc, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
@@ -102,7 +97,7 @@ if "aem05" in AEM_system.lower():
     print(CompLabl)
 
 if "genes" in AEM_system.lower():
-    FwdCall, NN, _, _, Misc, = aesys.get_system_params(System=AEM_system)
+    _, NN, _, _, Misc, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 2

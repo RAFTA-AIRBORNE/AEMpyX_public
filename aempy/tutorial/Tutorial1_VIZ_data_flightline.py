@@ -9,14 +9,17 @@
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
-
-"""
-@author: vrath Feb 2021
-"""
+# !/usr/bin/env python3
+# This script is used for the visualization of AEM data along a flightline. 
 
 
+# +
 import os
 import sys
 from sys import exit as error
@@ -29,8 +32,6 @@ import numpy
 import matplotlib
 import matplotlib.pyplot
 
-
-
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
 for pth in mypath:
@@ -42,40 +43,42 @@ import util
 import prep
 import aesys
 import viz
+# -
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
-
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
-
-rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
 version, _ = versionstrg()
+fname = "Tutorial1_VIZ_data_flightline.py"
+# fname = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
-"""
-Determine graphical parameter.
-=> print(matplotlib.pyplot.style.available)
-"""
+Header = titstrng
 
 
 OutInfo = False
-now = datetime.now()
+AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+rng = numpy.random.default_rng()
+nan = numpy.nan 
 
 
-"""
-System related settings.
-Data transformation is now allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
+# The following cell gives values to AEM-system related settings. Data 
+# transformation is activated by the variable \textit{DataTrans}. Currently 
+# three possible options are allowed:
+# \begin{description}
+# \item[DataTrans = 0]. No transformation, i.e., the raw data are used.
+# \item[DataTrans = 1]. The natural log of data is used, only allowed for 
+# strictly positive values.
+# \item[DataTrans = 2]. If data scale logarithmically, an asinh transformation 
+# introduced by Scholl (2000)is applied. It allows negatives, which may occur 
+# in TDEM, when IP effects are present.)
+# \end{description}           
+# A general additive/multiplicative error model is applied on the raw data
+# before transformation, and errors are also transformed.
+
+
+# +
 # AEM_system = "genesis"
 AEM_system = "aem05"  # "genesis"
 if "aem05" in AEM_system.lower():
-    FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
+    _ ,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nD = NN[0]
     ParaTrans = 1
     DataTrans = 0
@@ -83,9 +86,8 @@ if "aem05" in AEM_system.lower():
     DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
 
-
 if "genes" in AEM_system.lower():
-    FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
+    _ , NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nD = NN[0]
     ParaTrans = 1
     DataTrans = 0
@@ -94,13 +96,12 @@ if "genes" in AEM_system.lower():
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
+# -
 
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
-
-now = datetime.now()
 
 """
 input formats are .npz, .nc4, 'ascii'
