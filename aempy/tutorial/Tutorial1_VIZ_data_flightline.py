@@ -15,7 +15,11 @@
 #     name: python3
 # ---
 
-# !/usr/bin/env python3
+# +
+# #!/usr/bin/env python3
+# -
+
+
 # This script is used for the visualization of AEM data along a flightline. 
 
 
@@ -46,9 +50,9 @@ import viz
 # -
 
 version, _ = versionstrg()
-fname = "Tutorial1_VIZ_data_flightline.py"
-# fname = __file__  # this only works in python, not jupyter notebook
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+script = "Tutorial1_VIZ_data_flightline.py"
+# script = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng
 
@@ -67,7 +71,7 @@ nan = numpy.nan
 # \item[DataTrans = 1]. The natural log of data is used, only allowed for 
 # strictly positive values.
 # \item[DataTrans = 2]. If data scale logarithmically, an asinh transformation 
-# introduced by Scholl (2000)is applied. It allows negatives, which may occur 
+# introduced by Scholl (2000) is applied. It allows negatives, which may occur 
 # in TDEM, when IP effects are present.)
 # \end{description}           
 # A general additive/multiplicative error model is applied on the raw data
@@ -103,60 +107,51 @@ version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
-"""
-input formats are .npz, .nc4, 'ascii'
-"""
 InStrng = ""
 PlotStrng = " - data "+InStrng
 
 
+# +
 FileList = "search"  
-SearchStrng = "*nan*.npz"# "search", "read"
+SearchStrng = "*FL*.npz"# "search", "read"
 
+AEMPYX_DATA = AEMPYX_ROOT+"/work/"  
+InDatDir = AEMPYX_DATA+"/Limerick/raw/"
+PlotDir = AEMPYX_DATA+"/Limerick/raw/plots/"
+PlotStrng = " - data raw"
 
-# InDatDir =  AEMPYX_ROOT + "/work/data/raw/"
-# PlotDir  =  AEMPYX_ROOT + "/work/data/raw/plots/"
-# PlotStrng = " - data raw"
-
-InDatDir =  AEMPYX_ROOT + "/work/data/proc_delete_PLM3s/"
-PlotDir  =  AEMPYX_ROOT + "/work/data/proc_delete_PLM3s/plots/"
-PlotStrng = " - data proc"
-
-
-
+# +
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
     dat_files = []
-    f = numpy.load(AEMPYX_DATA+"/Projects/Compare_systems/BundoranSubsets.npz")
-
-    dat_files = f["setC"][0]
-    dat_files = [os.path.basename(d) for d in dat_files]
+    
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
     dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
                               out= True, sort=True)
     ns = numpy.size(dat_files)
+# -
 
 ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 
-print(dat_files)
-
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
     os.mkdir(PlotDir)
 
-FilesOnly = False
+# The next block determines the graphical output. if \textit{PDFCatalog} is set, a catalogue including all generated figures, named \textit{PDFCatName}. This option is only available if ".pdf" is included in the output file format list (\textit{PlotFmt}).
+
+FilesOnly = False    # for headless plotting.
 PlotFmt = [".pdf", ".png", ]
-PdfCatalog = True
-PdfCatName = PlotDir+"Limerick_shale_raw.pdf"
+PDFCatalog = True
+PDFCatName = PlotDir+"Limerick_shale_raw.pdf"
 
 if ".pdf" in PlotFmt:
     pass
 else:
-    error(" No pdfs generated. No catalog possible!")
+    error(" No pdf files generated. No catalog possible!")
     PdfCatalog = False
 
 if "aem05" in AEM_system.lower():
@@ -193,6 +188,7 @@ if "genes" in AEM_system.lower():
     HLimits = [80., 320.]
     PLimits = [0., 25.]
 
+# +
 PosDegrees = False
 if PosDegrees:
     EPSG=32629
@@ -205,12 +201,16 @@ if "dist" in ProfType.lower():
 else:
     ProfLabel = "site # (-)"
     ProfScale = 1. # 0.001  # m to km
+# -
 
 
-"""
-Determine graphical parameter.
-=> print(matplotlib.pyplot.style.available)
-"""
+# This block sets graphical parameters related to the \textit{matplotlib}.
+# package. A list of available plotting styles can be found on matplotlib's 
+# website at https://matplotlib.org/stable/users/explain/customizing.htm, or
+# entering the python command 
+# \textit{print(matplotlib.pyplot.style.available)} in an appropriate
+# window. 
+#
 
 matplotlib.pyplot.style.use("seaborn-v0_8-paper")
 matplotlib.rcParams["figure.dpi"] = 400
@@ -232,17 +232,20 @@ Grey = 0.7
 Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
           * cycler("color", ["r", "g", "b", "y"]))
 
-"""
-For just plotting to files, choose the cairo backend (eps, pdf, ,png, jpg...).
-If you need to see the plot. directly (plot. window, or jupyter), simatplotliby
-comment out the following line. In this case matplotlib may run into
-memory problems after a few hundreds of high-resolution plot..
-"""
+# For just plotting to files ("headless plotting"), choose the 
+# cairo backend (eps, pdf, png, jpg...). 
+
 if FilesOnly:
     matplotlib.use("cairo")
 
+# +
 if PdfCatalog:
     pdf_list = []
+    
+    
+# -
+
+# Depending on the region of interest, the number of plots may be quite large. 
 
 ifl = 0
 for file in dat_files:
@@ -324,4 +327,6 @@ for file in dat_files:
 
 
 if PdfCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PdfCatName)
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PdfCatName)
+
+

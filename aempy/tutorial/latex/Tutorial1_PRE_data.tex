@@ -395,17 +395,17 @@
 
     
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{11}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
-\PY{o}{\PYZpc{}}\PY{k}{matplotlib} inline
+\PY{c+ch}{\PYZsh{}!/usr/bin/env python3}
 \end{Verbatim}
 \end{tcolorbox}
 
     This script presents a work flow for ingesting AEM data for further
-preprocessing. @author: vrath nov 2020
+preprocessing.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{12}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k+kn}{import} \PY{n+nn}{os}
 \PY{k+kn}{import} \PY{n+nn}{sys}
@@ -432,38 +432,46 @@ preprocessing. @author: vrath nov 2020
 \end{tcolorbox}
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{13}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{version}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{versionstrg}\PY{p}{(}\PY{p}{)}
-\PY{n}{titstrng} \PY{o}{=} \PY{n}{util}\PY{o}{.}\PY{n}{print\PYZus{}title}\PY{p}{(}\PY{n}{version}\PY{o}{=}\PY{n}{version}\PY{p}{,} \PY{n}{fname}\PY{o}{=}\PY{n+nv+vm}{\PYZus{}\PYZus{}file\PYZus{}\PYZus{}}\PY{p}{,} \PY{n}{out}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+\PY{n}{script} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Tutorial1\PYZus{}PRE\PYZus{}data.py}\PY{l+s+s2}{\PYZdq{}}
+\PY{c+c1}{\PYZsh{} script = \PYZus{}\PYZus{}file\PYZus{}\PYZus{}  \PYZsh{} this only works in python, not jupyter notebook}
+\PY{n}{titstrng} \PY{o}{=} \PY{n}{util}\PY{o}{.}\PY{n}{print\PYZus{}title}\PY{p}{(}\PY{n}{version}\PY{o}{=}\PY{n}{version}\PY{p}{,} \PY{n}{fname}\PY{o}{=}\PY{n}{script}\PY{p}{,} \PY{n}{out}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
 \PY{n+nb}{print}\PY{p}{(}\PY{n}{titstrng}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
-
-\PY{n}{now} \PY{o}{=} \PY{n}{datetime}\PY{o}{.}\PY{n}{now}\PY{p}{(}\PY{p}{)}
 \PY{n}{Header} \PY{o}{=} \PY{n}{titstrng}
 \end{Verbatim}
 \end{tcolorbox}
 
-    Now some parameters controlling the work flow need to be defined.
+    \begin{Verbatim}[commandchars=\\\{\}]
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py
 
+
+    \end{Verbatim}
+
+    Now some parameters controlling the work flow need to be defined.
 \textit{OutInfo = True} will activate the output of some intermediate
 information. This parameter, as well as most of the header, is common to
 all tutorial scripts.
 
 \begin{description}
-\item[OutInfo = True] 
- will activate the output of some intermediate information.
+ \item[OutInfo = True] 
+  will activate the output of some intermediate information.
 This parameter, as well as most of the header, is common to all tutorial scripts.
-\item[FileList = "search"] will choose a search of files to be read based on a 
-string search (including wildcards). This parameter, as well as most of the header, 
-is common to all tutorial scripts.
-\item[SearchStr = ".xyz"] is only necessary when "search" is chosen.
-\item[FileList = "set"] will require a list of files stored in the variable 
-\textit{DataSet}. 
- 
-\end{description}
+ \item[FileList = "search"] will choose a search of files to be read based on a 
+ string search (including wildcards). This parameter, as well as most of the header, 
+ is common to all tutorial scripts.
+ \item[SearchStr = ".xyz"] is only necessary when "search" is chosen.
+ \item[FileList = "set"] will require a list of files stored in the variable 
+ \textit{DataSet}. 
+  
+ \end{description}
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{14}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{OutInfo} \PY{o}{=} \PY{k+kc}{True}
 
@@ -476,20 +484,20 @@ is common to all tutorial scripts.
 \end{Verbatim}
 \end{tcolorbox}
 
-    The following parameter control the treatment and output of data.
+    The following parameters control the treatment and output of data.
 \textit{CheckNaN = True} will look for invalid data (e.g., ``*'' when
 exported by Geosoft). \textit{MergeOut = True} and
 \textit{LinesOut = True} will activate the output of full data set and
 individual fligh tlines, respectively. The former is convenient for any
 task requiring spatial information. The minimum number of sites can be
-set, if flight lines are exported.
+set, if individual flight lines are exported.
 
 We suggest using the ``.npz'' ouput format, as it is the easiest and
 fastest to be read by any python software, an uses compression, leading
 to smaller file sizes.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{15}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{CheckNaN} \PY{o}{=} \PY{k+kc}{True}
 \PY{n}{MergeOut} \PY{o}{=} \PY{k+kc}{True}   
@@ -504,12 +512,12 @@ to smaller file sizes.
 redundant, as this is already done in module \textit{aesys.py}). GSI
 chose the ITM system (EPSG=2157), which is not known to many useful
 software, e.g., google earth. Within \textit{AEMpyX}, the coordinates
-are in UTM (Zone 29N, EPSG==32629). Flight lines should also be stored
-in the same direction, setting \textit{CorrectDirection=True}. This is
+are in UTM (Zone 29N, EPSG=32629). Flight lines should also be stored in
+the same direction, setting \textit{CorrectDirection=True}. This is
 convenient for practical reasons, as comparing plots.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{16}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{SetProj} \PY{o}{=} \PY{k+kc}{False}
 \PY{k}{if} \PY{n}{SetProj}\PY{p}{:}
@@ -519,7 +527,7 @@ convenient for practical reasons, as comparing plots.
 \end{tcolorbox}
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{17}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{TellusAng} \PY{o}{=} \PY{l+m+mf}{345.}
 \PY{n}{Spread} \PY{o}{=} \PY{l+m+mf}{5.}
@@ -534,14 +542,12 @@ thus need to be downloaded from
 https://www.gsi.ie/en-ie/data-and-maps/Pages/Geophysics.aspx, and stored
 in a local directory of the user's choice (see below).
 
-    We need define some necessary paramters controlling the reading of the
-original data, and the choice of an appropriate subset. In this case it
-is a rectangle covering the outcrops of black shapes in Co.~Limerick,
-south of the Shannon estuary.
-
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{18}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} We need define some necessary paramters controlling the reading of the original }
+\PY{c+c1}{\PYZsh{} data, and the choice of an appropriate subset. In this case it is a rectangle }
+\PY{c+c1}{\PYZsh{} covering the outcrops of black shapes in Co. Limerick, south of the Shannon estuary.}
 \PY{n}{RectCorners} \PY{o}{=} \PY{p}{[}\PY{p}{]}
 \PY{n}{PolyFiles} \PY{o}{=} \PY{p}{[}\PY{p}{]}
 \PY{n}{DataSelect} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdq{}}
@@ -549,7 +555,7 @@ south of the Shannon estuary.
 \end{tcolorbox}
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{19}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{AEM\PYZus{}system} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{aem05}\PY{l+s+s2}{\PYZdq{}}
 \PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{NN}\PY{p}{,} \PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{\PYZus{}}\PY{p}{,} \PY{o}{=} \PY{n}{aesys}\PY{o}{.}\PY{n}{get\PYZus{}system\PYZus{}params}\PY{p}{(}\PY{n}{AEM\PYZus{}system}\PY{p}{)}
@@ -557,18 +563,25 @@ south of the Shannon estuary.
 
 \PY{n}{AEMPYX\PYZus{}DATA} \PY{o}{=} \PY{n}{AEMPYX\PYZus{}ROOT}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{/work/}\PY{l+s+s2}{\PYZdq{}}
 \PY{n}{DataSelect} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Rectangle}\PY{l+s+s2}{\PYZdq{}}   \PY{c+c1}{\PYZsh{} \PYZdq{}Polygon\PYZdq{}, \PYZdq{}Intersection\PYZdq{}, \PYZdq{}Union\PYZdq{}}
-\PY{n}{InDatDir} \PY{o}{=} \PY{n}{AEMPYX\PYZus{}DATA}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{/Limerick/}\PY{l+s+s2}{\PYZdq{}}
-\PY{n}{OutDatDir} \PY{o}{=} \PY{n}{InDatDir}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{/raw/}\PY{l+s+s2}{\PYZdq{}}
+\PY{n}{InDatDir} \PY{o}{=} \PY{n}{AEMPYX\PYZus{}DATA}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{/Limerick/orig/}\PY{l+s+s2}{\PYZdq{}}
+\PY{n}{OutDatDir} \PY{o}{=} \PY{n}{AEMPYX\PYZus{}DATA}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{/Limerick/raw/}\PY{l+s+s2}{\PYZdq{}}
 \PY{n}{RectCorners} \PY{o}{=} \PY{p}{[}\PY{l+m+mf}{486000.}\PY{p}{,} \PY{l+m+mf}{5815000.}\PY{p}{,} \PY{l+m+mf}{498000.}\PY{p}{,} \PY{l+m+mf}{5828000.}\PY{p}{]} 
 \PY{n}{InSurvey} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{A5}\PY{l+s+s2}{\PYZdq{}}
 \PY{n}{OutStrng} \PY{o}{=} \PY{n}{InSurvey}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZus{}rect\PYZus{}shale}\PY{l+s+s2}{\PYZdq{}}
 \end{Verbatim}
 \end{tcolorbox}
 
+    \begin{Verbatim}[commandchars=\\\{\}]
+
+AEM system is aem05
+Forward model call: core1d.aemfwd1d\_aem05(nlyr, m, alt)
+Data:[17, 6, 8, 3]
+    \end{Verbatim}
+
     After this, generally no code changes are necessary.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{20}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Data read from dir:  }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s2}{\PYZdq{}} \PY{o}{\PYZpc{}} \PY{n}{InDatDir}\PY{p}{)}
 \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Data written to dir: }\PY{l+s+si}{\PYZpc{}s}\PY{l+s+s2}{\PYZdq{}} \PY{o}{\PYZpc{}} \PY{n}{OutDatDir}\PY{p}{)}
@@ -617,10 +630,23 @@ south of the Shannon estuary.
 \end{Verbatim}
 \end{tcolorbox}
 
-    Data subsets based on rectangle, polygons or operators on polygons
+    \begin{Verbatim}[commandchars=\\\{\}]
+Data read from dir:  /home/vrath/AEMpyX//work//Limerick/orig/
+Data written to dir: /home/vrath/AEMpyX//work//Limerick/raw/
+Flightline ID string: A5\_rect\_shale
+
+
+Raw data read from:
+/home/vrath/AEMpyX//work//Limerick/orig/GSI\_\_\_18.IRL\_DLV2123\_FEM-001.xyz
+Survey is a5
+readDat: 4103489 x 17 data read from
+/home/vrath/AEMpyX//work//Limerick/orig/GSI\_\_\_18.IRL\_DLV2123\_FEM-001.xyz
+Read time taken =  44.564565251000005 s
+
+    \end{Verbatim}
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{ }{\boxspacing}
+\prompt{In}{incolor}{21}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{start} \PY{o}{=} \PY{n}{process\PYZus{}time}\PY{p}{(}\PY{p}{)}
 \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{In: }\PY{l+s+s2}{\PYZdq{}}\PY{o}{+}\PY{n+nb}{str}\PY{p}{(}\PY{n}{numpy}\PY{o}{.}\PY{n}{shape}\PY{p}{(}\PY{n}{Data}\PY{p}{)}\PY{p}{)}\PY{p}{)}
@@ -714,7 +740,7 @@ south of the Shannon estuary.
                 \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Flightline direction has been reversed.}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
                 \PY{n}{chdir} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{, direction has been reversed}\PY{l+s+s2}{\PYZdq{}}
             \PY{k}{else}\PY{p}{:}
-                \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Flightline direction is approx. 345 degrees}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+                \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Flightline direction is approx. }\PY{l+s+s2}{\PYZdq{}}\PY{o}{+}\PY{n+nb}{str}\PY{p}{(}\PY{n}{TellusAng}\PY{p}{)}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ degrees}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
                 \PY{n}{chdir} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdq{}}
 
         \PY{n}{head} \PY{o}{=} \PY{n}{aesys}\PY{o}{.}\PY{n}{grow\PYZus{}header}\PY{p}{(}\PY{n}{Header}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Flightline }\PY{l+s+s2}{\PYZdq{}} \PY{o}{+} \PY{n+nb}{str}\PY{p}{(}\PY{n}{s}\PY{p}{)}\PY{p}{)}
@@ -731,6 +757,1457 @@ south of the Shannon estuary.
           \PY{n}{process\PYZus{}time}\PY{p}{(}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{startlines}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{s }\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
 \end{Verbatim}
 \end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+In: (4103489, 17)
+Data select is Rectangle
+
+[486000.0, 5815000.0, 498000.0, 5828000.0]
+data matrix input: (4103489, 17)
+Easting:  483881.76984543505-582282.9037211019
+Northing: 5789658.634560667-5886217.549252959
+Rect lower left : 486000.0, 5815000.0
+Rect upper right: 498000.0, 5828000.0
+data matrix output: (134674, 17)
+Data select time taken =  1.3834285820000005 s
+
+Out: (134674, 17)
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_Full.npz
+(134674, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_Full.npz
+All data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_Full.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | All Lines
+time taken =  2.065659023000002 s
+
+>Flight lines in data set:
+[513.0, 514.0, 515.0, 516.0, 517.0, 518.0, 519.01, 520.0, 5001.0, 5002.0,
+5003.0, 5004.0, 5005.0, 5006.0, 5007.0, 5008.0, 5009.0, 5010.0, 5011.01, 5012.0,
+5013.0, 5014.0, 5015.0, 5016.0, 5017.0, 5018.0, 5019.0, 5020.0, 5021.0, 5022.0,
+5023.0, 5024.0, 5025.0, 5026.0, 5027.0, 5028.0, 5029.0, 5030.0, 5031.0, 5032.01,
+5033.0, 5034.0, 5035.0, 5036.0, 5037.0, 5038.0, 5039.0, 5040.0, 5041.0, 5042.0,
+5043.0, 5044.0, 5045.0, 5046.0, 5047.0, 5048.0, 5049.0, 5050.0, 5051.0, 5052.0,
+5053.0, 5054.0, 5055.0, 5056.0, 5056.01, 5057.0, 5058.0, 5059.0, 5060.0, 5061.0,
+5062.01, 5063.0, 5064.0, 5065.0, 5066.0, 5067.0]
+OutInfo: (384, 17)
+0 NaNs in Data Block
+ Angle = 254.3 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL513-0.npz
+(384, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL513-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL513-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 513.0
+time taken =  2.0715661859999983 s
+
+OutInfo: (1461, 17)
+0 NaNs in Data Block
+ Angle = 74.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL514-0.npz
+(1461, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL514-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL514-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 514.0
+time taken =  2.0798068829999963 s
+
+OutInfo: (1972, 17)
+0 NaNs in Data Block
+ Angle = 254.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL515-0.npz
+(1972, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL515-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL515-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 515.0
+time taken =  2.089877072 s
+
+OutInfo: (1716, 17)
+0 NaNs in Data Block
+ Angle = 74.4 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL516-0.npz
+(1716, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL516-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL516-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 516.0
+time taken =  2.0991890700000013 s
+
+OutInfo: (1805, 17)
+0 NaNs in Data Block
+ Angle = 74.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL517-0.npz
+(1805, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL517-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL517-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 517.0
+time taken =  2.109011586000001 s
+
+OutInfo: (1913, 17)
+0 NaNs in Data Block
+ Angle = 74.3 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL518-0.npz
+(1913, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL518-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL518-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 518.0
+time taken =  2.1196388039999974 s
+
+OutInfo: (2012, 17)
+0 NaNs in Data Block
+ Angle = 254.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL519-01.npz
+(2012, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL519-01.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL519-01.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 519.01
+time taken =  2.130496217000001 s
+
+OutInfo: (672, 17)
+0 NaNs in Data Block
+ Angle = 74.0 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to /home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL520-0.npz
+(672, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL520-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL520-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 520.0
+time taken =  2.1352627719999973 s
+
+OutInfo: (1057, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5001-0.npz
+(1057, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5001-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5001-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5001.0
+time taken =  2.1414956180000004 s
+
+OutInfo: (1113, 17)
+0 NaNs in Data Block
+ Angle = 164.5 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5002-0.npz
+(1113, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5002-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5002-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5002.0
+time taken =  2.147325955999996 s
+
+OutInfo: (1250, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5003-0.npz
+(1250, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5003-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5003-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5003.0
+time taken =  2.1543684909999996 s
+
+OutInfo: (1441, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5004-0.npz
+(1441, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5004-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5004-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5004.0
+time taken =  2.1622137919999957 s
+
+OutInfo: (1491, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5005-0.npz
+(1491, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5005-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5005-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5005.0
+time taken =  2.1702785129999995 s
+
+OutInfo: (1667, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5006-0.npz
+(1667, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5006-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5006-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5006.0
+time taken =  2.178984319999998 s
+
+OutInfo: (1925, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5007-0.npz
+(1925, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5007-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5007-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5007.0
+time taken =  2.1917118559999977 s
+
+OutInfo: (1934, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5008-0.npz
+(1934, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5008-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5008-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5008.0
+time taken =  2.2025599899999975 s
+
+OutInfo: (2140, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5009-0.npz
+(2140, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5009-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5009-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5009.0
+time taken =  2.214168916999995 s
+
+OutInfo: (2157, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5010-0.npz
+(2157, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5010-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5010-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5010.0
+time taken =  2.2257302900000013 s
+
+OutInfo: (2281, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5011-01.npz
+(2281, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5011-01.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5011-01.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5011.01
+time taken =  2.2378998269999997 s
+
+OutInfo: (2203, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5012-0.npz
+(2203, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5012-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5012-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5012.0
+time taken =  2.250029438999995 s
+
+OutInfo: (2351, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5013-0.npz
+(2351, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5013-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5013-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5013.0
+time taken =  2.262780810999999 s
+
+OutInfo: (2168, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+    \end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5014-0.npz
+(2168, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5014-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5014-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5014.0
+time taken =  2.2759065340000006 s
+
+OutInfo: (2278, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5015-0.npz
+(2278, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5015-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5015-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5015.0
+time taken =  2.2889692409999967 s
+
+OutInfo: (2219, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5016-0.npz
+(2219, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5016-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5016-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5016.0
+time taken =  2.301801689999998 s
+
+OutInfo: (1917, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5017-0.npz
+(1917, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5017-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5017-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5017.0
+time taken =  2.3131442139999976 s
+
+OutInfo: (2223, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5018-0.npz
+(2223, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5018-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5018-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5018.0
+time taken =  2.326046626 s
+
+OutInfo: (1901, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5019-0.npz
+(1901, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5019-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5019-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5019.0
+time taken =  2.3376250499999998 s
+
+OutInfo: (2319, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5020-0.npz
+(2319, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5020-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5020-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5020.0
+time taken =  2.352294092000001 s
+
+OutInfo: (1939, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5021-0.npz
+(1939, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5021-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5021-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5021.0
+time taken =  2.3636177939999996 s
+
+OutInfo: (2281, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5022-0.npz
+(2281, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5022-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5022-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5022.0
+time taken =  2.3769933019999954 s
+
+OutInfo: (1868, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5023-0.npz
+(1868, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5023-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5023-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5023.0
+time taken =  2.387737019999996 s
+
+OutInfo: (2414, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5024-0.npz
+(2414, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5024-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5024-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5024.0
+time taken =  2.401226039000001 s
+
+OutInfo: (2225, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5025-0.npz
+(2225, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5025-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5025-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5025.0
+time taken =  2.414204319999996 s
+
+OutInfo: (2235, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5026-0.npz
+(2235, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5026-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5026-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5026.0
+time taken =  2.427279571999996 s
+
+OutInfo: (2132, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5027-0.npz
+(2132, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5027-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5027-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5027.0
+time taken =  2.4397982519999957 s
+
+OutInfo: (1959, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5028-0.npz
+(1959, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5028-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5028-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5028.0
+time taken =  2.4512981829999987 s
+
+OutInfo: (2499, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5029-0.npz
+(2499, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5029-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5029-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5029.0
+time taken =  2.465423219999998 s
+
+OutInfo: (2016, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+    \end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5030-0.npz
+(2016, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5030-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5030-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5030.0
+time taken =  2.4773984719999973 s
+
+OutInfo: (2486, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5031-0.npz
+(2486, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5031-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5031-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5031.0
+time taken =  2.4916652659999983 s
+
+OutInfo: (1883, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5032-01.npz
+(1883, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5032-01.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5032-01.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5032.01
+time taken =  2.502185231999995 s
+
+OutInfo: (2521, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5033-0.npz
+(2521, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5033-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5033-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5033.0
+time taken =  2.515958259999998 s
+
+OutInfo: (2019, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5034-0.npz
+(2019, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5034-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5034-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5034.0
+time taken =  2.527454366999997 s
+
+OutInfo: (2396, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5035-0.npz
+(2396, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5035-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5035-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5035.0
+time taken =  2.541405040000001 s
+
+OutInfo: (2059, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5036-0.npz
+(2059, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5036-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5036-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5036.0
+time taken =  2.553521232999998 s
+
+OutInfo: (2317, 17)
+0 NaNs in Data Block
+ Angle = 164.3 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5037-0.npz
+(2317, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5037-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5037-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5037.0
+time taken =  2.5670922739999966 s
+
+OutInfo: (2087, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5038-0.npz
+(2087, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5038-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5038-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5038.0
+time taken =  2.5794734320000003 s
+
+OutInfo: (2440, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5039-0.npz
+(2440, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5039-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5039-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5039.0
+time taken =  2.593863890999998 s
+
+OutInfo: (1997, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5040-0.npz
+(1997, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5040-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5040-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5040.0
+time taken =  2.6054077390000003 s
+
+OutInfo: (2323, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5041-0.npz
+(2323, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5041-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5041-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5041.0
+time taken =  2.6190796710000015 s
+
+OutInfo: (1987, 17)
+0 NaNs in Data Block
+ Angle = 164.3 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5042-0.npz
+(1987, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5042-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5042-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5042.0
+time taken =  2.630664662000001 s
+
+OutInfo: (2284, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5043-0.npz
+(2284, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5043-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5043-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5043.0
+time taken =  2.644361973999999 s
+
+OutInfo: (1885, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5044-0.npz
+(1885, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5044-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5044-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5044.0
+time taken =  2.655771842 s
+
+OutInfo: (2508, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5045-0.npz
+(2508, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5045-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5045-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5045.0
+time taken =  2.670220143999998 s
+
+OutInfo: (2072, 17)
+0 NaNs in Data Block
+ Angle = 164.4 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+    \end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5046-0.npz
+(2072, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5046-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5046-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5046.0
+time taken =  2.683033418000001 s
+
+OutInfo: (2318, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5047-0.npz
+(2318, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5047-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5047-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5047.0
+time taken =  2.6966938380000016 s
+
+OutInfo: (2309, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5048-0.npz
+(2309, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5048-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5048-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5048.0
+time taken =  2.710184001000002 s
+
+OutInfo: (2114, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5049-0.npz
+(2114, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5049-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5049-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5049.0
+time taken =  2.722214844 s
+
+OutInfo: (2346, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5050-0.npz
+(2346, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5050-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5050-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5050.0
+time taken =  2.7355306159999984 s
+
+OutInfo: (2093, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5051-0.npz
+(2093, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5051-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5051-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5051.0
+time taken =  2.7473313149999967 s
+
+OutInfo: (2079, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5052-0.npz
+(2079, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5052-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5052-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5052.0
+time taken =  2.7591293039999982 s
+
+OutInfo: (1831, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5053-0.npz
+(1831, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5053-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5053-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5053.0
+time taken =  2.7696229569999957 s
+
+OutInfo: (1883, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5054-0.npz
+(1883, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5054-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5054-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5054.0
+time taken =  2.7803272109999995 s
+
+OutInfo: (1634, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5055-0.npz
+(1634, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5055-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5055-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5055.0
+time taken =  2.7895922949999985 s
+
+OutInfo: (85, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5056-0.npz
+(85, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5056-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5056-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5056.0
+time taken =  2.790951864 s
+
+OutInfo: (1468, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5056-01.npz
+(1468, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5056-01.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5056-01.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5056.01
+time taken =  2.7995914299999995 s
+
+OutInfo: (1328, 17)
+0 NaNs in Data Block
+ Angle = 164.2 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5057-0.npz
+(1328, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5057-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5057-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5057.0
+time taken =  2.807369008000002 s
+
+OutInfo: (1199, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5058-0.npz
+(1199, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5058-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5058-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5058.0
+time taken =  2.814352393 s
+
+OutInfo: (1017, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5059-0.npz
+(1017, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5059-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5059-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5059.0
+time taken =  2.820479003999999 s
+
+OutInfo: (1032, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5060-0.npz
+(1032, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5060-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5060-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5060.0
+time taken =  2.826557099999995 s
+
+OutInfo: (766, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5061-0.npz
+(766, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5061-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5061-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5061.0
+time taken =  2.831142414999995 s
+
+OutInfo: (652, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5062-01.npz
+(652, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5062-01.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5062-01.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5062.01
+time taken =  2.8350296739999976 s
+
+OutInfo: (588, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5063-0.npz
+(588, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5063-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5063-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5063.0
+time taken =  2.838746899 s
+
+OutInfo: (450, 17)
+0 NaNs in Data Block
+ Angle = 164.3 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5064-0.npz
+(450, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5064-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5064-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5064.0
+time taken =  2.841724376000002 s
+
+OutInfo: (374, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5065-0.npz
+(374, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5065-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5065-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5065.0
+time taken =  2.8443510419999996 s
+
+OutInfo: (223, 17)
+0 NaNs in Data Block
+ Angle = 164.1 not in interval 340.0 - 350.0
+Flightline direction has been reversed.
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5066-0.npz
+(223, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5066-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5066-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5066.0
+time taken =  2.846201043999997 s
+
+OutInfo: (83, 17)
+0 NaNs in Data Block
+Flightline direction is approx. 345 degrees
+Output file format is .npz
+Data written to
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5067-0.npz
+(83, 17)
+Data written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5067-0.npz
+Flight line written to File:
+/home/vrath/AEMpyX//work//Limerick/raw/A5\_rect\_shale\_FL5067-0.npz
+Header written:
+AEMpyX Version 0.99.99
+Date 05/12/2024, 11:10:23
+Tutorial1\_PRE\_data.py, modified 05/12/2024, 11:10:08
+Tutorial1\_PRE\_data.py | Flightline 5067.0
+time taken =  2.847438732999997 s
+
+Flight line data, time taken =  0.7813280839999948 s
+
+    \end{Verbatim}
 
 
     % Add a bibliography block to the postdoc

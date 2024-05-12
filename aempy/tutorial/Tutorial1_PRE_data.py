@@ -22,7 +22,7 @@
 """
 This script presents a work flow for ingesting AEM data for further
 preprocessing.
-@author: vrath nov 2020
+
 """
 # +
 import os
@@ -48,27 +48,27 @@ import aesys
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 # -
 version, _ = versionstrg()
-fname = "Tutorial1_PRE_data.py"
-# fname = __file__  # this only works in python, not jupyter notebook
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+script = "Tutorial1_PRE_data.py"
+# script = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng
+
 # Now some parameters controlling the work flow need to be defined. 
-#
 # \textit{OutInfo = True} will activate the output of some intermediate information.
+#  This parameter, as well as most of the header, is common to all tutorial scripts.
+#  \begin{description}
+#  \item[OutInfo = True] 
+#   will activate the output of some intermediate information.
 # This parameter, as well as most of the header, is common to all tutorial scripts.
-# \begin{description}
-# \item[OutInfo = True] 
-#  will activate the output of some intermediate information.
-# This parameter, as well as most of the header, is common to all tutorial scripts.
-# \item[FileList = "search"] will choose a search of files to be read based on a 
-# string search (including wildcards). This parameter, as well as most of the header, 
-# is common to all tutorial scripts.
-# \item[SearchStr = ".xyz"] is only necessary when "search" is chosen.
-# \item[FileList = "set"] will require a list of files stored in the variable 
-# \textit{DataSet}. 
-#  
-# \end{description}
+#  \item[FileList = "search"] will choose a search of files to be read based on a 
+#  string search (including wildcards). This parameter, as well as most of the header, 
+#  is common to all tutorial scripts.
+#  \item[SearchStr = ".xyz"] is only necessary when "search" is chosen.
+#  \item[FileList = "set"] will require a list of files stored in the variable 
+#  \textit{DataSet}. 
+#   
+#  \end{description}
 
 # +
 OutInfo = True
@@ -80,7 +80,7 @@ DataSet = []
 # FileList = "set"
 # DataSet = ["File1", "File2"]
 # -
-# The following parameter control the treatment and output of data. 
+# The following parameters control the treatment and output of data. 
 # \textit{CheckNaN = True} will look for invalid data (e.g., "*" when 
 # exported by Geosoft). \textit{MergeOut = True} and 
 # \textit{LinesOut = True} will activate the output of full data set and 
@@ -103,7 +103,7 @@ OutFileFmt = ".npz" #".asc"
 # The following two parameters allow to change the projections (now redundant, 
 # as this is already done in module \textit{aesys.py}). GSI chose the ITM system 
 # (EPSG=2157), which is not known to many useful software, e.g., google earth. 
-# Within \textit{AEMpyX}, the coordinates are in UTM (Zone 29N, EPSG==32629). Flight 
+# Within \textit{AEMpyX}, the coordinates are in UTM (Zone 29N, EPSG=32629). Flight 
 # lines should also be stored in the same direction, setting 
 # \textit{CorrectDirection=True}. This is convenient for practical reasons, as comparing plots. 
 
@@ -198,10 +198,6 @@ if SetProj:
     print("Projection time taken = ", process_time() - start, "s \n")
 
 
-# + [markdown]
-"""
-Data subsets based on rectangle, polygons or operators on polygons
-"""
 # +
 start = process_time()
 print("In: "+str(numpy.shape(Data)))
@@ -295,7 +291,7 @@ if LinesOut:
                 print("Flightline direction has been reversed.")
                 chdir = ", direction has been reversed"
             else:
-                print("Flightline direction is approx. 345 degrees")
+                print("Flightline direction is approx. "+str(TellusAng)+" degrees")
                 chdir = ""
 
         head = aesys.grow_header(Header, "Flightline " + str(s))
