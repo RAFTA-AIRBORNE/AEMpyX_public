@@ -52,15 +52,13 @@ nan = numpy.nan
 # -
 
 version, _ = versionstrg()
-fname = "Tutorial1_PRE_data.py"
+script = "Tutorial1_PRE_data.py"
 # fname = __file__  # this only works in python, not jupyter notebook
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng
 
 OutInfo = False
-
-
 
 # Get system related settings, here for frequency-domain AEM, \textit{aem05}.
 
@@ -78,26 +76,27 @@ if "genes" in AEM_system.lower():
 # -
 
 
-# Now Define the path to your data files. For this tutorial we have stored 
-# the flightlines under \textit{AEMPYX_ROOT + "/work/data/raw/"}, and the 
-# print(" data files read from: %s" % DataDir)
-# PlotDir  =  AEMPYX_ROOT + "/work/data/raw/plots/"
-# print(" plots read from: %s" % PlotDir)
+# Define the directories for the flightline files 
+# (_DataDir = AEMPYX_DATA + "/work/Limerick/raw/"_) and the correponding plots 
+# (_PlotDir  =  DataDir+"/plots/"_). The plots can be seen in the resulting KMZ 
+# file by clicking the yellow symbols at the start of the flightlines.
 
-AEMPYX_DATA =  AEMPYX_ROOT+"/work/data/"
-DataDir =  AEMPYX_DATA + "Limerick/raw/"
+
+AEMPYX_DATA =  AEMPYX_ROOT
+DataDir =  AEMPYX_DATA + "/work/Limerick/raw/"
 print(" data files read from: %s" % DataDir)
-PlotDir  =  DataDir+"plots/"
+PlotDir  =  DataDir+"/plots/"
 print(" plots read from: %s" % PlotDir)
 
 
-SearchStrng = "*.npz"
+SearchStrng = "*FL*.npz"
 data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=DataDir, fullpath=False)
 data_files = sorted(data_files)
 ns = numpy.size(data_files)
 
-KMLDir = DataDir
-KLMFile = KMLDir+"Limerick_shale_raw"
+KMZDir = DataDir
+KMZFile = KMLDir+"Limerick_shale_raw"
+print(" resulting KMZ file will  be  %s" % KMZFile)
 
 MarkStartPoints = True
 MarkEndPoints = False
@@ -211,4 +210,6 @@ for f in data_files:
 
     # Compressed kmz file:
 
-kml.savekmz(KLMFile + ".kmz")
+kml.savekmz(KMZFile + ".kmz")
+
+print("All done!")

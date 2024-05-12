@@ -3,23 +3,24 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: py:light,ipynb
+#     formats: py,ipynb
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
-
-"""
-Created on 2020/11/11
-
-This script present a work flow of processing data
-for inversions with INV.py scripts
-
-@author: vrath Oct 2020
-"""
+# +
+# #!/usr/bin/env python3
+# -
+# This script controls preprocessing of data required ore advantageous for
+# subsequent inversions.
+#
 
 import os
 import sys
@@ -29,8 +30,6 @@ from time import process_time
 from datetime import datetime
 from random import randrange
 import warnings
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
 
 import numpy
 
@@ -58,7 +57,7 @@ now = datetime.now()
 
 
 AEM_system = "aem05"
-FwdCall,NN,_,_,_, = aesys.get_system_params(System=AEM_system)
+_, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
 nD = NN[0]
 
 # impute = ["noise", 100.]

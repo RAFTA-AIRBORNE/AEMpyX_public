@@ -143,7 +143,7 @@ else:
 
 if "aem05" in AEM_system.lower():
     IncludePlots = ["alt", "qdata", "idata",]
-    IncludePlots = ["qdata", "idata",]
+    # IncludePlots = ["qdata", "idata",]
     QLimits = []
     ILimits = []
     PlotSize = [18., 6.]
@@ -158,7 +158,7 @@ if "aem05" in AEM_system.lower():
 
 if "genes" in AEM_system.lower():
     IncludePlots = ["alt", "xdata", "zdata",]
-    IncludePlots = ["xdata", "zdata",]
+    # IncludePlots = ["xdata", "zdata",]
     PlotSize = [18., 6.]
     DataTrans = "asinh"
     XLimits = [3.5, 12.]
@@ -225,12 +225,8 @@ Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
 if FilesOnly:
     matplotlib.use("cairo")
 
-# +
 if PdfCatalog:
     pdf_list = []
-    
-    
-# -
 
 # Depending on the region of interest, the number of plots may be quite large. 
 
