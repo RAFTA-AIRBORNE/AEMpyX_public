@@ -149,14 +149,14 @@ if not os.path.isdir(PlotDir):
     
 FilesOnly = False
 PlotFmt = [".pdf", ".png", ]
-PdfCatalog = True
-PdfCatName = PlotDir+"Limerick_shale_raw.pdf"
+PDFCatalog = True
+PDFCatName = PlotDir+"Limerick_shale_raw.pdf"
 
 if ".pdf" in PlotFmt:
     pass
 else:
     error(" No pdfs generated. No catalog possible!")
-    PdfCatalog = False
+    PDFCatalog = False
 
 if "aem05" in AEM_system.lower():
     IncludePlots = ["alt", "qdata", "idata",]
@@ -240,7 +240,7 @@ memory problems after a few hundreds of high-resolution plot..
 if FilesOnly:
     matplotlib.use("cairo")
 
-if PdfCatalog:
+if PDFCatalog:
     pdf_list = []
 
 ifl = 0
@@ -272,7 +272,7 @@ for file in dat_files:
         continue
 
 
-    if PdfCatalog:
+    if PDFCatalog:
         pdf_list.append(PlotDir+name+".pdf")
 
     fline = Data[:, 0]
@@ -322,5 +322,5 @@ for file in dat_files:
             PlotStrng=PlotStrng)
 
 
-if PdfCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PdfCatName)
+if PDFCatalog:
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCatName)

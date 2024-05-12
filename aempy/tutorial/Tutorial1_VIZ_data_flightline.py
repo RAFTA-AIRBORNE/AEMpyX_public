@@ -59,23 +59,14 @@ Header = titstrng
 
 OutInfo = False
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
-rng = numpy.random.default_rng()
-nan = numpy.nan 
 
 
-# The following cell gives values to AEM-system related settings. Data 
-# transformation is activated by the variable \textit{DataTrans}. Currently 
-# three possible options are allowed:
-# \begin{description}
-# \item[DataTrans = 0]. No transformation, i.e., the raw data are used.
-# \item[DataTrans = 1]. The natural log of data is used, only allowed for 
-# strictly positive values.
-# \item[DataTrans = 2]. If data scale logarithmically, an asinh transformation 
-# introduced by Scholl (2000) is applied. It allows negatives, which may occur 
-# in TDEM, when IP effects are present.)
-# \end{description}           
-# A general additive/multiplicative error model is applied on the raw data
-# before transformation, and errors are also transformed.
+# The following cell gives values to AEM-system related settings.
+#
+# Data transformation is activated by the variable DataTrans. Currently three possible options are allowed: _DataTrans = 0_: No transformation, i.e., the raw data are used. _DataTrans = 1_: The natural log of data is taken, only allowed for strictly positive values. _DataTrans = 2_: If data scale logarithmically, an asinh transformation (introduced by Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, when IP effects are present.
+#
+# A general additive/multiplicative error model is applied on the raw data before transformation, and errors are also transformed.
+#
 
 
 # +
@@ -102,10 +93,6 @@ if "genes" in AEM_system.lower():
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 # -
 
-
-version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
-print(titstrng+"\n\n")
 
 InStrng = ""
 PlotStrng = " - data "+InStrng
@@ -141,7 +128,7 @@ if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
     os.mkdir(PlotDir)
 
-# The next block determines the graphical output. if \textit{PDFCatalog} is set, a catalogue including all generated figures, named \textit{PDFCatName}. This option is only available if ".pdf" is included in the output file format list (\textit{PlotFmt}).
+# The next block determines the graphical output. if _PDFCatalog_ is set, a catalogue including all generated figures, named _PDFCatName_. This option is only available if ".pdf" is included in the output file format list (_PlotFmt_).
 
 FilesOnly = False    # for headless plotting.
 PlotFmt = [".pdf", ".png", ]
@@ -304,6 +291,7 @@ for file in dat_files:
             Logparams=Logparams,
             PlotStrng=PlotStrng,
             PlotPLM = True)
+        
     if "genes" in AEM_system.lower():
         viz.plot_flightline_genesis(
             PlotName = name,

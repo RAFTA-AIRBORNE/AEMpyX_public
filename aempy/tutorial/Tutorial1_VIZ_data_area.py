@@ -37,7 +37,6 @@ import mpl_toolkits.axes_grid1
 
 import scipy.interpolate
 import scipy.spatial
-import skgstat
 import shapely
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
@@ -53,34 +52,29 @@ import viz
 import inverse
 # -
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
-cm = 1/2.54
-
 OutInfo = True
+cm = 1/2.54
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 version, _ = versionstrg()
-fname = "Tutorial1_VIZ_data_area.py"
-# fname = __file__  # this only works in python, not jupyter nodrnppl
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+script = "Tutorial1_VIZ_data_area.py"
+# script = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng
 
-now = datetime.now()
-
-# The following cell gives values to AEM-system related settings. Data 
-# transformation is activated by the variable \textit{DataTrans}. Currently 
-# three possible options are allowed:
-# \begin{description}
-# \item[DataTrans = 0]. No transformation, i.e., the raw data are used.
-# \item[DataTrans = 1]. The natural log of data is used, only allowed for 
-# strictly positive values.
-# \item[DataTrans = 2]. If data scale logarithmically, an asinh transformation 
-# introduced by Scholl (2000)is applied. It allows negatives, which may occur 
-# in TDEM, when IP effects are present.)
-# \end{description}           
+# The following cell gives values to AEM-system related settings. 
+#
+# Data transformation is activated by the variable _DataTrans_. Currently 
+# three possible options are allowed: _DataTrans = 0_: No transformation, 
+# i.e., the raw data are used. _DataTrans = 1_: The natural log of data 
+# is taken, only allowed for strictly positive values. _DataTrans = 2_: 
+# If data scale logarithmically, an _asinh_ transformation (introduced by
+# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, 
+# when IP effects are present.
+#        
 # A general additive/multiplicative error model is applied on the raw data
-# before transformation, and errors are also transformed."""
+# before transformation, and errors are also transformed.
 
 # AEM_system = "genesis"
 AEM_system = "aem05"
@@ -92,7 +86,8 @@ if "aem05" in AEM_system.lower():
     DatErr_add =  50.
     DatErr_mult = 0.03
     data_active = numpy.ones(NN[2], dtype="int8")
-    CompDict=Misc[2]
+    
+    CompDict = Misc[3]
     CompLabl = list(CompDict.keys())
     print(CompLabl)
 
@@ -109,19 +104,25 @@ if "genes" in AEM_system.lower():
     CompDict =Misc[2]
     CompLabl = list(CompDict.keys())
 
+# +
 
+InFileFmt = ".npz"
 
+FileList = "search"  
+SearchStrng = "*FL*.npz"# "search", "read"
 
-"""
-input formats are "npz","nc4","ascii"
-"""
-InFilFmt = ".npz"
-InDatDir = AEMPYX_DATA+"/Projects/Munster/area/"
+AEMPYX_DATA = AEMPYX_ROOT+"/work/"  
+InDatDir = AEMPYX_DATA+"/Limerick/raw/"
+PlotDir = AEMPYX_DATA+"/Limerick/raw/plots/"
+PlotName = "Limerick_shale_raw"
+
 print("Data read from dir: %s " % InDatDir)
-FileList = "search" #"search"
-SearchStrng = "*3s.npz"
+print("Plots written to dir: %s " % PlotDir)
+print("Plot filname: %s " % PlotName)
+
 # FileList = "read"
 ListName = ""
+# -
 
 if "set" in FileList.lower():
     dat_files = []
@@ -145,32 +146,20 @@ if ns ==0:
     error("No files set!. Exit.")
 
 
-# InDatDir = AEMPYX_DATA+"/Blocks/A5/raw/"
-# FileList = "search"
-# SearchStrng = "*dec3median.npz"
-# print("Searchstring: %s \n" % SearchStrng)
-
-"""
-Output formats are "npz","nc4","ascii"
-"""
 PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
 
-PdfCatalog = True
-PdfCName = "MUN_3s_Catalog_Images.pdf"
+PDFCatalog = True
+PDFCName = "MUN_3s_Catalog_Images.pdf"
 if ".pdf" in PlotFmt:
     pass
 else:
     error(" No pdfs generated. No catalog possible!")
-    PdfCatalog = False
+    PDFCatalog = False
 
-PlotDir = InDatDir+"/plots/"
-print("Plots written to dir: %s " % PlotDir)
-PlotName = "MUN"
-print("Plot filname: %s " % PlotName)
-
+# +
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
-    dat_files = [InDatDir+"A5_Merged.npz"]
+    dat_files = []
 
 else:
     # how = ["search", SearchStrng, InDatDir]
@@ -179,9 +168,9 @@ else:
                               out= True, fullpath=True, sort=True)
     ns = numpy.size(dat_files)
 
-
-MergeData = False
-DataMergeFile = InDatDir+"MUN_k1_data_merged.npz"
+MergeData = True
+DataMergeFile = InDatDir+PlotName+"_merged.npz"
+# -
 
 
 ns = numpy.size(dat_files)
@@ -219,6 +208,7 @@ Methods for griddata:
                         continuously differentiable (C1), and approximately
                         curvature-minimizing polynomial surface.
 """
+
 if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
     step = 1
 
@@ -229,6 +219,7 @@ if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
     # InterpMethod = ["rbf", "cubic", 0.01]
 
     # InterpMethod = ["krig", "linear", 0.5, 340.]
+    
     S = 500.
     numIndexes = [121, 141]
     smooth = 0.
@@ -303,7 +294,7 @@ Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
 """
 FilesOnly = False
-matplotlib.pyplot.style.use("seaborn-paper")
+matplotlib.pyplot.style.use("seaborn-v0_8-paper")
 matplotlib.rcParams["figure.dpi"] = 400
 matplotlib.rcParams["text.usetex"] = False
 matplotlib.rcParams["font.family"] = "sans-serif"
@@ -609,15 +600,8 @@ for filein in dat_files:
             +"_"+InterpMethod[0].lower()\
             +"_"+InterpMethod[1].lower()
 
-        # if "gtiff" in PlotFmt:
-        #     #  generate geotiff
-        #     gtifffile = plotfile+".tif"
-        #     viz.save_geotiff()
-
 
         for F in PlotFmt:
-            if "gtiff" in F:
-                continue
 
             print("Plot written to "+plotfile+F)
             matplotlib.pyplot.savefig(plotfile+F,
@@ -627,11 +611,11 @@ for filein in dat_files:
                                       transparent=True)
 
 
-        if PdfCatalog:
+        if PDFCatalog:
             pdf_list.append(plotfile+".pdf")
 
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
 
-if PdfCatalog:
-    viz.make_pdf_catalog(PdfList=pdf_list, FileName=PdfCName)
+if PDFCatalog:
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCName)

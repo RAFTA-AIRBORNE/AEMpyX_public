@@ -47,11 +47,8 @@ import mpl_toolkits.axes_grid1
 
 import scipy.interpolate
 import scipy.spatial
-import skgstat
 import shapely
-# import rasterio
-# from rasterio import features
-# import affine
+
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
@@ -97,7 +94,7 @@ if "aem05" in AEM_system.lower():
     DatErr_add =  50.
     DatErr_mult = 0.03
     data_active = numpy.ones(NN[2], dtype="int8")
-    CompDict=Misc[2]
+    CompDict=Misc[3]
     CompLabl = list(CompDict.keys())
     print(CompLabl)
 
@@ -111,7 +108,7 @@ if "genes" in AEM_system.lower():
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + "good" hoizontals"
-    CompDict =Misc[2]
+    CompDict =Misc[3]
     CompLabl = list(CompDict.keys())
 
 
@@ -121,12 +118,18 @@ if "genes" in AEM_system.lower():
 input formats are "npz","nc4","ascii"
 """
 InFilFmt = ".npz"
-InDatDir = AEMPYX_DATA+"/Projects/Munster/area/"
-print("Data read from dir: %s " % InDatDir)
+
 FileList = "search" #"search"
 SearchStrng = "*3s.npz"
-# FileList = "read"
-ListName = ""
+
+InDatDir = AEMPYX_DATA+"/Projects/Munster/area/"
+print("Data read from dir: %s " % InDatDir)
+
+PlotDir = InDatDir+"/plots/"
+print("Plots written to dir: %s " % PlotDir)
+PlotName = "MUN"
+print("Plot filname: %s " % PlotName)
+
 
 if "set" in FileList.lower():
     dat_files = []
@@ -160,18 +163,14 @@ Output formats are "npz","nc4","ascii"
 """
 PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
 
-PdfCatalog = True
-PdfCName = "MUN_3s_Catalog_Images.pdf"
+PDFCatalog = True
+PDFCName = "MUN_3s_Catalog_Images.pdf"
 if ".pdf" in PlotFmt:
     pass
 else:
     error(" No pdfs generated. No catalog possible!")
-    PdfCatalog = False
+    PDFCatalog = False
 
-PlotDir = InDatDir+"/plots/"
-print("Plots written to dir: %s " % PlotDir)
-PlotName = "MUN"
-print("Plot filname: %s " % PlotName)
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -308,7 +307,7 @@ Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
 """
 FilesOnly = False
-matplotlib.pyplot.style.use("seaborn-paper")
+matplotlib.pyplot.style.use("seaborn_v08-paper")
 matplotlib.rcParams["figure.dpi"] = 400
 matplotlib.rcParams["text.usetex"] = False
 matplotlib.rcParams["font.family"] = "sans-serif"
@@ -632,11 +631,11 @@ for filein in dat_files:
                                       transparent=True)
 
 
-        if PdfCatalog:
+        if PDFCatalog:
             pdf_list.append(plotfile+".pdf")
 
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
 
-if PdfCatalog:
-    viz.make_pdf_catalog(PdfList=pdf_list, FileName=PdfCName)
+if PDFCatalog:
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCName)
