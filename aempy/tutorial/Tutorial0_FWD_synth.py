@@ -55,7 +55,7 @@ rng = numpy.random.default_rng()
 nan = numpy.nan  
 
 version, _ = versionstrg()
-script = "Tutorial0_FWD.py"
+script = "Tutorial0_FWD_synth.py"
 # fname = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
@@ -64,28 +64,22 @@ Header = titstrng
 
 OutInfo = False
 
-
-
-OutDir  = AEMPYX_DATA+"/synth/data/"
-
+AEMPYX_DATA =  AEMPYX_ROOT
+OutDir  = AEMPYX_DATA+"/data/synth/"
 if not os.path.isdir(OutDir):
     print("File: %s does not exist, but will be created" % OutDir)
     os.mkdir(OutDir)
 
 
-"""
-System related settings.
-Data transformation is now allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
+# The following cell gives values to AEM-system related settings.
+#
+# Data transformation is activated by the variable DataTrans. Currently three possible options are allowed: _DataTrans = 0_: No transformation, i.e., the raw data are used. _DataTrans = 1_: The natural log of data is taken, only allowed for strictly positive values. _DataTrans = 2_: If data scale logarithmically, an asinh transformation (introduced by Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, when IP effects are present.
+#
+# A general additive/multiplicative error model is applied on the raw data before transformation, and errors are also transformed.
+
+# +
 AEM_system = "aem05"
 # AEM_system = "genesis"
-
 print("AEM system: " + AEM_system + "\n \n")
 
 if "aem05" in AEM_system.lower():
@@ -107,70 +101,55 @@ if "genes" in AEM_system.lower():
     DataActive = numpy.ones((1,NN[2]))
 
 nD = NN[0]
+# -
 
-"""
-Define models:
-These are loops over different parameters, in this case for a 3-Layer case.
-Should be adapted according to your needs.
-"""
-
-#Alt = [60., 120.]
-Alt = [60]
+# In case an ensemble of model responses is desired, e.g. for future inversions, the resukting output can be controlled here.  
 
 Nsamples = 1000
 # NSamples = 1
 Perturb = True
 SplitData= True
 
-"""
-Set up base model
-"""
+# To initialize loops over different parameters,
+# first a reference model must be set up, with reasonable values for all parameters not within the loop. Default settings is rho only, no IP. Currently, one parameter and altitude can be varied within a loop. 
+# The following should be adapted according to the user's needs.
 
 nlyr = 3
 Model_active, Model_base, model_var, m_bounds, m_state = inverse.init_1dmod(nlyr)
 
-"""
-Background model: default settings is rho only, - IP is nonexistent 
-Adapted for reasonable IP values
-""" 
 Model_base[0*nlyr:1*nlyr] =[100., 100., 100.]   #rho
 Model_base[6*nlyr:7*nlyr-1] =[30.,30.]          #layers 
 
-Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
-Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
-Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
+# +
+# Adapted for reasonable IP values
 
+# Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
+# Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
+# Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
+# -
 
+# rho for layer 1 (starting from 0!)
+FWDBaseName = "AEM05_Rho1"
+VarPar = [ 10., 100.,1000.]
+VarInd = 0 * nlyr+1
 
-"""
-Currently, one parameter  and altitude can be varied within a loop. 
-"""
+# +
 
-"""
-rho for layer 1 (starting from 0!)
-"""
-
-# FWDBaseName = "AEM05_Rho1"
-# VarPar = [ 10., 100.,1000.]
-# VarInd = 0 * nlyr+1
-
-"""
-thickness of layer 1 (starting from 0!)
-"""
+# thickness of layer 1 (starting from 0!)
 # FWDBaseName = "AEM05_Thk1"
 # VarPar = [10., 30., 50.] 
 # VarInd = 6*nlyr+1
-"""
-chargeability of layer 1 (starting from 0!)
-"""
-FWDBaseName = "AEM05_m1"
-VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
-VarInd = 3*nlyr+1 
+ 
+# chargeability of layer 1 (starting from 0!)
+# FWDBaseName = "AEM05_m1"
+# VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
+# VarInd = 3*nlyr+1 
 
-"""
-Generate Data
+#Alt = [60., 120.]
+Alt = [60]
+# -
 
-"""
+# Now generate the response data:
 
 
 mod_num = -1

@@ -69,7 +69,7 @@ if "aem05" in AEM_system.lower():
 if "genes" in AEM_system.lower():
     _, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nD = NN[0]
-    
+
 
 # +
 OutInfo = True
