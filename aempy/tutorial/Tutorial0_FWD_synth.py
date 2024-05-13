@@ -85,7 +85,7 @@ print("AEM system: " + AEM_system + "\n \n")
 if "aem05" in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     ParaTrans = 1
-    DataTrans=0
+    DataTrans = 0
     DatErr_add = 50.
     DatErr_mult = 0.03
     alt = 60.
