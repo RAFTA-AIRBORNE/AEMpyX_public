@@ -138,7 +138,7 @@ If anywhere in an conda environment, use
 
 _conda run_ -n AEMpyX mypythonscript.py
 
-The usual way to work with **notebooks** is with your favorite web browser, or specialized software as _jupyterlab_. If using your browser (as set in your system as default) you can simply use the classical interface
+The usual way to work with **notebooks** is with your favorite web browser, or from within _spyder_. The latter requires the jupyter plug-in _spyder-notebook_. If using your browser (as set in your system as default) you can simply use the classical interface
 
 _jupyter notebook mynotebook.ipynb_ 
 
