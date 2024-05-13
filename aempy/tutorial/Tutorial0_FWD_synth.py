@@ -10,17 +10,19 @@
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
-"""
-Created on Tue Sep  6 10:57:01 2016
+# +
+# #!/usr/bin/env python3
+# -
 
-@author: vrath
+# This script allows you to do forward modelling, with several options on the output. The purpose for including this is multifold: (1) It is useful to see the response for a given model which may be hypothetical, to see what might be inverted for. (2) A series of models for parameter studies is possible. (3) a set of (perturbed) responses can be generated, which in turn may be fed into one of the inversion algorithms. 
 
-edited by dkiyan - Sep 30
-edited by vrath  - May 7, 2021
-
-"""
+# +
 import time
 import sys
 from sys import exit as error
@@ -39,30 +41,32 @@ for pth in mypath:
         sys.path.insert(0,pth)
 
 from version import versionstrg
-
 import util
-#import core1d_par as core1d
 import core1d
 import inverse
 import aesys
-
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
+# -
 
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
+# +
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  
+
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+script = "Tutorial0_FWD.py"
+# fname = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
+Header = titstrng
+# -
 
 OutInfo = False
-now = datetime.now()
 
-# OutDir  = AEMPYX_DATA+"/SynthData/data/"
-OutDir  = AEMPYX_ROOT+"/aempy/data/SYNTH/"
+
+
+OutDir  = AEMPYX_DATA+"/synth/data/"
 
 if not os.path.isdir(OutDir):
     print("File: %s does not exist, but will be created" % OutDir)
@@ -110,9 +114,10 @@ These are loops over different parameters, in this case for a 3-Layer case.
 Should be adapted according to your needs.
 """
 
-Alt = [alt]
+#Alt = [60., 120.]
+Alt = [60]
 
-Nsamples = 300
+Nsamples = 1000
 # NSamples = 1
 Perturb = True
 SplitData= True
@@ -131,42 +136,36 @@ Adapted for reasonable IP values
 Model_base[0*nlyr:1*nlyr] =[100., 100., 100.]   #rho
 Model_base[6*nlyr:7*nlyr-1] =[30.,30.]          #layers 
 
-# Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
-# Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
-# Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
+Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
+Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
+Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
+
 
 
 """
-Currently, one parameter  and altitude can be varied within a loop.
-Examples below:
+Currently, one parameter  and altitude can be varied within a loop. 
 """
 
 """
 rho for layer 1 (starting from 0!)
 """
-FWDBaseName = AEM_system.upper()+"_Rho1"
-VarPar = [ 10., 100.,1000.]
-VarInd = 0 * nlyr+1
+
+# FWDBaseName = "AEM05_Rho1"
+# VarPar = [ 10., 100.,1000.]
+# VarInd = 0 * nlyr+1
 
 """
 thickness of layer 1 (starting from 0!)
 """
-# FWDBaseName = AEM_system.upper()+"_Thk1"
+# FWDBaseName = "AEM05_Thk1"
 # VarPar = [10., 30., 50.] 
 # VarInd = 6*nlyr+1
 """
 chargeability of layer 1 (starting from 0!)
 """
-# FWDBaseName = AEM_system.upper()+"_Chrg1"
-# VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
-# VarInd = 3*nlyr+1 
-
-"""
-center frequency of layer 1 (starting from 0!)
-"""
-# FWDBaseName = AEM_system.upper()+"_Freq1"
-# VarPar = [0.001, 0.01, 0.1, 1., 10., 100., 1000., 10000.] 
-# VarInd = 5*nlyr+1 
+FWDBaseName = "AEM05_m1"
+VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
+VarInd = 3*nlyr+1 
 
 """
 Generate Data
