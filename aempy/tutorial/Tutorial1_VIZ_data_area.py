@@ -591,7 +591,7 @@ for filein in dat_files:
 
             print("Plot written to "+plotfile+F)
             matplotlib.pyplot.savefig(plotfile+F,
-                                      dpi=600,
+                                      dpi=400,
                                       bbox_inches="tight",
                                       backend= "cairo",
                                       transparent=True)
