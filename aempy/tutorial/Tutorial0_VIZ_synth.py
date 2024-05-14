@@ -63,8 +63,8 @@ print(titstrng+"\n\n")
 
 now = datetime.now()
 
-
-InModDir = AEMPYX_DATA+"/SynthData/results/"
+AEMPYX_DATA =  AEMPYX_ROOT+"/data/"
+InModDir = AEMPYX_DATA+"/synth/results/"
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
@@ -80,7 +80,7 @@ if "search" in FileList.lower():
 if "set" in FileList.lower():
    data_files =[]
 
-PlotDir = AEMPYX_DATA+"/SynthData/plots/"
+PlotDir = AEMPYX_DATA+"/synth/plots/"
 print("Plots written to dir: %s " % PlotDir)
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)

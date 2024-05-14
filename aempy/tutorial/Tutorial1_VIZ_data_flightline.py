@@ -102,9 +102,9 @@ PlotStrng = " - data "+InStrng
 FileList = "search"  
 SearchStrng = "*FL*.npz"# "search", "read"
 
-AEMPYX_DATA = AEMPYX_ROOT+"/work/"  
-InDatDir = AEMPYX_DATA+"/Limerick/raw/"
-PlotDir = AEMPYX_DATA+"/Limerick/raw/plots/"
+AEMPYX_DATA = AEMPYX_ROOT+"/data/"  
+InDatDir = AEMPYX_DATA+"/aem05_limerick/raw/"
+PlotDir = AEMPYX_DATA+"/aem05_limerick/raw/plots/"
 PlotStrng = " - data raw"
 
 # +
@@ -225,7 +225,7 @@ Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
 if FilesOnly:
     matplotlib.use("cairo")
 
-if PdfCatalog:
+if PDFCatalog:
     pdf_list = []
 
 # Depending on the region of interest, the number of plots may be quite large. 
@@ -259,7 +259,7 @@ for file in dat_files:
         continue
 
 
-    if PdfCatalog:
+    if PDFCatalog:
         pdf_list.append(PlotDir+name+".pdf")
 
     fline = Data[:, 0]
@@ -310,7 +310,5 @@ for file in dat_files:
             PlotStrng=PlotStrng)
 
 
-if PdfCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PdfCatName)
-
-
+if PDFCatalog:
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)

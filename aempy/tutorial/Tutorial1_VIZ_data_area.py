@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -9,13 +10,13 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
+#     display_name: Python 3 (Spyder)
+#     language: python3
 #     name: python3
 # ---
 
 # +
-# #!/usr/bin/env python3
+#!/usr/bin/env python3
 # -
 
 # This script plots data over an spatial area. 
@@ -111,9 +112,9 @@ InFileFmt = ".npz"
 FileList = "search"  
 SearchStrng = "*FL*.npz"# "search", "read"
 
-AEMPYX_DATA = AEMPYX_ROOT+"/work/"  
-InDatDir = AEMPYX_DATA+"/Limerick/raw/"
-PlotDir = AEMPYX_DATA+"/Limerick/raw/plots/"
+AEMPYX_DATA = AEMPYX_ROOT+"/data/"
+InDatDir = AEMPYX_DATA+"/aem05_limerick/raw/"
+PlotDir = AEMPYX_DATA+"/aem05_limerick/raw/plots/"
 PlotName = "Limerick_shale_raw"
 
 print("Data read from dir: %s " % InDatDir)
@@ -158,7 +159,7 @@ else:
 
 # +
 if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)
+    print("Data files read from dir:  %s" % InDatDir)-150
     dat_files = []
 
 else:
@@ -257,35 +258,19 @@ if ("scatter" in ImageType.lower()):
 #     ["ALT", [80., 160., 20.], 240.]     # ALTthresh = 70.
           # ]
 
-# CompList=[
-    # ["P1", [0., 2000., 100.]],
-    # ["Q1", [0., 2000., 100.]],
-    # ["P2", [0., 2000., 100.]],
-    # ["Q2", [0., 2000., 100.]],
-    # ["P3", [0., 2000., 100.]],
-    # ["Q3", [0., 2000., 100.]],
-    # ["P4", [0., 2000., 100.]],
-    # ["Q4", [0., 2000., 100.]],
-    #["PLM", [], 0.2],      # PLMthresh = 0.25
-    # ["ALT", [40., 120., 20.], 300.]     # ALTthresh = 70.
-          # ]
-
 CompList=[
-    ["P1", [0., 3000., 200.]],
-    ["Q1", [0., 3000., 200.]],
-    ["P2", [0., 3000., 200.]],
-    ["Q2", [0., 3000., 200.]],
-    ["P3", [0., 3000., 200.]],
-    ["Q3", [0., 3000., 200.]],
-    ["P4", [0., 3000., 200.]],
-    ["Q4", [0., 3000., 200.]],
+    ["P1", [-1500., 4000., 200.]],
+    ["Q1", [-1500., 4000., 200.]],
+    ["P2", [-1500., 4000., 200.]],
+    ["Q2", [-1500., 4000., 200.]],
+    ["P3", [-1500., 4000., 200.]],
+    ["Q3", [-1500., 4000., 200.]],
+    ["P4", [-1500., 4000., 200.]],
+    ["Q4", [-1500., 4000., 200.]],
     ["PLM", [], 3],      # PLMthresh = 0.25
     ["ALT", [40., 120., 20.], 125.]     # ALTthresh = 70.
 ]
-# XYUnits = "(m)"
-# xformatter = matplotlib.ticker.FormatStrFormatter("%7f")
-# yformatter = matplotlib.ticker.FormatStrFormatter("%6f")
-# XYFact = 1.
+
 
 xformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
 yformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
@@ -430,7 +415,7 @@ for filein in dat_files:
         if ("PL" in Comp):
             Unit = "(-)"
             PLMthresh= CompList[nc][2]
-            titl = titl+" / thresh = "+str(PLMthresh)+" m"
+            titl = titl+" / thresh = "+str(PLMthresh)
 
         if ("A" in Comp):
             Unit = "m"
@@ -540,6 +525,7 @@ for filein in dat_files:
             else:
                 if ("image" in ImageType.lower()):
                     valmin, valmax, _ = CompList[nc][1]
+
                     im = ax.pcolor(XI, YI, DI,
                                    cmap=cmp,
                                    vmin=valmin, vmax=valmax)

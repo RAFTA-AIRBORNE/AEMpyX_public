@@ -75,13 +75,13 @@ if "genes" in AEM_system.lower():
 
 
 # Define the directories for the flightline files 
-# (_DataDir = AEMPYX_DATA + "/work/Limerick/raw/"_) and the correponding plots 
+# (_DataDir = AEMPYX_DATA + "/data/aem05_limerick/raw/"_) and the correponding plots
 # (_PlotDir  =  DataDir+"/plots/"_). The plots can be seen in the resulting KMZ 
 # file by clicking the yellow symbols at the start of the flightlines.
 
 
 AEMPYX_DATA =  AEMPYX_ROOT
-DataDir =  AEMPYX_DATA + "/work/Limerick/raw/"
+DataDir =  AEMPYX_DATA + "/data/aem05_limerick/raw/"
 print(" data files read from: %s" % DataDir)
 PlotDir  =  DataDir+"/plots/"
 print(" plots read from: %s" % PlotDir)

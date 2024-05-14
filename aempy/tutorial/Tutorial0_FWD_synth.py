@@ -64,8 +64,8 @@ Header = titstrng
 
 OutInfo = False
 
-AEMPYX_DATA =  AEMPYX_ROOT
-OutDir  = AEMPYX_DATA+"/data/synth/"
+AEMPYX_DATA =  AEMPYX_ROOT+"/data/"
+OutDir  = AEMPYX_DATA+"/synth/"
 if not os.path.isdir(OutDir):
     print("File: %s does not exist, but will be created" % OutDir)
     os.mkdir(OutDir)

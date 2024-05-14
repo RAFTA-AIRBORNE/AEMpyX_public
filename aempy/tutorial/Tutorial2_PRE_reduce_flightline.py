@@ -84,8 +84,8 @@ OutFileFmt = ".npz"
 FileList = "search"  # "search", "read"
 
 
-InDatDir = AEMPYX_ROOT+"/work/data/proc/"
-OutDatDir = AEMPYX_ROOT+"/work/data/dec/"
+InDatDir = AEMPYX_ROOT+"/data/data/proc/"
+OutDatDir = AEMPYX_ROOT+"/data/data/dec/"
 
 SearchStrng = "*_k2.npz"
 

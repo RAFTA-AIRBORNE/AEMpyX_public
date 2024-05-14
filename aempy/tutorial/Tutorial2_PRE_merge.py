@@ -61,8 +61,8 @@ MergeOut = True
 FileList = "search"  # "search", "read"
 
 
-InDatDir = AEMPYX_ROOT+"/work/data/dec/"
-OutDatDir = AEMPYX_ROOT+"/work/data/merged/"
+InDatDir = AEMPYX_ROOT+"/data/data/dec/"
+OutDatDir = AEMPYX_ROOT+"/data/data/merged/"
 
 SearchStrng = "*_k2*5*mean.npz"
 OutFileName = OutDatDir+"LimShale_k2_dec5_mean_merged"

@@ -90,8 +90,8 @@ OutFileFmt = ".npz"
 # -
 
 AEMPYX_DATA =  AEMPYX_ROOT
-InputDataDir =  AEMPYX_DATA + "/work/Limerick/raw/"
-OutputDataDir =  AEMPYX_DATA + "/work/Limerick/proc/"
+InputDataDir =  AEMPYX_DATA + "/data/aem05_limerick/raw/"
+OutputDataDir =  AEMPYX_DATA + "/data/aem05_limerick/proc/"
 
 
 print("\n\n")

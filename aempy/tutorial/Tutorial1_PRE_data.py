@@ -138,10 +138,10 @@ AEM_system = "aem05"
 _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
 
-AEMPYX_DATA = AEMPYX_ROOT+"/work/"
+AEMPYX_DATA = AEMPYX_ROOT+"/data/"
 DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-InDatDir = AEMPYX_DATA+"/Limerick/orig/"
-OutDatDir = AEMPYX_DATA+"/Limerick/raw/"
+InDatDir = AEMPYX_DATA+"/aem05_limerick/orig/"
+OutDatDir = AEMPYX_DATA+"/aem05_limerick/raw/"
 RectCorners = [486000., 5815000., 498000., 5828000.] 
 InSurvey = "A5"
 OutStrng = InSurvey+"_rect_shale"
