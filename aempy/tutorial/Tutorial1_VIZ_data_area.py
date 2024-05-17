@@ -51,8 +51,8 @@ import util
 import aesys
 import viz
 import inverse
-# -
 
+# +
 OutInfo = True
 cm = 1/2.54
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -63,6 +63,7 @@ script = "Tutorial1_VIZ_data_area.py"
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng
+# -
 
 # The following cell gives values to AEM-system related settings. 
 #
@@ -77,6 +78,7 @@ Header = titstrng
 # A general additive/multiplicative error model is applied on the raw data
 # before transformation, and errors are also transformed.
 
+# +
 # AEM_system = "genesis"
 AEM_system = "aem05"
 if "aem05" in AEM_system.lower():
@@ -112,9 +114,10 @@ InFileFmt = ".npz"
 FileList = "search"  
 SearchStrng = "*FL*.npz"# "search", "read"
 
-AEMPYX_DATA = AEMPYX_ROOT+"/data/"
+AEMPYX_DATA = AEMPYX_ROOT+"/data/"  
 InDatDir = AEMPYX_DATA+"/aem05_limerick/raw/"
 PlotDir = AEMPYX_DATA+"/aem05_limerick/raw/plots/"
+PlotStrng = " - data raw"
 PlotName = "Limerick_shale_raw"
 
 print("Data read from dir: %s " % InDatDir)
@@ -148,6 +151,7 @@ if ns ==0:
 
 
 PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
+FilesOnly = True
 
 PDFCatalog = True
 PDFCName = "MUN_3s_Catalog_Images.pdf"
@@ -157,26 +161,8 @@ else:
     error(" No pdfs generated. No catalog possible!")
     PDFCatalog = False
 
-# +
-if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)-150
-    dat_files = []
-
-else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
-                              out= True, fullpath=True, sort=True)
-    ns = numpy.size(dat_files)
-
 MergeData = True
 DataMergeFile = InDatDir+PlotName+"_merged.npz"
-# -
-
-
-ns = numpy.size(dat_files)
-if ns ==0:
-    error("No files set!. Exit.")
 
 
 ImageType = "image"
@@ -187,28 +173,28 @@ ImageType = "image"
 XYUnits = "(km)"
 XYFact = 0.001
 
-"""
-Kernel functions for RBF:
-    The radial basis function, based on the radius, r,
-    given by the norm (default is Euclidean distance); the default is ‘multiquadric’:
-        ‘linear’ : -r
-        ‘thin_plate_spline’ : r**2 * log(r)
-        ‘cubic’ : r**3
-        ‘quintic’ : -r**5
-
-If a callable, then it must take 2 arguments (self, r). The epsilon parameter
-will be available as self.epsilon. Other keyword arguments passed
-in will be available as well.
-
-
-Methods for griddata:
-        'nearest'       data point closest to the point of interpolation
-        'linear'        tessellate the input point set to N-D simplices
-                        and interpolate linearly on each simplex
-        'cubic'         return the value determined from a piecewise cubic,
-                        continuously differentiable (C1), and approximately
-                        curvature-minimizing polynomial surface.
-"""
+#
+# Kernel functions for RBF:
+#     The radial basis function, based on the radius, r,
+#     given by the norm (default is Euclidean distance); the default is ‘multiquadric’:
+#         ‘linear’ : -r
+#         ‘thin_plate_spline’ : r**2 * log(r)
+#         ‘cubic’ : r**3
+#         ‘quintic’ : -r**5
+#
+# If a callable, then it must take 2 arguments (self, r). The epsilon parameter
+# will be available as self.epsilon. Other keyword arguments passed
+# in will be available as well.
+#
+#
+# Methods for griddata:
+#         'nearest'       data point closest to the point of interpolation
+#         'linear'        tessellate the input point set to N-D simplices
+#                         and interpolate linearly on each simplex
+#         'cubic'         return the value determined from a piecewise cubic,
+#                         continuously differentiable (C1), and approximately
+#                         curvature-minimizing polynomial surface.
+#
 
 if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
     step = 1
@@ -258,15 +244,28 @@ if ("scatter" in ImageType.lower()):
 #     ["ALT", [80., 160., 20.], 240.]     # ALTthresh = 70.
           # ]
 
+# CompList=[
+    # ["P1", [0., 2000., 100.]],
+    # ["Q1", [0., 2000., 100.]],
+    # ["P2", [0., 2000., 100.]],
+    # ["Q2", [0., 2000., 100.]],
+    # ["P3", [0., 2000., 100.]],
+    # ["Q3", [0., 2000., 100.]],
+    # ["P4", [0., 2000., 100.]],
+    # ["Q4", [0., 2000., 100.]],
+    #["PLM", [], 0.2],      # PLMthresh = 0.25
+    # ["ALT", [40., 120., 20.], 300.]     # ALTthresh = 70.
+          # ]
+
 CompList=[
-    ["P1", [-1500., 4000., 200.]],
-    ["Q1", [-1500., 4000., 200.]],
-    ["P2", [-1500., 4000., 200.]],
-    ["Q2", [-1500., 4000., 200.]],
-    ["P3", [-1500., 4000., 200.]],
-    ["Q3", [-1500., 4000., 200.]],
-    ["P4", [-1500., 4000., 200.]],
-    ["Q4", [-1500., 4000., 200.]],
+    ["P1", [0., 3000., 200.]],
+    ["Q1", [0., 3000., 200.]],
+    ["P2", [0., 3000., 200.]],
+    ["Q2", [0., 3000., 200.]],
+    ["P3", [0., 3000., 200.]],
+    ["Q3", [0., 3000., 200.]],
+    ["P4", [0., 3000., 200.]],
+    ["Q4", [0., 3000., 200.]],
     ["PLM", [], 3],      # PLMthresh = 0.25
     ["ALT", [40., 120., 20.], 125.]     # ALTthresh = 70.
 ]
@@ -295,10 +294,10 @@ Fontsizes = [Fontsize, Labelsize, Titlesize]
 Linewidths= [0.5]
 FigWidth = 16.
 
-"""
-Determine colormap.
-=> https://matplotlib.org/stable/gallery/color/colormap_reference.html
-"""
+#
+# Determine colormap.
+# => https://matplotlib.org/stable/gallery/color/colormap_reference.html
+#
 
 Cmap ="viridis"
 Cmap = "hsv"
@@ -415,7 +414,7 @@ for filein in dat_files:
         if ("PL" in Comp):
             Unit = "(-)"
             PLMthresh= CompList[nc][2]
-            titl = titl+" / thresh = "+str(PLMthresh)
+            titl = titl+" / thresh = "+str(PLMthresh)+" m"
 
         if ("A" in Comp):
             Unit = "m"
@@ -525,7 +524,6 @@ for filein in dat_files:
             else:
                 if ("image" in ImageType.lower()):
                     valmin, valmax, _ = CompList[nc][1]
-
                     im = ax.pcolor(XI, YI, DI,
                                    cmap=cmp,
                                    vmin=valmin, vmax=valmax)
@@ -591,7 +589,7 @@ for filein in dat_files:
 
             print("Plot written to "+plotfile+F)
             matplotlib.pyplot.savefig(plotfile+F,
-                                      dpi=400,
+                                      dpi=600,
                                       bbox_inches="tight",
                                       backend= "cairo",
                                       transparent=True)
