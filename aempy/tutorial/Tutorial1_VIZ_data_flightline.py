@@ -195,7 +195,7 @@ else:
 # package. A list of available plotting styles can be found on matplotlib's 
 # website at https://matplotlib.org/stable/users/explain/customizing.htm, or
 # entering the python command 
-# \textit{print(matplotlib.pyplot.style.available)} in an appropriate
+# _print(matplotlib.pyplot.style.available)} in an appropriate_
 # window. 
 #
 

@@ -142,7 +142,7 @@ if "read" in FileList.lower():
 if "search" in FileList.lower():
     print("Searchstring is : "+SearchStrng)
     how = ["search", SearchStrng, InDatDir]
-    dat_files = util.get_data_list(how=how,
+    dat_files = util.get_data_list(how=how, fullpath=True,
                               out= True, sort=True)
 
 ns = numpy.size(dat_files)
@@ -154,7 +154,7 @@ PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
 FilesOnly = True
 
 PDFCatalog = True
-PDFCName = "MUN_3s_Catalog_Images.pdf"
+PDFCName = PlotName+"_catalog.pdf"
 if ".pdf" in PlotFmt:
     pass
 else:
@@ -234,6 +234,10 @@ if ("scatter" in ImageType.lower()):
         sfac = 10.
 
 
+
+# The following cell determines the settings for individual components. Each sublist associated to a componet contains the name, followed by a list of parameters determining the data limits, and a step determining the color bar, or the isolines. Further paramers, as e.g. the threshhold for the PLM, may be added.  
+
+
 # CompList=[
 #     ["Z3", []], #[0., 2000., 100.]],
 #     ["Z6", []],#[0., 2000., 100.]],
@@ -271,13 +275,11 @@ CompList=[
 ]
 
 
-xformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
-yformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
-"""
-Determine graphical parameter.
-=> print(matplotlib.pyplot.style.available)
-"""
-FilesOnly = False
+# Below, some graphic parameters are set, defining the style of the figure. A list of available styles can be printed with print(matplotlib.pyplot.style.available), and on the matplotlib web page at https://matplotlib.org/stable/gallery/style_sheets/style_sheets_reference.html.
+
+
+# +
+
 matplotlib.pyplot.style.use("seaborn-v0_8-paper")
 matplotlib.rcParams["figure.dpi"] = 400
 matplotlib.rcParams["text.usetex"] = False
@@ -285,6 +287,7 @@ matplotlib.rcParams["font.family"] = "sans-serif"
 matplotlib.rcParams["axes.linewidth"] = 0.5
 matplotlib.rcParams["savefig.facecolor"] = "none"
 matplotlib.rcParams["savefig.bbox"]= "tight"
+# -
 
 Fontsize = 7
 Labelsize = Fontsize
@@ -295,10 +298,10 @@ Linewidths= [0.5]
 FigWidth = 16.
 
 #
-# Determine colormap.
-# => https://matplotlib.org/stable/gallery/color/colormap_reference.html
+# Determine colormap. A comprehensive list of colormaps can be found at https://matplotlib.org/stable/gallery/color/colormap_reference.html
 #
 
+# +
 Cmap ="viridis"
 Cmap = "hsv"
 # Cmap ="magma"
@@ -306,6 +309,10 @@ Cmap = "jet_r"
 # Cmap = "seismic"
 # Cmap = "Spectral"
 cmp = matplotlib.colormaps[Cmap]
+
+xformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
+yformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
+# -
 
 if FilesOnly:
     matplotlib.use("cairo")
@@ -553,25 +560,6 @@ for filein in dat_files:
             cb = matplotlib.pyplot.colorbar(im, cax=cax, extend="both")
             cb.ax.tick_params(labelsize=Fontsizes[1])
             cb.ax.set_title(Unit, fontsize=Fontsizes[1])
-
-
-        """
-        CoLORBARS:
-        extend{'neither', 'both', 'min', 'max'}
-
-            Make pointed end(s) for out-of-range values (unless 'neither'). These are set for a given colormap using the colormap set_under and set_over methods.
-        extendfrac{None, 'auto', length, lengths}
-
-            If set to None, both the minimum and maximum triangular colorbar extensions will have a length of 5% of the interior colorbar length (this is the default setting).
-
-            If set to 'auto', makes the triangular colorbar extensions the same lengths as the interior boxes (when spacing is set to 'uniform') or the same lengths as the respective adjacent interior boxes (when spacing is set to 'proportional').
-
-            If a scalar, indicates the length of both the minimum and maximum triangular colorbar extensions as a fraction of the interior colorbar length. A two-element sequence of fractions may also be given, indicating the lengths of the minimum and maximum colorbar extensions respectively as a fraction of the interior colorbar length.
-        extendrectbool
-
-            If False the minimum and maximum colorbar extensions will be triangular (the default). If True the extensions will be rectangular.
-        """
-
 
         if "scatter" in ImageType.lower():
             plotfile = PlotDir+PlotName+"_"+AEM_system\

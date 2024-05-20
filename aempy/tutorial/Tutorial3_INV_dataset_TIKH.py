@@ -12,6 +12,19 @@
 # ---
 
 
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.2
+# ---
+
+
 import os
 import sys
 from sys import exit as error
@@ -46,27 +59,33 @@ import alg
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
-
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  
+
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
 OutInfo = False
-now = datetime.now()
 
 
-"""
-System related settings.
-Data transformation is allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
+# -
+
+# The following cell gives values to AEM-system related settings. 
+#
+# Data transformation is activated by the variable _DataTrans_. Currently 
+# three possible options are allowed: _DataTrans = 0_: No transformation, 
+# i.e., the raw data are used. _DataTrans = 1_: The natural log of data 
+# is taken, only allowed for strictly positive values. _DataTrans = 2_: 
+# If data scale logarithmically, an _asinh_ transformation (introduced by
+# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, 
+# when IP effects are present.
+#        
+# A general additive/multiplicative error model is applied on the raw data
+# before transformation, and errors are also transformed.
+
+# +
+
 # AEM_system = "genesis"
 AEM_system = "aem05"  # "genesis"
 if "aem05" in AEM_system.lower():
@@ -94,8 +113,6 @@ if "genes" in AEM_system.lower():
 # """
 # configure moltiprocessing
 # """
-
-
 # nprocs = 8
 # if nprocs<0:
 #     nprocs=multiprocessing.cpu_count()
@@ -110,19 +127,19 @@ ReverseDir = False
 
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
-SearchStrng = "*.npz"
+SearchStrng = "*k3.npz"
 
 
-# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
-InDatDir =  AEMPYX_ROOT + "/aempy/data/AEM05/"
+AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
+InDatDir =  AEMPYX_DATA + "/aem05_stgormans/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
     # dat_files = []
-    dat_files = [InDatDir+"StGormans_FL11379-0_k3.npz"]
-    # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
+    # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
     
     dat_files = [os.path.basename(f) for f in dat_files]  
 else:
@@ -140,7 +157,7 @@ if ns ==0:
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =  InDatDir + "results_doi/"
+OutResDir =  InDatDir + "results"
 
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)

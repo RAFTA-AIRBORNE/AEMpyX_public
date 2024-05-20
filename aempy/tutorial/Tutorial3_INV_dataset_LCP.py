@@ -1,3 +1,15 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.2
+# ---
+
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -155,7 +167,7 @@ if MergeModels:
                                    outfile_name=corrfile,
                                    dictout= True, out=False)
     mod_files = [corrfile]
-    
+
 """
 read  data set
 """
