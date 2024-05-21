@@ -4,11 +4,16 @@
 #   jupytext:
 #     cell_metadata_filter: -all
 #     formats: py:light,ipynb
+#     main_language: python
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (Spyder)
+#     language: python3
+#     name: python3
 # ---
 
 
@@ -25,6 +30,7 @@
 # ---
 
 
+# +
 import os
 import sys
 from sys import exit as error
@@ -42,7 +48,6 @@ import scipy
 # import multiprocessing
 # from numba import njit
 
-
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
 for pth in mypath:
@@ -55,8 +60,7 @@ import aesys
 import util
 import inverse
 import alg
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
+# -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 rng = numpy.random.default_rng()
@@ -85,7 +89,6 @@ OutInfo = False
 # before transformation, and errors are also transformed.
 
 # +
-
 # AEM_system = "genesis"
 AEM_system = "aem05"  # "genesis"
 if "aem05" in AEM_system.lower():
@@ -109,10 +112,10 @@ if "genes" in AEM_system.lower():
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
-
-# """
+# +
+# 
 # configure moltiprocessing
-# """
+# 
 # nprocs = 8
 # if nprocs<0:
 #     nprocs=multiprocessing.cpu_count()
@@ -290,113 +293,6 @@ if "tikhopt" in  RunType.lower():
         ("uncert", 
          Uncert)
        ])
-
-if "occ" in RunType.lower():
-    """
-    Prepare differential operator base methods for regularization matrices
-    """
-    D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
-    L = [D0 for D in range(7)]
-    L0 = scipy.sparse.block_diag(L)
-    Cm0 = L0.T@L0
-    Cm0 = inverse.extract_cov(Cm0, mod_act)
-
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
-    L = [D1 for D in range(7)]
-    L1 = scipy.sparse.block_diag(L)
-    Cm1 = L1.T@L1
-    Cm1 = inverse.extract_cov(Cm1, mod_act)
-
-    Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
-
-    Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
-    L = L1
-    TauSeq = [0.5]
-    Delta = [1.e-5]
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),        
-        ("name", ""),
-        ("inversion", 
-         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
-                      LinPars, SetPrior, Delta],dtype=object)),
-        ("covar", 
-         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
-
-if "map" in  RunType.lower():
-
-    """
-    Prepare explicit covariances for MAP and related methods
-    """
-
-    zc = inverse.set_zcenters(dz)
-    xc = numpy.zeros_like(zc)
-    yc = numpy.zeros_like(zc)
-    CorrL = numpy.array([30.0, 30.0, 30.0])
-
-    """
-    This setup is a workaround, correct only for rho-only inversion
-    """
-
-    mvar  = mod_var[0*Nlyr:1*Nlyr]
-    # inverse.extract_mod(mod_var, mod_act)
-
-    if "par"in RunType.lower():
-        InvSpace = "par"
-        Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=False, thresh=0.05, inverse=True)
-        Cmi=inverse.extract_cov(Cmi, mod_act)
-        Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
-        CmiS=inverse.extract_cov(CmiS, mod_act)
-        CmiS = scipy.sparse.block_diag([CmiS for Cmis in range(7)])
-        C, sC = Cmi, CmiS
-    else:
-        InvSpace = "dat"
-        Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=False, thresh=0.05, inverse=False)
-        Cm=inverse.extract_cov(Cm, mod_act)
-        Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
-        CmS=inverse.extract_cov(CmS, mod_act)
-        CmS = scipy.sparse.block_diag([CmS for CmS in range(7)])
-        C, sC = Cm, CmS
-
-    Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
-    
-    
-    
-    ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
-    Delta = [1.e-5]
-    TauSeq = [0.5]
-    RegShift = 1
-    Ctrl = dict([
-        ("system",
-         [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion",
-         numpy.array([RunType, InvSpace, RegFun, Tau1, Maxiter,ThreshRMS,
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar",
-         numpy.array([C, sC], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert",
-         Uncert)
-       ])
-
-
 
 if OutInfo:
     print(Ctrl.keys())

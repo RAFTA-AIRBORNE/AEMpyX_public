@@ -34,6 +34,7 @@ import warnings
 import numpy
 
 
+# +
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
 for pth in mypath:
@@ -43,9 +44,8 @@ for pth in mypath:
 from version import versionstrg
 import util
 import aesys
+# -
 
-
-OutInfo = True
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 version, _ = versionstrg()

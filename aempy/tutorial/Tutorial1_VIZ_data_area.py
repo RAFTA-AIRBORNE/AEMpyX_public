@@ -248,6 +248,9 @@ if ("scatter" in ImageType.lower()):
 #     ["ALT", [80., 160., 20.], 240.]     # ALTthresh = 70.
           # ]
 
+# Electromagnetic data may exhibit large amplitude spreads. By setting _CompList_ the plot limits can be adapted according to your needs. For an overview, the commented section may be used, while for pulication-ready figures, the current settings should be adapted.
+
+# +
 # CompList=[
     # ["P1", [0., 2000., 100.]],
     # ["Q1", [0., 2000., 100.]],
@@ -273,12 +276,9 @@ CompList=[
     ["PLM", [], 3],      # PLMthresh = 0.25
     ["ALT", [40., 120., 20.], 125.]     # ALTthresh = 70.
 ]
-
+# -
 
 # Below, some graphic parameters are set, defining the style of the figure. A list of available styles can be printed with print(matplotlib.pyplot.style.available), and on the matplotlib web page at https://matplotlib.org/stable/gallery/style_sheets/style_sheets_reference.html.
-
-
-# +
 
 matplotlib.pyplot.style.use("seaborn-v0_8-paper")
 matplotlib.rcParams["figure.dpi"] = 400
@@ -287,7 +287,6 @@ matplotlib.rcParams["font.family"] = "sans-serif"
 matplotlib.rcParams["axes.linewidth"] = 0.5
 matplotlib.rcParams["savefig.facecolor"] = "none"
 matplotlib.rcParams["savefig.bbox"]= "tight"
-# -
 
 Fontsize = 7
 Labelsize = Fontsize
@@ -590,4 +589,4 @@ for filein in dat_files:
         matplotlib.pyplot.clf()
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCName)
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCName)

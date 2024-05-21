@@ -3,11 +3,16 @@
 #   jupytext:
 #     cell_metadata_filter: -all
 #     formats: py:light,ipynb
+#     main_language: python
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (Spyder)
+#     language: python3
+#     name: python3
 # ---
 
 # !/usr/bin/env python3
