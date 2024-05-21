@@ -156,11 +156,12 @@ ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 
+# +
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =  InDatDir + "results"
+OutResDir =  InDatDir + "/results/"
 
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
@@ -168,7 +169,7 @@ if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
 
-
+# +
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
@@ -198,7 +199,7 @@ else:
 Tau1 = numpy.logspace(Tau1min, Tau1max, NTau1)
 nreg = NTau0 * NTau1
 
-
+# +
 """
 Model definition
 """
@@ -251,6 +252,7 @@ if OutInfo:
         print(" Upper limits: \n", mod_bnd[:, 1])
         print(" Lower limits: \n", mod_bnd[:, 0])
 
+# +
 """
 Setup Controls for different Algorithms
 """
@@ -296,8 +298,7 @@ if "tikhopt" in  RunType.lower():
 
 if OutInfo:
     print(Ctrl.keys())
-
-
+# -
 
 outstrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
@@ -305,7 +306,6 @@ outstrng = "_nlyr"+str(Nlyr)\
             +"_Prior"+str(int(Guess_r))\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
 print("ID string: input file + %s " % outstrng)
-
 
 fcount =0
 for file in dat_files:
@@ -339,7 +339,9 @@ for file in dat_files:
         file, filext0 = os.path.splitext(file)
         prior_file = file+halfspace+filext0
         mod_prior, var_prior = inverse.load_prior(prior_file)
+        
 
+# This is the main loop over sites in a flight line or within an area:        
 
     start = time.time()
     """
@@ -404,28 +406,16 @@ for file in dat_files:
             ("alt", site_alt[ii])
             ])
 
-        """
-        Call inversion algorithms
-        """
-        if "opt" in RunType.lower():
-            Results =\
+# +
+        Results =\
                 alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
+        
+        
+# -
 
-        if "occ" in RunType.lower():
-            Results =\
-                alg.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
+#         Now store inversion results for this site:
 
-        if "map" in RunType.lower():
-            Results =\
-                alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-
-        """
-        Store inversion Results
-        """
         if OutInfo:
             print("Results: ",Results.keys())
 
@@ -479,8 +469,9 @@ for file in dat_files:
                pcov = Results["cpost"]
                site_pcov = numpy.vstack((site_pcov, pcov.reshape((1,numpy.size(pcov)))))
 
+# The _Ctrl_ paramter set as well as the results for data set (flight line or area) are stored in _.npz_ files, which strings _"ctrl.npz"_ and _"results.npz"_ appended:
 
-
+# +
     numpy.savez_compressed(
         file=fileout+"_results.npz",
         fl_data=file,
@@ -506,6 +497,7 @@ for file in dat_files:
         site_dem=site_dem)
 
     if Uncert:
+
         numpy.savez_compressed(        
             file=fileout+"_results.npz",
             fl_data=file,

@@ -68,9 +68,9 @@ now = datetime.now()
 input formats is "npz"
 """
 
-# InModDir = AEMPYX_DATA + "/Aug2023/results/"
+AEMPYX_DATA =  AEMPYX_ROOT+"/data/"
 
-InModDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/results_diffop/"
+InModDir =  AEMPYX_DATA + "/sem05_stgormans/proc/results/"
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Data read from dir:  %s" % InModDir)
 
