@@ -16,11 +16,8 @@
 #     name: python3
 # ---
 
-
-"""
-Show several 1d block models as (stitched) section.
-
-"""
+# Flightline plots for mmodel-like parameters, here resistivity. 
+# +
 import os
 import sys
 from sys import exit as error
@@ -46,11 +43,11 @@ for pth in mypath:
 
 from version import versionstrg
 
-
 import util
 import viz
 import inverse
 
+# +
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 rng = numpy.random.default_rng()
@@ -60,17 +57,13 @@ cm = 1/2.54  # centimeters in inches
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
+# -
 
 OutInfo = True
-now = datetime.now()
 
-"""
-input formats is "npz"
-"""
 
 AEMPYX_DATA =  AEMPYX_ROOT+"/data/"
-
-InModDir =  AEMPYX_DATA + "/sem05_stgormans/proc/results/"
+InModDir =  AEMPYX_DATA + "/aem05_stgormans/proc/results/"
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Data read from dir:  %s" % InModDir)
 
@@ -83,17 +76,19 @@ if "search" in FileList.lower():
     res_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir, fullpath=False)
     res_files = sorted(res_files)
 
+# +
 if "set" in FileList.lower():
     res_files =[]
 
 print (res_files)
-
-PlotType =  1
+# -
 
 # PlotType =  0      # rms, datafit, model
 # PlotType =  1      #  model + rms
 # PlotType =  2      #  model
 # PlotType =  3      #  datafit
+
+PlotType =  1
 
 # PlotDir = AEMPYX_DATA + "/Projects/Compare/plots/C36/"
 PlotDir = InModDir
@@ -118,6 +113,7 @@ else:
 
 PlotSize = [25., 5. ]
 
+# +
 """
 Parameter for data fit plot
 """
@@ -130,6 +126,8 @@ alpha_err68 = 0.2
 
 QLimits = []
 ILimits = []
+# -
+
 """
 Parameter for nRMS plot
 """
@@ -258,32 +256,6 @@ for file in res_files:
 
     title=FileName.replace("_"," ")
 
-
-    """
-    numpy.savez_compressed(
-        file=Fileout,
-        fl_data=file,
-        fl_name=fl_name,
-        header=Header,
-        mod_ref=mod_apr,
-        mod_act=mod_act,
-        dat_act=dat_act,
-        site_modl=site_modl,
-        site_sens=site_sens,
-        site_merr=site_merr,
-        site_dobs=site_dobs,
-        site_dcal=site_dcal,
-        site_derr=site_derr,
-        site_nrms=site_nrms,
-        site_num=site_num,
-        site_site_y,
-        site_site_x,
-        site_gps=site_gps,
-        site_alt=site_alt,
-        site_dem=site_dem)
-
-
-    """
     tmp = numpy.load(InModDir+file)
 
     m_active    = tmp["mod_act"]
@@ -779,4 +751,4 @@ for file in res_files:
 
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PLotDir+PDFCatName)
