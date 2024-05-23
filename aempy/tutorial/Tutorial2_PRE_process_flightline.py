@@ -228,7 +228,7 @@ for filename in dat_files:
         continue
         
         
-    OutNameStrng = name + "proc_"+impute[0]+"_PLM"+str(int(plmthresh))+"s"
+    OutNameStrng = name + "_proc_"+impute[0] # +"_PLM"+str(int(plmthresh))+"s"
     filout = OutputDataDir + OutNameStrng + OutFileFmt
     aesys.write_aempy(File=filout, Data=D, System=AEM_system,
                     Header=Header, OutInfo=False)
