@@ -1364,8 +1364,9 @@ def find_nearest(site0=(0.,0.), sitevec=numpy.array([])):
 
     return minpos
 
+
 def add_object_npz(filein=None,
-                   xkey = [], xobject=numpy.array([]),
+                   xkeys=[], xobjects=numpy.array([]),
                    fileout = None):
     """
     Add object to .npz file.
@@ -1374,9 +1375,9 @@ def add_object_npz(filein=None,
         Valid .npz file.
     fileout: str
         Filename for output, default is filein
-    xobject:
+    xobjects:
         Object to add to file (numpy.array)
-    xkey: str
+    xkeys: str
         Name of object
 
     vr Oct 31, 2022
@@ -1387,23 +1388,22 @@ def add_object_npz(filein=None,
     if fileout is None:
         fileout=filein
 
-    if len(xobject)==0 or len(xkey)==0:
+    if len(xobjects)==0 or len(xkeys)==0:
         error("Objects/keys not not given! Exit.")
-    if len(xobject) != len(xkey):
-        print("Object/key sizes do mot match! Set t0: "+xkey)
+    if len(xobjects) != len(xkeys):
+        print("Object/key sizes do mot match! Set t0: "+xkeys)
 
     tmp = numpy.load(filein, allow_pickle=True)
     tmp = dict(tmp)
-    for iobj in numpy.arange(len(xkey)):
-        tmp[xkey[iobj]] = xobject[iobj]
-        print("Item "+xkey[iobj]+" added to "+fileout)
+    for iobj in numpy.arange(len(xkeys)):
+        tmp[xkeys[iobj]] = xobjects[iobj]
+        print("Item "+xkeys[iobj]+" added to "+fileout)
 
     numpy.savez_compressed(fileout,**tmp)
 
 
-
 def del_object_npz(filein=None,
-                   xkey = None, xobject=numpy.array([]),
+                   xkeys=None, xobjects=numpy.array([]),
                    fileout = None):
     """
     delete object from .npz file.
@@ -1413,7 +1413,7 @@ def del_object_npz(filein=None,
     fileout: str
         Filename for output, default is filein
 
-    xkey: list of str
+    xkeys: list of str
         Names of objects to be deleted.
 
     vr Nov 12, 2022
@@ -1422,7 +1422,7 @@ def del_object_npz(filein=None,
     if filein is None:
         error("File not given! Exit.")
 
-    if xkey is None:
+    if xkeys is None:
         error("No key  not given! Exit.")
 
     if fileout is None:
@@ -1430,12 +1430,12 @@ def del_object_npz(filein=None,
 
     tmp = numpy.load(filein, allow_pickle=True)
     tmp = dict(tmp)
-    for iobj in numpy.arange(len(xkey)):
-        if xkey[iobj] in tmp:
-            tmp.pop(xkey[iobj])
+    for iobj in numpy.arange(len(xkeys)):
+        if xkeys[iobj] in tmp:
+            tmp.pop(xkeys[iobj])
 
     else:
-        print("Key {"+xkey+"} is not in the dictionary")
+        print("Key {"+xkeys+"} is not in the dictionary")
         return
 
     numpy.savez_compressed(fileout,**tmp)

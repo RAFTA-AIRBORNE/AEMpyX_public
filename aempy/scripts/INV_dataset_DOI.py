@@ -185,23 +185,23 @@ if "old" in Method.lower():
     print("    max = "+str(numpy.amax(v_doi)))
     
     util.add_object_npz(filein=Fileout, 
-               xkey = ["doi_files"], xobject=[mod_files])
+               xkeys=["doi_files"], xobjects=[mod_files])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_mavg"], xobject=[m_avg])
+               xkeys=["site_doi_mavg"], xobjects=[m_avg])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_mdif"], xobject=[m_dif])
+               xkeys=["site_doi_mdif"], xobjects=[m_dif])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_rdif"], xobject=[r_dif])
+               xkeys=["site_doi_rdif"], xobjects=[r_dif])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_doi"], xobject=[v_doi])
+               xkeys=["site_doi_doi"], xobjects=[v_doi])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_models"], xobject=[modls])
+               xkeys=["site_doi_models"], xobjects=[modls])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_mrefs"], xobject=[mrefs])
+               xkeys=["site_doi_mrefs"], xobjects=[mrefs])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_merrs"], xobject=[merrs])    
+               xkeys=["site_doi_merrs"], xobjects=[merrs])    
     util.add_object_npz(filein=Fileout, 
-               xkey = ["doi_meth"], xobject=[Method])
+               xkeys=["doi_meth"], xobjects=[Method])
 
     
 
@@ -249,23 +249,23 @@ if "var" in Method.lower():
     print("    max = "+str(numpy.amax(v_doi)))
     
     util.add_object_npz(filein=Fileout, 
-               xkey = ["doi_files"], xobject=[mod_files])
+               xkeys=["doi_files"], xobjects=[mod_files])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_mavg"], xobject=[m_avg])
+               xkeys=["site_doi_mavg"], xobjects=[m_avg])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_doi"], xobject=[v_doi])
+               xkeys=["site_doi_doi"], xobjects=[v_doi])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_ano"], xobject=[m_ano])
+               xkeys=["site_doi_ano"], xobjects=[m_ano])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_var"], xobject=[m_var])
+               xkeys=["site_doi_var"], xobjects=[m_var])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_models"], xobject=[modls])
+               xkeys=["site_doi_models"], xobjects=[modls])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_mrefs"], xobject=[mrefs])
+               xkeys=["site_doi_mrefs"], xobjects=[mrefs])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["site_doi_merrs"], xobject=[merrs])
+               xkeys=["site_doi_merrs"], xobjects=[merrs])
     util.add_object_npz(filein=Fileout, 
-               xkey = ["doi_meth"], xobject=[Method])
+               xkeys=["doi_meth"], xobjects=[Method])
 
 
 print("Results stored to "+Fileout)

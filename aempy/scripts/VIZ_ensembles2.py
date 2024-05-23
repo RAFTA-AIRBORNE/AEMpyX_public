@@ -623,7 +623,7 @@ for file in dat_files:
            
     if "ens" in Ctrl["output"]:
         util.add_object_npz(filein=Fileout+".npz",
-                   xkey = ["site_jcn_ens"], xobject=[site_jcn_ens])
+                   xkeys=["site_jcn_ens"], xobjects=[site_jcn_ens])
 
     print("\n\nResults stored to "+Fileout)
     elapsed = (time.time() - start)

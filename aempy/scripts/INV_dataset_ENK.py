@@ -614,7 +614,7 @@ for file in dat_files:
            
     if "ens" in Ctrl["output"]:
         util.add_object_npz(filein=Fileout+OutFileFmt,
-                   xkey = ["site_eki_ens"], xobject=[site_eki_ens])
+                   xkeys=["site_eki_ens"], xobjects=[site_eki_ens])
 
     print("\n\nResults stored to "+Fileout)
     elapsed = (time.time() - start)
