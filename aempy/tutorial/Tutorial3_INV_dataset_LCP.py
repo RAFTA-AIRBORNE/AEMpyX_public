@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ---
 # jupyter:
 #   jupytext:
@@ -14,8 +15,6 @@
 #     language: python3
 #     name: python3
 # ---
-
-# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -69,8 +68,12 @@ OutInfo = True
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+script = "Tutorial3_INV_dataset_LCP.py"
+# script = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
+Header = titstrng
+
 
 now = datetime.now()
 
@@ -114,7 +117,7 @@ input formats is "npz"
 """
 InFilFmt = ".npz"
 XYFact = 1. 
-MergeModels = True
+
 
 TileSize = 2000.
 TileOverlap = 0.5
@@ -127,15 +130,17 @@ Scale = 0.5*CovarThresh
 
 ReCalc = "fwd"   # "inverse"
 
+MergeModels = True
+MergeFile = "Limerick_shale_dec5_merged.npz"
 
 
+AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
 
-
-InModDir = AEMPYX_ROOT+"/work/data/merged/results/"
+InModDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
 print("Data read from dir: %s " % InModDir)
 FileList = "search" #"search"
 SearchStrng = "*dec5*mean*results.npz"
-OutModDir = InModDir+"/LCP/"
+OutModDir =  AEMPYX_DATA+"/aem05_limerick/merged/"
 
 
 if "set" in FileList.lower():
@@ -163,13 +168,15 @@ if ns ==0:
 
 
 
+print(mod_files[0])
+print("Data read from dir: %s " % InModDir)
 
 #   workaround!!!!!    
-corrfile = mod_files[0].replace(".npz","_merged.npz")
+corrfile = MergeFile
 
 if MergeModels:
     _ = util.merge_model_sets(infile_list=mod_files,
-                                   outfile_name=corrfile,
+                                   outfile_name=MergeFile,
                                    dictout= True, out=False)
     mod_files = [corrfile]
 

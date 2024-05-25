@@ -249,7 +249,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
     dateform="%m/%d/%Y, %H:%M:%S"
     # _,NN, _, _, _, = aesys.get_system_params(System=aem_system)
 
-
+        
     k = 0
     for file in infile_list:
         k = k+1
@@ -293,7 +293,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
 
         # print(numpy.shape(site_x))
         # print(numpy.shape(site_z))
-
+        
         if k == 1:
             merged_log = site_log
             merged_mod = site_mod
@@ -306,8 +306,8 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             merged_gps = site_gps.reshape(-1,1)
             merged_alt = site_alt.reshape(-1,1)
             merged_dem = site_dem.reshape(-1,1)
-            merged_cov = site_cov.ravel(order="F")
-
+            merged_cov = site_cov.T
+            print(numpy.shape(merged_cov), numpy.shape(site_cov), k)
         else:
             merged_log = numpy.vstack((merged_log, site_log))
             merged_mod = numpy.vstack((merged_mod, site_mod))
@@ -320,7 +320,8 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             merged_gps = numpy.vstack((merged_gps, site_gps.reshape(-1,1)))
             merged_alt = numpy.vstack((merged_alt, site_alt.reshape(-1,1)))
             merged_dem = numpy.vstack((merged_dem, site_dem.reshape(-1,1)))
-            merged_cov = numpy.vstack((site_cov, site_cov.ravel(order="F")))
+            print(numpy.shape(merged_cov), numpy.shape(site_cov), k)
+            merged_cov = numpy.hstack((merged_cov, site_cov.T))
 
     if outfile_name is not None:
         if not ".npz" in os.path.splitext(outfile_name)[1]:

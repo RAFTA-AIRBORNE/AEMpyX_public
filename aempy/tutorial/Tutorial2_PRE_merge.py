@@ -55,20 +55,14 @@ print(titstrng+"\n\n")
 
 
 
-FileList = "search"  # "search", "read"
-LinesOut = True
-LinesMin = 30
-CheckNaN = True
-MergeOut = True
-
-
+DataType = "models"
 
 FileList = "search"  # "search", "read"
+
 
 
 InDatDir = AEMPYX_ROOT+"/data/"
 OutDatDir = AEMPYX_ROOT+"/limerick/merged/"
-
 SearchStrng = "*_k2*5*mean.npz"
 OutFileName = OutDatDir+"LimShale_k2_dec5_mean_merged"
 OutHeader =" Limerick Shale project, k2 dec5 mean merged"
@@ -102,9 +96,14 @@ ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 
-# aesys.merge_data_files(File_list=dat_files, 
-#                     Merged=OutFileName, MergedHeader=OutHeader, 
-#                     OutInfo=False)
-util.merge_data_sets(file_list=dat_files, aem_system="aem05",
+
+if "dat" in DataType.lower():  
+    _ = util.merge_data_sets(file_list=dat_files, aem_system="aem05",
+                                       outfile_name=OutFileName,
+                                       out=False)
+else:
+    _ = util.merge_model_sets(infile_list=dat_files,
                                    outfile_name=OutFileName,
-                                   out=False)
+                                   dictout= True, out=False)
+
+

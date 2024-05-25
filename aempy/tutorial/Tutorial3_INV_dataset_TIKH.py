@@ -339,7 +339,7 @@ for file in dat_files:
         file, filext0 = os.path.splitext(file)
         prior_file = file+halfspace+filext0
         mod_prior, var_prior = inverse.load_prior(prior_file)
-        
+
 
 # This is the main loop over sites in a flight line or within an area:        
 
@@ -406,13 +406,9 @@ for file in dat_files:
             ("alt", site_alt[ii])
             ])
 
-# +
         Results =\
                 alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
-        
-        
-# -
 
 #         Now store inversion results for this site:
 

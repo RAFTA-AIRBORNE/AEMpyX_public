@@ -84,10 +84,11 @@ OutFileFmt = ".npz"
 FileList = "search"  # "search", "read"
 
 
-InDatDir = AEMPYX_ROOT+"/data/data/proc/"
-OutDatDir = AEMPYX_ROOT+"/data/data/dec/"
+AEMPYX_DATA = AEMPYX_ROOT+"/data/"
+InDatDir = AEMPYX_DATA+"/aem05_limerick/proc/"
+OutDatDir = AEMPYX_DATA+"/aem05_limerick/dec/"
 
-SearchStrng = "*_k2.npz"
+SearchStrng = "*FL*.npz"
 
 
 print("Data read from dir:  %s" % InDatDir)
