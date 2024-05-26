@@ -54,18 +54,24 @@ print(titstrng+"\n\n")
 
 
 
-
+AEMPYX_DATA = AEMPYX_ROOT+"/data/"
 DataType = "models"
-
 FileList = "search"  # "search", "read"
 
 
-
-InDatDir = AEMPYX_ROOT+"/data/"
-OutDatDir = AEMPYX_ROOT+"/limerick/merged/"
+DataType = "models"
+InDatDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
+OutDatDir = AEMPYX_DATA+"/aem05_limerick/merged/"
 SearchStrng = "*_k2*5*mean.npz"
 OutFileName = OutDatDir+"LimShale_k2_dec5_mean_merged"
 OutHeader =" Limerick Shale project, k2 dec5 mean merged"
+
+# DataType = "data"
+# InDatDir = AEMPYX_ROOT+"/data/"
+# OutDatDir = AEMPYX_ROOT+"/limerick/merged/"
+# SearchStrng = "*_k2*5*mean.npz"
+# OutFileName = OutDatDir+"LimShale_k2_dec5_mean_merged"
+# OutHeader =" Limerick Shale project, k2 dec5 mean merged"
 
 
 print("Data read from dir:  %s" % InDatDir)
