@@ -188,7 +188,7 @@ def get_filelist(searchstr=["*"], searchpath="./", sortedlist =True, fullpath=Fa
     """
 
     filelist = fnmatch.filter(os.listdir(searchpath), "*")
-    print("\n Files in searchpath:")
+    print("\n ")
     print(filelist)
     for sstr in searchstr:
         filelist = fnmatch.filter(filelist, sstr)

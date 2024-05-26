@@ -130,31 +130,13 @@ ReverseDir = False
 
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
-SearchStrng = "*k3.npz"
+SearchStrng = "*k2*.npz"
 
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir =  AEMPYX_DATA + "/aem05_stgormans/"
+InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
-
-if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)
-    # dat_files = []
-    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
-    # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
-    
-    dat_files = [os.path.basename(f) for f in dat_files]  
-else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
-                              out= True, sort=True)
-
-
-ns = numpy.size(dat_files)
-if ns ==0:
-    error("No files set!. Exit.")
 
 # +
 """
@@ -299,6 +281,26 @@ if "tikhopt" in  RunType.lower():
 if OutInfo:
     print(Ctrl.keys())
 # -
+
+
+if "set" in FileList.lower():
+    print("Data files read from dir:  %s" % InDatDir)
+    # dat_files = []
+    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
+    # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    
+    dat_files = [os.path.basename(f) for f in dat_files]  
+else:
+    # how = ["search", SearchStrng, InDatDir]
+    # how = ["read", FileList, InDatDir]
+    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
+                              out= True, sort=True)
+
+
+ns = numpy.size(dat_files)
+if ns ==0:
+    error("No files set!. Exit.")
+
 
 outstrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
