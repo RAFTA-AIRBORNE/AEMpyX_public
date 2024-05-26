@@ -4,6 +4,7 @@
 @set "AEMPYX_ROOT=C:\Users\33642\AEM"
 @set "AEMPYX_DATA=C:\Users\33642\AEM\data"
 
+conda create -n AEM -f AEMpyX_windows.txt
 conda activate AEM
-mamba update --all
+conda update --all
 
