@@ -149,7 +149,6 @@ _jupyter lab mynotebook.ipynb_
 
 Both calls will open a new browser window, in which you can edit and run the notebook. The _jupiterlab_ is the future interface for notebooks, and there are many options not available with the classical call (https://jupyterlab.readthedocs.io). Remote clusters often offer a specialized server (JupyterHub) to develop and run notebooks. 
 
-Uncert_FL11379-0_site1497.0m
 <p align="center">
    <img src="img/Uncert_FL11379-0_site1497.0m.png" alt="Synthetics inversion results" width="700"/>
 </p>
