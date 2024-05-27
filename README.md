@@ -117,7 +117,7 @@ _export AEMPYX_ROOT='${HOME}/AEMpyX/'_
 
 _export AEMPYX_DATA='${HOME}/AEM_Data/Tellus/data/'_
 
-Under windows, you should use the system settings dialogue to do so. 
+Under windows, you should use the system settings dialogue to do so (Settings => System => Advanced sytem settings => Environment Variables). 
 
 
 (7) Finally, the remaining open source toolboxes you want to use need to be installed, either via the anaconda framework, or the _pip_ command. Currently only _pymupdf_, which has no _conda_ package, will need _pip_ installation, which is only needed for pdf file manipulations. 
