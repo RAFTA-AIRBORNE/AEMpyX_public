@@ -98,11 +98,12 @@ This will set up a Python 3.11 environment with all dependencies for aempy. Don'
 _conda activate AEMpyX_
 
 
-(4) Within this envionment you now need to compile the aempy core, which is written in Fortran 90, and thus needs compilation. For this purpose, _f2py_ (part of _numpy_), and the required  compilers have been included in the EM environments. To compile and install the numerical core, go to the _core1d_ directory, and enter 
+(4) Within this envionment you now need to compile the aempy core with _f2py_,  which is written in Fortran 90. Here, we rely on _f2py_, which is part of the _numpy_ package. As the current conda fortran-compiler meta-package now uses a different compiler (LLVM-based flang), we suggest to install a seperate gfortran version under Windows, e.g., 
+the one  at _https://jmeubank.github.io/tdm-gcc/_. To compile and install the numerical core, go to the _core1d_ directory, and enter 
 
 _make -f Makefile_linux_  or  _make -f Makefile_windows_ 
 
-respectively. If this is succesful, a dynamical library, _core1d.so_ (_core1d.pyd_ under windows), should be in the _modules_ subdirectory. 
+respectively. If this is succesful, a dynamical library, _core1d.xxx.so_ (_core1d.xxx.pyd_ under windows), should be in the _modules_ subdirectory. The string _xxx_ marks a particular version  and is ignored when being loaded from _python_.
 
 
 (5) In order to reproduce identical behavior of matplotlib, you should copy the included  _matplotlibrc_ file to the appropriate directory. Under Linux (Ubuntu), this should be : _$HOME/.config/matplotlib/matplotlibrc_. Pertinent changes should be made there, or have to be made within the scripts/modules using the _mpl.rcParams[name]=value_ mechanism. 
@@ -116,7 +117,7 @@ _export AEMPYX_ROOT='${HOME}/AEMpyX/'_
 
 _export AEMPYX_DATA='${HOME}/AEM_Data/Tellus/data/'_
 
-Under windows, you should use the system settings dialogue to do so. 
+Under windows, you should use the system settings dialogue to do so (Settings => System => Advanced sytem settings => Environment Variables). 
 
 
 (7) Finally, the remaining open source toolboxes you want to use need to be installed, either via the anaconda framework, or the _pip_ command. Currently only _pymupdf_, which has no _conda_ package, will need _pip_ installation, which is only needed for pdf file manipulations. 
@@ -148,7 +149,6 @@ _jupyter lab mynotebook.ipynb_
 
 Both calls will open a new browser window, in which you can edit and run the notebook. The _jupiterlab_ is the future interface for notebooks, and there are many options not available with the classical call (https://jupyterlab.readthedocs.io). Remote clusters often offer a specialized server (JupyterHub) to develop and run notebooks. 
 
-Uncert_FL11379-0_site1497.0m
 <p align="center">
    <img src="img/Uncert_FL11379-0_site1497.0m.png" alt="Synthetics inversion results" width="700"/>
 </p>
@@ -163,4 +163,4 @@ Enjoy, read the docs, but please keep in mind that this is an experimental softw
 
 D. Kiyan & V. Rath
 
-May 9, 2024
+May 27, 2024
