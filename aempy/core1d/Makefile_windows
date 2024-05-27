@@ -5,7 +5,7 @@ LD=gfortran
 LDFLAGS=
 # LDFLAGS=-shared
 f2pyexe=f2py
-corelib=core1d.cp39-win_amd64.pyd
+corelib=core1d.cp311-win_amd64.pyd
 #core1d.so
 .default:
 	-echo $@ does not exist.
@@ -13,12 +13,12 @@ corelib=core1d.cp39-win_amd64.pyd
 Fexec1=BeoDriverGenesis.x
 Fexec2=BeoDriverAEM05.x
 Fexec3=BeoDriverAEM95.x
-Fexec4=BeoDriverGeotem.x
+# Fexec4=BeoDriverGeotem.x
 
 
 
-all: Fexec1 Fexec2 Pmodule Pinstall
-tests: Fexec1 Fexec2 Fexec3 Fexec4
+all: Fexec1 Fexec2 Fexec3 Pmodule Pinstall
+# tests: Fexec1 Fexec2 Fexec3 Fexec4
 
 # driver routines
 BeoDriverGenesis.o: ./BeoDriverGenesis.f90
@@ -27,8 +27,8 @@ BeoDriverAEM05.o: ./BeoDriverAEM05.f90
 	$(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverAEM05.f90
 BeoDriverAEM95.o: ./BeoDriverAEM95.f90
 	$(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverAEM95.f90
-BeoDriverGeotem.o: ./BeoDriverGeotem.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverGeotem.f90
+# BeoDriverGeotem.o: ./BeoDriverGeotem.f90
+	# $(FC) $(FFLAGS) $(otherflags) -c	./BeoDriverGeotem.f90
 
 # modules
 
@@ -47,15 +47,15 @@ aem05.o: ./aem05.f90
 	$(FC) $(FFLAGS) $(otherflags) -c	./aem05.f90
 aem95.o: ./aem95.f90
 	$(FC) $(FFLAGS) $(otherflags) -c	./aem95.f90
-geotem.o: ./geotem.f90
-	$(FC) $(FFLAGS) $(otherflags) -c	./geotem.f90
+# geotem.o: ./geotem.f90
+	# $(FC) $(FFLAGS) $(otherflags) -c	./geotem.f90
 genesis.o: ./genesis.f90
 	$(FC) $(FFLAGS) $(otherflags) -c	./genesis.f90
 
 
-src	  = filt_coef_q.f90 frequency_select.f90 core1d.f90 part1d.f90 aem05.f90 aem95.f90 genesis.f90 geotem.f90
+src	  = filt_coef_q.f90 frequency_select.f90 core1d.f90 part1d.f90 aem05.f90 aem95.f90 genesis.f90 # geotem.f90
 
-obj   = filt_coef_q.o frequency_select.o core1d.o part1d.o aem05.o aem95.o genesis.o geotem.o
+obj   = filt_coef_q.o frequency_select.o core1d.o part1d.o aem05.o aem95.o genesis.o # geotem.o
 
 clean:
 	-rm -f $(tmpfiles)  $(obj)  $(exec)  *.mod *.pyf *.so *.pyc *.x *.o
@@ -71,9 +71,9 @@ Fexec2: BeoDriverAEM05.o  $(obj)
 Fexec3: BeoDriverAEM95.o  $(obj)
 	$(LD) $(LDFLAGS) BeoDriverAEM95.o $(obj) -o $(Fexec3)
 	cp $(Fexec3) ../test
-Fexec4: BeoDriverGeotem.o  $(obj)
-	$(LD) $(LDFLAGS) BeoDriverGeotem.o $(obj) -o $(Fexec4)
-	cp $(Fexec4) ../test
+# Fexec4: BeoDriverGeotem.o  $(obj)
+	# $(LD) $(LDFLAGS) BeoDriverGeotem.o $(obj) -o $(Fexec4)
+	# cp $(Fexec4) ../test
 
 
 Pmodule: $(src)

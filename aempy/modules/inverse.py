@@ -24,7 +24,7 @@ import numpy
 import functools
 
 
-import core1d
+# import core1d
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
