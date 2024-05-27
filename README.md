@@ -98,11 +98,12 @@ This will set up a Python 3.11 environment with all dependencies for aempy. Don'
 _conda activate AEMpyX_
 
 
-(4) Within this envionment you now need to compile the aempy core, which is written in Fortran 90, and thus needs compilation. For this purpose, _f2py_ (part of _numpy_), and the required  compilers have been included in the EM environments. To compile and install the numerical core, go to the _core1d_ directory, and enter 
+(4) Within this envionment you now need to compile the aempy core with _f2py_,  which is written in Fortran 90. Here, we rely on _f2py_, which is part of the _numpy_ package. As the current conda fortran-compiler meta-package now uses a different compiler (LLVM-based flang), we suggest to install a seperate gfortran version under Windows, e.g., 
+the one  at _https://jmeubank.github.io/tdm-gcc/_. To compile and install the numerical core, go to the _core1d_ directory, and enter 
 
 _make -f Makefile_linux_  or  _make -f Makefile_windows_ 
 
-respectively. If this is succesful, a dynamical library, _core1d.so_ (_core1d.pyd_ under windows), should be in the _modules_ subdirectory. 
+respectively. If this is succesful, a dynamical library, _core1d.xxx.so_ (_core1d.xxx.pyd_ under windows), should be in the _modules_ subdirectory. The string _xxx_ marks a particular version  and is ignored when being loaded from _python_.
 
 
 (5) In order to reproduce identical behavior of matplotlib, you should copy the included  _matplotlibrc_ file to the appropriate directory. Under Linux (Ubuntu), this should be : _$HOME/.config/matplotlib/matplotlibrc_. Pertinent changes should be made there, or have to be made within the scripts/modules using the _mpl.rcParams[name]=value_ mechanism. 
