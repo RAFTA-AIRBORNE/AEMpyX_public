@@ -33,7 +33,7 @@ import matplotlib.pyplot
 import matplotlib.cm
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
+mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
 # mypath = ["/home/vrath/AEMpyX/aempy/modules/", "/home/vrath/AEMpyX/aempy/scripts/"]
 for pth in mypath:
     if pth not in sys.path:

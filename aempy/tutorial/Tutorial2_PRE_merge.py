@@ -36,7 +36,7 @@ import numpy
 
 # +
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
+mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -53,8 +53,10 @@ titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
 
-
+# for tutorial only...
 AEMPYX_DATA = AEMPYX_ROOT+"/data/"
+
+
 DataType = "models"
 FileList = "search"  # "search", "read"
 

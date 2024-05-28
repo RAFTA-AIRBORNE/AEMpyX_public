@@ -32,7 +32,7 @@ from datetime import datetime
 import numpy
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
+mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
 
 for pth in mypath:
     if pth not in sys.path:
