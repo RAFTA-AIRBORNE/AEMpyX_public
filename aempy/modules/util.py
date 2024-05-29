@@ -33,6 +33,18 @@ from numba import jit
 import aesys
 import inverse
 
+def to_ospath(inpath=None, opsys=None):
+    
+    if opsys is None:
+        opsys = os.name
+    
+    if "/" in inpath and opsys=="nt":
+        outpath = "\\".join(inpath.split("/"))  
+        
+    elif "\\" in inpath and opsys=="posix":
+        outpath = "/".join (inpath.split("\\")) 
+        
+    return outpath
 
 def check_env(envar="CONDA_PREFIX", action="error"):
     """
@@ -1874,3 +1886,4 @@ def mt1dfwd(freq, sig, d, inmod="r", out="imp", magfield="b"):
         rhoa = (absZ * absZ) / (mu0 * w)
         phase = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
         return Z, rhoa, phase
+
