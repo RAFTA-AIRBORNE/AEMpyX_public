@@ -8,7 +8,7 @@ This is the public repository for the  Airborne Electromagnetic Inversion toolbo
 </p>
 
 <p align="center">   
-   Inversion results for synthetic ensemble of perturbed 3-layers for AEM05 FD data.
+   Inversion results for synthetic ensemble of perturbed 3-layers for AEM05 FD data. A first-order regularization operator was used, with the  weighting parameter chosen by the L-curve method. 
 </p>
 
 AEMpyX currently works fully under linux operating systems, but mostly also under  windows (here short for Windows 10). There are of course changes in the installation procedures, as mentioned below. 
