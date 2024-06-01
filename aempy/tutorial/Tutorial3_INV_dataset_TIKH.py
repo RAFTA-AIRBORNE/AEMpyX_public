@@ -16,20 +16,6 @@
 #     name: python3
 # ---
 
-#
----
-jupyter:
-  jupytext:
-    cell_metadata_filter: -all
-    formats: py:light,ipynb
-    text_representation:
-      extension: .py
-      format_name: light
-      format_version: '1.5'
-      jupytext_version: 1.16.2
----
-
-
 # +
 import os
 import sys
@@ -73,8 +59,6 @@ print(titstrng+"\n\n")
 OutInfo = False
 
 
-# -
-
 # The following cell gives values to AEM-system related settings. 
 #
 # Data transformation is activated by the variable _DataTrans_. Currently 
@@ -111,6 +95,8 @@ if "genes" in AEM_system.lower():
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
+
+
 
 # +
 FileList = "search"  # "search", "read"
@@ -171,25 +157,26 @@ Tau1 = numpy.logspace(Tau1min, Tau1max, NTau1)
 nreg = NTau0 * NTau1
 # -
 
-# This is the definition of the model shared for all sites in the data set. First, the layer thicknesses, nodes (layer tops), and layer centres are generated:
+# In principle, an inversion can be run on any (subset) of paramters. The possible paramteres are electrical resistivity, elevctric permittivity,magnetic permeability,  and the three paramter determining the Cole-Cole induced polarisation parameter: chargeability, spread, and center frequency. 
+#
+#
+# Here, model shared for all sites in the data set is generated. First, the layer thicknesses, nodes (layer tops), and layer centres are generated (_init_layers_). _init_1dmod_ will fill the model-related parameters with reasonable values. _mod\_act_, _mod\_apr_, and _mod\_var_ have the dimension of 7\*Nlyr, correponding to the 6 possible properties of each layer, and the thicknesses. The represent the activation, the values, and the variances for each parameter, respectively. Depending on your purpose, these values have to be modified afterwards. The most important one is _mod\_act_, where any value other than 0 will activate the corresponding parameter for inversion.  
 #
 
 # +
-
-dz, z, zc inverse.set_layers(Nlyr, dzstart, dzend)
-
 Nlyr = 36
-dzstart = 5.
-dzend = 10.
-dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
-z = numpy.append(0.0, numpy.cumsum(dz))
 
+Dzstart = 5.
+Dzend = 10.
+dz, z, zc =  inverse.init_layers(Nlyr, Dzstart, Dzend)
 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
+# -
 
+# In the following lines the existing model structure is modified according to the user's needs. For this tutorial only the resisitvity is activated. Then, guesses for the relevant parameters are used to modify the prior parameters and their variances. Note that the layer thicknesses aree not inverted for in this case. 
+
+# +
 mod_act[0*Nlyr:1*Nlyr] = 1
-sizepar = numpy.shape(mod_act)
-mpara = sizepar[0]
 
 Guess_r = 100.0  # initial guess for resistivity in mod_apr
 # Guess_r = 10.0    # low value for DoI estimate
@@ -199,18 +186,6 @@ mod_apr[0*Nlyr:1*Nlyr] = Guess_r
 mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_s,2)
 mod_apr[6*Nlyr:7*Nlyr-1] = dz[0:Nlyr - 1]
 mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
-
-
-# mod_bnd = mumpy.array([])
-max_val = 1.e+30
-min_val = 1.e-30
-# max_val = mod_apr[mod_act!=0] + 3*mod_std[mod_act!=0]
-# mod_bnd[mod_act!=0, 1] = max_val
-# min_val = mod_apr[mod_act!=0] - 3*mod_std[mod_act!=0]
-# mod_bnd[mod_act!=0, 0] = min_val
-mod_bnd[:,0] = min_val
-mod_bnd[:,1] = max_val
-
 
 if OutInfo:
     #   print \
@@ -222,6 +197,10 @@ if OutInfo:
     if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
         print(" Upper limits: \n", mod_bnd[:, 1])
         print(" Lower limits: \n", mod_bnd[:, 0])
+
+        
+sizepar = numpy.shape(mod_act)
+mpara = sizepar[0]
 
 # +
 """
@@ -270,7 +249,6 @@ if "tikhopt" in  RunType.lower():
 if OutInfo:
     print(Ctrl.keys())
 # -
-
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)

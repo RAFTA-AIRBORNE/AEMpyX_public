@@ -3116,7 +3116,7 @@ def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
 
     return spc_sample
 
-def set_layers(nlyr=26, start=1., end=10., 
+def init_layers(nlyr=26, start=1., end=10., 
                logspace=True, out=True):
     """
     Set layer Parameters
@@ -3155,4 +3155,13 @@ def set_layers(nlyr=26, start=1., end=10.,
     z_tmp = numpy.append(0.0, numpy.cumsum(dz_tmp))
     z_cent = 0.5 * (z_tmp[0:nlyr] + z_tmp[1:nlyr+1])
     
+    if out: 
+        print("\n")
+        if logspace:
+            print(" Number of log-spaced layers:", nlyr)
+        else:
+            print(" Number of lin-spaced (possibly equidistant) layers:", nlyr)
+        print("Number of nodes:", nlyr+1)
+        print("Number of cell centers:", nlyr+1)
+        
     return dz, z_node, z_cent
