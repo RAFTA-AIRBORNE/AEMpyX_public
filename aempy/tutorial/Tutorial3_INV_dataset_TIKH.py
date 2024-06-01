@@ -16,18 +16,18 @@
 #     name: python3
 # ---
 
-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.16.2
-# ---
+#
+---
+jupyter:
+  jupytext:
+    cell_metadata_filter: -all
+    formats: py:light,ipynb
+    text_representation:
+      extension: .py
+      format_name: light
+      format_version: '1.5'
+      jupytext_version: 1.16.2
+---
 
 
 # +
@@ -113,25 +113,9 @@ if "genes" in AEM_system.lower():
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 # +
-# 
-# configure moltiprocessing
-# 
-# nprocs = 8
-# if nprocs<0:
-#     nprocs=multiprocessing.cpu_count()
-
-# print(str(nprocs)+" processors will be used in parallel")
-
-# parpool = multiprocessing.Pool()
-
-ReverseDir = False
-
-
-
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
 SearchStrng = "*k2*.npz"
-
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
 InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
@@ -139,9 +123,7 @@ if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
 
 # +
-"""
-Output format is ".npz"
-"""
+
 OutFileFmt = ".npz"
 OutResDir =  InDatDir + "/results/"
 
@@ -150,15 +132,22 @@ print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
+# -
 
-# +
-"""
-Define inversion type  optional additional parameters (e.g., Waveforms )
-"""
+#
+# Define inversion type and optional additional parameters (e.g., Waveforms )
+#
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
+ReverseDir = False
+SetPrior = "set"
 
+# The following block defines the way the regularization parameter is found, or set, respectively. In this tutorial Generalized Cross Validation (GCV) is chosen, and the zero order weight is  set to a fixed small number, thus making the influence of the prior small. 
+#
+# A vector of values for the first order ("difference") weight is generated, which is used for the minimum value of the chosen parameter-of-merit (here GCV).
+
+# +
 RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
@@ -180,14 +169,14 @@ else:
 
 Tau1 = numpy.logspace(Tau1min, Tau1max, NTau1)
 nreg = NTau0 * NTau1
+# -
+
+# This is the definition of the model shared for all sites in the data set. First, the layer thicknesses, nodes (layer tops), and layer centres are generated:
+#
 
 # +
-"""
-Model definition
-"""
 
-SetPrior = "set"
-ParaTrans = 1
+dz, z, zc inverse.set_layers(Nlyr, dzstart, dzend)
 
 Nlyr = 36
 dzstart = 5.

@@ -44,6 +44,7 @@ def to_ospath(inpath=None, opsys=None):
     elif "\\" in inpath and opsys=="posix":
         outpath = "/".join (inpath.split("\\")) 
         
+
     return outpath
 
 def check_env(envar="CONDA_PREFIX", action="error"):

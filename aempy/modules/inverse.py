@@ -3116,3 +3116,43 @@ def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
 
     return spc_sample
 
+def set_layers(nlyr=26, start=1., end=10., 
+               logspace=True, out=True):
+    """
+    Set layer Parameters
+
+    Parameters
+    ----------
+    nlyr : integer, optional
+        Number of layers. The default is 26.
+    start : float, optional
+        Thickness of first layer. The default is 1 m.
+    end : float, optional
+        Largest thickness. The default is 10 m.
+    logspace : logical, optional
+        If True logarithmically spaced dz are generated. The default is True.
+    out : logical, optional
+        print output. The default is True.
+
+    Returns
+    -------
+    dz : numpy array
+        Layer thicknesses (nlyr).
+    z_node : numpy array
+        Node coordinates (nlyr+1).
+    z_cent : numpy array 
+       Layer center coordinates (nlyr+1).
+    """
+    
+    if logspace:
+        dz = numpy.logspace(numpy.log10(start), numpy.log10(end), nlyr)
+    else: 
+        dz = numpy.linspace(start, end, nlyr)
+        
+    z_node = numpy.append(0.0, numpy.cumsum(dz))
+    
+    dz_tmp = numpy.append(dz, dz[-1])
+    z_tmp = numpy.append(0.0, numpy.cumsum(dz_tmp))
+    z_cent = 0.5 * (z_tmp[0:nlyr] + z_tmp[1:nlyr+1])
+    
+    return dz, z_node, z_cent
