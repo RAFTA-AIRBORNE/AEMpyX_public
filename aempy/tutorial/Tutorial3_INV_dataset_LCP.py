@@ -131,7 +131,12 @@ Scale = 0.5*CovarThresh
 ReCalc = "fwd"   # "inverse"
 
 MergeModels = True
-MergeFile = "Limerick_shale_dec5_merged.npz"
+
+#MergeFile = "Limerick_shale_dec5_merged.npz"
+#SearchStrng = "*delete_dec5*mean*results.npz"
+
+MergeFile = "Limerick_shale_k2_dec5_merged.npz"
+SearchStrng = "*k2_dec5*mean*results.npz"
 
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
@@ -139,7 +144,7 @@ AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
 InModDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
 print("Data read from dir: %s " % InModDir)
 FileList = "search" #"search"
-SearchStrng = "*dec5*mean*results.npz"
+
 OutModDir =  AEMPYX_DATA+"/aem05_limerick/merged/"
 
 

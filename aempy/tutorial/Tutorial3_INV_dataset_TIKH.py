@@ -130,26 +130,42 @@ ReverseDir = False
 
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
-SearchStrng = "*k2*.npz"
-
+# SearchStrng = "*delete_dec5_mean.npz" # no svd
+SearchStrng = "*delete_dec5_mean*k3.npz"
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
 InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
-
-
 # +
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
 OutResDir =  InDatDir + "/results/"
-
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
+
+
+if "set" in FileList.lower():
+    print("Data files read from dir:  %s" % InDatDir)
+    # dat_files = []
+    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
+    # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    
+    dat_files = [os.path.basename(f) for f in dat_files]  
+else:
+    # how = ["search", SearchStrng, InDatDir]
+    # how = ["read", FileList, InDatDir]
+    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
+                              out= True, sort=True)
+
+
+ns = numpy.size(dat_files)
+if ns ==0:
+    error("No files set!. Exit.")
 
 # +
 """
@@ -282,26 +298,6 @@ if OutInfo:
     print(Ctrl.keys())
 # -
 
-
-if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)
-    # dat_files = []
-    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
-    # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
-    
-    dat_files = [os.path.basename(f) for f in dat_files]  
-else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
-                              out= True, sort=True)
-
-
-ns = numpy.size(dat_files)
-if ns ==0:
-    error("No files set!. Exit.")
-
-
 outstrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
             +"_"+RegFun\
@@ -341,7 +337,7 @@ for file in dat_files:
         file, filext0 = os.path.splitext(file)
         prior_file = file+halfspace+filext0
         mod_prior, var_prior = inverse.load_prior(prior_file)
-
+        
 
 # This is the main loop over sites in a flight line or within an area:        
 
@@ -408,9 +404,13 @@ for file in dat_files:
             ("alt", site_alt[ii])
             ])
 
+# +
         Results =\
                 alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
+        
+        
+# -
 
 #         Now store inversion results for this site:
 

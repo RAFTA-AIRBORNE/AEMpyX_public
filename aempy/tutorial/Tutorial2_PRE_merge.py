@@ -57,14 +57,13 @@ print(titstrng+"\n\n")
 AEMPYX_DATA = AEMPYX_ROOT+"/data/"
 
 
-DataType = "models"
 FileList = "search"  # "search", "read"
 
 
 DataType = "models"
 InDatDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
 OutDatDir = AEMPYX_DATA+"/aem05_limerick/merged/"
-SearchStrng = "*5*mean*results.npz"
+SearchStrng = "*delete_dec5*mean*results.npz"
 OutFileName = OutDatDir+"LimShale_proc_dec5_mean_merged.npz"
 OutHeader =" Limerick Shale project, dec5 mean merged"
 
@@ -78,7 +77,7 @@ OutHeader =" Limerick Shale project, dec5 mean merged"
 
 print("Data read from dir:  %s" % InDatDir)
 print("Data written to dir: %s" % OutDatDir)
-print("New flightline Header string: %s" % OutHeader)
+print("New header string: %s" % OutHeader)
 print("SearchStrng is %s\n" % SearchStrng)
 
 
