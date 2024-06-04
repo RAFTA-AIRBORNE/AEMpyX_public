@@ -330,7 +330,7 @@ for filein in mod_files:
     
     models_dict = dict(models)
     models_dict["header"] = header 
-    models_dict["mod_cor"] = mod_cor
+    models_dict["mod_cor"] = numpy.exp(mod_cor)
 
     
     numpy.savez_compressed(corrfile, **models_dict)

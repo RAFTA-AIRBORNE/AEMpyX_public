@@ -1,36 +1,5 @@
 #!/usr/bin/env python3
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light,ipynb
-#     main_language: python
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.16.2
-#   kernelspec:
-#     display_name: Python 3 (Spyder)
-#     language: python3
-#     name: python3
-# ---
 
-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.16.2
-# ---
-
-
-# +
 import os
 import sys
 from sys import exit as error
@@ -134,7 +103,7 @@ FileList = "search"  # "search", "read"
 SearchStrng = "*delete_dec5_mean*k3.npz"
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
+InDatDir =  AEMPYX_DATA + "/aem05_limerick/merged/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 # +
 """
@@ -321,6 +290,8 @@ for file in dat_files:
     print("\n Reading file " + filein)
     DataObs, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
+
+# models = numpy.load(filein, allow_pickle=True)
 
     fl_name = DataObs[0, 0]
     site_x = DataObs[:, 1]

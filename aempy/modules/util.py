@@ -264,8 +264,10 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
     """
     dateform="%m/%d/%Y, %H:%M:%S"
     # _,NN, _, _, _, = aesys.get_system_params(System=aem_system)
-
-        
+    if outfile_name is not None:
+        if not ".npz" in os.path.splitext(outfile_name)[1]:
+            error("merge_model_sets: Only npz format implemented.! Exit.")
+    
     k = 0
     for file in infile_list:
         k = k+1
@@ -274,8 +276,14 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         
         # ctrl = numpy.load(file.replace("_results.npz","_ctrl.npz")) 
         # ctrl = results["ctrl"]
-        ctrl = file.replace("_results.npz","_ctrl.npz")
-        
+
+        if k==1 and outfile_name is not None :
+            ctrl_file = file.replace("_results.npz","_ctrl.npz")
+            Ctrl =  numpy.load(ctrl_file, allow_pickle=True)
+            ctrl_file_out = outfile_name.replace(".npz", "_ctrl.npz")
+            numpy.savez_compressed(file=ctrl_file_out, **Ctrl)
+            
+            
         print(list(results.keys()))
         
         mod_ref = results["mod_ref"]
@@ -336,34 +344,15 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             merged_gps = numpy.vstack((merged_gps, site_gps.reshape(-1,1)))
             merged_alt = numpy.vstack((merged_alt, site_alt.reshape(-1,1)))
             merged_dem = numpy.vstack((merged_dem, site_dem.reshape(-1,1)))
-            print(numpy.shape(merged_cov), numpy.shape(site_cov), k)
+            # print(numpy.shape(merged_cov), numpy.shape(site_cov), k)
             merged_cov = numpy.hstack((merged_cov, site_cov.T))
 
-    if outfile_name is not None:
-        if not ".npz" in os.path.splitext(outfile_name)[1]:
-            error("merge_model_sets: Only npz format implemented.! Exit.")
 
-        header = "merged model set:"+"".join("Date " + datetime.now().strftime(dateform))
-        numpy.savez_compressed(
-            file=outfile_name,
-            header=header,
-            mod_act=mod_act,
-            mod_ref=mod_ref,
-            mod=merged_mod,
-            sns=merged_sns,
-            rms=merged_rms,
-            cov = merged_cov,
-            x=merged_x,
-            y=merged_y,
-            z=merged_z,
-            d=merged_d,
-            gps=merged_gps,
-            alt=merged_alt,
-            dem=merged_dem)
 
     if dictout:
+        header = "merged model set:"+"".join("Date " + datetime.now().strftime(dateform))
         merged_models = {
-                "ctrl": ctrl,
+                "header": header,
                 "mod_ref": mod_ref,
                 "mod_act": mod_act,
                 "cov": merged_cov,
@@ -378,6 +367,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
                 "alt": merged_alt,
                 "dem": merged_dem,
                         }
+
     else:
         k=0
         for nd in numpy.arange(numpy.size(merged_x)):
@@ -398,6 +388,29 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
                 merged_models=tmp
             else:
                 merged_models=numpy.vstack((merged_models,tmp))
+                
+    if outfile_name is not None:
+        
+        if dictout:
+            numpy.savez_compressed(file=outfile_name, **merged_models)
+        else:
+            header = "merged model set:"+"".join("Date " + datetime.now().strftime(dateform))
+            numpy.savez_compressed(
+                file=outfile_name,
+                header=header,
+                mod_act=mod_act,
+                mod_ref=mod_ref,
+                mod=merged_mod,
+                sns=merged_sns,
+                rms=merged_rms,
+                cov = merged_cov,
+                x=merged_x,
+                y=merged_y,
+                z=merged_z,
+                d=merged_d,
+                gps=merged_gps,
+                alt=merged_alt,
+                dem=merged_dem)
 
     return merged_models
 
