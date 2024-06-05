@@ -187,7 +187,7 @@ def anisodiff3D(
     June 2000  original version.
     March 2002 corrected diffusion eqn No 2.
     July 2012 transcipy.linalgted to Python
-    Jan 2021 slightly adapted python3 VR
+    Jan 2021 slightly adapted for python3 VR
     """
     # initialize output array
     stackout = stack.copy()
@@ -305,3 +305,23 @@ def gauss3D(Kshape=(3, 3, 3), Ksigma=0.5):
     K = h
 
     return K
+
+def mod_qc(model=None, model_error=None, data_fit=None, out=True):
+    """
+    Clean models based on error or datafit
+
+    """
+    if model is None:
+        error("mod_qc: No model given! Exit.")
+
+    if (model_error is None) and (data_fit is None):
+        error("mod_qc: No criterium given! Exit.")
+
+    if rms is not None:
+        rms_thresh = data_fit[0]
+        rms = data_fit[1]
+
+        good = numpy.where(rms>rms_thresh)
+
+
+    return good

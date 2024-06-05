@@ -1458,3 +1458,92 @@ def prepare_model(rho, rhoair=1.0e17):
             rho_new[ii, jj, :] = tmp
 
     return rho_new
+
+
+def calc_rhoa_phas(freq=None, Z=None):
+
+    mu0 = 4.0e-7 * numpy.pi  # Magnetic Permeability (H/m)
+    omega = 2.*numpy.pi*freq
+
+    rhoa = numpy.power(numpy.abs(Z), 2) / (mu0 * omega)
+    # phi = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
+    phi = numpy.angle(Z, deg=True)
+
+    return rhoa, phi
+
+def mt1dfwd(freq, sig, d, inmod="r", out="imp", magfield="b"):
+    """
+    Calulate 1D magnetotelluric forward response.
+
+    based on A. Pethik's script at www.digitalearthlab.com
+    Last change vr Nov 20, 2020
+    """
+    mu0 = 4.0e-7 * numpy.pi  # Magnetic Permeability (H/m)
+
+    sig = numpy.array(sig)
+    freq = numpy.array(freq)
+    d = numpy.array(d)
+
+    if "c" in inmod[0].lower():
+        sig = numpy.array(sig)
+    else:
+        sig = 1.0 / numpy.array(sig)
+
+    if sig.ndim > 1:
+        error("IP not yet implemented")
+
+    n = numpy.size(sig)
+
+    Z = numpy.zeros_like(freq) + 1j * numpy.zeros_like(freq)
+    w = numpy.zeros_like(freq)
+
+    ifr = -1
+    for f in freq:
+        ifr = ifr + 1
+        w[ifr] = 2.0 * numpy.pi * f
+        imp = numpy.array(range(n)) + numpy.array(range(n)) * 1j
+
+        # compute basement impedance
+        imp[n - 1] = numpy.sqrt(1j * w[ifr] * mu0 / sig[n - 1])
+
+        for layer in range(n - 2, -1, -1):
+            sl = sig[layer]
+            dl = d[layer]
+            # 3. Compute apparent rho from top layer impedance
+            # Step 2. Iterate from bottom layer to top(not the basement)
+            #   Step 2.1 Calculate the intrinsic impedance of current layer
+            dj = numpy.sqrt(1j * w[ifr] * mu0 * sl)
+            wj = dj / sl
+            #   Step 2.2 Calculate Exponential factor from intrinsic impedance
+            ej = numpy.exp(-2 * dl * dj)
+
+            #   Step 2.3 Calculate reflection coeficient using current layer
+            #          intrinsic impedance and the below layer impedance
+            impb = imp[layer + 1]
+            rj = (wj - impb) / (wj + impb)
+            re = rj * ej
+            Zj = wj * ((1 - re) / (1 + re))
+            imp[layer] = Zj
+
+        Z[ifr] = imp[0]
+        # print(Z[ifr])
+
+    if "imp" in out.lower():
+
+        if "b" in magfield.lower():
+            return Z/mu0
+        else:
+            return Z
+
+    elif "rho" in out.lower():
+        absZ = numpy.abs(Z)
+        rhoa = (absZ * absZ) / (mu0 * w)
+        phase = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
+
+        return rhoa, phase
+    else:
+        absZ = numpy.abs(Z)
+        rhoa = (absZ * absZ) / (mu0 * w)
+        phase = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
+        return Z, rhoa, phase
+
