@@ -63,9 +63,14 @@ FileList = "search"  # "search", "read"
 DataType = "models"
 InDatDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
 OutDatDir = AEMPYX_DATA+"/aem05_limerick/merged/"
-SearchStrng = "*delete_dec5*mean*results.npz"
-OutFileName = OutDatDir+"LimShale_proc_dec5_mean_merged.npz"
-OutHeader =" Limerick Shale project, dec5 mean merged"
+
+#SearchStrng = "*delete_dec5*mean*results.npz"
+#OutFileName = OutDatDir+"LimShale_proc_dec5_mean_merged.npz"
+#OutHeader =" Limerick Shale project, dec5 mean merged"
+
+SearchStrng = "*delete_k2_dec5*mean*results.npz"
+OutFileName = OutDatDir+"LimShale_proc_k2_dec5_mean_merged.npz"
+OutHeader =" Limerick Shale project, k2, dec5 mean merged"
 
 # DataType = "data"
 # InDatDir = AEMPYX_ROOT+"/data/"

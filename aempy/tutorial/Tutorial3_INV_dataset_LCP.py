@@ -61,6 +61,7 @@ import util
 import aesys
 import viz
 import inverse
+import post
 
 #warnings.simplefilter(action="ignore", category=FutureWarning)
 cm = 1/2.54
@@ -132,11 +133,11 @@ ReCalc = "fwd"   # "inverse"
 
 MergeModels = True
 
-#MergeFile = "Limerick_shale_dec5_merged.npz"
-#SearchStrng = "*delete_dec5*mean*results.npz"
+MergeFile = "Limerick_shale_dec5_merged.npz"
+SearchStrng = "*delete_dec5*mean*results.npz"
 
-MergeFile = "Limerick_shale_k2_dec5_merged.npz"
-SearchStrng = "*k2_dec5*mean*results.npz"
+#MergeFile = "Limerick_shale_k2_dec5_merged.npz"
+#SearchStrng = "*k2_dec5*mean*results.npz"
 
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
@@ -182,7 +183,7 @@ corrfile = MergeFile
 if MergeModels:
     _ = util.merge_model_sets(infile_list=mod_files,
                                    outfile_name=MergeFile,
-                                   dictout= True, out=False)
+                                   dictout=True, out=False)
     mod_files = [corrfile]
 
 """
@@ -191,7 +192,7 @@ read  data set
 
 for filein in mod_files:
 
-    print("\nNModels read from: %s" % filein)
+    print("\nMerged models read from: %s" % filein)
 
     models = numpy.load(filein, allow_pickle=True)
    
@@ -206,12 +207,12 @@ for filein in mod_files:
     d = models["d"]
     m = models["mod"]
     c = models["cov"]
+    r = models["rms"]
+
+    # being developed: good_index = post.mod_qc(model=m, model_error=numpy.diag(), data_fit=r)
     
     
     dims= numpy.shape(d)
-    
-    
-                     
     m = numpy.reshape(m, (dims[0], dims[1]))
     c = numpy.reshape(c, (dims[0], dims[1]*dims[1]))
     
@@ -335,7 +336,7 @@ for filein in mod_files:
     
     numpy.savez_compressed(corrfile, **models_dict)
 
-
+    print(list(models_dict.keys()))
                  
     # """
     # Step 3:
