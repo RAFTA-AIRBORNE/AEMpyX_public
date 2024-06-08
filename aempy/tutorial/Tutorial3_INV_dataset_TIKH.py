@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     main_language: python
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (Spyder)
+#     language: python3
+#     name: python3
+# ---
+
 
 import os
 import sys
@@ -219,15 +236,13 @@ if OutInfo:
     if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
         print(" Upper limits: \n", mod_bnd[:, 1])
         print(" Lower limits: \n", mod_bnd[:, 0])
+# -
+
+# Setup controls for different slgorithms, here in particular prepare 
+# differential operator base methods for regularization matrices
 
 # +
-"""
-Setup Controls for different Algorithms
-"""
 if "tikhopt" in  RunType.lower():
-    """
-    Prepare differential operator base methods for regularization matrices
-    """
 
     D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
     L = [D0 for D in range(7)]
@@ -309,7 +324,7 @@ for file in dat_files:
         file, filext0 = os.path.splitext(file)
         prior_file = file+halfspace+filext0
         mod_prior, var_prior = inverse.load_prior(prior_file)
-        
+
 
 # This is the main loop over sites in a flight line or within an area:        
 
@@ -376,13 +391,9 @@ for file in dat_files:
             ("alt", site_alt[ii])
             ])
 
-# +
         Results =\
                 alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
-        
-        
-# -
 
 #         Now store inversion results for this site:
 
@@ -396,7 +407,6 @@ for file in dat_files:
 
         if ii==0:
             site_num  = numpy.array([ii])
-            site_conv = C[1]
             site_nrms = C[2]
             site_smap = C[3]
             site_modl = M[0]
@@ -419,7 +429,6 @@ for file in dat_files:
                 site_pcov = pcov.reshape((1,numpy.size(pcov)))
         else:
            site_num = numpy.vstack((site_num, ii))
-           site_conv = numpy.vstack((site_conv, C[1]))
            site_nrms = numpy.vstack((site_nrms, C[2]))
            site_smap = numpy.vstack((site_smap, C[3]))
            site_modl = numpy.vstack((site_modl, M[0]))
@@ -461,7 +470,6 @@ for file in dat_files:
         site_derr=site_derr,
         site_nrms=site_nrms,
         site_smap=site_smap,
-        site_conv=site_conv,
         site_num=site_num,
         site_y=site_y,
         site_x=site_x,
@@ -488,7 +496,6 @@ for file in dat_files:
             site_derr=site_derr,
             site_nrms=site_nrms,        
             site_smap=site_smap,
-            site_conv=site_conv,
             site_num=site_num,
             site_y=site_y,
             site_x=site_x,

@@ -15,7 +15,7 @@ import scipy.signal
 import scipy.interpolate
 from scipy.signal import medfilt, decimate
 from scipy.ndimage import laplace, convolve
-from scipy.ndimage import uniform_filter, gauscipy.signalan_filter, median_filter
+from scipy.ndimage import uniform_filter, gaussian_filter, median_filter
 import differint 
 import pylops
 
@@ -85,7 +85,7 @@ def crossgrad(m1=numpy.array([]),
     
     cgnm = numpy.abs(cgm)/(numpy.abs(gm1)*numpy.abs(gm2))
 
-    return cgm, cgmn 
+    return cgm, cgnm
 
 def medfilt3D(
         M,
@@ -306,22 +306,19 @@ def gauss3D(Kshape=(3, 3, 3), Ksigma=0.5):
 
     return K
 
-def mod_qc(model=None, model_error=None, data_fit=None, out=True):
+def mod_qc(q_val=None, q_thresh=None, out=True):
     """
     Clean models based on error or datafit
 
     """
-    if model is None:
-        error("mod_qc: No model given! Exit.")
-
-    if (model_error is None) and (data_fit is None):
-        error("mod_qc: No criterium given! Exit.")
-
-    if rms is not None:
-        rms_thresh = data_fit[0]
-        rms = data_fit[1]
-
-        good = numpy.where(rms>rms_thresh)
-
-
-    return good
+    if (q_val is None) or (q_thresh is None):
+        error("mod_qc: required input missing! Exit.")
+        
+        
+    nsites= numpy.shape(q_val)[0]
+    
+    good = numpy.were(q_val<q_thresh)
+    
+    if out:
+        print("number of good sites:", 
+              numpy.count_nonzero(good),"from", nsites )

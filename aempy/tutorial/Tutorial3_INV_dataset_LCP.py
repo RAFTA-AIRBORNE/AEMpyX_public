@@ -15,25 +15,19 @@
 #     language: python3
 #     name: python3
 # ---
-# -*- coding: utf-8 -*-
 
-
-"""
-This script realizes the Laterally Correlation Procedure approach
-of Christensen (2009). 
-
-References:
-           
-    N. B. Christensen & R. J. Tølbøll (2009)
-    “A lateral model parameter correlation procedure for one-dimensional inverse modelling""
-    Geophysical Prospecting, 57, 919–929, doi: 10.1111/j.1365-2478.2008.00756.x.
-  
- 
-Created on Tue Aug  3 17:03:39 2021
-
-vrath 10/23
-
-"""
+# This script realizes the Laterally Correlation Procedure approach
+# of Christensen (2009). 
+#
+# References:
+#            
+#     N. B. Christensen & R. J. Tølbøll (2009)
+#     “A lateral model parameter correlation procedure for one-dimensional inverse modelling""
+#     Geophysical Prospecting, 57, 919–929, doi: 10.1111/j.1365-2478.2008.00756.x.
+#   
+#  
+# Created vrath 10/23
+#
 
 import os
 import sys
@@ -78,16 +72,16 @@ Header = titstrng
 
 now = datetime.now()
 
-"""
-System related settings.
-Data transformation is now allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
+# System related settings.
+# Data transformation is now allowed with three possible options:
+# DataTrans   = 0           raw data
+#             = 1           natural log of data
+#             = 2           asinh transformation
+# An error model is applied for the raw data, which is
+# mixed additive/multiplicative. in case of data transformation,
+# errors are also transformed.
+
+
 # AEM_system = "genesis"
 AEM_system = "aem05"
 if "aem05" in AEM_system.lower():
@@ -113,31 +107,31 @@ if "genes" in AEM_system.lower():
     # data_active[10:11]=0  # Vertical +             print(numpy.shape(rect))"good" hoizontals"
     CompDict =Misc[2]
 
-"""
-input formats is "npz"
-"""
 InFilFmt = ".npz"
 XYFact = 1. 
 
 
+# +
 TileSize = 2000.
 TileOverlap = 0.5
 TileMinSites = 3
-
+NRMSThresh = 1.5
 
 LayerWise = True
 CovarThresh = 500.
 Scale = 0.5*CovarThresh
 
 ReCalc = "fwd"   # "inverse"
+# -
+
 
 MergeModels = True
 
 MergeFile = "Limerick_shale_dec5_merged.npz"
 SearchStrng = "*delete_dec5*mean*results.npz"
 
-#MergeFile = "Limerick_shale_k2_dec5_merged.npz"
-#SearchStrng = "*k2_dec5*mean*results.npz"
+# MergeFile = "Limerick_shale_k2_dec5_merged.npz"
+# SearchStrng = "*k2_dec5*mean*results.npz"
 
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
@@ -196,47 +190,82 @@ for filein in mod_files:
 
     models = numpy.load(filein, allow_pickle=True)
    
-
-    e = models["x"]*XYFact
-    e_min = numpy.amin(e)
-    e_max = numpy.amax(e)
-    n = models["y"]*XYFact
-    n_min = numpy.amin(n)
-    n_max = numpy.amax(n)
-    
-    d = models["d"]
-    m = models["mod"]
-    c = models["cov"]
-    r = models["rms"]
-
-    # being developed: good_index = post.mod_qc(model=m, model_error=numpy.diag(), data_fit=r)
-    
-    
-    dims= numpy.shape(d)
-    m = numpy.reshape(m, (dims[0], dims[1]))
-    c = numpy.reshape(c, (dims[0], dims[1]*dims[1]))
-    
-
-    if ParaTrans==1:
-       m = numpy.log(m)
-
-    mod_cor = m.copy()
-    
-
     """
     Step 1: calculate the laterally correlated moidle set
     setup overlapping tiles
     
     """
+    easting = models["x"]*XYFact
+    easting_min = numpy.amin(easting)
+    easting_max = numpy.amax(easting)
+    northing = models["y"]*XYFact
+    northing_min = numpy.amin(northing)
+    northing_max = numpy.amax(northing)
+    
     dxtiles = TileSize
-    xtiles = numpy.arange(numpy.floor(e_min), numpy.ceil(e_max), TileOverlap*dxtiles) 
+    xtiles = numpy.arange(numpy.floor(easting_min), 
+                          numpy.ceil(easting_max), 
+                          TileOverlap*dxtiles) 
     nx = len(xtiles)
     
     dytiles = TileSize
-    ytiles = numpy.arange(numpy.floor(n_min), numpy.ceil(n_max), TileOverlap*dytiles) 
+    ytiles = numpy.arange(numpy.floor(northing_min), 
+                          numpy.ceil(northing_max), 
+                          TileOverlap*dytiles) 
     ny = len(ytiles)
     
     
+    depth = models["d"]
+    model = models["mod"]
+    covar = models["cov"]
+    nrmsq = models["rms"]
+    smape = models["smp"]
+    convd = models["con"]
+
+    
+    dims= numpy.shape(depth)
+
+    jsite = -1
+    for isite in numpy.arange(dims[0]):
+        
+        if nrmsq[isite]>NRMSThresh: 
+            continue
+        else:
+            jsite =jsite+1
+            if jsite==0:
+                depth_tmp = depth[isite]
+                convd_tmp = convd[isite]
+                nrmsq_tmp = nrmsq[isite]
+                smape_tmp = smape[isite]
+                model_tmp = model[isite, :]
+                covar_tmp = covar[isite, :]
+            else:
+                depth_tmp = depth[isite]
+                convd_tmp = convd[isite]
+                nrmsq_tmp = nrmsq[isite]
+                smape_tmp = smape[isite]
+                model_tmp = model[isite, :]
+                covar_tmp = covar[isite, :]
+                
+                
+    depth = depth_tmp
+    convd = convd_tmp
+    nrmsq = nrmsq_tmp
+    smape = smape_tmp
+    covar = covar_tmp      
+     
+    
+    dims= numpy.shape(depth)
+    model = numpy.reshape(model, (dims[0], dims[1]))
+    covar = numpy.reshape(covar, (dims[0], dims[1]*dims[1]))
+                 
+            
+    if ParaTrans==1:
+       model = numpy.log(model)
+
+    model_cor = model.copy()
+    
+   
     start = process_time()
     total = start
     
@@ -248,63 +277,65 @@ for filein in mod_files:
     for ii in numpy.arange(nx):
         for jj in numpy.arange(ny):
             itile = itile+1
-            ll=  [xtiles[ii],ytiles[jj]]
-            ur = [xtiles[ii]+dxtiles,ytiles[jj]+dytiles]
+            lowerleft=  [xtiles[ii],ytiles[jj]]
+            upperright = [xtiles[ii]+dxtiles,ytiles[jj]+dytiles]
             print("\n\n Tile",itile,"of", ntile)
-            print("Rect lower left  (m): "+str(ll[0])+", "+str(ll[1]))
-            print("Rect upper right (m_): "+str(ur[0])+", "+str(ur[1]))
+            print("Rect lower left  (m): "+str(lowerleft[0])+", "+str(lowerleft[1]))
+            print("Rect upper right (m_): "+str(upperright[0])+", "+str(upperright[1]))
             
             # rect = numpy.array([])
-            inside = numpy.where((e>ll[0]) & (e<ur[0]) & (n>ll[1]) & (n<ur[1]))
-         
-            e_tile = e[inside]
-            n_tile = n[inside]
-            d_tile = d[inside[0],:]
-            m_tile = m[inside[0],:]
-            c_tile = c[inside[0],:]
+            inside = numpy.where((easting>lowerleft[0]) 
+                                 & (easting<upperright[0]) 
+                                 & (northing>lowerleft[1]) 
+                                 & (northing<upperright[1]))
+            easting_tile = easting[inside]
+            northing_tile = northing[inside]
+            depth_tile = depth[inside[0],:]
+            model_tile = model[inside[0],:]
+            covar_tile = covar[inside[0],:]
             
-            nsit, nlyr = numpy.shape(m_tile)
+            nsit, nlyr = numpy.shape(model_tile)
             print("Tile",itile,"contains", nsit, "sites with", nlyr, "layers.")
             
             if nsit > TileMinSites:
             
-                c_tile = numpy.reshape(c_tile, (nsit, nlyr, nlyr))
+                covar_tile = numpy.reshape(covar_tile, (nsit, nlyr, nlyr))
                 
                 if LayerWise:
                     points = numpy.stack(      
-                        [ e_tile.ravel(order="F"),   
-                          n_tile.ravel(order="F")
+                        [ easting_tile.ravel(order="F"),   
+                          northing_tile.ravel(order="F")
                         ], -1)
                 else:
                     points = numpy.stack(      
-                        [ e_tile.ravel(order="F"),   
-                          n_tile.ravel(order="F"),
-                          d_tile.ravel(order="F")
+                        [ easting_tile.ravel(order="F"),   
+                          northing_tile.ravel(order="F"),
+                          depth_tile.ravel(order="F")
                         ], -1)
                     
                 dists  = scipy.spatial.distance.squareform(
                     scipy.spatial.distance.pdist(points, metric="euclidean"))
                 cov_s = numpy.linalg.inv(numpy.exp(-dists/Scale))
             
-                cov_i = c_tile.copy()       
+                cov_i = covar_tile.copy()       
                           # for isit  in numpy.arange(nsit):               
                 #    cov_i[isit,:, :] = scipy.linalg.inv(c_tile[isit,:,:])
                 if LayerWise:
                     for ilyr in numpy.arange(nlyr):
-                        par_e = m_tile[:, ilyr]
+                        par_e = model_tile[:, ilyr]
                         
                         cov_e = numpy.diag(1./cov_i[:, ilyr, ilyr])
                         cov_c = numpy.linalg.inv(cov_e + cov_s)
                         par_c = cov_c@cov_e@par_e
                         
-                        m_tile[:, ilyr] = par_c
+                        model_tile[:, ilyr] = par_c
 
                                                 
                 else:
-                    par_e = m_tile
+                    par_e = model_tile
                     cov_e =  numpy.diag(1./numpy.diagonal(cov_i, axis1=1, axis2=2))
                     par_c = numpy.linalg.solve(cov_e + cov_s, cov_e@par_e )
-                    m_tile = par_c
+                    model_tile = par_c
                     
                
             else:
@@ -313,11 +344,11 @@ for filein in mod_files:
                 
                 
 
-            mod_cor[inside[0],:] = m_tile
+            model_cor[inside[0],:] = model_tile
           
             
             print("Tile",itile,", norm of differences:", 
-                  numpy.linalg.norm(mod_cor[inside[0]]-m[inside[0]])/(nsit*nlyr)) 
+                  numpy.linalg.norm(model_cor[inside[0]]-model[inside[0]])/(nsit*nlyr)) 
                 
             
     elapsed = process_time()
@@ -331,7 +362,7 @@ for filein in mod_files:
     
     models_dict = dict(models)
     models_dict["header"] = header 
-    models_dict["mod_cor"] = numpy.exp(mod_cor)
+    models_dict["mod_cor"] = numpy.exp(model_cor)
 
     
     numpy.savez_compressed(corrfile, **models_dict)

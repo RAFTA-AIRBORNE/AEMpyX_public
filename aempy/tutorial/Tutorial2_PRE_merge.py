@@ -64,9 +64,9 @@ DataType = "models"
 InDatDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
 OutDatDir = AEMPYX_DATA+"/aem05_limerick/merged/"
 
-#SearchStrng = "*delete_dec5*mean*results.npz"
-#OutFileName = OutDatDir+"LimShale_proc_dec5_mean_merged.npz"
-#OutHeader =" Limerick Shale project, dec5 mean merged"
+# SearchStrng = "*delete_dec5*mean*results.npz"
+# OutFileName = OutDatDir+"LimShale_proc_dec5_mean_merged.npz"
+# OutHeader =" Limerick Shale project, dec5 mean merged"
 
 SearchStrng = "*delete_k2_dec5*mean*results.npz"
 OutFileName = OutDatDir+"LimShale_proc_k2_dec5_mean_merged.npz"
@@ -110,12 +110,12 @@ if ns ==0:
 
 
 if "dat" in DataType.lower():  
-    _ = util.merge_data_sets(file_list=dat_files, aem_system="aem05",
+    _ = inverse.merge_data_sets(file_list=dat_files, aem_system="aem05",
                                        outfile_name=OutFileName,
                                        out=False)
 else:
-    _ = util.merge_model_sets(infile_list=dat_files,
+    _ = inverse.merge_model_sets(infile_list=dat_files,
                                    outfile_name=OutFileName,
-                                   dictout= True, out=False)
+                                   out=False)
 
 
