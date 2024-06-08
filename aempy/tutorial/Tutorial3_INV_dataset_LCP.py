@@ -115,7 +115,7 @@ XYFact = 1.
 TileSize = 2000.
 TileOverlap = 0.5
 TileMinSites = 3
-NRMSThresh = 1.5
+NRMSQThresh = 1.5
 
 LayerWise = True
 CovarThresh = 500.
@@ -221,39 +221,19 @@ for filein in mod_files:
     nrmsq = models["rms"]
     smape = models["smp"]
     convd = models["con"]
-
     
-    dims= numpy.shape(depth)
+    
+    
+    good_sites = post.get_good_sites(q_val=nrmsq, q_thresh=NRMSQThresh)
 
-    jsite = -1
-    for isite in numpy.arange(dims[0]):
-        
-        if nrmsq[isite]>NRMSThresh: 
-            continue
-        else:
-            jsite =jsite+1
-            if jsite==0:
-                depth_tmp = depth[isite]
-                convd_tmp = convd[isite]
-                nrmsq_tmp = nrmsq[isite]
-                smape_tmp = smape[isite]
-                model_tmp = model[isite, :]
-                covar_tmp = covar[isite, :]
-            else:
-                depth_tmp = depth[isite]
-                convd_tmp = convd[isite]
-                nrmsq_tmp = nrmsq[isite]
-                smape_tmp = smape[isite]
-                model_tmp = model[isite, :]
-                covar_tmp = covar[isite, :]
-                
-                
-    depth = depth_tmp
-    convd = convd_tmp
-    nrmsq = nrmsq_tmp
-    smape = smape_tmp
-    covar = covar_tmp      
-     
+   
+    depth = depth[good_sites]
+    convd = convd[good_sites]
+    nrmsq = nrmsq[good_sites]
+    smape = smape[good_sites]
+    model = model[good_sites, :]
+    covar = covar[good_sites, :]
+
     
     dims= numpy.shape(depth)
     model = numpy.reshape(model, (dims[0], dims[1]))

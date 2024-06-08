@@ -306,7 +306,7 @@ def gauss3D(Kshape=(3, 3, 3), Ksigma=0.5):
 
     return K
 
-def mod_qc(q_val=None, q_thresh=None, out=True):
+def get_good_sites(q_val=None, q_thresh=None, out=True):
     """
     Clean models based on error or datafit
 
@@ -322,3 +322,5 @@ def mod_qc(q_val=None, q_thresh=None, out=True):
     if out:
         print("number of good sites:", 
               numpy.count_nonzero(good),"from", nsites )
+        
+    return good
