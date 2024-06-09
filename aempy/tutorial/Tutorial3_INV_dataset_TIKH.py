@@ -118,10 +118,11 @@ ReverseDir = False
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
 # SearchStrng = "*delete_dec5_mean.npz" # no svd
-SearchStrng = "*delete_dec5_mean*k3.npz"
+# SearchStrng = "*delete_dec5_mean.npz"
+SearchStrng = "*k3_dec5_mean.npz"
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir =  AEMPYX_DATA + "/aem05_limerick/merged/"
+InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 # +
 """
@@ -407,6 +408,7 @@ for file in dat_files:
 
         if ii==0:
             site_num  = numpy.array([ii])
+            site_conv = C[1]
             site_nrms = C[2]
             site_smap = C[3]
             site_modl = M[0]
@@ -429,6 +431,7 @@ for file in dat_files:
                 site_pcov = pcov.reshape((1,numpy.size(pcov)))
         else:
            site_num = numpy.vstack((site_num, ii))
+           site_conv = numpy.vstack((site_conv, C[1]))
            site_nrms = numpy.vstack((site_nrms, C[2]))
            site_smap = numpy.vstack((site_smap, C[3]))
            site_modl = numpy.vstack((site_modl, M[0]))
@@ -470,6 +473,7 @@ for file in dat_files:
         site_derr=site_derr,
         site_nrms=site_nrms,
         site_smap=site_smap,
+        site_conv=site_conv,
         site_num=site_num,
         site_y=site_y,
         site_x=site_x,
@@ -496,6 +500,7 @@ for file in dat_files:
             site_derr=site_derr,
             site_nrms=site_nrms,        
             site_smap=site_smap,
+            site_conv=site_conv,
             site_num=site_num,
             site_y=site_y,
             site_x=site_x,

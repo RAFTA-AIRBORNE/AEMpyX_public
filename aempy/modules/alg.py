@@ -98,7 +98,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     nreg = numpy.size(tau0)*numpy.size(tau1)
 
     if linepars == []:
-        do_linesearch = False
+        do_linesearch = Falsemerged
     else:
         do_linesearch = True
         maxreduce = linepars[0]

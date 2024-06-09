@@ -317,7 +317,7 @@ def get_good_sites(q_val=None, q_thresh=None, out=True):
         
     nsites= numpy.shape(q_val)[0]
     
-    good = numpy.were(q_val<q_thresh)
+    good = numpy.where(q_val<q_thresh)
     
     if out:
         print("number of good sites:", 

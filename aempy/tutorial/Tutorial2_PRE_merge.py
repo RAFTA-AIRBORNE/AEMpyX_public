@@ -44,6 +44,8 @@ for pth in mypath:
 from version import versionstrg
 import util
 import aesys
+import inverse
+
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -64,13 +66,13 @@ DataType = "models"
 InDatDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
 OutDatDir = AEMPYX_DATA+"/aem05_limerick/merged/"
 
-# SearchStrng = "*delete_dec5*mean*results.npz"
-# OutFileName = OutDatDir+"LimShale_proc_dec5_mean_merged.npz"
-# OutHeader =" Limerick Shale project, dec5 mean merged"
+#SearchStrng = "*delete_dec5*mean*results.npz"
+#OutFileName = OutDatDir+"LimShale_proc_dec5_mean_merged.npz"
+#OutHeader =" Limerick Shale project, dec5 mean merged"
 
-SearchStrng = "*delete_k2_dec5*mean*results.npz"
-OutFileName = OutDatDir+"LimShale_proc_k2_dec5_mean_merged.npz"
-OutHeader =" Limerick Shale project, k2, dec5 mean merged"
+SearchStrng = "*k3_dec5*mean*results.npz"
+OutFileName = OutDatDir+"LiutilmShale_proc_k3_dec5_mean_merged.npz"
+OutHeader =" Limerick Shale project, k3, dec5 mean merged"
 
 # DataType = "data"
 # InDatDir = AEMPYX_ROOT+"/data/"

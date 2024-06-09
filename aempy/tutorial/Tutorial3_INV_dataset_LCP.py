@@ -121,64 +121,21 @@ LayerWise = True
 CovarThresh = 500.
 Scale = 0.5*CovarThresh
 
-ReCalc = "fwd"   # "inverse"
-# -
-
-
-MergeModels = True
-
-MergeFile = "Limerick_shale_dec5_merged.npz"
-SearchStrng = "*delete_dec5*mean*results.npz"
-
-# MergeFile = "Limerick_shale_k2_dec5_merged.npz"
-# SearchStrng = "*k2_dec5*mean*results.npz"
+MergeFile = "LimShale_proc_dec5_mean_merged.npz"
+# MergeFile = "LimShale_proc_k2_dec5_mean_merged.npz"
+# MergeFile = "LimShale_proc_k3_dec5_mean_merged.npz"
 
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-
-InModDir = AEMPYX_DATA+"/aem05_limerick/dec/results/"
+InModDir = AEMPYX_DATA+"/aem05_limerick/merged/"
 print("Data read from dir: %s " % InModDir)
 FileList = "search" #"search"
+OutModDir =  AEMPYX_DATA+"/aem05_limerick/lcp/"
 
-OutModDir =  AEMPYX_DATA+"/aem05_limerick/merged/"
-
-
-if "set" in FileList.lower():
-    mod_files = []
-
-if "read" in FileList.lower():
-    ListName=""
-    print("File names read from : "+ListName)
-    how = ["read", ListName, InModDir]
-    mod_files = util.get_data_list(how=how,
-                              out= True, sort=True)
-
-    mod_files = numpy.loadtxt("A9-7.dat", dtype=str)
-
-if "search" in FileList.lower():
-    print("Searchstring is : "+SearchStrng)
-    how = ["search", SearchStrng, InModDir]
-    mod_files = util.get_data_list(how=how,fullpath=True,
-                              out= True, sort=True)
-
-ns = numpy.size(mod_files)
-if ns ==0:
-    error("No files set!. Exit.")
-
-
-
-
+mod_files = [MergeFile]
 print(mod_files[0])
+
 print("Data read from dir: %s " % InModDir)
-
-#   workaround!!!!!    
-corrfile = MergeFile
-
-if MergeModels:
-    _ = util.merge_model_sets(infile_list=mod_files,
-                                   outfile_name=MergeFile,
-                                   dictout=True, out=False)
-    mod_files = [corrfile]
 
 """
 read  data set
@@ -188,7 +145,7 @@ for filein in mod_files:
 
     print("\nMerged models read from: %s" % filein)
 
-    models = numpy.load(filein, allow_pickle=True)
+    models = numpy.load(InModDir+filein, allow_pickle=True)
    
     """
     Step 1: calculate the laterally correlated moidle set
@@ -345,7 +302,7 @@ for filein in mod_files:
     models_dict["mod_cor"] = numpy.exp(model_cor)
 
     
-    numpy.savez_compressed(corrfile, **models_dict)
+    numpy.savez_compressed(OutModDir+filein, **models_dict)
 
     print(list(models_dict.keys()))
                  

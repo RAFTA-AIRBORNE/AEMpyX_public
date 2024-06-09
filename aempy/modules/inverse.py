@@ -24,7 +24,7 @@ import numpy
 import functools
 
 
-# import core1d
+import core1d
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
@@ -1500,6 +1500,8 @@ def extract_cov(C=numpy.array([]), m_act=numpy.array([])):
     VR Jan 2021
 
     """
+    print("C")
+    print(C)
     if C.size == 0:
         error("extract_cov: C not defined! Exit.")
     if numpy.size(m_act) == 0:
@@ -1642,97 +1644,103 @@ def diffops(dz=None, der=False,
 
     elif otype == "L1":
 
-        if der:
-            z = numpy.append(0.0, numpy.cumsum(dz))
-            zc = 0.5 * (z[0:nlyr] + z[1:nlyr+1])
-            # py.shape(zc))
-            # zc = numpy.append(zc, zc[nlyr - 2] + dz[nlyr - 2])
-            h = 1.0 / numpy.diff(zc)
-
-        if variant == 0:
-            d = numpy.zeros((2, nlyr))
-            d[0, :] = -1.
-            d[1, :] = 1.
-            if der:
-                d[:, 1:] = d[:, 1:]*h[:]
-
-            L = scipy.sparse.spdiags(
-                d, [0, -1], nlyr, nlyr-1, format=mform).transpose()
-            # if der:
-            #     L = scipy.sparse.spdiags(h, [0], nlyr-1, nlyr-1, format=mform)*L
-            print("L1 matrix is "+str(numpy.shape(L)))
-
-        elif variant == 1:
-            alpha = 1.
-            d = numpy.zeros((2, nlyr))
-            d[0, 1:] = 1.
-            d[1, 1:] = -1.
-            d[0, 0] = alpha
-            if der:
-                d[:, 1:] = d[:, 1:]*h[:]
-
-            L = scipy.sparse.spdiags(
-                d, [0, 1], nlyr, nlyr, format=mform).transpose()
-
-            print("L1 matrix is "+str(numpy.shape(L)))
-
-        elif variant == 2:
-            alpha = 1.e-6
-            d = numpy.zeros((2, nlyr))
-            d[0, 1:] = 1.
-            d[1, 1:] = -1.
-            d[0, 0] = alpha
-            if der:
-                d[:, 1:] = d[:, 1:]*h[:]
-
-            L = scipy.sparse.spdiags(
-                d, [0, 1], nlyr, nlyr, format=mform).transpose()
-
-            print("L1 matrix is "+str(numpy.shape(L)))
-
-        elif variant == 3:
-            alpha = 1.e-6
-            d = numpy.zeros((2, nlyr))
-            d[0, 1:] = 1.
-            d[1, 1:] = -1.
-            d[0, 0] = alpha
-            d[-1, -1] = 1.
-            if der:
-                d[:, 1:] = d[:, 1:]*h[:]
-
-            L = scipy.sparse.spdiags(
-                d, [0, 1], nlyr, nlyr, format=mform).transpose()
-
-            print("L1 matrix is "+str(numpy.shape(L)))
-
-        elif variant == -1:
-            alpha = 1.
-            d = numpy.zeros((2, nlyr))
-            d[0, :-1] = 1.
-            d[1, :-1] = -1.
-            d[-1, -1] = alpha
-            if der:
-                d[:, 1:] = d[:, 1:]*h[:]
-
-            L = scipy.sparse.spdiags(
-                d, [0, 1], nlyr, nlyr, format=mform).transpose()
-
-            print("L1 matrix is "+str(numpy.shape(L)))
-
-        elif variant == -2:
-            alpha = 1.e-6
-            d = numpy.zeros((2, nlyr))
-            d[0, :-1] = 1.
-            d[1, :-1] = -1.
-            d[-1, -1] = alpha
-            if der:
-                d[:, 1:] = d[:, 1:]*h[:]
-
-            L = scipy.sparse.spdiags(
-                d, [0, 1], nlyr, nlyr, format=mform).transpose()
+        if nlyr==1:
+            d = numpy.ones((1, nlyr))
+            L = scipy.sparse.spdiags(d, [0], nlyr, nlyr, format=mform)
 
         else:
-            error("DiffOperator variant " + variant + " not implemeted ! Exit.")
+
+            if der:
+                z = numpy.append(0.0, numpy.cumsum(dz))
+                zc = 0.5 * (z[0:nlyr] + z[1:nlyr+1])
+                # py.shape(zc))
+                # zc = numpy.append(zc, zc[nlyr - 2] + dz[nlyr - 2])
+                h = 1.0 / numpy.diff(zc)
+
+            if variant == 0:
+                d = numpy.zeros((2, nlyr))
+                d[0, :] = -1.
+                d[1, :] = 1.
+                if der:
+                    d[:, 1:] = d[:, 1:]*h[:]
+
+                L = scipy.sparse.spdiags(
+                    d, [0, -1], nlyr, nlyr-1, format=mform).transpose()
+                # if der:
+                #     L = scipy.sparse.spdiags(h, [0], nlyr-1, nlyr-1, format=mform)*L
+                print("L1 matrix is "+str(numpy.shape(L)))
+
+            elif variant == 1:
+                alpha = 1.
+                d = numpy.zeros((2, nlyr))
+                d[0, 1:] = 1.
+                d[1, 1:] = -1.
+                d[0, 0] = alpha
+                if der:
+                    d[:, 1:] = d[:, 1:]*h[:]
+
+                L = scipy.sparse.spdiags(
+                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+
+                print("L1 matrix is "+str(numpy.shape(L)))
+
+            elif variant == 2:
+                alpha = 1.e-6
+                d = numpy.zeros((2, nlyr))
+                d[0, 1:] = 1.
+                d[1, 1:] = -1.
+                d[0, 0] = alpha
+                if der:
+                    d[:, 1:] = d[:, 1:]*h[:]
+
+                L = scipy.sparse.spdiags(
+                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+
+                print("L1 matrix is "+str(numpy.shape(L)))
+
+            elif variant == 3:
+                alpha = 1.e-6
+                d = numpy.zeros((2, nlyr))
+                d[0, 1:] = 1.
+                d[1, 1:] = -1.
+                d[0, 0] = alpha
+                d[-1, -1] = 1.
+                if der:
+                    d[:, 1:] = d[:, 1:]*h[:]
+
+                L = scipy.sparse.spdiags(
+                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+
+                print("L1 matrix is "+str(numpy.shape(L)))
+
+            elif variant == -1:
+                alpha = 1.
+                d = numpy.zeros((2, nlyr))
+                d[0, :-1] = 1.
+                d[1, :-1] = -1.
+                d[-1, -1] = alpha
+                if der:
+                    d[:, 1:] = d[:, 1:]*h[:]
+
+                L = scipy.sparse.spdiags(
+                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+
+                print("L1 matrix is "+str(numpy.shape(L)))
+
+            elif variant == -2:
+                alpha = 1.e-6
+                d = numpy.zeros((2, nlyr))
+                d[0, :-1] = 1.
+                d[1, :-1] = -1.
+                d[-1, -1] = alpha
+                if der:
+                    d[:, 1:] = d[:, 1:]*h[:]
+
+                L = scipy.sparse.spdiags(
+                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+
+            else:
+                error("DiffOperator variant " + variant + " not implemeted ! Exit.")
 
     else:
         error("DiffOperator " + otype + " not implemeted ! Exit.")
@@ -3257,7 +3265,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         site_d = numpy.zeros_like(site_mod)
         site_z = numpy.zeros_like(site_mod)
 
-        nlyr = inverse.get_nlyr(mod_ref)
+        nlyr = get_nlyr(mod_ref)
         tmp = numpy.cumsum(mod_ref[6*nlyr:7*nlyr-1])
         tmp = numpy.insert(tmp, 0, 0.)
         tmp = numpy.append(tmp, tmp[-1])
