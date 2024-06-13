@@ -1500,8 +1500,6 @@ def extract_cov(C=numpy.array([]), m_act=numpy.array([])):
     VR Jan 2021
 
     """
-    print("C")
-    print(C)
     if C.size == 0:
         error("extract_cov: C not defined! Exit.")
     if numpy.size(m_act) == 0:
@@ -1554,7 +1552,7 @@ def load_prior(prior_file=None,
         reference model and activation flag. 
 
 
-    OutInfo : TYPE, optional
+    OutInfo : logical, optional
         determines outputs.
 
     Returns
@@ -1577,28 +1575,24 @@ def load_prior(prior_file=None,
 
     prior_ref = tmp["mod_ref"]
     prior_act = tmp["mod_act"]
-    # prior run with same base model
-    prior_sit = tmp["site_modl"]
-    prior_mod = prior_sit
 
-    # if (numpy.shape(prior_ref)==numpy.shape(m_ref))\
-    #     and (numpy.shape(prior_act)==numpy.shape(m_act)):
+    if (numpy.shape(prior_ref)==numpy.shape(m_ref)) and (numpy.shape(prior_act)==numpy.shape(m_act)):
 
-    #     # prior run with same base model
-    #     prior_sit = tmp["site_modl"]
-    #     prior_mod = prior_sit
+        # prior run with same base model
+        prior_sit = tmp["site_modl"]
+        prior_mod = numpy.zeros_like(prior_sit)
+        nsit = numpy.arange(numpy.shape(prior_sit)[0])
+        for isit in nsit:
+            prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], prior_act)
 
-    # prior_mod = numpy.zeros_like(prior_sit)
-    # nsit = numpy.arange(numpy.shape(prior_sit)[0])
-    # for isit in nsit:
-    #     prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], prior_act)
-
-    # elif get_nlyr(prior_ref)==1:
-    #     # halfspace-prior
-    #     m_sit = m_ref[prior_act]
-    #     print(numpy.shape(m_sit))
-    #     m_sit = prior_sit*numpy.ones_like(m_sit)
-    #     mod_apr = insert_mod(m_ref, m_sit, m_act)
+    elif get_nlyr(prior_ref)==1:
+        # halfspace-prior
+        m_sit = m_ref[prior_act]
+        m_sit = prior_sit*numpy.ones_like(m_sit)
+        nsit = numpy.arange(numpy.shape(prior_sit)[0])
+        for isit in nsit:
+            prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], prior_act)
+        mod_apr = insert_mod(m_ref, m_sit, m_act)
 
     return prior_mod
 
