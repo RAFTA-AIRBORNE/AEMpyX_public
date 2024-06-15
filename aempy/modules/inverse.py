@@ -1539,7 +1539,8 @@ def extract_wgt(W=numpy.array([]), m_act=numpy.array([])):
 def load_prior(prior_file=None,
                m_ref=numpy.array([]),
                m_act=numpy.array([]),
-               OutInfo=False):
+               m_apr=numpy.array([]),
+               out=False):
     """
     Loads pre-calculated prior file.
     File should be outout of earlier inversion)
@@ -1549,7 +1550,7 @@ def load_prior(prior_file=None,
     prior_file : string
         name of the prior file.
     m_ref, m_act : numpy.arrays
-        reference model and activation flag. 
+        reference model and activation flag for current run
 
 
     OutInfo : logical, optional
@@ -1559,8 +1560,6 @@ def load_prior(prior_file=None,
     -------
     mod_apr: numpy.array
         prior model
-    mod_var
-        prior variance
 
     VR April 2023
 
@@ -1575,24 +1574,42 @@ def load_prior(prior_file=None,
 
     prior_ref = tmp["mod_ref"]
     prior_act = tmp["mod_act"]
+    prior_sit = tmp["site_modl"]
+
+    m_sit = m_ref[m_act!=0]
+    print("prior current:")
+    print(numpy.shape(m_ref))
+    print(numpy.shape(m_act))
+    print(numpy.shape(m_apr))
+    print(" prior read:")
+    print(numpy.shape(prior_ref))
+    print(numpy.shape(prior_act))
+    print(numpy.shape(prior_sit))
+
+
+    nsit = numpy.shape(prior_sit)[0]
+    npar = numpy.shape(m_apr)[0]
+    prior_mod = numpy.zeros((nsit,npar))
+    print(" prior out:")
+    print(numpy.shape(prior_mod))
+
 
     if (numpy.shape(prior_ref)==numpy.shape(m_ref)) and (numpy.shape(prior_act)==numpy.shape(m_act)):
 
         # prior run with same base model
-        prior_sit = tmp["site_modl"]
-        prior_mod = numpy.zeros_like(prior_sit)
+
         nsit = numpy.arange(numpy.shape(prior_sit)[0])
         for isit in nsit:
-            prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], prior_act)
+            prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], m_act)
 
     elif get_nlyr(prior_ref)==1:
         # halfspace-prior
-        m_sit = m_ref[prior_act]
+
+        m_sit = m_ref[m_act!=0]
         m_sit = prior_sit*numpy.ones_like(m_sit)
         nsit = numpy.arange(numpy.shape(prior_sit)[0])
         for isit in nsit:
-            prior_mod[isit,:] = insert_mod(m_ref, prior_sit[isit,:], prior_act)
-        mod_apr = insert_mod(m_ref, m_sit, m_act)
+            prior_mod[isit,:] = insert_mod(m_ref, m_sit[isit,:], m_act)
 
     return prior_mod
 

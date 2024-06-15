@@ -118,12 +118,17 @@ ReverseDir = False
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
 # SearchStrng = "*delete_dec5_mean.npz" # no svd
-# SearchStrng = "*delete_dec5_mean.npz"
-SearchStrng = "*k3_dec5_mean.npz"
+SearchStrng = "*delete_dec5_mean.npz"
+#SearchStrng = "*k2_dec5_mean.npz"
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
+InDatDir = AEMPYX_DATA + "/aem05_limerick/dec/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+
+
+SetPrior = "set"
+if "read" in SetPrior.lower():
+    InPriorDir = AEMPYX_DATA + "/aem05_limerick/dec/halfspace_results/"
 # +
 """
 Output format is ".npz"
@@ -139,16 +144,24 @@ if not os.path.isdir(OutResDir):
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
-    # dat_files = []
-    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
+    dat_files = []
     # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
     
-    dat_files = [os.path.basename(f) for f in dat_files]  
+    dat_files = [os.path.basename(f) for f in dat_files]
+    apr_files = [os.path.basename(f) for f in apr_files]
+
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
     dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
                               out= True, sort=True)
+
+    if "read" in SetPrior.lower():
+       apr_files = util.get_data_list(how=["search",
+                                           SearchStrng.replace("dec5_mean.npz", "dec5_mean_halfspace_results.npz"), InPriorDir],
+                                           out= True, sort=True)
+       if len(apr_files) != len(dat_files):
+           error("Number of prior files does not match data files! Exit.")
 
 
 ns = numpy.size(dat_files)
@@ -190,7 +203,6 @@ nreg = NTau0 * NTau1
 Model definition
 """
 
-SetPrior = "set"
 ParaTrans = 1
 
 Nlyr = 36
@@ -287,19 +299,21 @@ if OutInfo:
 outstrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
             +"_"+RegFun\
-            +"_Prior"+str(int(Guess_r))\
+            +"_Prior_halfspace"\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
 print("ID string: input file + %s " % outstrng)
 
 fcount =0
-for file in dat_files:
+for ifile in numpy.arange(len(dat_files)):
+
+    datfile = dat_files[ifile]
 
     start = time.time()
 
     fcount=fcount+1
 
-    name, ext = os.path.splitext(file)
-    filein = InDatDir+file
+    name, ext = os.path.splitext(datfile)
+    filein = InDatDir+datfile
     fileout = OutResDir + name + outstrng
 
     numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
@@ -321,10 +335,13 @@ for file in dat_files:
     dat_act = numpy.tile(data_active,(nsite,1))
 
     if "read" in SetPrior.lower():
-        halfspace ="halfspace_results"
-        file, filext0 = os.path.splitext(file)
-        prior_file = file+halfspace+filext0
-        mod_prior, var_prior = inverse.load_prior(prior_file)
+        prior_file = apr_files[ifile]
+        if name.lower() not in prior_file.lower():
+            error("Halfspace file name does not match! Exit.")
+        mod_prior = inverse.load_prior(InPriorDir+prior_file,
+                                       m_ref=mod_apr,
+                                       m_apr=mod_apr,
+                                       m_act=mod_act)
 
 
 # This is the main loop over sites in a flight line or within an area:        
@@ -351,7 +368,7 @@ for file in dat_files:
         """
 
         if "read" in SetPrior.lower():
-            mod_apr = mod_prior[ii]
+            mod_apr = mod_prior[ii,:]
             mod_ini = mod_apr.copy()
 
         elif "upd" in SetPrior:
@@ -456,59 +473,42 @@ for file in dat_files:
 # The _Ctrl_ paramter set as well as the results for data set (flight line or area) are stored in _.npz_ files, which strings _"ctrl.npz"_ and _"results.npz"_ appended:
 
 # +
-    numpy.savez_compressed(
-        file=fileout+"_results.npz",
-        fl_data=file,
-        fl_name=fl_name,
-        header=titstrng,
-        site_log =site_log,
-        mod_ref=mod_apr,
-        mod_act=mod_act,
-        dat_act=dat_act,
-        site_modl=site_modl,
-        site_sens=site_sens,
-        site_merr=site_merr,
-        site_dobs=site_dobs,
-        site_dcal=site_dcal,
-        site_derr=site_derr,
-        site_nrms=site_nrms,
-        site_smap=site_smap,
-        site_conv=site_conv,
-        site_num=site_num,
-        site_y=site_y,
-        site_x=site_x,
-        site_gps=site_gps,
-        site_alt=site_alt,
-        site_dem=site_dem)
+    results_file = fileout+"_results.npz"
+
+    results_dict ={
+        "fl_data" : fileout,
+        "fl_name" : fl_name,
+        "header" : titstrng,
+        "site_log " :  site_log,
+        "mod_ref" : mod_apr,
+        "mod_act" : mod_act,
+        "dat_act" : dat_act,
+        "site_modl" : site_modl,
+        "site_sens" : site_sens,
+        "site_merr" : site_merr,
+        "site_dobs" : site_dobs,
+        "site_dcal" : site_dcal,
+        "site_derr" : site_derr,
+        "site_nrms" : site_nrms,
+        "site_smap" : site_smap,
+        "site_conv" : site_conv,
+        "site_num" : site_num,
+        "site_y" : site_y,
+        "site_x" : site_x,
+        "site_gps" : site_gps,
+        "site_alt" : site_alt,
+        "site_dem" : site_dem
+        }
 
     if Uncert:
+        results_dict["site_jacd"] = site_jacd
+        results_dict["site_pcov"] = site_pcov
 
-        numpy.savez_compressed(        
-            file=fileout+"_results.npz",
-            fl_data=file,
-            fl_name=fl_name,
-            header=titstrng,
-            site_log =site_log,
-            mod_ref=mod_apr,
-            mod_act=mod_act,
-            dat_act=dat_act,
-            site_modl=site_modl,
-            site_sens=site_sens,
-            site_merr=site_merr,
-            site_dobs=site_dobs,
-            site_dcal=site_dcal,
-            site_derr=site_derr,
-            site_nrms=site_nrms,        
-            site_smap=site_smap,
-            site_conv=site_conv,
-            site_num=site_num,
-            site_y=site_y,
-            site_x=site_x,
-            site_gps=site_gps,
-            site_alt=site_alt,
-            site_dem=site_dem,
-            site_jacd= site_jacd,
-            site_pcov= site_pcov)
+    numpy.savez_compressed(results_file, **results_dict)
+    print(list(results_dict.keys()))
+
+
+
 
     print("\n\nResults stored to "+fileout)
     elapsed = (time.time() - start)
