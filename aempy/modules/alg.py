@@ -90,15 +90,17 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     system, fwdcall = Ctrl["system"]
     invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, gshift = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
     uncert = Ctrl["uncert"]
     profname = Ctrl["name"]
 
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
+
     nreg = numpy.size(tau0)*numpy.size(tau1)
 
     if linepars == []:
-        do_linesearch = Falsemerged
+        do_linesearch = False
     else:
         do_linesearch = True
         maxreduce = linepars[0]
@@ -466,10 +468,14 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     system, fwdcall = Ctrl["system"]
     invtype, tauseq, tau, maxiter, thresh, linepars, setprior, delta = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
+
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
+
     uncert = Ctrl["uncert"]
     profname = Ctrl["name"]
+
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
 
 
     if linepars == []:
@@ -823,9 +829,12 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     system, fwdcall = Ctrl["system"]
     invtype, invspace, regfun, tau, maxiter, thresh, linepars, setprior, delta, gshift = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
+
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
 
     
+
     if "par" in invspace.lower():
         Cmi, CmiS = Ctrl["covar"]
     else:
@@ -1238,10 +1247,12 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     system, fwdcall = Ctrl["system"]
     invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
     jcn_out=  Ctrl["output"][0]
     
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
+
     """
     """
     d_act = Data["d_act"]
@@ -1401,7 +1412,10 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     system, fwdcall = Ctrl["system"]
     invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
+
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
+
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
     nsamples, Percentiles = Ctrl["rto"]
 
@@ -1575,9 +1589,12 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
     system, fwdcall = Ctrl["system"]
     invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
     
+
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
+
     nsamples, percentiles = Ctrl["enk"]
 
     ens_out=  Ctrl["output"][0]
@@ -1779,13 +1796,13 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
     system, fwdcall = Ctrl["system"]
     invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
+
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
+
     L0, Cm0, L1, Cm1 = Ctrl["covar"] 
     nsamples, percentiles, k, randsvd = Ctrl["nss"]
     ens_out=  Ctrl["output"][0]
-    
-    
- 
     
     """
     unpack data block
@@ -1921,8 +1938,11 @@ def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
     system, fwdcall = Ctrl["system"]
     invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
-    d_trn, m_trn = Ctrl["transform"]
-    L0, Cm0, L1, Cm1 = Ctrl["covar"] 
+
+    d_trn = Ctrl["data"][0]
+    m_trn = Ctrl["model"][0]
+
+    L0, Cm0, L1, Cm1 = Ctrl["covar"]
     nsamples, perc, k, randsvd = Ctrl["nss"]
     nss_out=  Ctrl["output"][0]
     
@@ -2102,6 +2122,11 @@ def run_tikh_flightline(data_file=None,
      [data_act, mod_act]),
 
     ("data",
+          numpy.array([DataTrans, data_active, DataTrans, DatErr_add, DatErr_mult], dtype=object)),
+    ("model",
+          numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object)),
+
+    ("data",
      [Data_trans, data_act, DataTrans, DataErr_add, DatErr_mult], dtype=object),
     ("model",
      [ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
@@ -2124,10 +2149,6 @@ def run_tikh_flightline(data_file=None,
         result_file = name+"_results.npz"
 
     
-
-    numpy.savez_compressed(file=result_file.replace("_results", "_ctrl"),**ctrl)
-    
-    
     start = time.time()
 
     AEM_system = ctrl["system"][0]
@@ -2138,9 +2159,14 @@ def run_tikh_flightline(data_file=None,
                                    System=ctrl["system"][0], OutInfo=False)
 
 
-
-
     fl_name = DataObs[0, 0]
+    ctrl["name"] = fl_name
+
+    print("site_dict: ",ctrl.keys())
+    ctrl_file = result_file.replace("_results", "_ctrl")
+    numpy.savez_compressed(ctrl_file,**ctrl)
+
+
     site_x = DataObs[:, 1]
     site_y = DataObs[:, 2]
     site_gps = DataObs[:, 3]
@@ -2153,7 +2179,7 @@ def run_tikh_flightline(data_file=None,
     Setup data-related parameter dict
     """
     [nsite,ndata] = numpy.shape(dat_obs)
-    sites = numpy.arange(len(nsite))
+    sites = numpy.arange(nsite)
     
     data_act = ctrl["data"][1]
     data_err_add = ctrl["data"][2]
@@ -2181,7 +2207,7 @@ def run_tikh_flightline(data_file=None,
     setprior = ctrl["inversion"][7].lower()
     maxiter =  ctrl["inversion"][4]
     
-    mod_act = ctrl["model"][1].lower()
+    mod_act = ctrl["model"][1]
     mod_apr = ctrl["model"][2]
     mod_var = ctrl["model"][3]
     mod_bnd = ctrl["model"][4]
@@ -2196,6 +2222,8 @@ def run_tikh_flightline(data_file=None,
         
     
     uncert = ctrl["uncert"][0]
+
+    header = ctrl["header"]
 
 # This is the main loop over sites in a flight line or within an area:        
 
@@ -2308,7 +2336,7 @@ def run_tikh_flightline(data_file=None,
     results_dict ={
         "fl_data" : result_file,
         "fl_name" : fl_name,
-        "header" : titstrng,
+        "header" : header,
         "site_log " :  site_log,
         "mod_ref" : mod_apr,
         "mod_act" : mod_act,

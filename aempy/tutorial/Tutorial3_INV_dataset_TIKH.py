@@ -34,6 +34,7 @@ import scipy
 # import multiprocessing
 # from numba import njit
 
+
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
 for pth in mypath:
@@ -59,6 +60,8 @@ print(titstrng+"\n\n")
 
 OutInfo = False
 
+Parallel = False
+Njobs = 4
 
 # -
 
@@ -122,19 +125,14 @@ SearchStrng = "*delete_dec5_mean.npz"
 #SearchStrng = "*k2_dec5_mean.npz"
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir = AEMPYX_DATA + "/aem05_limerick/dec/"
+InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
-
-
-SetPrior = "set"
-if "read" in SetPrior.lower():
-    InPriorDir = AEMPYX_DATA + "/aem05_limerick/dec/halfspace_results/"
 # +
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =  InDatDir + "/results/"
+OutResDir =  InDatDir + "/halfspace_results/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -144,24 +142,16 @@ if not os.path.isdir(OutResDir):
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
-    dat_files = []
+    # dat_files = []
+    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
     # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
     
-    dat_files = [os.path.basename(f) for f in dat_files]
-    apr_files = [os.path.basename(f) for f in apr_files]
-
+    dat_files = [os.path.basename(f) for f in dat_files]  
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
     dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
-                              out= True, sort=True)
-
-    if "read" in SetPrior.lower():
-       apr_files = util.get_data_list(how=["search",
-                                           SearchStrng.replace("dec5_mean.npz", "dec5_mean_halfspace_results.npz"), InPriorDir],
-                                           out= True, sort=True)
-       if len(apr_files) != len(dat_files):
-           error("Number of prior files does not match data files! Exit.")
+                              fullpath=True, out= True, sort=True)
 
 
 ns = numpy.size(dat_files)
@@ -175,8 +165,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = "fix" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -190,7 +179,7 @@ if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
 else:
-    RegVal1 =20.
+    RegVal1 =0.00001
     NTau1 =1
     Tau1min = numpy.log10(RegVal1)
     Tau1max = numpy.log10(RegVal1)
@@ -203,13 +192,16 @@ nreg = NTau0 * NTau1
 Model definition
 """
 
+SetPrior = "set"
 ParaTrans = 1
 
-Nlyr = 36
-dzstart = 5.
+Nlyr = 32
+dzstart = 3.
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
+
 
 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
@@ -278,241 +270,43 @@ if "tikhopt" in  RunType.lower():
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     RegShift = 1
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion",
-         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar", 
-         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
+
+
+    ctrl_dict ={
+        "system":
+            [AEM_system, FwdCall],
+        "header":
+            titstrng,
+        "inversion":
+            numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object),
+        "covar":
+            numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+
+        "uncert":
+            [Uncert],
+
+        "data":
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult], dtype=object),
+        "model":
+            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+
+                }
 
 if OutInfo:
-    print(Ctrl.keys())
+    print(ctrl.keys())
 # -
 
-outstrng = "_nlyr"+str(Nlyr)\
-            +"_"+RunType\
-            +"_"+RegFun\
-            +"_Prior_halfspace"\
-            +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
+outstrng = "_halfspace"
 print("ID string: input file + %s " % outstrng)
 
-fcount =0
-for ifile in numpy.arange(len(dat_files)):
-
-    datfile = dat_files[ifile]
-
-    start = time.time()
-
-    fcount=fcount+1
-
-    name, ext = os.path.splitext(datfile)
-    filein = InDatDir+datfile
-    fileout = OutResDir + name + outstrng
-
-    numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
-
-    print("\n Reading file " + filein)
-    DataObs, Header, _ = aesys.read_aempy(File=filein,
-                                   System=AEM_system, OutInfo=False)
-
-# models = numpy.load(filein, allow_pickle=True)
-
-    fl_name = DataObs[0, 0]
-    site_x = DataObs[:, 1]
-    site_y = DataObs[:, 2]
-    site_gps = DataObs[:, 3]
-    site_alt = DataObs[:, 4]
-    site_dem = DataObs[:, 5]
-    dat_obs =  DataObs[:, 6:6+NN[2]]
-    [nsite,ndata] = numpy.shape(dat_obs)
-    dat_act = numpy.tile(data_active,(nsite,1))
-
-    if "read" in SetPrior.lower():
-        prior_file = apr_files[ifile]
-        if name.lower() not in prior_file.lower():
-            error("Halfspace file name does not match! Exit.")
-        mod_prior = inverse.load_prior(InPriorDir+prior_file,
-                                       m_ref=mod_apr,
-                                       m_apr=mod_apr,
-                                       m_act=mod_act)
-
-
-# This is the main loop over sites in a flight line or within an area:        
-
-    start = time.time()
-    """
-    Loop over sites
-    """
-    sequence = range(nsite)
-    if ReverseDir:
-        sites = sequence[::-1]
-    else:
-        sites = sequence
-
-
-    logsize = (2 + 7*Maxiter)
-    site_log = numpy.full((len(sites),logsize), numpy.nan)
-
-    for ii in sites:
-        print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
-
-        """
-        Setup model-related parameter dict
-        """
-
-        if "read" in SetPrior.lower():
-            mod_apr = mod_prior[ii,:]
-            mod_ini = mod_apr.copy()
-
-        elif "upd" in SetPrior:
-
-            if ii == 0:
-                mod_ini = mod_apr.copy()
-                model = mod_ini.copy()
-            else:
-                mod_ini = model.copy()
-                model = mod_ini.copy()
-
-        elif "set" in SetPrior:
-
-                mod_ini = mod_apr.copy()
-                model = mod_ini.copy()
-
-        Model = dict([
-            ("m_act", mod_act),
-            ("m_apr", mod_apr),
-            ("m_var", mod_var),
-            ("m_bnd", mod_bnd),
-            ("m_ini", mod_ini)
-            ])
-
-        """
-        Setup data-related parameter dict
-        """
-
-        dat_err = numpy.zeros_like(dat_obs)
-        dat_err[ii, :], _ = inverse.set_errors(dat_obs[ii, :],
-                                                daterr_add=DatErr_add,
-                                                daterr_mult=DatErr_mult)
-
-        Data = dict([
-            ("d_act", dat_act[ii,:]),
-            ("d_obs", dat_obs[ii,:]),
-            ("d_err", dat_err[ii,:]),
-            ("alt", site_alt[ii])
-            ])
-
-        Results =\
-                alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-#         Now store inversion results for this site:
-
-        if OutInfo:
-            print("Results: ",Results.keys())
-
-
-        M = Results["model"]
-        D = Results["data"]
-        C = Results["log"]
-
-        if ii==0:
-            site_num  = numpy.array([ii])
-            site_conv = C[1]
-            site_nrms = C[2]
-            site_smap = C[3]
-            site_modl = M[0]
-            site_merr = M[1]
-            site_sens = M[2]
-            site_dobs = D[0].reshape((1,-1))
-            site_dcal = D[1].reshape((1,-1))
-            site_derr = D[2].reshape((1,-1))
-            # print("ii=0")
-            cc = numpy.hstack((C[0], C[1], C[2], C[3],
-                              C[4].ravel(),
-                              C[5].ravel(),
-                              C[6].ravel(),
-                              C[7].ravel()))
-            site_log[ii,0:len(cc)] = cc
-            if Uncert:
-                jacd = Results["jacd"]
-                site_jacd = jacd.reshape((1,numpy.size(jacd)))
-                pcov = Results["cpost"]
-                site_pcov = pcov.reshape((1,numpy.size(pcov)))
-        else:
-           site_num = numpy.vstack((site_num, ii))
-           site_conv = numpy.vstack((site_conv, C[1]))
-           site_nrms = numpy.vstack((site_nrms, C[2]))
-           site_smap = numpy.vstack((site_smap, C[3]))
-           site_modl = numpy.vstack((site_modl, M[0]))
-           site_merr = numpy.vstack((site_merr, M[1]))
-           site_sens = numpy.vstack((site_sens, M[2]))
-           site_dobs = numpy.vstack((site_dobs, D[0]))
-           site_dcal = numpy.vstack((site_dcal, D[1]))
-           site_derr = numpy.vstack((site_derr, D[2]))
-           cc = numpy.hstack((C[0], C[1], C[2], C[3],
-                              C[4].ravel(),
-                              C[5].ravel(),
-                              C[6].ravel(),
-                              C[7].ravel()))
-           site_log[ii,0:len(cc)] = cc
-
-           if Uncert:
-               jacd = Results["jacd"]
-               site_jacd = numpy.vstack((site_jacd,jacd.reshape((1,numpy.size(jacd)))))
-               pcov = Results["cpost"]
-               site_pcov = numpy.vstack((site_pcov, pcov.reshape((1,numpy.size(pcov)))))
-
-# The _Ctrl_ paramter set as well as the results for data set (flight line or area) are stored in _.npz_ files, which strings _"ctrl.npz"_ and _"results.npz"_ appended:
-
-# +
-    results_file = fileout+"_results.npz"
-
-    results_dict ={
-        "fl_data" : fileout,
-        "fl_name" : fl_name,
-        "header" : titstrng,
-        "site_log " :  site_log,
-        "mod_ref" : mod_apr,
-        "mod_act" : mod_act,
-        "dat_act" : dat_act,
-        "site_modl" : site_modl,
-        "site_sens" : site_sens,
-        "site_merr" : site_merr,
-        "site_dobs" : site_dobs,
-        "site_dcal" : site_dcal,
-        "site_derr" : site_derr,
-        "site_nrms" : site_nrms,
-        "site_smap" : site_smap,
-        "site_conv" : site_conv,
-        "site_num" : site_num,
-        "site_y" : site_y,
-        "site_x" : site_x,
-        "site_gps" : site_gps,
-        "site_alt" : site_alt,
-        "site_dem" : site_dem
-        }
-
-    if Uncert:
-        results_dict["site_jacd"] = site_jacd
-        results_dict["site_pcov"] = site_pcov
-
-    numpy.savez_compressed(results_file, **results_dict)
-    print(list(results_dict.keys()))
-
-
-
-
-    print("\n\nResults stored to "+fileout)
-    elapsed = (time.time() - start)
-    print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+if Parallel:
+    import joblib
+    # from joblib import Parallel, delayed, parallel_config
+    joblib.Parallel(n_jobs=Njobs, verbose=100)(
+        joblib.delayed(alg.run_tikh_flightline)(ctrl=ctrl_dict, data_file=fil) for fil in dat_files)
+else:
+    for fil in dat_files:
+        _ = alg.run_tikh_flightline(ctrl=ctrl_dict, data_file=fil)
 
 print("\n\nAll done!")
