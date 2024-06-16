@@ -2363,16 +2363,15 @@ def run_tikh_flightline(data_file=None,
         results_dict["site_jacd"] = site_jacd
         results_dict["site_pcov"] = site_pcov
 
-    if results_out:
-        numpy.savez_compressed(results_file, **results_dict)
-        print("\n\nResults stored to "+results_file)
-
-
     if out:
-        print(list(results_dict.keys())
+        print(list(results_dict.keys()))
         elapsed = (time.time() - start)
         print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
         print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
 
-    return results_dict  
+    if results_out:
+        numpy.savez_compressed(result_file, **results_dict)
+        print("\n\nResults stored to "+result_file)
+    else:
+        return results_dict
 

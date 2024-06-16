@@ -60,8 +60,8 @@ print(titstrng+"\n\n")
 
 OutInfo = False
 
-Parallel = False
-Njobs = 4
+Parallel = True
+Njobs = 20
 
 # -
 
@@ -132,7 +132,7 @@ if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =  InDatDir + "/halfspace_results/"
+OutResDir =  InDatDir + "/results_parallel/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -165,7 +165,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-RegFun = "fix" # "fix", "lcc", "gcv", "mle"
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -201,7 +201,7 @@ dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
-
+print(z)
 
 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
@@ -296,7 +296,7 @@ if OutInfo:
     print(ctrl.keys())
 # -
 
-outstrng = "_sequential"
+outstrng = "_parallel"
 print("ID string: input file + %s " % outstrng)
 
 if Parallel:
