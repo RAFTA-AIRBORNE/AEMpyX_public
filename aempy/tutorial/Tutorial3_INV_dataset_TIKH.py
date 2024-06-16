@@ -61,7 +61,7 @@ print(titstrng+"\n\n")
 OutInfo = False
 
 Parallel = True
-Njobs = 20
+Njobs = -50
 
 # -
 
@@ -157,7 +157,8 @@ else:
 ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
-
+if Njobs<=0:
+    Njobs=ns
 # +
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
