@@ -266,7 +266,6 @@ if "tikhopt" in  RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     RegShift = 1
@@ -297,7 +296,7 @@ if OutInfo:
     print(ctrl.keys())
 # -
 
-outstrng = "_halfspace"
+outstrng = "_sequential"
 print("ID string: input file + %s " % outstrng)
 
 if Parallel:

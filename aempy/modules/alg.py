@@ -2076,7 +2076,8 @@ def run_tikh_flightline(data_file=None,
             prior_file=None, 
             result_file=None, 
             ctrl=None,
-            out=True):
+            results_out=True,
+            out=False):
     """
     Wrapper for data_dict set inversion
 
@@ -2362,13 +2363,13 @@ def run_tikh_flightline(data_file=None,
         results_dict["site_jacd"] = site_jacd
         results_dict["site_pcov"] = site_pcov
 
-    numpy.savez_compressed(results_file, **results_dict)
-    print(list(results_dict.keys()))
-
+    if results_out:
+        numpy.savez_compressed(results_file, **results_dict)
+        print("\n\nResults stored to "+results_file)
 
 
     if out:
-        print("\n\nResults stored to "+fileout)
+        print(list(results_dict.keys())
         elapsed = (time.time() - start)
         print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
         print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
