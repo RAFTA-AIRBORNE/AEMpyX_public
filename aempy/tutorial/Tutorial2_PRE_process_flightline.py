@@ -286,7 +286,7 @@ for filename in dat_files:
                                                 +" / max "+str(numpy.amax(D_res[:,nd1:nd2]))
                                                 +" / std "+str(numpy.std(D_res[:,nd1:nd2])))
 
-            OutNameStrng = name + "_proc_"+inpute[0]+"_k" + str(k)+"_res"
+            OutNameStrng = name + "_proc_"+impute[0]+"_k" + str(k)+"_res"
             filout = OutputDataDir + OutNameStrng+ OutFileFmt
             aesys.write_aempy(File=filout, Data=D_res,
                             System=AEM_system, Header=head, OutInfo=False)

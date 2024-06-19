@@ -49,11 +49,11 @@ import inverse
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
-
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+script = "Tutorial2_PRE_merge.py"
+# script = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
-
 
 # for tutorial only...
 AEMPYX_DATA = AEMPYX_ROOT+"/data/"
@@ -71,7 +71,7 @@ OutDatDir = AEMPYX_DATA+"/aem05_limerick/merged/"
 #OutHeader =" Limerick Shale project, dec5 mean merged"
 
 SearchStrng = "*k3_dec5*mean*results.npz"
-OutFileName = OutDatDir+"LiutilmShale_proc_k3_dec5_mean_merged.npz"
+OutFileName = OutDatDir+"LiutilmShale_proc_k3_dec5_mean_merged_results.npz"
 OutHeader =" Limerick Shale project, k3, dec5 mean merged"
 
 # DataType = "data"
