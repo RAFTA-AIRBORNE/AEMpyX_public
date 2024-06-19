@@ -2321,7 +2321,7 @@ def run_tikh_flightline(data_file=None,
                               ctmp[4].ravel(),
                               ctmp[5].ravel(),
                               ctmp[6].ravel(),
-                              ctmp[7].ravel()limerick))
+                              ctmp[7].ravel()))
            site_log[ii,0:len(clog)] = clog
 
            if uncert:
