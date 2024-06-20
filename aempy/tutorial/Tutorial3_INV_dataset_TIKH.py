@@ -61,8 +61,11 @@ print(titstrng+"\n\n")
 OutInfo = False
 
 Parallel = True
-Njobs = -50
-
+if Parallel:
+    import parallel
+    Njobs = 64
+else:
+    Njobs = 1
 # -
 
 # The following cell gives values to AEM-system related settings. 
@@ -104,7 +107,7 @@ if "genes" in AEM_system.lower():
 
 # +
 # 
-# configure moltiprocessing
+# configure multiprocessing
 # 
 # nprocs = 8
 # if nprocs<0:
@@ -121,11 +124,13 @@ ReverseDir = False
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
 # SearchStrng = "*delete_dec5_mean.npz" # no svd
-SearchStrng = "*delete_dec5_mean.npz"
-#SearchStrng = "*k2_dec5_mean.npz"
+#SearchStrng = "*delete_dec5_mean.npz"
+SearchStrng = "*k2_dec5_mean.npz"
 
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir =  AEMPYX_DATA + "/aem05_limerick/dec/"
+#InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/mean5/"
+InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/mean5/"
+
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 # +
 """
@@ -263,13 +268,13 @@ if "tikhopt" in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
     Maxiter = 10
-    Maxreduce = 5
+    Maxreduce = 10
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
-    RegShift = 1
+    RegShift = 0
 
 
     ctrl_dict ={
@@ -290,11 +295,10 @@ if "tikhopt" in  RunType.lower():
             numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
-
                 }
 
 if OutInfo:
-    print(ctrl.keys())
+    print(ctrl_dict.keys())
 # -
 
 outstrng = "_parallel"
@@ -304,9 +308,9 @@ if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
-        joblib.delayed(alg.run_tikh_flightline)(ctrl=ctrl_dict, data_file=fil) for fil in dat_files)
+        joblib.delayed(parallel.run_tikh_flightline)(ctrl=ctrl_dict, data_file=fil) for fil in dat_files)
 else:
     for fil in dat_files:
-        _ = alg.run_tikh_flightline(ctrl=ctrl_dict, data_file=fil)
+        _ = parallel.run_tikh_flightline(ctrl=ctrl_dict, data_file=fil)
 
 print("\n\nAll done!")
