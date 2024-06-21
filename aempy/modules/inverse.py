@@ -3197,10 +3197,10 @@ def merge_data_sets(infile_list=None, outfile_name="./dat_tmp.npz",
     _,NN, _, _, _, = aesys.get_system_params(System=aem_system)
 
     k = 0
-    for file in infile_list:
+    for infile in infile_list:
         k = k+1
-        if out: print("\nData read from: %s" % file)
-        data_k, header, _ = aesys.read_aempy(File=file, System=aem_system, OutInfo=False)
+        if out: print("\nData read from: %s" % infile)
+        data_k, header, _ = aesys.read_aempy(File=infile, System=aem_system, OutInfo=False)
         if k == 1:
             merged_data = data_k
         else:
@@ -3237,18 +3237,18 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             error("merge_model_sets: Only npz format implemented.! Exit.")
 
     k = 0
-    for file in infile_list:
+    for infile in infile_list:
         k = k+1
-        print("\nData read from: %s" % file)
-        results = numpy.load(file, allow_pickle=True)
+        print("\nData read from: %s" % infile)
+        results = numpy.load(infile, allow_pickle=True)
 
         # ctrl = numpy.load(file.replace("_results.npz","_ctrl.npz"))
         # ctrl = results["ctrl"]
 
         if k==1 and outfile_name is not None :
-            ctrl_file = file.replace("_results.npz","_ctrl.npz")
-            Ctrl =  numpy.load(ctrl_file, allow_pickle=True)
-            ctrl_file_out = outfile_name.replace(".npz", "_ctrl.npz")
+            ctrl_file_in = infile.replace("_results.npz","_ctrl.npz")
+            Ctrl =  numpy.load(ctrl_file_in, allow_pickle=True)
+            ctrl_file_out = outfile_name.replace("_results.npz", "_ctrl.npz")
             numpy.savez_compressed(file=ctrl_file_out, **Ctrl)
 
 
