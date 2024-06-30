@@ -136,14 +136,12 @@ def run_tikh_flightline(data_file=None,
         dat_err[ii, :], _ = inverse.set_errors(dat_obs[ii, :],
                                             daterr_add=data_err_add,
                                             daterr_mult=data_err_mult)
+        # print("\n",ii) 
+        # print(dat_obs[ii, :])
+        # print(dat_err[ii, :])
 
 
-    data_dict = dict([
-        ("d_act", dat_act[ii,:]),
-        ("d_obs", dat_obs[ii,:]),
-        ("d_err", dat_err[ii,:]),
-        ("alt", site_alt[ii])
-        ])
+
 
     """
     Setup model-related parameter dict
@@ -152,11 +150,14 @@ def run_tikh_flightline(data_file=None,
     setprior = ctrl["inversion"][7].lower()
     maxiter =  ctrl["inversion"][4]
 
-    mod_act = ctrl["model"][1]
+    mod_act = ctrl["model"][1].copy()
     mod_apr = ctrl["model"][2].copy()
-    mod_var = ctrl["model"][3]
-    mod_bnd = ctrl["model"][4]
-
+    mod_var = ctrl["model"][3].copy()
+    mod_bnd = ctrl["model"][4].copy()
+    
+    
+    site_prior = numpy.zeros((nsite,numpy.shape(mod_apr)[0]))
+    
     if "read" in setprior:
         if name.lower() not in prior_file.lower():
             error("Halfspace file name does not match! Exit.")
@@ -164,10 +165,12 @@ def run_tikh_flightline(data_file=None,
                                        m_ref=mod_apr,
                                        m_apr=mod_apr,
                                        m_act=mod_act)
+    if "set" in setprior:      
+        for ii in sites:
+                site_prior[ii, :] = mod_apr
 
 
     uncert = ctrl["uncert"][0]
-
     header = ctrl["header"]
 
 # This is the main loop over sites in a flight line or within an area:
@@ -178,14 +181,22 @@ def run_tikh_flightline(data_file=None,
 
     logsize = (2 + 7*maxiter)
     site_log = numpy.full((len(sites),logsize), numpy.nan)
-
+    mtmp = numpy.array([])
     for ii in sites:
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
 
         """
         Setup parameter dict
         """
-
+        data_dict = dict([
+            ("d_act", dat_act[ii,:]),
+            ("d_obs", dat_obs[ii,:]),
+            ("d_err", dat_err[ii,:]),
+            ("alt", site_alt[ii])
+            ])
+        
+        # print(ii)
+        # print(dat_obs[ii,:])
 
 
         if "read" in setprior:
@@ -193,18 +204,24 @@ def run_tikh_flightline(data_file=None,
             mod_ini = mod_apr.copy()
 
         elif "upd" in setprior:
-
+            
             if ii == 0:
-                mod_ini = mod_apr.copy()
+                mod_ini = site_prior[ii,:]
                 mod_apr = mod_ini.copy()
             else:
-                mod_ini = model.copy()
+                mod_ini = mtmp[0].copy()
                 mod_apr = mod_ini.copy()
 
         elif "set" in setprior:
-                mod_ini = mod_apr.copy()
+            mod_apr = site_prior[ii,:]
+            mod_ini = mod_apr.copy()
 
 
+        # print("\n",ii) 
+        # print(mod_ini[ii, :])
+        # print(mod_apr)
+        # print(mod_var[ii, :])
+        
         model_dict = dict([
             ("m_act", mod_act),
             ("m_apr", mod_apr),
@@ -224,10 +241,13 @@ def run_tikh_flightline(data_file=None,
         if out:
             print("site_dict: ",site_dict.keys())
 
-
+        
         mtmp = site_dict["model"]
         dtmp = site_dict["data"]
         ctmp = site_dict["log"]
+        
+        
+        print(mtmp[0])
 
         if ii==0:
             site_num  = numpy.array([ii])
