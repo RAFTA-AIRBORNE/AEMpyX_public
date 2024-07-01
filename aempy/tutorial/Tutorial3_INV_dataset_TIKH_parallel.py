@@ -31,7 +31,6 @@ import copy
 import numpy
 import scipy
 
-# import multiprocessing
 # from numba import njit
 
 
@@ -63,7 +62,18 @@ OutInfo = False
 Parallel = True
 if Parallel:
     import parallel
-    Njobs = 8
+    import multiprocessing
+
+    Njobs = 30
+
+    if Njobs<0:
+        Njobs=multiprocessing.cpu_count()
+    else:
+        Njobs=min(Njobs, multiprocessing.cpu_count())
+
+    print(str(Njobs)+" processors will be used in parallel")
+
+
 else:
     Njobs = 1
 # -
