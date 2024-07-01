@@ -171,7 +171,7 @@ def run_tikh_flightline(data_file=None,
 
 
     uncert = ctrl["uncert"][0]
-    header = ctrl["header"]
+    header = ctrl["header"][0]
 
 # This is the main loop over sites in a flight line or within an area:
 
