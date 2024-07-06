@@ -1008,6 +1008,69 @@ def gen_grid_utm(XLimits=None, nX=None, YLimits=None, nY=None, out=True):
 
     return X, Y
 
+def export_to_vtk(points=None, scale=[1., 1., -1.],
+                  modmesh=None,  methmesh=None,
+                  exportfile="./tmp.vtk"): 
+    """
+    write 3D model to vtk 
+    Expects rho in physical units
+
+    author: vrath
+    last changed: Oct 22, 2023
+
+    """
+    from evtk.hl import gridToVTK
+    
+    if points is None:
+        error("export_to_vtk: No points given! Exit.")
+        
+    if modmesh is None:
+        mesh = False
+        print("export_to_vtk: No mesh given! Points will be exported.")
+    else:
+        mesh = True
+        print("export_to_vtk: Mesh given! Grid wil will be exported.")
+        
+    print("model-like parameter written to %s" % (exportfile))
+        
+    east = points[:, 0]
+    nrth = points[:, 1] 
+    elev = points[:, 2]
+    vals = points[:, 3:]
+    
+    # to mesh
+    
+    
+    gridToVTK(exportfile, nrth, east, elev, cellData={'resistivity (in Ohm)': vals[:,0]})
+
+    if mesh:
+        gridToVTK(exportfile, nrth, east, elev, cellData={'resistivity (in Ohm)': vals[:,0]})
+    else:
+        gridToVTK(exportfile, nrth, east, elev, cellData={'resistivity (in Ohm)': vals[:,0]})
+        
+# def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None,
+#                     reference=None, scale=[1., 1., -1.], trans="LINEAR",
+#                     out=True):
+#     """
+#     write 3D model to vtk 
+#     Expects rho in physical units
+
+#     author: vrath
+#     last changed: Oct 22, 2023
+
+#     """
+#     from evtk.hl import gridToVTK
+
+#     N = numpy.append(0.0, numpy.cumsum(dx))*scale[0]
+#     E = numpy.append(0.0, numpy.cumsum(dy))*scale[1]
+#     D = numpy.append(0.0, numpy.cumsum(dz))*scale[2]
+
+#     gridToVTK(ModFile, N, E, D, cellData={'resistivity (in Ohm)': rho})
+#     print("model-like parameter written to %s" % (ModFile))
+
+
+    
+    
 def fractrans(m=None, x=None , a=0.5):
     """
     Caklculate fractional derivative of m.
@@ -1028,6 +1091,7 @@ def fractrans(m=None, x=None , a=0.5):
     mm = df.differint(a, m, x0, x1, npnts)
 
     return mm
+
 
 
 def nearly_equal(a,b,sig_fig=6):

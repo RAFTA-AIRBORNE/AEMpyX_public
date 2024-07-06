@@ -3068,27 +3068,6 @@ def KLD(P=numpy.array([]), Q=numpy.array([]), epsilon=1.e-8):
     return distance
 
 
-def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None,
-                    reference=None, scale=[1., 1., -1.], trans="LINEAR",
-                    out=True):
-    """
-    write 3D model to vtk 
-    Expects rho in physical units
-
-    author: vrath
-    last changed: Oct 22, 2023
-
-    """
-    from evtk.hl import gridToVTK
-
-    N = numpy.append(0.0, numpy.cumsum(dx))*scale[0]
-    E = numpy.append(0.0, numpy.cumsum(dy))*scale[1]
-    D = numpy.append(0.0, numpy.cumsum(dz))*scale[2]
-
-    gridToVTK(ModFile, N, E, D, cellData={'resistivity (in Ohm)': rho})
-    print("model-like parameter written to %s" % (ModFile))
-
-
 def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
                   nsamp=1, small=1.0e-14, out=True):
     """
