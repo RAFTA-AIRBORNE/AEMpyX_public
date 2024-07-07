@@ -31,7 +31,6 @@ import copy
 import numpy
 import scipy
 
-# import multiprocessing
 # from numba import njit
 
 
@@ -63,7 +62,18 @@ OutInfo = False
 Parallel = True
 if Parallel:
     import parallel
-    Njobs = 8
+    import multiprocessing
+
+    Njobs = 30
+
+    if Njobs<0:
+        Njobs=multiprocessing.cpu_count()
+    else:
+        Njobs=min(Njobs, multiprocessing.cpu_count())
+
+    print(str(Njobs)+" processors will be used in parallel")
+
+
 else:
     Njobs = 1
 # -
@@ -89,7 +99,7 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  30.
+    DatErr_add =  60.
     DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
 
@@ -105,32 +115,23 @@ if "genes" in AEM_system.lower():
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
-# +
-# 
-# configure multiprocessing
-# 
-# nprocs = 8
-# if nprocs<0:
-#     nprocs=multiprocessing.cpu_count()
-
-# print(str(nprocs)+" processors will be used in parallel")
-
-# parpool = multiprocessing.Pool()
-
 ReverseDir = False
 
-
-
 FileList = "search"  # "search", "read"
-# FileList = "set"  # "search", "read"
-# SearchStrng = "*delete_dec5_mean.npz" # no svd
-#SearchStrng = "*delete_dec5_mean.npz"
-SearchStrng = "*k2_dec5_mean.npz"
 
+SearchStrng = "*delete_dec5_median.npz"
 AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-#InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/mean5/"
+#InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
+InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
 
-InDatDir =  AEMPYX_DATA + "/aem05_mallow/tmp/"
+
+
+SearchStrng = "*delete_dec5_median.npz"
+#SearchStrng = "*k2_dec5_median.npz"
+AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
+#InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
+InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
+
 
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 # +
@@ -138,7 +139,7 @@ if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =  InDatDir + "/results_test/"
+OutResDir =  InDatDir + "/results/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -161,10 +162,10 @@ else:
 
 
 ns = numpy.size(dat_files)
-if ns ==0:
+if ns == 0:
     error("No files set!. Exit.")
-if Njobs<=0:
-    Njobs=ns
+else:
+    Njobs= min(Njobs, ns)
 # +
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
@@ -172,7 +173,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -202,9 +203,9 @@ Model definition
 SetPrior = "set"
 ParaTrans = 1
 
-Nlyr = 21
-dzstart = 4.
-dzend = 10.
+Nlyr = 25
+dzstart = 1.
+dzend = 12.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
@@ -282,7 +283,7 @@ if "tikhopt" in  RunType.lower():
         "system":
             [AEM_system, FwdCall],
         "header":
-            titstrng,
+            [titstrng, ""],
         "inversion":
             numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
                       LinPars, SetPrior, Delta, RegShift], dtype=object),
@@ -292,7 +293,7 @@ if "tikhopt" in  RunType.lower():
             [Uncert],
 
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
