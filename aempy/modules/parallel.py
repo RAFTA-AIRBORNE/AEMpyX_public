@@ -61,23 +61,21 @@ def run_tikh_flightline(data_file=None,
     vr, Bloomsday 2024
 
 
-
     ctrl_dict ={
         "system":
             [AEM_system, FwdCall],
         "header":
-            titstrng,
+            [titstrng, ""],
         "inversion":
             numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
                       LinPars, SetPrior, Delta, RegShift], dtype=object),
         "covar":
             numpy.array([L0, Cm0, L1, Cm1], dtype=object),
-
         "uncert":
             [Uncert],
 
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
@@ -89,9 +87,10 @@ def run_tikh_flightline(data_file=None,
 
     name, ext = os.path.splitext(data_file)
 
-    if result_file is None:
-        name, ext = os.path.splitext(data_file)
+    if result_strng is None:
         result_file = name+"_results.npz"
+    else:
+        result_file = name+result_strng+"_results.npz"
 
 
     start = time.time()
@@ -338,6 +337,7 @@ def run_tikh_flightline(data_file=None,
         numpy.savez_compressed(result_file, **results_dict)
         print("\n\nResults stored to "+result_file)
     else:
+
         return results_dict
 
 

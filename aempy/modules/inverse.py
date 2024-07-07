@@ -773,16 +773,6 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
     for item in Transform:       
         
 
-                 
-        if "max" in item.lower():
-             print("trans_sensitivity: Transformed by maximum value.")
-             if Maxval is None:
-                 maxval = numpy.amax(numpy.abs(S))
-             else:
-                 maxval = Maxval
-             print("maximum value: ", maxval)
-             S = S/maxval
-             # print("S0m", numpy.shape(S))
             
         if "sqr" in item.lower():
             S = numpy.sqrt(S)
@@ -897,7 +887,45 @@ def transform_sensitivity(S=numpy.array([]), V=numpy.array([]),
 
     return S
 
+def get_scale(d=numpy.array([]), f=0.1, method = "other", OutInfo = False):
+    """
+    Get optimal Scale for arcsin transformation.
 
+    Parameters
+    ----------
+    d : float, required.
+        Data vector.
+    F : float, optional
+        Weight for arcsinh transformation, default from Scholl & Edwards (2007)
+
+    Returns
+    -------
+    S : float
+        Scale value for arcsinh
+
+    C. Scholl
+        Die Periodizitaet von Sendesignalen bei Long-Offset Transient Electromagnetics
+        Diploma Thesis, Institut für Geophysik und Meteorologie der Universität zu Koeln, 2001.
+
+
+    """
+
+    if numpy.size(d)==0:
+        error("get_S: No data given! Exit.")
+
+    if "s2007" in method.lower():
+        scale = f * numpy.nanmax(numpy.abs(d))
+
+    else:
+        dmax = numpy.nanmax(numpy.abs(d))
+        dmin = numpy.nanmin(numpy.abs(d))
+        denom =f *(numpy.log(dmax)-numpy.log(dmin))
+        scale = numpy.abs(dmax/denom)
+
+    if OutInfo:
+        print("Scale value S is "+str(scale)+", method "+method)
+
+    return scale
 def calc_resolution_matrices(J=numpy.array([]), G=numpy.array([]),
                              OutInfo=True):
     """
