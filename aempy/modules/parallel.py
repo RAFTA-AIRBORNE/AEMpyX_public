@@ -29,7 +29,7 @@ import alg
 
 def run_tikh_flightline(data_file=None,
             prior_file=None,
-            result_file=None,
+            result_strng=None,
             ctrl=None,
             results_out=True,
             out=False):
