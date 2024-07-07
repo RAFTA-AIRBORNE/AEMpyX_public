@@ -629,11 +629,116 @@ def calc_jac(
 
     return jacobian
 
+# def calc_sensitivity(Jac=numpy.array([]),
+#                      Type = "euclidean", UseSigma = False, Small = 1.e-30, OutInfo = False):
+#     """
+#     Calculate sensitivities.
+#     Expects that Jacobian is already scaled, i.e Jac = C^(-1/2)*J.
+
+#     Several options exist for calculating sensiotivities, all of them
+#     used in the literature.
+#     Type:
+#         "raw"     sensitivities summed along the data axis
+#         "abs"     absolute sensitivities summed along the data axis
+#                     (often called coverage)
+#         "euc"     squared sensitivities summed along the data axis.
+#         "cum"     cummulated sensitivities as proposed by
+#                   Christiansen & Auken, 2012. Not usable for negative data.
+
+#     Usesigma:
+#         if true, sensitivities with respect to sigma  are calculated.
+
+#     Christiansen, A. V. & Auken, E.
+#     A global measure for depth of investigation
+#     Geophysics, 2012, 77, WB171-WB177
+
+#     from UBC:
+#     def depth_of_investigation_christiansen_2012(self, std, thres_hold=0.8):
+#         pred = self.survey._pred.copy()
+#         delta_d = std * numpy.log(abs(self.survey.dobs))
+#         J = self.getJ(self.model)
+#         J_sum = abs(Utils.sdiag(1/delta_d/pred) * J).sum(axis=0)
+#         S = numpy.cumsum(J_sum[::-1])[::-1]
+#         active = S-thres_hold > 0.
+#         doi = abs(self.survey.depth[active]).max()
+#         return doi, active
+
+#     T. Guenther
+#         Inversion Methods and Resolution Analysis for the 2D/3D Reconstruction
+#         of Resistivity Structures from DC Measurements
+#         Fakultaet für Geowissenschaften, Geotechnik und Bergbau,
+#         Technische Universitaet Bergakademie Freiberg, 2004.
+
+#     author:VR 9/23
+
+#     """
+
+#     if numpy.size(Jac)==0:
+#         error("calc_sensitivity: Jacobian size is 0! Exit.")
+
+#     if UseSigma:
+#         Jac = -Jac
+
+
+
+#     if "raw" in  Type.lower():
+#         S = Jac.sum(axis=0)
+#         if OutInfo:
+#             print("raw:", S)
+#         # else:
+#         #     print("raw sensitivities")
+#         # smax = Jac.max(axis = 0)
+#         # smin = Jac.max(axis = 0)
+        
+#     elif "cov" in Type.lower():
+#         S = Jac.abs().sum(axis=0)
+#         if OutInfo:
+#             print("cov:", S)
+#         # else:
+#         #     print("coverage")
+
+#     elif "euc" in Type.lower():
+#         S = Jac.power(2).sum(axis=0)
+#         if OutInfo:
+#             print("euc:", S)
+#         # else:
+#         #     print("euclidean (default)")
+
+#     elif "cum" in Type.lower():
+#         S = Jac.abs().sum(axis=0)
+#         # print(numpy.shape(S))
+#         # S = numpy.sum(Jac,axis=0)
+
+#         S = numpy.append(0.+1.e-10, numpy.cumsum(S[-1:0:-1]))
+#         S = numpy.flipud(S)
+#         if OutInfo:
+#            print("cumulative:", S)
+#         # else:
+#         #    print("cumulative sensitivity")
+
+#     else:
+#         print("calc_sensitivity: Type "
+#               +Type.lower()+" not implemented! Default assumed.")
+#         S = Jac.power(2).sum(axis=0)
+
+#         if OutInfo:
+#             print("euc (default):", S)
+#         # else:
+#         #     print("euclidean (default)")
+
+#         # S = S.reshape[-1,1]
+ 
+#     S[numpy.where(numpy.abs(S)<Small)]=Small
+#     print("calc: ", numpy.any(S==0))
+#     # S=S.A1    
+#     S = numpy.asarray(S).ravel()
+#     return S
+
 def calc_sensitivity(Jac=numpy.array([]),
-                     Type = "euclidean", UseSigma = False, Small = 1.e-30, OutInfo = False):
+                     Type="euclidean", UseSigma=False, Small = 1.e-30, OutInfo=False):
     """
     Calculate sensitivities.
-    Expects that Jacobian is already scaled, i.e Jac = C^(-1/2)*J.
+    Expects that Jacobian is already sclaed, i.e Jac = C^(-1/2)*J.
 
     Several options exist for calculating sensiotivities, all of them
     used in the literature.
@@ -642,11 +747,11 @@ def calc_sensitivity(Jac=numpy.array([]),
         "abs"     absolute sensitivities summed along the data axis
                     (often called coverage)
         "euc"     squared sensitivities summed along the data axis.
-        "cum"     cummulated sensitivities as proposed by
-                  Christiansen & Auken, 2012. Not usable for negative data.
+        "cum"     cummulated sensitivities as proposed by 
+                  Christiansen & Auken, 2012. Not usable for negative data. 
 
     Usesigma:
-        if true, sensitivities with respect to sigma  are calculated.
+        if true, sensitivities with respect to sigma  are calculated. 
 
     Christiansen, A. V. & Auken, E.
     A global measure for depth of investigation
@@ -664,79 +769,60 @@ def calc_sensitivity(Jac=numpy.array([]),
         return doi, active
 
     T. Guenther
-        Inversion Methods and Resolution Analysis for the 2D/3D Reconstruction
-        of Resistivity Structures from DC Measurements
-        Fakultaet für Geowissenschaften, Geotechnik und Bergbau,
-        Technische Universitaet Bergakademie Freiberg, 2004.
+    Inversion Methods and Resolution Analysis for the 2D/3D Reconstruction
+    of Resistivity Structures from DC Measurements
+    Fakultaet für Geowissenschaften, Geotechnik und Bergbau,
+    Technische Universitaet Bergakademie Freiberg, 2004.
 
-    author:VR 9/23
+    author:VR 4/23
 
     """
 
-    if numpy.size(Jac)==0:
+    if numpy.size(Jac) == 0:
         error("calc_sensitivity: Jacobian size is 0! Exit.")
 
     if UseSigma:
         Jac = -Jac
 
-
-
-    if "raw" in  Type.lower():
-        S = Jac.sum(axis=0)
+    if "raw" in Type.lower():
+        S = numpy.sum(Jac, axis=0)
         if OutInfo:
             print("raw:", S)
-        # else:
-        #     print("raw sensitivities")
-        # smax = Jac.max(axis = 0)
-        # smin = Jac.max(axis = 0)
+
         
     elif "cov" in Type.lower():
-        S = Jac.abs().sum(axis=0)
+        S = numpy.sum(numpy.abs(Jac), axis=0)
         if OutInfo:
             print("cov:", S)
-        # else:
-        #     print("coverage")
+
 
     elif "euc" in Type.lower():
-        S = Jac.power(2).sum(axis=0)
+        S = numpy.sum(numpy.power(Jac, 2), axis=0)
         if OutInfo:
             print("euc:", S)
-        # else:
-        #     print("euclidean (default)")
-
+ 
     elif "cum" in Type.lower():
-        S = Jac.abs().sum(axis=0)
-        # print(numpy.shape(S))
-        # S = numpy.sum(Jac,axis=0)
-
+        S = numpy.sum(numpy.abs(Jac), axis=0)
         S = numpy.append(0.+1.e-10, numpy.cumsum(S[-1:0:-1]))
         S = numpy.flipud(S)
         if OutInfo:
-           print("cumulative:", S)
-        # else:
-        #    print("cumulative sensitivity")
+            print("cumulative:", S)
 
     else:
         print("calc_sensitivity: Type "
-              +Type.lower()+" not implemented! Default assumed.")
-        S = Jac.power(2).sum(axis=0)
+              + Type.lower()+" not implemented! Default assumed.")
+        S = numpy.sum(numpy.power(Jac, 2), axis=0)
 
         if OutInfo:
             print("euc (default):", S)
-        # else:
-        #     print("euclidean (default)")
-
-        # S = S.reshape[-1,1]
  
     S[numpy.where(numpy.abs(S)<Small)]=Small
-    print("calc: ", numpy.any(S==0))
-    # S=S.A1    
+    
     S = numpy.asarray(S).ravel()
     return S
 
-
 def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
-                          Transform=["size","max", "sqrt"],
+                          transform=["size","max", "sqrt"],
                           asinhpar=[0.], Maxval=None, Small= 1.e-30, OutInfo=False):
     """
     Transform sensitivities.
@@ -770,10 +856,9 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
     
     
 
-    for item in Transform:       
+    for item in transform:       
         
-
-            
+           
         if "sqr" in item.lower():
             S = numpy.sqrt(S)
             # print("S0s", numpy.shape(S))
@@ -801,11 +886,7 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
                  error("Transform_sensitivity: no volumes given! Exit.")
 
              else:
-                 sS= numpy.sum(1./vol)
-                 S = sS*S/vol
-                 # print("S0v", numpy.shape(S))
-                 # print("S0v", numpy.shape(V))
-        
+                 S = S/vol
         
         if "max" in item.lower():
              print("trans_sensitivity: Transformed by maximum value.")
@@ -823,69 +904,6 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
         
     return S, maxval
 
-
-def transform_sensitivity(S=numpy.array([]), V=numpy.array([]),
-                          Transform=["max", "sqrt"], OutInfo=False):
-    """
-    Transform sensitivities.
-
-    Several options exist for transforming sensitivities, all of them
-    used in the literature.
-
-    Normalize options:
-        "siz"       Normalize by the values optional array V ("volume"), 
-                    i.e in our case layer thickness. This should always 
-                    be the first value in Transform list.
-        "max"       Normalize by maximum value.
-        "sur"       Normalize by surface value.
-        "sqr"       Take the square root. Only usefull for euc sensitivities. 
-        "log"       Take the logaritm. This should always be the 
-                    last value in Transform list
-
-
-    author:VR 4/23
-
-    """
-
-    if numpy.size(S) == 0:
-        error("Transform_sensitivity: Sensitivity size is 0! Exit.")
-
-    ns = numpy.shape(S)
-    # print("S0", numpy.shape(S))
-    # S = S.ravel()
-    # print("S0", numpy.shape(S))
-    # reshape((ns,1))
-
-    for item in Transform:
-
-        if "siz" in item.lower():
-            print("trans_sensitivity: Transformed by layer thickness.")
-            if numpy.size(V) == 0:
-                error("Transform_sensitivity: No thicknesses given! Exit.")
-            else:
-                V = V.reshape(ns)
-                S = S/V
-                # print("S0v", numpy.shape(S))
-                # print("S0v", numpy.shape(V))
-
-        if "max" in item.lower():
-            print("trans_sensitivity: Transformed by maximum value.")
-            maxval = numpy.amax(numpy.abs(S))
-            print("maximum value: ", maxval)
-            S = S/maxval
-            # print("S0m", numpy.shape(S))
-
-        elif "sur" in item.lower():
-            S = S/S[0]
-
-        if "sqr" in item.lower():
-            S = numpy.sqrt(S)
-            # print("S0s", numpy.shape(S))
-
-        if "log" in item.lower():
-            S = numpy.log10(S)
-
-    return S
 
 def get_scale(d=numpy.array([]), f=0.1, method = "other", OutInfo = False):
     """
@@ -926,6 +944,8 @@ def get_scale(d=numpy.array([]), f=0.1, method = "other", OutInfo = False):
         print("Scale value S is "+str(scale)+", method "+method)
 
     return scale
+
+
 def calc_resolution_matrices(J=numpy.array([]), G=numpy.array([]),
                              OutInfo=True):
     """
