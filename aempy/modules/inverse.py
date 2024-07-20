@@ -630,7 +630,7 @@ def calc_jac(
     return jacobian
 
 # def calc_sensitivity(Jac=numpy.array([]),
-#                      Type = "euclidean", UseSigma = False, Small = 1.e-30, OutInfo = False):
+#                      Type = "euclidean", UseSigma = False, small_val = 1.e-30, OutInfo = False):
 #     """
 #     Calculate sensitivities.
 #     Expects that Jacobian is already scaled, i.e Jac = C^(-1/2)*J.
@@ -728,21 +728,21 @@ def calc_jac(
 
 #         # S = S.reshape[-1,1]
  
-#     S[numpy.where(numpy.abs(S)<Small)]=Small
+#     S[numpy.where(numpy.abs(S)<small_val)]=small_val
 #     print("calc: ", numpy.any(S==0))
 #     # S=S.A1    
 #     S = numpy.asarray(S).ravel()
 #     return S
 
 def calc_sensitivity(Jac=numpy.array([]),
-                     Type="euclidean", UseSigma=False, Small = 1.e-30, OutInfo=False):
+                     sens_type="euclidean", use_sigma=False, small_val = 1.e-30, OutInfo=False):
     """
     Calculate sensitivities.
     Expects that Jacobian is already sclaed, i.e Jac = C^(-1/2)*J.
 
     Several options exist for calculating sensiotivities, all of them
     used in the literature.
-    Type:
+    type:
         "raw"     sensitivities summed along the data axis
         "abs"     absolute sensitivities summed along the data axis
                     (often called coverage)
@@ -781,27 +781,27 @@ def calc_sensitivity(Jac=numpy.array([]),
     if numpy.size(Jac) == 0:
         error("calc_sensitivity: Jacobian size is 0! Exit.")
 
-    if UseSigma:
+    if use_sigma:
         Jac = -Jac
 
-    if "raw" in Type.lower():
+    if "raw" in sens_type.lower():
         S = numpy.sum(Jac, axis=0)
         if OutInfo:
             print("raw:", S)
 
         
-    elif "cov" in Type.lower():
+    elif "cov" in sens_type.lower():
         S = numpy.sum(numpy.abs(Jac), axis=0)
         if OutInfo:
             print("cov:", S)
 
 
-    elif "euc" in Type.lower():
+    elif "euc" in sens_type.lower():
         S = numpy.sum(numpy.power(Jac, 2), axis=0)
         if OutInfo:
             print("euc:", S)
  
-    elif "cum" in Type.lower():
+    elif "cum" in sens_type.lower():
         S = numpy.sum(numpy.abs(Jac), axis=0)
         S = numpy.append(0.+1.e-10, numpy.cumsum(S[-1:0:-1]))
         S = numpy.flipud(S)
@@ -809,21 +809,21 @@ def calc_sensitivity(Jac=numpy.array([]),
             print("cumulative:", S)
 
     else:
-        print("calc_sensitivity: Type "
-              + Type.lower()+" not implemented! Default assumed.")
+        print("calc_sensitivity: type "
+              + type.lower()+" not implemented! Default assumed.")
         S = numpy.sum(numpy.power(Jac, 2), axis=0)
 
         if OutInfo:
             print("euc (default):", S)
  
-    S[numpy.where(numpy.abs(S)<Small)]=Small
+    S[numpy.where(numpy.abs(S)<small_val)]=small_val
     
     S = numpy.asarray(S).ravel()
     return S
 
 def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
                           transform=["size","max", "sqrt"],
-                          asinhpar=[0.], Maxval=None, Small= 1.e-30, OutInfo=False):
+                          asinhpar=[0.], max_val=None, small_val= 1.e-30, OutInfo=False):
     """
     Transform sensitivities.
 
@@ -853,7 +853,6 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
         error("transform_sensitivity: Sensitivity size is 0! Exit.")
     
     # ns = numpy.shape(S)
-    
     
 
     for item in transform:       
@@ -890,16 +889,16 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
         
         if "max" in item.lower():
              print("trans_sensitivity: Transformed by maximum value.")
-             if Maxval is None:
+             if max_val is None:
                  maxval = numpy.amax(numpy.abs(S))
              else:
-                 maxval = Maxval
+                 maxval = max_val
              print("maximum value: ", maxval)
              S = S/maxval
              # print("S0m", numpy.shape(S))
              
              
-        S[numpy.where(numpy.abs(S)<Small)]=Small
+        S[numpy.where(numpy.abs(S)<small_val)]=small_val
 
         
     return S, maxval
