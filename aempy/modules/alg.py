@@ -304,7 +304,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 cali, d_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec = model_test,
                                           m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
 
-                r_test = Wd@(obs - cali).T
+                r_test = Wd@(obs - cali[d_act!=0]).T
 
                 dnorm[itest] = scipy.linalg.norm(r_test)
                 mnorm[itest] = scipy.linalg.norm(m_test[itest])

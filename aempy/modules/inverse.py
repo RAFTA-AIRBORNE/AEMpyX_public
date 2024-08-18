@@ -3355,7 +3355,7 @@ def merge_data_sets(infile_list=None, outfile_name="./dat_tmp.npz",
     return merged_data
 
 def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
-                     out=False):
+                     thresh=None, out=False):
     """
     Merge models from file list
     Created on Sun Jan 22 12:18:58 2023
@@ -3369,14 +3369,14 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
 
     k = 0
     for infile in infile_list:
-        k = k+1
+
         print("\nData read from: %s" % infile)
         results = numpy.load(infile, allow_pickle=True)
 
         # ctrl = numpy.load(file.replace("_results.npz","_ctrl.npz"))
         # ctrl = results["ctrl"]
 
-        if k==1 and outfile_name is not None :
+        if k==0 and outfile_name is not None :
             ctrl_file_in = infile.replace("_results.npz","_ctrl.npz")
             Ctrl =  numpy.load(ctrl_file_in, allow_pickle=True)
             ctrl_file_out = outfile_name.replace("_results.npz", "_ctrl.npz")
@@ -3421,9 +3421,21 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
 
         # print(numpy.shape(site_x))
         # print(numpy.shape(site_z))
+        
+        if "smp" in thresh[0].lower and site_smp < thresh[1]:
+            k=k+1
+        else:
+            continue
+            
+        if "rms" in thresh[0].lower and site_rms > thresh[1]:
+            k=k+1
+        else:
+            continue
+  
 
         if k == 1:
             # merged_log = site_log
+           
             merged_mod = site_mod
             merged_sns = site_sns
             merged_rms = site_rms
