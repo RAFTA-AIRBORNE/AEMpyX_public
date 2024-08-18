@@ -119,7 +119,7 @@ if "dat" in DataType.lower():
                                        outfile_name=OutFileName,
                                        out=False)
 else:
-    _ = inverse.merge_model_sets(infile_list=dat_files, thresh=Thresh,
+    _ = inverse.merge_model_sets(infile_list=dat_files, qthresh=Thresh,
                                    outfile_name=OutFileName,
                                    out=False)
 

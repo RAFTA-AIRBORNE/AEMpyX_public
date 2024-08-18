@@ -3355,7 +3355,7 @@ def merge_data_sets(infile_list=None, outfile_name="./dat_tmp.npz",
     return merged_data
 
 def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
-                     thresh=None, out=False):
+                     qthresh=None, out=False):
     """
     Merge models from file list
     Created on Sun Jan 22 12:18:58 2023
@@ -3369,7 +3369,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
 
     k = 0
     for infile in infile_list:
-
+        k=k+1
         print("\nData read from: %s" % infile)
         results = numpy.load(infile, allow_pickle=True)
 
@@ -3414,58 +3414,58 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         tmp = numpy.cumsum(mod_ref[6*nlyr:7*nlyr-1])
         tmp = numpy.insert(tmp, 0, 0.)
         tmp = numpy.append(tmp, tmp[-1])
-
+        
+        choose =[]
         for isite in numpy.arange(numpy.shape(site_mod)[0]):
             site_d[isite] = 0.5*(tmp[0:len(tmp)-1]+tmp[1:len(tmp)])
             site_z[isite] = site_dem[isite] - site_d[isite]
 
-        # print(numpy.shape(site_x))
-        # print(numpy.shape(site_z))
-        
-        if "smp" in thresh[0].lower and site_smp < thresh[1]:
-            k=k+1
-        else:
-            continue
-            
-        if "rms" in thresh[0].lower and site_rms > thresh[1]:
-            k=k+1
-        else:
-            continue
+            if ("smp" in qthresh[0].lower()):
+                if (site_smp[isite] < qthresh[1]):
+                    choose.append(isite)
+                else:
+                    continue
+                
+            if ("rms" in qthresh[0].lower()):
+                if (site_rms[isite] > qthresh[1]):
+                    choose.append(isite)
+                else:
+                    continue
   
 
         if k == 1:
             # merged_log = site_log
            
-            merged_mod = site_mod
-            merged_sns = site_sns
-            merged_rms = site_rms
-            merged_smp = site_smp
-            merged_con = site_con
-            merged_x = site_x.reshape(-1,1)
-            merged_y = site_y.reshape(-1,1)
-            merged_z = site_z
-            merged_d = site_d
-            merged_gps = site_gps.reshape(-1,1)
-            merged_alt = site_alt.reshape(-1,1)
-            merged_dem = site_dem.reshape(-1,1)
-            merged_cov = site_cov.T
+            merged_mod = site_mod[choose]
+            merged_sns = site_sns[choose]
+            merged_rms = site_rms[choose]
+            merged_smp = site_smp[choose]
+            merged_con = site_con[choose]
+            merged_x = site_x[choose].reshape(-1,1)
+            merged_y = site_y[choose].reshape(-1,1)
+            merged_z = site_z[choose]
+            merged_d = site_d[choose]
+            merged_gps = site_gps[choose].reshape(-1,1)
+            merged_alt = site_alt[choose].reshape(-1,1)
+            merged_dem = site_dem[choose].reshape(-1,1)
+            merged_cov = site_cov[choose].T
             print(numpy.shape(merged_cov), numpy.shape(site_cov), k)
         else:
             # merged_log = numpy.vstack((merged_log, site_log))
-            merged_mod = numpy.vstack((merged_mod, site_mod))
-            merged_sns = numpy.vstack((merged_sns, site_sns))
-            merged_rms = numpy.vstack((merged_rms, site_rms))
-            merged_smp = numpy.vstack((merged_smp, site_smp))
-            merged_con = numpy.vstack((merged_con, site_con))
-            merged_x = numpy.vstack((merged_x, site_x.reshape(-1,1)))
-            merged_y = numpy.vstack((merged_y, site_y.reshape(-1,1)))
-            merged_z = numpy.vstack((merged_z, site_z))
-            merged_d = numpy.vstack((merged_d, site_d))
-            merged_gps = numpy.vstack((merged_gps, site_gps.reshape(-1,1)))
-            merged_alt = numpy.vstack((merged_alt, site_alt.reshape(-1,1)))
-            merged_dem = numpy.vstack((merged_dem, site_dem.reshape(-1,1)))
+            merged_mod = numpy.vstack((merged_mod, site_mod[choose]))
+            merged_sns = numpy.vstack((merged_sns, site_sns[choose]))
+            merged_rms = numpy.vstack((merged_rms, site_rms[choose]))
+            merged_smp = numpy.vstack((merged_smp, site_smp[choose]))
+            merged_con = numpy.vstack((merged_con, site_con[choose]))
+            merged_x = numpy.vstack((merged_x, site_x[choose].reshape(-1,1)))
+            merged_y = numpy.vstack((merged_y, site_y[choose].reshape(-1,1)))
+            merged_z = numpy.vstack((merged_z, site_z[choose]))
+            merged_d = numpy.vstack((merged_d, site_d[choose]))
+            merged_gps = numpy.vstack((merged_gps, site_gps[choose].reshape(-1,1)))
+            merged_alt = numpy.vstack((merged_alt, site_alt[choose].reshape(-1,1)))
+            merged_dem = numpy.vstack((merged_dem, site_dem[choose].reshape(-1,1)))
             # print(numpy.shape(merged_cov), numpy.shape(site_cov), k)
-            merged_cov = numpy.hstack((merged_cov, site_cov.T))
+            merged_cov = numpy.hstack((merged_cov, site_cov[choose].T))
 
 
 
