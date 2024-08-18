@@ -245,9 +245,6 @@ def run_tikh_flightline(data_file=None,
         dtmp = site_dict["data"]
         ctmp = site_dict["log"]
         
-        
-        print(mtmp[0])
-
         if ii==0:
             site_num  = numpy.array([ii])
             site_conv = ctmp[1]
@@ -259,12 +256,12 @@ def run_tikh_flightline(data_file=None,
             site_dobs = dtmp[0].reshape((1,-1))
             site_dcal = dtmp[1].reshape((1,-1))
             site_derr = dtmp[2].reshape((1,-1))
-            clog = numpy.hstack((ctmp[0], ctmp[1], ctmp[2], ctmp[3],
-                              ctmp[4].ravel(),
-                              ctmp[5].ravel(),
-                              ctmp[6].ravel(),
-                              ctmp[7].ravel()))
-            site_log[ii,0:len(clog)] = clog
+            # clog = numpy.hstack((ctmp[0], ctmp[1], ctmp[2], ctmp[3],
+            #                   ctmp[4].ravel(),
+            #                   ctmp[5].ravel(),
+            #                   ctmp[6].ravel(),
+            #                   ctmp[7].ravel()))
+            # site_log[ii,0:len(clog)] = clog
             if uncert:
                 jacd = site_dict["jacd"]
                 site_jacd = jacd.reshape((1,numpy.size(jacd)))
@@ -281,12 +278,12 @@ def run_tikh_flightline(data_file=None,
            site_dobs = numpy.vstack((site_dobs, dtmp[0]))
            site_dcal = numpy.vstack((site_dcal, dtmp[1]))
            site_derr = numpy.vstack((site_derr, dtmp[2]))
-           clog = numpy.hstack((ctmp[0], ctmp[1], ctmp[2], ctmp[3],
-                              ctmp[4].ravel(),
-                              ctmp[5].ravel(),
-                              ctmp[6].ravel(),
-                              ctmp[7].ravel()))
-           site_log[ii,0:len(clog)] = clog
+           # clog = numpy.hstack((ctmp[0], ctmp[1], ctmp[2], ctmp[3],
+           #                    ctmp[4].ravel(),
+           #                    ctmp[5].ravel(),
+           #                    ctmp[6].ravel(),
+           #                    ctmp[7].ravel()))
+           # site_log[ii,0:len(clog)] = clog
 
            if uncert:
                jacd = site_dict["jacd"]
@@ -302,7 +299,7 @@ def run_tikh_flightline(data_file=None,
         "fl_data" : result_file,
         "fl_name" : fl_name,
         "header" : header,
-        "site_log" :  site_log,
+        # "site_log" :  site_log,
         "mod_ref" : mod_apr,
         "mod_act" : mod_act,
         "dat_act" : dat_act,

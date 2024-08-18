@@ -3401,8 +3401,11 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         site_dem = results["site_dem"]
         site_cov = results["site_pcov"]
 
-        tmp = results["site_log"]
-        site_log = numpy.array([tmp[1], tmp[2], tmp[3]])
+        # tmp = results["site_log"]
+        # print(numpy.shape(tmp))
+        # print(tmp)
+        
+        # site_log = numpy.array([tmp[1], tmp[2], tmp[3]])
 
         site_d = numpy.zeros_like(site_mod)
         site_z = numpy.zeros_like(site_mod)
@@ -3420,7 +3423,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         # print(numpy.shape(site_z))
 
         if k == 1:
-            merged_log = site_log
+            # merged_log = site_log
             merged_mod = site_mod
             merged_sns = site_sns
             merged_rms = site_rms
@@ -3436,7 +3439,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             merged_cov = site_cov.T
             print(numpy.shape(merged_cov), numpy.shape(site_cov), k)
         else:
-            merged_log = numpy.vstack((merged_log, site_log))
+            # merged_log = numpy.vstack((merged_log, site_log))
             merged_mod = numpy.vstack((merged_mod, site_mod))
             merged_sns = numpy.vstack((merged_sns, site_sns))
             merged_rms = numpy.vstack((merged_rms, site_rms))
