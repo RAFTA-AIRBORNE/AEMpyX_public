@@ -3376,11 +3376,12 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         # ctrl = numpy.load(file.replace("_results.npz","_ctrl.npz"))
         # ctrl = results["ctrl"]
 
-        if k==0 and outfile_name is not None :
+        if k==1 and outfile_name is not None :
             ctrl_file_in = infile.replace("_results.npz","_ctrl.npz")
             Ctrl =  numpy.load(ctrl_file_in, allow_pickle=True)
             ctrl_file_out = outfile_name.replace("_results.npz", "_ctrl.npz")
             numpy.savez_compressed(file=ctrl_file_out, **Ctrl)
+
 
 
         print(list(results.keys()))
