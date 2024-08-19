@@ -2859,8 +2859,7 @@ def calc_datafit(data_obs=numpy.array([]),
         fac = 1.
         d0 = numpy.abs(dat_obs - dat_cal)
         d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
-        smape0 = numpy.sum(d0)
-        smape1 = numpy.sum(d1)
+        smape0 = numpy.sum(d0)/numpy.sum(d1)
         smape = 100.0 * smape0 / nd       
     
 
