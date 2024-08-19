@@ -4,18 +4,20 @@
 #   jupytext:
 #     cell_metadata_filter: -all
 #     formats: py:light,ipynb
+#     main_language: python
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (Spyder)
+#     language: python3
+#     name: python3
 # ---
 
-
-"""
-Show several 1d block models as (stitched) section.
-
-"""
+# Flightline plots for mmodel-like parameters, here resistivity. 
+# +
 import os
 import sys
 from sys import exit as error
@@ -41,14 +43,11 @@ for pth in mypath:
 
 from version import versionstrg
 
-
 import util
 import viz
 import inverse
 
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
-
+# +
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 rng = numpy.random.default_rng()
@@ -58,22 +57,19 @@ cm = 1/2.54  # centimeters in inches
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
+# -
 
 OutInfo = True
-now = datetime.now()
 
-"""
-input formats is "npz"
-"""
 
-# InModDir = AEMPYX_DATA + "/Aug2023/results/"
-
-InModDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/results_diffop/"
+# AEMPYX_DATA =  AEMPYX_ROOT+"/data/"
+AEMPYX_DATA =  "/media/vrath/BackMetal/"
+InModDir =  AEMPYX_DATA + "/aem05_mallow/dec/median10/results/"
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Data read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*gcv*results.npz"
+SearchStrng = "*k2*results.npz"
 
 if "search" in FileList.lower():
 
@@ -81,20 +77,22 @@ if "search" in FileList.lower():
     res_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir, fullpath=False)
     res_files = sorted(res_files)
 
+# +
 if "set" in FileList.lower():
     res_files =[]
 
 print (res_files)
-
-PlotType =  1
+# -
 
 # PlotType =  0      # rms, datafit, model
 # PlotType =  1      #  model + rms
 # PlotType =  2      #  model
 # PlotType =  3      #  datafit
 
+PlotType =  1
+
 # PlotDir = AEMPYX_DATA + "/Projects/Compare/plots/C36/"
-PlotDir = InModDir
+PlotDir = AEMPYX_DATA + "/aem05_mallow/plots/"
 print("Plots written to dir: %s " % PlotDir)
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
@@ -107,7 +105,7 @@ PDFCatalog = True
 PDFStrng = ".pdf"
 if ".pdf" in PlotFmt:
     # PDFCatName = PlotDir+"AEM05_LCC"+"_Type"+str(PlotType)+PDFStrng    
-    PDFCatName = PlotDir+"AEM05_GCV"+"_Type"+str(PlotType)+PDFStrng
+    PDFCatName = PlotDir+"Mallow_AllResults"+PDFStrng
 else:
     print(" No pdfs generated. No catalog possible!")
     PDFCatalog = False
@@ -116,6 +114,7 @@ else:
 
 PlotSize = [25., 5. ]
 
+# +
 """
 Parameter for data fit plot
 """
@@ -128,11 +127,13 @@ alpha_err68 = 0.2
 
 QLimits = []
 ILimits = []
+# -
+
 """
 Parameter for nRMS plot
 """
 rms_limits  =[0., 4.]
-
+rms_limits  =[0., 4.]
 
 """
 Parameter for model plot
@@ -145,9 +146,10 @@ cb_ticks = [-1, 0, 1, 2, 3, 4]
 
 blank = 10
 
-low_sens = True
+
+low_sens =False
 if low_sens:        
-    lowsens = -2.
+    lowsens = -3.
     # sens_pars = ["euc","size", "sqrt","max", "log"]
     sens_pars = ["euc","sqrt","max", "log"]
     
@@ -159,10 +161,25 @@ else:
     alpha_sens = 1.
 
 
-high_rms = True
+high_rms = False
 if high_rms:
-    highrms = 3.
+    """
+    Parameter for nRMS plot
+    """
+    highrms = 1.2
     alpha_rms= 0.05
+    rms_limits  =[0., 4.]
+
+    
+ 
+high_smp = True
+if high_smp:
+    """
+    Parameter for SMAPE plot
+    """
+    highsmp = 5.
+    alpha_smp= 0.05   
+    smp_limits  =[0., 5.]    
 
 high_err = False
 if high_err:
@@ -170,9 +187,9 @@ if high_err:
     alpha_err95 = 0.3
 
 
-max_doi = False
+max_doi = True
 if max_doi:
-    maxdoi = 150.
+    maxdoi = 100.
     alpha_doi = 0.0
 
 
@@ -181,7 +198,7 @@ if plot_adapt:
    if not max_doi:
        maxdoi = 150.
 else:
-    plot_min = -200.0
+    plot_min = -100.0
     plot_max = 60.0
 
 
@@ -256,32 +273,6 @@ for file in res_files:
 
     title=FileName.replace("_"," ")
 
-
-    """
-    numpy.savez_compressed(
-        file=Fileout,
-        fl_data=file,
-        fl_name=fl_name,
-        header=Header,
-        mod_ref=mod_apr,
-        mod_act=mod_act,
-        dat_act=dat_act,
-        site_modl=site_modl,
-        site_sens=site_sens,
-        site_merr=site_merr,
-        site_dobs=site_dobs,
-        site_dcal=site_dcal,
-        site_derr=site_derr,
-        site_nrms=site_nrms,
-        site_num=site_num,
-        site_site_y,
-        site_site_x,
-        site_gps=site_gps,
-        site_alt=site_alt,
-        site_dem=site_dem)
-
-
-    """
     tmp = numpy.load(InModDir+file)
 
     m_active    = tmp["mod_act"]
@@ -302,6 +293,7 @@ for file in res_files:
     nsite, ndata = numpy.shape(site_dobs)
 
     site_rms = tmp["site_nrms"]
+    site_smp = tmp["site_smap"]
 
     site_x = tmp["site_x"] * ProfScale
     site_y = tmp["site_y"] * ProfScale
@@ -323,16 +315,17 @@ for file in res_files:
     thk = dz
     thk[-1] = 1.e6
 
-    for isite in numpy.arange(sites):
-        ndata = numpy.sum(d_active[isite,:])
-        jaci = jac[isite,:].reshape(ndata,param)
-        sens = inverse.calc_sensitivity(Jac=jaci, 
-                                        UseSigma=False, 
-                                        Type =sens_pars[0])
-        site_sens[isite,:] = inverse.transform_sensitivity(S=sens, 
-                                                           V=thk, 
-                                                           Transform=sens_pars[1:])
-        # if isite  in [ 3, 10, 70]: print(site_sens[isite,:])
+    if low_sens:
+        for isite in numpy.arange(sites):
+            ndata = numpy.sum(d_active[isite,:])
+            jaci = jac[isite,:].reshape(ndata,param)
+            sens = inverse.calc_sensitivity(Jac=jaci, 
+                                            use_sigma=False, 
+                                            sens_type=sens_pars[0])
+            site_sens[isite,:], _ = inverse.transform_sensitivity(S=sens, 
+                                                               vol=thk, 
+                                                               transform=sens_pars[1:])
+            # if isite  in [ 3, 10, 70]: print(site_sens[isite,:])
 
     if topo_use_average:
         site_tref = numpy.mean(site_dem)
@@ -341,10 +334,19 @@ for file in res_files:
     site_topo = site_dem - site_tref
     max_topo = numpy.amax(site_topo)
     
-    avg_rms = round(numpy.nanmean(site_rms), 2)
-    med_rms = round(numpy.nanmedian(site_rms),2)
-    med = med_rms*numpy.ones_like(site_rms)
-    avg = avg_rms*numpy.ones_like(site_rms)
+    if high_rms:
+        avg_rms = round(numpy.nanmean(site_rms), 2)
+        med_rms = round(numpy.nanmedian(site_rms),2)
+        avg_rms = avg_rms*numpy.ones_like(site_rms)
+        med_rms = med_rms*numpy.ones_like(site_rms)
+
+    if high_smp:
+        avg_smp = round(numpy.nanmean(site_smp), 2)
+        med_smp = round(numpy.nanmedian(site_smp),2)
+        avg_smp = avg_smp*numpy.ones_like(site_smp)
+        med_smp = med_smp*numpy.ones_like(site_smp)
+
+    
 
     models = numpy.shape(site_model)
     sites = models[0]
@@ -397,7 +399,11 @@ for file in res_files:
             if high_rms:
                 if site_rms[nmod] > highrms:
                     alpha[nmod, :] = alpha_rms
-
+                    
+            if high_smp:
+                if site_smp[nmod] > highsmp:
+                    alpha[nmod, :] = alpha_smp
+                    
             if low_sens:
                  for il in numpy.arange(nlyr):
                      if site_sens[nmod, il] < lowsens:
@@ -482,27 +488,35 @@ for file in res_files:
     if PlotType in [0, 1]:
 
         ii = ii+1
-
-        ax[ii].plot(site_r[:-1], site_rms[:-1], "r", linewidth=Linewidth)
-        ax[ii].plot(site_r[:-1], avg[:-1], "b:", linewidth=Linewidth)
-        ax[ii].plot(site_r[:-1], med[:-1], "g:", linewidth=Linewidth)
-        # ax[ii][0].set_title(title, fontsize=Fontsize+1)
-        ax[ii].legend([" nRMS ",
-                      "nRMS average=" +str(avg_rms),
-                      "nRMS median="+str(med_rms)],
-                     fontsize=Labelsize, loc="best")
-        ax[ii].set_ylabel("nRMS " , fontsize=Fontsize-1)
-        ax[ii].set_ylim(rms_limits)
-        ax[ii].grid(True)
-        ax[ii].tick_params(labelsize=Labelsize)
-
-        # if PlotPLM:
-        #     ax[ii]=ax.twinx()   # make a plot with different y-axis using second axis object
-        #     ax[ii].plot(prof_dist[:],data_plm[:],color="blue",linewidth=Linewidths[0])
-        #     ax[ii].set_ylabel("plm (nT)", fontsize=Labelsize)
-        #     ax[ii].legend([" powerline monitor"], fontsize=Labelsize, loc="upper right")
-        #     if PLimits:
-
+        
+        if high_rms:
+            ax[ii].plot(site_r[:-1], site_rms[:-1], "r", linewidth=Linewidth)
+            ax[ii].plot(site_r[:-1], avg_rms[:-1], "b:", linewidth=Linewidth)
+            ax[ii].plot(site_r[:-1], med_rms[:-1], "g:", linewidth=Linewidth)
+            # ax[ii][0].set_title(title, fontsize=Fontsize+1)
+            ax[ii].legend([" nRMS ",
+                          "nRMS average=" +str(avg_rms),
+                          "nRMS median="+str(med_rms)],
+                         fontsize=Labelsize, loc="best")
+            ax[ii].set_ylabel("nRMS " , fontsize=Fontsize-1)
+            ax[ii].set_ylim(rms_limits)
+            ax[ii].grid(True)
+            ax[ii].tick_params(labelsize=Labelsize)
+            
+        if high_smp:
+            ax[ii].plot(site_r[:-1], site_smp[:-1], "r", linewidth=Linewidth)
+            ax[ii].plot(site_r[:-1], avg_smp[:-1], "b:", linewidth=Linewidth)
+            ax[ii].plot(site_r[:-1], med_smp[:-1], "g:", linewidth=Linewidth)
+            # ax[ii][0].set_title(title, fontsize=Fontsize+1)
+            ax[ii].legend([" SMAPE",
+                          "SMAPE average=" +str(avg_smp)+" %",
+                          "SMAPE median="+str(med_smp)+" %"],
+                         fontsize=Labelsize, loc="best")
+            ax[ii].set_ylabel("SMAPE (%)" , fontsize=Fontsize-1)
+            ax[ii].set_ylim(smp_limits)
+            ax[ii].grid(True)
+            ax[ii].tick_params(labelsize=Labelsize)
+            
 
     if PlotType in [0, 3]:
 
@@ -744,10 +758,23 @@ for file in res_files:
                        verticalalignment="bottom", horizontalalignment="left",
                        transform=axii.transAxes,
                        fontsize=Fontsize-2)
-        axii.text(0.95, 0.1, "nRMS average=" +str(avg_rms)+", median="+str(med_rms),
-                  verticalalignment="bottom", horizontalalignment="right",
-                    transform=axii.transAxes,
-                    color="black", fontsize=Fontsize-2)
+        if high_rms:
+                avg = avg_rms[0]
+                med = med_rms[0]
+                axii.text(0.95, 0.1, 
+                          "nRMS average=" +str(avg)+", median="+str(med),
+                          verticalalignment="bottom", horizontalalignment="right",
+                          transform=axii.transAxes,
+                          color="black", fontsize=Fontsize-2)
+        if high_smp:
+                avg = avg_smp[0]
+                med = med_smp[0]        
+                axii.text(0.95, 0.1, 
+                          "SMAPE average=" +str(avg)+", median="+str(med)+" %",
+                          verticalalignment="bottom", horizontalalignment="right",
+                            transform=axii.transAxes,
+                            color="black", fontsize=Fontsize-2)
+                
         axii.text(0.0, -0.3, beg_strng,
                    verticalalignment="top", horizontalalignment="left",
                    transform=axii.transAxes,
