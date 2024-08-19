@@ -125,7 +125,7 @@ def run_linesearch(fwdcall, alt,
         d_calc, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
                                         m_vec=m, m_trn=m_trn, m_state=m_state,
                                         d_trn=d_trn, d_state=d_state)
-        linrmse_iter, linsms_iter = calc_datafit(data_cal=d_calc,
+        linrmse_iter, linsms_iter = calc_rms(data_cal=d_calc,
                                              data_obs=d_obs,
                                              data_err=d_err,
                                              data_act=d_act)
@@ -2800,7 +2800,8 @@ def calc_dnorm(data_obs=numpy.array([]),
 def calc_datafit(data_obs=numpy.array([]),
              data_cal=numpy.array([]),
              data_err=numpy.array([]),
-             data_act=numpy.array([])):
+             data_act=numpy.array([]),
+             smaptype=1):
     """
     Calculate the NRMS ans SRMS.
 
@@ -2812,12 +2813,13 @@ def calc_datafit(data_obs=numpy.array([]),
 
     VR  Jan 2021
         Jun 2022
+        Aug 2024
     """
 
     if (numpy.size(data_obs) == 0 or
         numpy.size(data_cal) == 0 or
             numpy.size(data_err) == 0):
-        error("calc_datafit: parameters missing! Exit.")
+        error("calc_rms: parameters missing! Exit.")
 
     if numpy.size(data_act) == 0:
         dat_obs = data_obs
@@ -2839,12 +2841,28 @@ def calc_datafit(data_obs=numpy.array([]),
     nrmse = numpy.sqrt(numpy.sum(numpy.power(abs(rscal), 2)) / nd)
 
     # sum squared scaled symmetric error (Raiche2007)
-    fac = 1.
-    d0 = numpy.abs(dat_obs - dat_cal)
-    d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
-    smape0 = numpy.sum(d0/d1)
-
-    smape = 100.0 * smape0 / nd
+    if smaptype==1:
+        fac = 1.
+        d0 = numpy.abs(dat_obs - dat_cal)
+        d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
+        smape0 = numpy.sum(d0/d1)
+        smape = 100.0 * smape0 / nd
+        
+    if smaptype==2:
+        fac = 2.
+        d0 = numpy.abs(dat_obs - dat_cal)
+        d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
+        smape0 = numpy.sum(d0/d1)
+        smape = 100.0 * smape0 / nd       
+    
+    if smaptype==3:
+        fac = 1.
+        d0 = numpy.abs(dat_obs - dat_cal)
+        d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
+        smape0 = numpy.sum(d0)
+        smape1 = numpy.sum(d1)
+        smape = 100.0 * smape0 / nd       
+    
 
     return nrmse, smape
 
