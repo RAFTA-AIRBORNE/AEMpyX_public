@@ -3355,7 +3355,7 @@ def merge_data_sets(infile_list=None, outfile_name="./dat_tmp.npz",
     return merged_data
 
 def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
-                     qthresh=None, out=False):
+                     qthresh=None, out=True):
     """
     Merge models from file list
     Created on Sun Jan 22 12:18:58 2023
@@ -3431,7 +3431,10 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
                     choose.append(isite)
                 else:
                     continue
-  
+        if out:
+            print("\n",infile+":")
+            print("original sites:",numpy.shape(site_mod)[0] )
+            print("chosen sites:  ",len(choose) )
 
         if k == 1:
             # merged_log = site_log

@@ -31,6 +31,7 @@ import copy
 import numpy
 import scipy
 
+import multiprocessing
 # from numba import njit
 
 
@@ -46,6 +47,7 @@ import aesys
 import util
 import inverse
 import alg
+import parallel
 import post
 # -
 
@@ -62,9 +64,8 @@ OutInfo = False
 Parallel = True
 if Parallel:
     import parallel
-    import multiprocessing
-
-    Njobs = 30
+    
+    Njobs = 6
 
     if Njobs<0:
         Njobs=multiprocessing.cpu_count()
@@ -72,7 +73,6 @@ if Parallel:
         Njobs=min(Njobs, multiprocessing.cpu_count())
 
     print(str(Njobs)+" processors will be used in parallel")
-
 
 else:
     Njobs = 1
@@ -99,10 +99,10 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  60.
+    DatErr_add =  10.
     DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
-
+    data_active[0] = 0   # real at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
@@ -113,24 +113,16 @@ if "genes" in AEM_system.lower():
     DatErr_mult = 0.01
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
-    # data_active[10:11]=0  # Vertical + 'good' hoizontals'
+    # data_active[10:11]=0  # Vertical + 'good' horizontals'
 
 ReverseDir = False
 
+
 FileList = "search"  # "search", "read"
-
-SearchStrng = "*delete_dec5_median.npz"
-AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-#InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
-InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
-
-
-
-SearchStrng = "*delete_dec5_median.npz"
-#SearchStrng = "*k2_dec5_median.npz"
-AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-#InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
-InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median5/"
+SearchStrng = "*FL*k3_dec10_median.npz"
+# AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
+AEMPYX_DATA =  "/media/vrath/BackMetal/"
+InDatDir =  AEMPYX_DATA + "/aem05_mallow/dec/median10/"
 
 
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
@@ -162,10 +154,11 @@ else:
 
 
 ns = numpy.size(dat_files)
-if ns == 0:
+if ns ==0:
     error("No files set!. Exit.")
-else:
+if Njobs<=0:
     Njobs= min(Njobs, ns)
+
 # +
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
@@ -173,7 +166,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -203,9 +196,9 @@ Model definition
 SetPrior = "set"
 ParaTrans = 1
 
-Nlyr = 25
-dzstart = 1.
-dzend = 12.
+Nlyr = 21
+dzstart = 2.5
+dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
@@ -302,16 +295,16 @@ if OutInfo:
     print(ctrl_dict.keys())
 # -
 
-outstrng = "_parallel"
+outstrng = "_"+RunType+"_"+RegFun+"_parallel"
 print("ID string: input file + %s " % outstrng)
 
 if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
-        joblib.delayed(parallel.run_tikh_flightline)(ctrl=ctrl_dict, data_file=fil) for fil in dat_files)
+        joblib.delayed(parallel.run_tikh_flightline)(ctrl=ctrl_dict, data_file=filin,result_strng=outstrng) for filin in dat_files)
 else:
-    for fil in dat_files:
-        _ = parallel.run_tikh_flightline(ctrl=ctrl_dict, data_file=fil)
+    for filin in dat_files:
+        _ = parallel.run_tikh_flightline(ctrl=ctrl_dict, data_file=filin, result_strng=outstrng)
 
 print("\n\nAll done!")
