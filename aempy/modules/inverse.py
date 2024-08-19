@@ -125,7 +125,7 @@ def run_linesearch(fwdcall, alt,
         d_calc, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
                                         m_vec=m, m_trn=m_trn, m_state=m_state,
                                         d_trn=d_trn, d_state=d_state)
-        linrmse_iter, linsms_iter = calc_rms(data_cal=d_calc,
+        linrmse_iter, linsms_iter = calc_datafit(data_cal=d_calc,
                                              data_obs=d_obs,
                                              data_err=d_err,
                                              data_act=d_act)
@@ -2797,7 +2797,7 @@ def calc_dnorm(data_obs=numpy.array([]),
         return rnorm
 
 
-def calc_rms(data_obs=numpy.array([]),
+def calc_datafit(data_obs=numpy.array([]),
              data_cal=numpy.array([]),
              data_err=numpy.array([]),
              data_act=numpy.array([])):
@@ -2817,7 +2817,7 @@ def calc_rms(data_obs=numpy.array([]),
     if (numpy.size(data_obs) == 0 or
         numpy.size(data_cal) == 0 or
             numpy.size(data_err) == 0):
-        error("calc_rms: parameters missing! Exit.")
+        error("calc_datafit: parameters missing! Exit.")
 
     if numpy.size(data_act) == 0:
         dat_obs = data_obs

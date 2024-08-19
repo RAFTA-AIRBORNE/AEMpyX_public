@@ -186,7 +186,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                   d_trn=d_trn)
 
 
-        nrmse_iter, smape_iter = inverse.calc_rms(data_obs=d_obs,
+        nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
                                                 data_cal=d_cal,
                                                 data_err=d_err,
                                                 data_act=d_act)
@@ -576,7 +576,7 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                   d_trn=d_trn)
 
 
-        nrmse_iter, smape_iter = inverse.calc_rms(data_obs=d_obs,
+        nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
                                                 data_cal=d_cal,
                                                 data_err=d_err,
                                                 data_act=d_act)
@@ -936,7 +936,7 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                   d_trn=d_trn)
 
 
-        nrmse_iter, smape_iter = inverse.calc_rms(data_obs=d_obs,
+        nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
                                                 data_cal=d_cal,
                                                 data_err=d_err,
                                                 data_act=d_act)
