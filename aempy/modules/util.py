@@ -23,8 +23,8 @@ import scipy.ndimage.filters
 from scipy.fftpack import dct, idct
 import scipy.spatial
 
-import matplotlib
-import matplotlib.pyplot
+# import matplotlib
+# import matplotlib.pyplot
 
 from numba import jit
 
