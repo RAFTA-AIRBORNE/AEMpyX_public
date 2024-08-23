@@ -31,9 +31,8 @@ import copy
 import numpy
 import scipy
 
-# import multiprocessing
+import multiprocessing
 # from numba import njit
-
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
@@ -47,7 +46,6 @@ import aesys
 import util
 import inverse
 import alg
-import post
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -63,7 +61,16 @@ OutInfo = False
 Parallel = True
 if Parallel:
     import parallel
-    Njobs = 30
+    
+    Njobs = 6
+
+    if Njobs<0:
+        Njobs=multiprocessing.cpu_count()
+    else:
+        Njobs=min(Njobs, multiprocessing.cpu_count())
+
+    print(str(Njobs)+" processors will be used in parallel")
+
 else:
     Njobs = 1
 # -
@@ -89,10 +96,10 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  60.
+    DatErr_add =  10.
     DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
-
+    # data_active[0] = 0   # real at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
@@ -103,17 +110,15 @@ if "genes" in AEM_system.lower():
     DatErr_mult = 0.01
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
-    # data_active[10:11]=0  # Vertical + 'good' hoizontals'
-
+    # data_active[10:11]=0  # Vertical + 'good' horizontals'
 
 ReverseDir = False
 
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*k1.npz"
-AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir =  AEMPYX_DATA + "/aem05_mallow/proc/"
-
+SearchStrng = "*FL*k3.npz"
+AEMPYX_DATA =  AEMPYX_ROOT + "/aempy/examples/Example_A1_StGormans/"
+InDatDir =  AEMPYX_DATA + "/proc/"
 
 
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
@@ -148,7 +153,8 @@ ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 if Njobs<=0:
-    Njobs=ns
+    Njobs= min(Njobs, ns)
+
 # +
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
@@ -187,7 +193,7 @@ SetPrior = "set"
 ParaTrans = 1
 
 Nlyr = 21
-dzstart = 4.
+dzstart = 3.
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 print(dz)
@@ -285,16 +291,16 @@ if OutInfo:
     print(ctrl_dict.keys())
 # -
 
-outstrng = "_"+RunType.lower()+"_"+RegFun.lower()
+outstrng = "_"+RunType+"_"+RegFun+"_parallel"
 print("ID string: input file + %s " % outstrng)
 
 if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
-        joblib.delayed(parallel.run_flightline)(ctrl=ctrl_dict, data_file=filin,result_strng=outstrng) for filin in dat_files)
+        joblib.delayed(parallel.run_tikh_flightline)(ctrl=ctrl_dict, data_file=filin,result_strng=outstrng) for filin in dat_files)
 else:
     for filin in dat_files:
-        _ = parallel.run_flightline(ctrl=ctrl_dict, data_file=filin, result_strng=outstrng)
+        _ = parallel.run_tikh_flightline(ctrl=ctrl_dict, data_file=filin, result_strng=outstrng)
 
 print("\n\nAll done!")

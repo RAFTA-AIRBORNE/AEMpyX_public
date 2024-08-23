@@ -126,7 +126,7 @@ https://www.gsi.ie/en-ie/data-and-maps/Pages/Geophysics.aspx, and stored in a lo
 directory of the user's choice (see below). 
 """
 # -
-# We need define some necessary paramters controlling the reading of the original 
+# We need define some necessary parameters controlling the reading of the original 
 # data, and the choice of an appropriate subset. In this case it is a rectangle 
 # covering the outcrops of black shapes in Co. Limerick, south of the Shannon estuary.
 RectCorners = []
