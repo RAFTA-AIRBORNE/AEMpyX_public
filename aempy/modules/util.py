@@ -11,7 +11,7 @@ import ast
 import warnings
 from sys import exit as error
 import fnmatch
-from datetime import datetime
+# from datetime import datetime
 
 import numpy
 import random
@@ -19,19 +19,19 @@ import pyproj
 from pyproj import CRS, Transformer
 
 import shapely
-import scipy.ndimage.filters
-from scipy.fftpack import dct, idct
-import scipy.spatial
+# import scipy.ndimage.filters
+# from scipy.fftpack import dct, idct
+# import scipy.spatial
 
 # import matplotlib
 # import matplotlib.pyplot
 
-from numba import jit
+# from numba import jit
 
 # import skimage.filters
 
-import aesys
-import inverse
+# import aesys
+# import inverse
 
 
 
