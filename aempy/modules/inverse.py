@@ -3385,6 +3385,8 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             error("merge_model_sets: Only npz format implemented.! Exit.")
 
     k = 0
+    all_sites = 0
+    chs_sites = 0
     for infile in infile_list:
         k=k+1
         print("\nData read from: %s" % infile)
@@ -3453,7 +3455,9 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             print("\n",infile+":")
             print("original sites:",numpy.shape(site_mod)[0] )
             print("chosen sites:  ",len(choose) )
-
+        
+        all_sites = all_sites + numpy.shape(site_mod)[0]
+        chs_sites = chs_sites + len(choose)
         if k == 1:
             # merged_log = site_log
            
@@ -3511,6 +3515,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             "dem": merged_dem,
                     }
 
+    print(" \n\n From ",all_sites, ", ",chs_sites, "were merged!")
 
     if outfile_name is not None:
             numpy.savez_compressed(file=outfile_name, **merged_models)
