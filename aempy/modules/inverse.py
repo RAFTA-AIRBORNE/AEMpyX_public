@@ -75,7 +75,8 @@ def run_linesearch(fwdcall, alt,
                    d_trn=0, d_act=numpy.array([]), d_state=0,
                    model=numpy.array([]), m_delta=numpy.array([]),
                    m_act=numpy.array([]), m_trn=1, m_state=0,
-                   nrmse=999999.9, smape=999999.9, facreduce=0.6666, maxreduce=6,
+                   dfit=999999.9, facreduce=0.6666, maxreduce=6,
+                   mdfit="rms",
                    out=False):
     """
     Run simple line search with 0.>alpha<1.
@@ -96,28 +97,31 @@ def run_linesearch(fwdcall, alt,
         Model update.
     m_act, m_trn : integer.
           Model transform.
-    nrmse : float
-        Initial nRMS.
+    mdfit : string
+        Controls which metric is usedL "rms" or "smp"
+    dfit : float
+        Initial dfit.
     facreduce : float, optional
         Reduction factor. The default is 0.6666.
     maxreduce : integer, optional
         maximal number of reduction steps. The default is 6.
-    OutInfo : logical, optional
+    out : logical, optional
         Extended output. The default is False.
 
     Returns
     -------
-    model: float, linrmse
-
+    model: float
+    linfit: float
+    linrms: float
+    linsmp: float
     """
 
     liniter = 0
-    linrmse = nrmse
-    linsms = smape
+    linfit = dfit
     fact = facreduce
     mbase = model.copy()
     mact = extract_mod(M=mbase, m_act=m_act)
-    while (liniter < maxreduce) and (linrmse <= nrmse):
+    while (liniter < maxreduce) and (linfit <= dfit):
         liniter = liniter + 1
         mfull = mbase.copy()
         mtest = mact - fact*m_delta.reshape(numpy.size(mact))
@@ -125,23 +129,33 @@ def run_linesearch(fwdcall, alt,
         d_calc, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
                                         m_vec=m, m_trn=m_trn, m_state=m_state,
                                         d_trn=d_trn, d_state=d_state)
-        linrmse_iter, linsms_iter = calc_datafit(data_cal=d_calc,
+        linrms_iter, linsmp_iter = calc_datafit(data_cal=d_calc,
                                              data_obs=d_obs,
                                              data_err=d_err,
                                              data_act=d_act)
-        # print (nrmse_iter,linrmse_iter)
+        if "rms" in mdfit: linfit_iter =  linrms_iter
+        if "smp" in mdfit: linfit_iter =  linsmp_iter
         if out:
-            print("Linesearch: "+str(linrmse)+"  /  "+str(linrmse_iter))
+            print("Linesearch: "+str(linfit)+"  /  "+str(linfit_iter))
 
-        if linrmse_iter < linrmse:
-            linrmse = linrmse_iter
-            linsms = linsms_iter
+        if linfit_iter < linfit:
             fact = fact * facreduce
+            linfit = linfit_iter
+            linfit_old = linfit_iter
+            linrms_old = linrms_iter
+            linsmp_old = linsmp_iter
             model = m
+            model_old = m
+            
+            
         else:
+            linfit = linfit_old
+            model = model_old
+            linrms = linrms_old
+            linsmp = linsmp_old
             break
 
-    return model, linrmse, linsms
+    return model, linfit, linrms, linsmp
 
 
 def perturb_random(vbase=numpy.array([]),

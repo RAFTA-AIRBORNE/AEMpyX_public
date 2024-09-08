@@ -380,13 +380,12 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         """
         Line Search
         """
-
         if do_linesearch:
-            model, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
-                  d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
-                  model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                  nrmse=nrmse_iter, smape=smape_iter,
-                  facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+            model, dfit_iter, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
+                                        d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
+                                        model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                                        dfit=dfit_iter, mdfit=thresh[3],
+                                        facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
 
         if niter > 0:
             dnorm_iter = numpy.append(dnorm_iter, dnorm[g_index])
@@ -723,11 +722,12 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     Line Search
     """
     if do_linesearch:
-        model, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
-                  d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
-                  model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                  nrmse=nrmse_iter, smape=smape_iter,
-                  facreduce=facreduce, maxreduce=maxreduce, out=False)
+        model, dfit_iter, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
+                                    d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
+                                    model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                                    dfit=dfit_iter, mdfit=thresh[3],
+                                    facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+
 
 
     if niter > 0:
@@ -1146,13 +1146,12 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         """
         Line Search
         """
-
         if do_linesearch:
-            model, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
-                  d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
-                  model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                  nrmse=nrmse_iter, smape=smape_iter,
-                  facreduce=facreduce, maxreduce=maxreduce, out=False)
+            model, dfit_iter, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
+                                        d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
+                                        model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                                        dfit=dfit_iter, mdfit=thresh[3],
+                                        facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
 
         if niter > 0:
             dnorm_iter = numpy.append(dnorm_iter, dnorm[g_index])
