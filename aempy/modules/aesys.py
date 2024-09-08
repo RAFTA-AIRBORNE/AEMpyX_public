@@ -375,52 +375,54 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         Translation table from .xyz files to internal data format:
 
         Name              Storage        Pos        units              Description
-
-         ITM_X            1               0         m       	X coordinate, IRENET95 ITM
-         ITM_Y            2               1	        m       	Y coordinate, IRENET95 ITM
-         DATE           	              2	                    Date YYYYMMDD
-         LINE             0               3                     Line Number  BBLLLL.SR
-         LONG         		              4      degree    	    Longitude, WGS-84
-         LAT          		              5      degree    	    Latitude, WGS-84
-         MSLHGT           3               6         m		    GPS Elevation above Mean Sea Level
-         RADAR		      4	              7         m		    Clearance above Terrain from Radar
-         DEM              5	              8 		m           Digital Elevation Model with respect to Mean Sea Level from Radar Clearance
-         P09lev        	  6	              9         ppm		    Levelled and filtered in-phase 912 Hz
-         Q09lev        	  7	             10         ppm		    Levelled and filtered quadrature 912 Hz
-         P3lev         	  8	             11         ppm		    Levelled and filtered in-phase 3005 Hz
-         Q3lev         	  9	             12         ppm		    Levelled and filtered quadrature 3005 Hz
-         P12lev        	 10	             13         ppm		    Levelled and filtered in-phase 11962 Hz
-         Q12lev        	 11	             14         ppm	    	Levelled and filtered quadrature 11962 Hz
-         P25lev        	 12	             15         ppm	    	Levelled and filtered in-phase 24510 Hz
-         Q25lev        	 13	             16         ppm		    Levelled and filtered quadrature 24510 Hz
-         PLM_nT          14 	         17         nT		    Power line monitor                                                                (B=Block, L=line, S=segment, R=reflight)
-
-        # DATE                             1           -                  Date YYYYMMDD
-        # DAY                              2           -                  Day of year
-        # TIME                             3          sec                 Fiducial Seconds
-        # LAT                              4         degree               Latitude, WGS-84
-        # LONG                             5         degree               Longitude, WGS-84
-        # ITM-X             1              6           m                  X coordinate, IRENET95 ITM
-        # ITM-Y             2              7           m                  Y coordinate, IRENET95 ITM
-        # UTM-X                            8           m                  X coordinate, WGS-84 UTM 29N
-        # UTM-Y                            9           m                  Y coordinate, WGS-84 UTM 29N
-        # UTM-Z                            10           m                 GPS Elevation above WGS-84 Ellipsoid
-        # MSLHGT            3              11           m                 GPS Elevation above Mean Sea Level
-        # RADAR             4              12           m                 Radar Altimeter
-        # P09lev            5              13          ppm                Levelled and filtered in-phase 912 Hz
-        # Q09lev            9              14          ppm                Levelled and filtered quadrature 912 Hz
-        # P3lev             6              15          ppm                Levelled and filtered in-phase 3005 Hz
-        # Q3lev            10              16          ppm                Levelled and filtered quadrature 3005 Hz
-        # P12lev            7              17          ppm                Levelled and filtered in-phase 11962 Hz
-        # Q12lev           11              18          ppm                Levelled and filtered quadrature 11962 Hz
-        # P25lev            8              19          ppm               Levelled and filtered in-phase 24510 Hz
-        # Q25lev           12              20          ppm                Levelled and filtered quadrature 24510 Hz
-        # PLM_nT           13              21           nT                Power line monitor
+        Rerelease2022:
+        ITM_X            1               0         m       	X coordinate, IRENET95 ITM
+        ITM_Y            2               1	       m       	Y coordinate, IRENET95 ITM
+        DATE           	                 2	                    Date YYYYMMDD
+        LINE             0               3                     Line Number  BBLLLL.SR
+        LONG         		             4      degree    	    Longitude, WGS-84
+        LAT          		             5      degree    	    Latitude, WGS-84
+        MSLHGT           3               6         m		    GPS Elevation above Mean Sea Level
+        RADAR		      4	              7         m		    Clearance above Terrain from Radar
+        DEM              5	              8 		m           Digital Elevation Model with respect to Mean Sea Level from Radar Clearance
+        P09lev        	  6	              9         ppm		    Levelled and filtered in-phase 912 Hz
+        Q09lev        	  7	             10         ppm		    Levelled and filtered quadrature 912 Hz
+        P3lev         	  8	             11         ppm		    Levelled and filtered in-phase 3005 Hz
+        Q3lev         	  9	             12         ppm		    Levelled and filtered quadrature 3005 Hz
+        P12lev        	 10	             13         ppm		    Levelled and filtered in-phase 11962 Hz
+        Q12lev        	 11	             14         ppm	    	Levelled and filtered quadrature 11962 Hz
+        P25lev        	 12	             15         ppm	    	Levelled and filtered in-phase 24510 Hz
+        Q25lev        	 13	             16         ppm		    Levelled and filtered quadrature 24510 Hz
+        PLM_nT           14 	         17         nT		    Power line monitor                                                                (B=Block, L=line, S=segment, R=reflight)
+      
+        DLV2088: 
+        LINE             0               0                              Line Number  BBLLLL.SR
+        DATE                             1           -                  Date YYYYMMDD
+        DAY                              2           -                  Day of year
+        TIME                             3          sec                 Fiducial Seconds
+        LAT                              4         degree               Latitude, WGS-84
+        LONG                             5         degree               Longitude, WGS-84
+        ITM-X             1              6           m                  X coordinate, IRENET95 ITM
+        ITM-Y             2              7           m                  Y coordinate, IRENET95 ITM
+        UTM-X                            8           m                  X coordinate, WGS-84 UTM 29N
+        UTM-Y                            9           m                  Y coordinate, WGS-84 UTM 29N
+        UTM-Z                            10           m                 GPS Elevation above WGS-84 Ellipsoid
+        MSLHGT            3              11           m                 GPS Elevation above Mean Sea Level
+        RADAR             4              12           m                 Radar Altimeter
+        P09lev            5              13          ppm                Levelled and filtered in-phase 912 Hz
+        Q09lev            9              14          ppm                Levelled and filtered quadrature 912 Hz
+        P3lev             6              15          ppm                Levelled and filtered in-phase 3005 Hz
+        Q3lev            10              16          ppm                Levelled and filtered quadrature 3005 Hz
+        P12lev            7              17          ppm                Levelled and filtered in-phase 11962 Hz
+        Q12lev           11              18          ppm                Levelled and filtered quadrature 11962 Hz
+        P25lev            8              19          ppm               Levelled and filtered in-phase 24510 Hz
+        Q25lev           12              20          ppm                Levelled and filtered quadrature 24510 Hz
+        PLM_nT           13              21           nT                Power line monitor
 
 
         """
-        # ncol =  [0, 6, 7,    11, 12,     13, 15, 17, 19,  14, 16, 18, 20, 21]
-        ncol =  [3, 0, 1,    6, 7, 8,     9, 11, 13, 15,  10, 12, 14, 16, 17]
+        # ncol =  [0, 6, 7,    11, 12,     13, 15, 17, 19,  14, 16, 18, 20, 21]       # DLV2088
+        ncol =  [3,  0, 1,    6, 7, 8,     9, 11, 13, 15,  10, 12, 14, 16, 17]        #2022
 
         Data = []
         iline = 0

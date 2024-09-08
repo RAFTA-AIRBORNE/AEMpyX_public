@@ -89,9 +89,9 @@ OutFileFmt = ".npz"
 
 # -
 
-AEMPYX_DATA =  AEMPYX_ROOT
-InputDataDir =  AEMPYX_DATA + "/data/aem05_mallow/raw/"
-OutputDataDir =  AEMPYX_DATA + "/data/aem05_mallow/proc/"
+AEMPYX_DATA =  AEMPYX_ROOT + "/aempy/examples/Example_A1_StGormans/"
+InputDataDir =  AEMPYX_DATA + "/raw/"
+OutputDataDir =  AEMPYX_DATA + "/proc/"
 
 
 print("\n\n")
@@ -169,7 +169,7 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
-    plmthresh = 1.
+    plmthresh = 0.2
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)

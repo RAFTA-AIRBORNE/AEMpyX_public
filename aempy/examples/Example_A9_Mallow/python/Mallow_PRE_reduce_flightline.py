@@ -64,8 +64,8 @@ if "dec" in Action.lower():
     # Window = 5
     # Method = ["median", Window]
 
-    Window = 10
-    Method = ["median", Window]    
+    Window = 3
+    Method = ["mean", Window]    
     # Method = ["median", Window]
 
 if "spl" in Action.lower():

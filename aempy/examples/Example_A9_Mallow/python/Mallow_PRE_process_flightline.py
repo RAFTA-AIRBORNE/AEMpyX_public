@@ -170,7 +170,7 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
-    plmthresh = 1.
+    plmthresh = 0.2
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)
@@ -192,7 +192,7 @@ for filename in dat_files:
     D, nanindex = prep.insert_flag(D, action, threshval, columns,
                                    System=AEM_system)
     action = "greater than"
-    threshval = 100.0
+    threshval = 120.0
     columns = [4, 4]
     print("\n Proc action: " + action)
     print(" columns: ", columns)

@@ -102,7 +102,7 @@ OutFileFmt = ".npz" #".asc"
 # -
 # The following two parameters allow to change the projections (now redundant, 
 # as this is already done in module \textit{aesys.py}). GSI chose the ITM system 
-# (EPSG=2157), which is not known to many useful software, e.g., google earth. 
+# (EPSG=2157), which is not known to many useful softwares, e.g., google earth. 
 # Within \textit{AEMpyX}, the coordinates are in UTM (Zone 29N, EPSG=32629). Flight 
 # lines should also be stored in the same direction, setting 
 # \textit{CorrectDirection=True}. This is convenient for practical reasons, as comparing plots. 
@@ -127,8 +127,7 @@ directory of the user's choice (see below).
 """
 # -
 # We need define some necessary paramters controlling the reading of the original 
-# data, and the choice of an appropriate subset. In this case it is a rectangle 
-# covering DIG MT survey near Mallow.
+# data, and the choice of an appropriate subset. 
 RectCorners = []
 PolyFiles = []
 DataSelect = ""
@@ -145,12 +144,18 @@ AEMPYX_DATA = AEMPYX_ROOT+"/data/"
 ###############################################################################
 
 DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+AEMPYX_DATA = AEMPYX_ROOT +"/aempy/examples/"
 InDatDir = AEMPYX_DATA+"/Example_A1_StGormans/orig/"
 OutDatDir = AEMPYX_DATA+"/Example_A1_StGormans/raw/"
-RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
 InSurvey = "A1"
 OutStrng = InSurvey+"_rect_stgormans"
-
+RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
+EPSG_in = 2157
+[RectCorners[0], RectCorners[2]],[RectCorners[1], RectCorners[3]]\
+    = util.project_utm_to_utm(
+    [RectCorners[0], RectCorners[2]],
+    [RectCorners[1], RectCorners[3]],
+    utm_zone_in=EPSG_in)
 # -
 
 # After this, generally no code changes are necessary. 

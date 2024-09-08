@@ -118,11 +118,13 @@ FileList = "search"
 
 AEMPYX_DATA =  "/media/vrath/BackMetal/"
 
-# SearchStrng = "*FL*.npz"# "search", "read"
-# InDatDir = AEMPYX_DATA+"/aem05_mallow/raw/"
-# PlotDir = AEMPYX_DATA+"/aem05_mallow/raw/plots/"
-# PlotStrng = " - data raw"
-# PlotName = "Mallow_dig-raw"
+
+
+SearchStrng = "*FL*.npz"# "search", "read"
+InDatDir = AEMPYX_DATA+"/aem05_mallow/raw/"
+PlotDir = AEMPYX_DATA+"/aem05_mallow/plots/"
+PlotStrng = " - data raw"
+PlotName = "Mallow_dig-raw"
 
 # SearchStrng = "*FL*delete.npz"# "search", "read"
 # InDatDir = AEMPYX_DATA+"/aem05_mallow/proc/"
@@ -130,12 +132,17 @@ AEMPYX_DATA =  "/media/vrath/BackMetal/"
 # PlotStrng = "proc"
 # PlotName = "Mallow_dig-proc"
 
-SearchStrng = "*FL*k5.npz"# "search", "read"
-InDatDir = AEMPYX_DATA+"/aem05_mallow/proc/"
-PlotDir = AEMPYX_DATA+"/aem05_mallow/plots/"
-PlotStrng = "proc"
-PlotName = "Mallow_dig-proc-k5"
 
+# InDatDir = AEMPYX_DATA+"/aem05_mallow/dec/median10/"
+# SearchStrng = "*FL*k3_dec10_median.npz"# "search", "read"
+# PlotDir = AEMPYX_DATA+"/aem05_mallow/plots/k3/"
+# PlotStrng = "proc"
+# PlotName = "Mallow_dig-proc-k3"
+
+LimFile = PlotDir+PlotName+"_limits.list"
+if LimFile != "":
+    limfile = open(LimFile, 'w')
+    
 print("Data read from dir: %s " % InDatDir)
 print("Plots written to dir: %s " % PlotDir)
 print("Plot filname: %s " % PlotName)
@@ -185,6 +192,7 @@ ImageType = "image"
 # ImageType = "contour"
 # ImageType = "scatter"
 
+Percentiles = [1., 99]
 
 XYUnits = "(km)"
 XYFact = 0.001
@@ -267,18 +275,22 @@ if ("scatter" in ImageType.lower()):
 # Electromagnetic data may exhibit large amplitude spreads. By setting _CompList_ the plot limits can be adapted according to your needs. For an overview, the commented section may be used, while for pulication-ready figures, the current settings should be adapted.
 
 # +
-# CompList=[
-    # ["P1", [0., 2000., 100.]],
-    # ["Q1", [0., 2000., 100.]],
-    # ["P2", [0., 2000., 100.]],
-    # ["Q2", [0., 2000., 100.]],
-    # ["P3", [0., 2000., 100.]],
-    # ["Q3", [0., 2000., 100.]],
-    # ["P4", [0., 2000., 100.]],
-    # ["Q4", [0., 2000., 100.]],
-    #["PLM", [], 0.2],      # PLMthresh = 0.25
-    # ["ALT", [40., 120., 20.], 300.]     # ALTthresh = 70.
-          # ]
+CompList=[
+    ["P1",   [50., 300., 100.]],
+    ["Q1",   [50., 500., 100.]],
+    ["P2",   [50., 750., 100.]],
+    ["Q2",   [50., 1000., 100.]],
+    ["P3",   [50., 2000., 100.]],
+    ["Q3",   [50., 1600., 100.]],
+    ["P4",   [50., 2500., 100.]],
+    ["Q4",   [50., 1700., 100.]],
+    ["PLM", [], 999.],      # PLMthresh = 0.25
+    ["ALT", [40., 120., 20.], 120.]     # ALTthresh = 70.
+           ]
+CompList=[
+    ["PLM", [0.,20., 2], 0.],      # PLMthresh = 0.25
+    ["ALT", [40., 200., 20.], 300.]     # ALTthresh = 70.
+           ]
 # CompList=[
 #     ["P1", [0., 2000., 200.]],
 #     ["Q1", [0., 2000., 200.]],
@@ -301,16 +313,39 @@ if ("scatter" in ImageType.lower()):
 #     ["P4", [0., 2000., 200.]],
 #     ["Q4", [0., 2000., 200.]],
 # ]
-CompList=[
-    ["P1", [0., 2000., 200.]],
-    ["Q1", [0., 2000., 200.]],
-    ["P2", [0., 2000., 200.]],
-    ["Q2", [0., 2000., 200.]],
-    ["P3", [0., 2000., 200.]],
-    ["Q3", [0., 2000., 200.]],
-    ["P4", [0., 2000., 200.]],
-    ["Q4", [0., 2000., 200.]],
-]
+# CompList=[
+#     ["P1", [0., 2000., 200.]],
+#     ["Q1", [0., 2000., 200.]],
+#     ["P2", [0., 2000., 200.]],
+#     ["Q2", [0., 2000., 200.]],
+#     ["P3", [0., 2000., 200.]],
+#     ["Q3", [0., 2000., 200.]],
+#     ["P4", [0., 2000., 200.]],
+#     ["Q4", [0., 2000., 200.]],
+# ]
+
+# CompList=[
+#     ["P1", []],
+#     ["Q1", []],
+#     ["P2", []],
+#     ["Q2", []],
+#     ["P3", []],
+#     ["Q3", []],
+#     ["P4", []],
+#     ["Q4", []],
+# ]
+
+# CompList=[
+#     ["P1",[None, None, None]],
+#     ["Q1",[None, None, None]],
+#     ["P2",[None, None, None]],
+#     ["Q2",[None, None, None]],
+#     ["P3",[None, None, None]],
+#     ["Q3",[None, None, None]],
+#     ["P4",[None, None, None]],
+#     ["Q4",[None, None, None]],
+# ]
+
 
 # -
 
@@ -338,7 +373,7 @@ FigWidth = 16.
 
 # +
 Cmap ="viridis"
-Cmap = "hsv"
+# Cmap = "hsv"
 # Cmap ="magma"
 Cmap = "jet_r"
 # Cmap = "seismic"
@@ -559,7 +594,10 @@ for filein in dat_files:
             D_min = numpy.nanmin(DI)
             D_max = numpy.nanmax(DI)
             print("Data, interpolated   min="+str( D_min)+"   max="+str( D_max))
-
+            perc = numpy.nanpercentile(DI, Percentiles)
+            
+            limfile.write((",\t").join(
+                [CompLabl[indx],str(D_min),str( D_max),str(perc[0]),str(perc[1]),"\n"]))
 
             if len(CompList[nc][1])==0:
                 if ("image" in ImageType.lower()):
@@ -626,6 +664,10 @@ for filein in dat_files:
 
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
+        
+    if LimFile != "":
+        limfile.close()
 
 if PDFCatalog:
     viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCName)
+

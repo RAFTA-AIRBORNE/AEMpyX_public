@@ -59,14 +59,10 @@ AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 version, _ = versionstrg()
 script = "VIZ_models_area.py"
-# script = __file__  # this only works in python, not jupyter notebook
+script = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 
-# for tutorial only...
-# AEMPYX_DATA = AEMPYX_ROOT+"/data/"
-AEMPYX_DATA =  "/media/vrath/BackMetal/"
-now = datetime.now()
 cm = 1/2.54
 OutInfo = True
 
@@ -93,9 +89,9 @@ if "genes" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
 
-
-InModDir = AEMPYX_DATA+"/aem05_limerick/merged/"
-
+# AEMPYX_DATA = AEMPYX_ROOT+"/data/"
+AEMPYX_DATA =  "/media/vrath/BackMetal/"
+InModDir =  AEMPYX_DATA+"/aem05_mallow/merged/"
 # FileList = "search"
 # SearchStrng = "A9*k3*.npz"
 # print("Searchstring: %s \n" % SearchStrng)
@@ -106,7 +102,7 @@ SearchStrng = ""
 
 if "set" in FileList.lower():
     # mod_files = [InModDir+"LimShale_proc_dec5_mean_merged_results.npz"]
-    mod_files = [InModDir+"LimShale_proc_k3_dec5_mean_merged_results.npz"]
+    mod_files = [InModDir+"DIG_Mallow_k2_gcv_threshsmp10.0_merged_results.npz"]
     # mod_files = [InModDir+"LimShale_proc_k2_dec5_mean_merged_results.npz"]
 if "read" in FileList.lower():
     print("File names read from : "+ListName)
@@ -129,7 +125,9 @@ if ns ==0:
     error("No files set!. Exit.")
 
 MergeModels = False
-ModelMergeFile = InModDir+"MUN_k3_data_merged.npz"
+MergeFile = "DIG_Mallow_k2_gcv_threshsmp100.0_merged_results.npz"
+ModelMergeFile = InModDir+MergeFile
+Thresh = ["smp", 10.]
 
 """
 Output formats are "npz","nc4","ascii"
@@ -139,7 +137,7 @@ PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
 PDFCatalog = True
 # PDFCName = "LimShale_proc_dec5_mean.pdf"
 # PDFCName = "LimShale_proc_k3_dec5_mean.pdf"
-PDFCName = "LimShale_proc_K2_dec5_mean.pdf"
+PDFCName =  MergeFile.replace("_merged_results.npz", ".pdf")
 if ".pdf" in PlotFmt:
     pass
 else:
@@ -151,7 +149,7 @@ if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
     os.mkdir(PlotDir)
 print("Plots written to dir: %s " % PlotDir)
-PlotName = "LimShale"
+PlotName = MergeFile.replace("_merged_results.npz", "")
 print("Plot filname: %s " % PlotName)
 
 
@@ -159,12 +157,12 @@ ImageType = "image"
 ImageType = "contour"
 # ImageType = "scatter"
 
-Layers = [1, 5, 10, 15, 20, 25]
+Layers = [1, 5, 10, 15, 20]
 Prop = "rho"
 Unit = r"log10 $\Omega$m"
 Limits = [-1., 4.]
 # Steps  = [-1., -0.5, 0., 0.5, 1., 1.5, 2., 2.5,  3., 3.5, 4.,]
-Steps = numpy.arange(-1., 4.01, 0.2)
+Steps = numpy.arange(1., 4.01, 0.2)
 print("\nLayer parameters:")
 LayList = []
 for il in numpy.arange(len(Layers)):
@@ -207,7 +205,7 @@ if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
     # InterpMethod = ["rbf", "cubic", 0.01]
 
     # InterpMethod = ["krig", "linear", 0.5, 340.]
-    S = 500.
+    S = 1000.
     numIndexes = [121, 141]
     smooth = 0.
     Levels = []
@@ -215,7 +213,7 @@ if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
     MaskDist = True
 
     if MaskDist:
-        DistMask = 100.
+        DistMask = 500.
 
     if MaskPoly:
         PolyDir = AEMPYX_DATA+"/Blocks/polygons/"
@@ -240,8 +238,8 @@ if ("scatter" in ImageType.lower()):
 
 XYUnits = "(km)"
 XYFact = 0.001
-xformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
-yformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
+xformatter = matplotlib.ticker.FormatStrFormatter("%.1f")
+yformatter = matplotlib.ticker.FormatStrFormatter("%.1f")
 
 """
 Determine graphical parameter.
@@ -289,7 +287,7 @@ if not os.path.isdir(PlotDir):
 if MergeModels:
     Models = util.merge_model_sets(infile_list=mod_files,
                                    outfile_name=ModelMergeFile,
-                                   dictout= True, out=False)
+                                   thresh = Thresh, dictout= True, out=False)
     mod_files = [ModelMergeFile]
 
 for filein in mod_files:

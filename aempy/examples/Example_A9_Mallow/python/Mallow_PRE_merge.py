@@ -63,13 +63,18 @@ FileList = "search"  # "search", "read"
 
 
 DataType = "models"
-InDatDir = AEMPYX_DATA+"/aem05_mallow/dec/median10/results/"
+InDatDir = AEMPYX_DATA+"/aem05_mallow/dec/mean3/results/"
+# InDatDir = AEMPYX_DATA+"/aem05_mallow/proc/results/"
 OutDatDir = AEMPYX_DATA+"/aem05_mallow/merged/"
+Thresh = ["smp", 5.]
+Thresh = ["rms", 1.2]
 
 
-SearchStrng = "*k3*gcv*results.npz"
-OutFileName = OutDatDir+"DIG_Mallow_k3_gcv_merged_results.npz"
-OutHeader =" DIG_Mallow_project, k1, gcv,  merged"
+SearchStrng = "*k2*gcv*results.npz"
+OutFileName = OutDatDir+\
+    "DIG_Mallow_k2_gcv_mean3_thresh"\
+    +Thresh[0]+str(Thresh[1])+"_merged_results.npz"
+OutHeader =" DIG_Mallow_project, meane k2, gcv, rms1.2, merged"
 
 # SearchStrng = "*delete_Tikh*gcv*results.npz"
 # OutFileName = OutDatDir+"DIG_Mallow_k8_gcv_merged_results.npz"
@@ -118,8 +123,8 @@ if "dat" in DataType.lower():
                                        outfile_name=OutFileName,
                                        out=False)
 else:
-    _ = inverse.merge_model_sets(infile_list=dat_files,
+    _ = inverse.merge_model_sets(infile_list=dat_files, qthresh=Thresh,
                                    outfile_name=OutFileName,
-                                   out=False)
+                                   out=True)
 
 
