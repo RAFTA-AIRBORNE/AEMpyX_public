@@ -27,12 +27,14 @@ import inverse
 import core1d
 import alg
 
-def run_tikh_flightline(data_file=None,
-            prior_file=None,
-            result_strng=None,
-            ctrl=None,
-            results_out=True,
-            out=False):
+def run_tikh_flightline(data_dir= None,
+                        data_file=None,         
+                        ctrl=None, 
+                        prior_file=None,
+                        result_dir=None,
+                        result_strng=None,  
+                        results_out=True,
+                        out=False):
     """
     Wrapper for data_dict parallel set inversion
 
@@ -87,10 +89,11 @@ def run_tikh_flightline(data_file=None,
 
     name, ext = os.path.splitext(data_file)
 
+   
     if result_strng is None:
         result_file = name+"_results.npz"
     else:
-        result_file = name+result_strng+"_results.npz"
+        result_file = result_dir+name+result_strng+"_results.npz"
 
 
     start = time.time()
@@ -99,7 +102,7 @@ def run_tikh_flightline(data_file=None,
     _ ,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
 
     print("\n Reading file " + data_file)
-    DataObs, Header, _ = aesys.read_aempy(File=data_file,
+    DataObs, Header, _ = aesys.read_aempy(File=data_dir+data_file,
                                    System=ctrl["system"][0], OutInfo=False)
 
 
@@ -178,8 +181,8 @@ def run_tikh_flightline(data_file=None,
     Loop over sites
     """
 
-    logsize = (2 + 7*maxiter)
-    site_log = numpy.full((len(sites),logsize), numpy.nan)
+    # logsize = (2 + 7*maxiter)
+    # site_log = numpy.full((len(sites),logsize), numpy.nan)
     mtmp = numpy.array([])
     for ii in sites:
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
