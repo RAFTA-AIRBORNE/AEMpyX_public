@@ -87,7 +87,7 @@ if "aem05" in AEM_system.lower():
     ParaTrans = 1
     DataTrans = 0
     DatErr_add =  50.
-    DatErr_mult = 0.03
+    DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
     
     CompDict = Misc[3]
@@ -110,30 +110,25 @@ if "genes" in AEM_system.lower():
 # +
 
 InFileFmt = ".npz"
-
 FileList = "search"  
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 
-
-AEMPYX_DATA = AEMPYX_ROOT+"/data/"  
-
-
-# SearchStrng = "*FL*.npz"# "search", "read"
-# InDatDir = AEMPYX_DATA+"/aem05_mallow/raw/"
-# PlotDir = AEMPYX_DATA+"/aem05_mallow/raw/plots/"
-# PlotStrng = " - data raw"
-# PlotName = "Mallow_dig-raw"
-
-# SearchStrng = "*FL*delete.npz"# "search", "read"
-# InDatDir = AEMPYX_DATA+"/aem05_mallow/proc/"
-# PlotDir = AEMPYX_DATA+"/aem05_mallow/plots/"
-# PlotStrng = "proc"
-# PlotName = "Mallow_dig-proc"
-
-SearchStrng = "*FL*k5.npz"# "search", "read"
-InDatDir = AEMPYX_DATA+"/aem05_mallow/proc/"
-PlotDir = AEMPYX_DATA+"/aem05_mallow/plots/"
+# un/comment according to which data  you want to plot
+# # raw data
+SearchStrng = "*.npz"# "search", "read"
+InDatDir = AEMPYX_DATA+"/raw/"
+PlotDir = InDatDir+"/plots/"
 PlotStrng = "proc"
-PlotName = "Mallow_dig-proc-k5"
+
+# # processed data
+# SearchStrng = "*FL*k5.npz"# "search", "read"
+# InDatDir = AEMPYX_DATA+"/raw/"
+# PlotDir = InDatDir+"/plots/"
+# PlotStrng = "proc"
+
+
+PlotName = "StGormans_"+PlotStrng
+
 
 print("Data read from dir: %s " % InDatDir)
 print("Plots written to dir: %s " % PlotDir)
@@ -166,7 +161,7 @@ if ns ==0:
 
 
 PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
-FilesOnly = True
+FilesOnly = False
 
 PDFCatalog = True
 PDFCName = PlotName+"_catalog.pdf"
@@ -222,7 +217,7 @@ if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
 
     # InterpMethod = ["krig", "linear", 0.5, 340.]
     
-    S = 500.
+  
     numIndexes = [121, 141]
     smooth = 0.
     Levels = []
@@ -278,18 +273,6 @@ if ("scatter" in ImageType.lower()):
     #["PLM", [], 0.2],      # PLMthresh = 0.25
     # ["ALT", [40., 120., 20.], 300.]     # ALTthresh = 70.
           # ]
-# CompList=[
-#     ["P1", [0., 2000., 200.]],
-#     ["Q1", [0., 2000., 200.]],
-#     ["P2", [0., 2000., 200.]],
-#     ["Q2", [0., 2000., 200.]],
-#     ["P3", [0., 2000., 200.]],
-#     ["Q3", [0., 2000., 200.]],
-#     ["P4", [0., 2000., 200.]],
-#     ["Q4", [0., 2000., 200.]],
-#     ["PLM", [0., 5., 1.], 1.],      # PLMthresh = 0.25
-#     ["ALT", [40., 100., 20.], 100.]     # ALTthresh = 70.
-# ]
 CompList=[
     ["P1", [0., 2000., 200.]],
     ["Q1", [0., 2000., 200.]],
@@ -298,8 +281,25 @@ CompList=[
     ["P3", [0., 2000., 200.]],
     ["Q3", [0., 2000., 200.]],
     ["P4", [0., 2000., 200.]],
-    ["Q4", [0., 2000., 200.]],
+    ["Q4", [0., 2000., 200.]],    
+    ["PLM", [], 0.5],      # PLMthresh = 0.25
+    ["ALT", [40., 120., 20.], 300.]   # ALTthresh = 120
 ]
+
+# if data extent unknown:
+CompList=[
+    ["P1", []],
+    ["Q1", []],
+    ["P2", []],
+    ["Q2", []],
+    ["P3", []],
+    ["Q3", []],
+    ["P4", []],
+    ["Q4", []],    
+    ["PLM", [], 0.5],      # PLMthresh = 0.25
+    ["ALT", [40., 120., 20.], 300.]   # ALTthresh = 120
+]
+
 # -
 
 # Below, some graphic parameters are set, defining the style of the figure. A list of available styles can be printed with print(matplotlib.pyplot.style.available), and on the matplotlib web page at https://matplotlib.org/stable/gallery/style_sheets/style_sheets_reference.html.
@@ -426,6 +426,7 @@ for filein in dat_files:
                 Unit = "-"
                 D = numpy.log10(D)
             if DataTrans ==2:
+                S = 100.
                 Unit = "-"
                 if not numpy.isfinite(S):
                    S = inverse.get_S(D)

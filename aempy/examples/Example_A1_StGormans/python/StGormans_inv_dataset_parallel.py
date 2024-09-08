@@ -20,13 +20,13 @@
 import os
 import sys
 from sys import exit as error
-from datetime import datetime
+# from datetime import datetime
 # from time import process_time
 # from random import randrange
-import time
-import warnings
+# import time
+# import warnings
 # import inspect
-import copy
+# import copy
 
 import numpy
 import scipy
@@ -45,7 +45,7 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-import alg
+# import alg
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -62,7 +62,7 @@ Parallel = True
 if Parallel:
     import parallel
     
-    Njobs = 6
+    Njobs = 10
 
     if Njobs<0:
         Njobs=multiprocessing.cpu_count()
@@ -96,7 +96,7 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  10.
+    DatErr_add =  0. #50.
     DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
     # data_active[0] = 0   # real at 900Hz
@@ -116,21 +116,20 @@ ReverseDir = False
 
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k3.npz"
-AEMPYX_DATA =  AEMPYX_ROOT + "/aempy/examples/Example_A1_StGormans/"
+SearchStrng = "*FL*k1.npz"
+
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 InDatDir =  AEMPYX_DATA + "/proc/"
-
-
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 # +
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =  InDatDir + "/results/"
+OutResDir =   AEMPYX_DATA + "/results/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
-if not os.path.isdir(OutResDir):
+if not os.path.isdir(OutResDir): 
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
 
@@ -146,7 +145,7 @@ else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
     dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
-                              fullpath=True, out= True, sort=True)
+                              fullpath=False, out= True, sort=True)
 
 
 ns = numpy.size(dat_files)
@@ -263,7 +262,8 @@ if "tikhopt" in  RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-    ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
+    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
     RegShift = 0
 
@@ -274,7 +274,7 @@ if "tikhopt" in  RunType.lower():
         "header":
             [titstrng, ""],
         "inversion":
-            numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
+            numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
                       LinPars, SetPrior, Delta, RegShift], dtype=object),
         "covar":
             numpy.array([L0, Cm0, L1, Cm1], dtype=object),
@@ -291,16 +291,31 @@ if OutInfo:
     print(ctrl_dict.keys())
 # -
 
-outstrng = "_"+RunType+"_"+RegFun+"_parallel"
+outstrng =  "_"+RunType+\
+            "_"+RegFun+\
+            "_a"+str(round(DatErr_add,0))+\
+            "_m"+str(round(DatErr_mult*100,0))+\
+            "_parallel"
 print("ID string: input file + %s " % outstrng)
+
+
+
 
 if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
-        joblib.delayed(parallel.run_tikh_flightline)(ctrl=ctrl_dict, data_file=filin,result_strng=outstrng) for filin in dat_files)
+        joblib.delayed(parallel.run_tikh_flightline)(ctrl=ctrl_dict, 
+                                                     data_dir=InDatDir,
+                                                     data_file=filin,
+                                                     result_dir=OutResDir, 
+                                                     result_strng=outstrng) for filin in dat_files)
 else:
     for filin in dat_files:
-        _ = parallel.run_tikh_flightline(ctrl=ctrl_dict, data_file=filin, result_strng=outstrng)
+        _ = parallel.run_tikh_flightline(ctrl=ctrl_dict, 
+                                         data_dir=InDatDir,
+                                         data_file=filin,
+                                         result_dir=OutResDir, 
+                                         result_strng=outstrng)
 
 print("\n\nAll done!")

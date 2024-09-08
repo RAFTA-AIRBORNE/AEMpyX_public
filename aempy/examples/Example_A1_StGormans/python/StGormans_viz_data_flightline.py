@@ -77,7 +77,7 @@ if "aem05" in AEM_system.lower():
     nD = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  75.
+    DatErr_add =  50.
     DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
 
@@ -94,20 +94,26 @@ if "genes" in AEM_system.lower():
 # -
 
 
-InStrng = ""
-PlotStrng = " - data "+InStrng
-
-
 # +
+InFileFmt = ".npz"
 FileList = "search"  
-SearchStrng = "*FL*nan*.npz"# "search", "read"
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 
-AEMPYX_DATA = AEMPYX_ROOT+"/data/"  
-InDatDir = AEMPYX_DATA+"/aem05_mallow/proc/"
-# InDatDir = AEMPYX_DATA+"/aem05_mallow/dec/median5/"
-PlotDir = InDatDir+"/plots/"
-PlotStrng = ""  #"- data proc dec5 med"
-
+# un/comment according to which data  you want to plot
+# # raw data
+InDatDir =  AEMPYX_DATA + "/raw/"
+PlotDir =  InDatDir + "/plots/"
+SearchStrng = "*FL*.npz"
+PlotStrng = " - raw"
+PDFCatName = PlotDir+"StGormans_raw.pdf"
+# +
+# # processed data
+InDatDir =  AEMPYX_DATA + "/proc/"
+PlotDir =  InDatDir + "/plots/"
+SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen 
+#SearchStrng = "*FL*.npz" # else
+PlotStrng = " - proc"
+PDFCatName = PlotDir+"StGormans_processed.pdf"
 # +
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -134,7 +140,7 @@ if not os.path.isdir(PlotDir):
 FilesOnly = False    # for headless plotting.
 PlotFmt = [".pdf", ".png", ]
 PDFCatalog = True
-PDFCatName = PlotDir+"Mallow_proc_mean5.pdf"
+
 
 if ".pdf" in PlotFmt:
     pass
@@ -148,7 +154,7 @@ if "aem05" in AEM_system.lower():
     QLimits = []
     ILimits = []
     PlotSize = [18., 6.]
-    PLimits = [0., 10.]
+    PLimits = [0., 1.]
     HLimits = [30., 90.] #[40., 140.]
     LogPlot = False
     LogSym = False

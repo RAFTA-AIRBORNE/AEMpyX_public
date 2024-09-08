@@ -40,7 +40,6 @@ for pth in mypath:
 
 import aesys
 import util
-import viz
 from version import versionstrg
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -50,8 +49,7 @@ nan = numpy.nan
 # -
 
 version, _ = versionstrg()
-script = "Tutorial1_PRE_data.py"
-# fname = __file__  # this only works in python, not jupyter notebook
+script = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng
@@ -80,36 +78,58 @@ if "genes" in AEM_system.lower():
 # file by clicking the yellow symbols at the start of the flightlines.
 
 
-AEMPYX_DATA =  AEMPYX_ROOT
-DataDir =  AEMPYX_DATA + "/data/aem05_limerick/raw/"
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+
+
+FileList = "search"  
+DataDir =  AEMPYX_DATA + "/raw/"
 print(" data files read from: %s" % DataDir)
-PlotDir  =  DataDir+"/plots/"
+PlotDir =  DataDir + "/plots/"
 print(" plots read from: %s" % PlotDir)
-
-
 SearchStrng = "*FL*.npz"
+
+
+
 data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=DataDir, fullpath=False)
 data_files = sorted(data_files)
 ns = numpy.size(data_files)
 
 KMZDir = DataDir
-KMZFile = KMLDir+"Limerick_shale_raw"
+KMZFile = KMZDir+"StGormans_sites"
 print(" resulting KMZ file will  be  %s" % KMZFile)
 
 MarkStartPoints = True
 MarkEndPoints = False
 MarkCenterPoints = False
-MarkEvery = 50
+MarkEvery = 20
 
 AddImages = True
 ImageWidth= 600
 plots_fmt = ".png"
 
+AddSpecial= True
+if AddSpecial: 
+    SpecialDat = DataDir+"Special.dat"
+    specials = []
+    with open(SpecialDat) as file:
+        for line in file:
+            tmp = line.split(",")
+            tmp[0] = float(tmp[0])
+            tmp[1] = float(tmp[1])
+            tmp[2] = tmp[2].strip()
+            tmp[3] = tmp[3].strip()
+            tmp[4] = float(tmp[4])
+            tmp[5] = tmp[5].strip()
+        
+        specials.append(tmp)
+            
+    print(specials)
+    
+            
 
 
 
 # Determine what is added to the KML-tags:
-
 
 kml = False
 kmz = True
@@ -136,12 +156,16 @@ data_tcolor = simplekml.Color.yellow
 # Determine which geographical info is added to the KML-tags:
 # define empty list
 kml = simplekml.Kml(open=1)
+
 line_iref = kml.addfile(line_icon)
 data_iref = kml.addfile(data_icon)
 
 
+
 if (not os.path.isdir(DataDir)) or (not os.path.isdir(PlotDir)):
     error(" File: %s or %s does not exist! Exit." % (DataDir, PlotDir))
+
+
 
 for f in data_files:
     print(f)
@@ -169,7 +193,7 @@ for f in data_files:
 
 
     if AddImages:
-        d_plot = PlotDir+name+ plots_fmt
+        d_plot = PlotDir+name+plots_fmt
         if os.path.exists(d_plot)==True:
             src= kml.addfile(d_plot)
             imstring ='<img width="'+str(ImageWidth)+'" align="left" src="' + src + '"/>'
@@ -204,6 +228,24 @@ for f in data_files:
         d.style.iconstyle.scale = data_iscale*1.5
         d.style.iconstyle.color = line_icolor
         d.description = (imstring)
+
+
+if AddSpecial:
+    for p in numpy.arange(len(specials)):
+        point = specials[p]
+
+        d = kml.newpoint(name=point[2])
+        lat, lon = util.project_utm_to_latlon(tmp[0], tmp[1])
+        d.coords = [(lon, lat)]
+        
+        # d.style.labelstyle.color = simplekml.Color.white
+        # d.style.labelstyle.scale = data_tscale
+        spec_iref = kml.addfile(icon_dir + point[5])
+        d.style.iconstyle.icon.href = spec_iref
+        
+        d.style.iconstyle.scale = point[4]
+        d.style.iconstyle.color = point[3]
+
 
 
     # Compressed kmz file:

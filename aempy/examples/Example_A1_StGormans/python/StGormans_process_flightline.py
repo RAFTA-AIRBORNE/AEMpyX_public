@@ -28,8 +28,8 @@ from sys import exit as error
 import copy
 from time import process_time
 from datetime import datetime
-from random import randrange
-import warnings
+# from random import randrange
+# import warnings
 
 import numpy
 
@@ -50,7 +50,6 @@ AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 # -
 
 version, _ = versionstrg()
-# script = "Tutorial2_PRE_process_flightline.py"
 script = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
@@ -88,8 +87,7 @@ SearchStrng = "*FL*.npz"
 OutFileFmt = ".npz"
 
 # -
-
-AEMPYX_DATA =  AEMPYX_ROOT + "/aempy/examples/Example_A1_StGormans/"
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 InputDataDir =  AEMPYX_DATA + "/raw/"
 OutputDataDir =  AEMPYX_DATA + "/proc/"
 
@@ -169,7 +167,7 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
-    plmthresh = 0.2
+    plmthresh = 1.
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)
@@ -191,7 +189,7 @@ for filename in dat_files:
     D, nanindex = prep.insert_flag(D, action, threshval, columns,
                                    System=AEM_system)
     action = "greater than"
-    threshval = 100.0
+    threshval = 120.0
     columns = [4, 4]
     print("\n Proc action: " + action)
     print(" columns: ", columns)

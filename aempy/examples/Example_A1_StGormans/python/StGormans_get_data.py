@@ -137,26 +137,18 @@ AEM_system = "aem05"
 _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
 
-AEMPYX_DATA = AEMPYX_ROOT+"/data/"
-
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 ##############################################################################
 # StGormans
 ###############################################################################
 
 DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
-AEMPYX_DATA = AEMPYX_ROOT +"/aempy/examples/"
-InDatDir = AEMPYX_DATA+"/Example_A1_StGormans/orig/"
-OutDatDir = AEMPYX_DATA+"/Example_A1_StGormans/raw/"
+InDatDir = AEMPYX_DATA+"/orig/"
+OutDatDir = AEMPYX_DATA+"/raw/"
 InSurvey = "A1"
 OutStrng = InSurvey+"_rect_stgormans"
 RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
-EPSG_in = 2157
-[RectCorners[0], RectCorners[2]],[RectCorners[1], RectCorners[3]]\
-    = util.project_utm_to_utm(
-    [RectCorners[0], RectCorners[2]],
-    [RectCorners[1], RectCorners[3]],
-    utm_zone_in=EPSG_in)
-# -
+
 
 # After this, generally no code changes are necessary. 
 
