@@ -173,8 +173,8 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     start inversion loop
     """
     niter = -1
-    nrmse_iter = 1.0e30
-    nrmse_old = nrmse_iter
+    dfit_iter = 1.0e30
+    dfit_old = dfit_iter
 
 
     while (niter < maxiter):
@@ -194,43 +194,56 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         if niter == 0:
             conv_status = 1
-            nrmse_old = nrmse_iter
-            smape_old = smape_iter
+            
+            if "rms" in thresh[3]:                
+                dfit_iter = nrmse_iter
+                dfit_old = nrmse_iter
+                dfit_0 = nrmse_iter
+
+
+            if "smp" in thresh[3]:
+                dfit_iter = smape_iter
+                dfit_old = smape_iter
+                dfit_0 = smape_iter
+                
             model_old = model.copy()
-            nrmse_0 = nrmse_iter
-            smape_0 = smape_iter
             dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
                                     data_err=d_err, data_act=d_act)])
             mnorm_iter = numpy.array([scipy.linalg.norm(model)])
             rvals_iter = numpy.array([0.,0.])
-            dfits_iter = numpy.array([nrmse_0, smape_0])
-
+            dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
             if OutInfo:
                 print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
-                      % (nrmse_0, smape_0))
+                      % (nrmse_iter, smape_iter))
         else:
+            
+            if "rms" in thresh[3]:  
+                dfit_iter = nrmse_iter
 
-            if nrmse_iter < nrmse_old:
+            if "smp" in thresh[3]:
+                dfit_iter = smape_iter
+            
+            if dfit_iter < dfit_old:
                 if OutInfo==True:
-                    print("Iteration %6i NRMSE =  %7.3f" % (niter, nrmse_iter))
+                    print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
 
-                nrmse_change = numpy.abs((nrmse_iter - nrmse_old)/nrmse_old)
+                dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
                 modl_change = scipy.linalg.norm((model - model_old)/model_old)
 
 
-                if (nrmse_iter < thresh[0]):
+                if (dfit_iter < thresh[0]):
                     conv_status = 1
                     if OutInfo==True:
-                        print("Iteration %6i NRMSE =  %7.3f <= threshold = %7.3f percent" %
-                              (niter, nrmse_iter, thresh[0]))
+                        print("Iteration %6i data fit =  %7.3f <= threshold = %7.3f percent" %
+                              (niter, dfit_iter, thresh[0]))
                     break
 
-                if (nrmse_change < thresh[1]):
+                if (dfit_change < thresh[1]):
                     conv_status = 1
                     if OutInfo==True:
-                        print("Iteration %6i NRMSE change =  %7.3f <= threshold = %4.1f" %
-                              (niter, nrmse_change, thresh[1]))
+                        print("Iteration %6i data fit change =  %7.3f <= threshold = %4.1f" %
+                              (niter, dfit_change, thresh[1]))
                     break
 
                 if (modl_change < thresh[2]):
@@ -240,18 +253,17 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                               (niter, modl_change, thresh[2]))
                     break
 
-                nrmse_old = nrmse_iter
-                smape_old = smape_iter
+                if "rms" in thresh[3]: dfit_old = nrmse_iter
+                if "smp" in thresh[3]: dfit_old = smape_iter
                 model_old = model.copy()
 
             else:
 
                 if OutInfo==True:
-                    print("Iteration %6i NRMSE =  %8.4f >= NRMSE_old = %8.4f." %
-                          (niter, nrmse_iter, nrmse_old))
+                    print("Iteration %6i dfit =  %8.4f >= dfit_old = %8.4f." %
+                          (niter, dfit_iter, dfit_old))
 
-                nrmse_iter = nrmse_old
-                smape_iter = smape_old
+                dfit_iter = dfit_old
                 model = model_old.copy()
                 break
 
@@ -383,8 +395,8 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
             dfits_iter = numpy.append(dfits_iter, [nrmse_iter, smape_iter])
 
     # if OutInfo==True:
-    print(" %s initial model: NRMSE =  %7.3f,  SMAPE = %4.1f percent"
-          % (profname, nrmse_0, smape_0))
+    print(" %s initial model: dfit =  %7.3f"
+          % (profname, dfit_0))
     print(" %s final model:  iter  %6i NRMSE =  %7.3f,  SMAPE = %4.1f percent, %s RegPars are %10.4g / %10.4g"
           % (profname, niter, nrmse_iter, smape_iter, regfun.lower(),  tau[g_index, 0],  tau[g_index, 1]))
     # print(numpy.shape(sensi))
@@ -559,14 +571,8 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     start inversion loop
     """
+
     niter = -1
-    nrmse_iter = 1.0e30
-    nrmse_old = nrmse_iter
-
-
-
-
-
     while (niter < maxiter):
 
         niter = niter + 1
@@ -583,46 +589,57 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
 
         if niter == 0:
-
             conv_status = 1
-            nrmse_old = nrmse_iter
-            smape_old = smape_iter
+            
+            if "rms" in thresh[3]:                
+                dfit_iter = nrmse_iter
+                dfit_old = nrmse_iter
+                dfit_0 = nrmse_iter
+
+
+            if "smp" in thresh[3]:
+                dfit_iter = smape_iter
+                dfit_old = smape_iter
+                dfit_0 = smape_iter
+                
             model_old = model.copy()
-            nrmse_0 = nrmse_iter
-            smape_0 = smape_iter
             dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
                                     data_err=d_err, data_act=d_act)])
-            mnorm_iter = numpy.array([scipy.linalg.norm(m_apr)])
+            mnorm_iter = numpy.array([scipy.linalg.norm(model)])
             rvals_iter = numpy.array([0.,0.])
-            dfits_iter = numpy.array([nrmse_0, smape_0])
+            dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
             if OutInfo:
                 print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
-                      % (nrmse_0, smape_0))
-
-
+                      % (nrmse_iter, smape_iter))
         else:
+            
+            if "rms" in thresh[3]:  
+                dfit_iter = nrmse_iter
 
-            if nrmse_iter < nrmse_old:
+            if "smp" in thresh[3]:
+                dfit_iter = smape_iter
+            
+            if dfit_iter < dfit_old:
                 if OutInfo==True:
-                    print("Iteration %6i NRMSE =  %7.3f" % (niter, nrmse_iter))
+                    print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
 
-                nrmse_change = numpy.abs((nrmse_iter - nrmse_old)/nrmse_old)
+                dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
                 modl_change = scipy.linalg.norm((model - model_old)/model_old)
 
 
-                if (nrmse_iter < thresh[0]):
+                if (dfit_iter < thresh[0]):
                     conv_status = 1
                     if OutInfo==True:
-                        print("Iteration %6i NRMSE =  %7.3f <= threshold = %7.3f percent" %
-                              (niter, nrmse_iter, thresh[0]))
+                        print("Iteration %6i data fit =  %7.3f <= threshold = %7.3f percent" %
+                              (niter, dfit_iter, thresh[0]))
                     break
 
-                if (nrmse_change < thresh[1]):
+                if (dfit_change < thresh[1]):
                     conv_status = 1
                     if OutInfo==True:
-                        print("Iteration %6i NRMSE change =  %7.3f <= threshold = %4.1f" %
-                              (niter, nrmse_change, thresh[1]))
+                        print("Iteration %6i data fit change =  %7.3f <= threshold = %4.1f" %
+                              (niter, dfit_change, thresh[1]))
                     break
 
                 if (modl_change < thresh[2]):
@@ -632,18 +649,17 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
                               (niter, modl_change, thresh[2]))
                     break
 
-                nrmse_old = nrmse_iter
-                smape_old = smape_iter
+                if "rms" in thresh[3]: dfit_old = nrmse_iter
+                if "smp" in thresh[3]: dfit_old = smape_iter
                 model_old = model.copy()
 
             else:
 
                 if OutInfo==True:
-                    print("Iteration %6i NRMSE =  %8.4f >= NRMSE_old = %8.4f." %
-                          (niter, nrmse_iter, nrmse_old))
+                    print("Iteration %6i dfit =  %8.4f >= dfit_old = %8.4f." %
+                          (niter, dfit_iter, dfit_old))
 
-                nrmse_iter = nrmse_old
-                smape_iter = smape_old
+                dfit_iter = dfit_old
                 model = model_old.copy()
                 break
 
@@ -721,8 +737,8 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
         dfits_iter = numpy.append(dfits_iter, [nrmse_iter, smape_iter])
 
     # if OutInfo==True:
-    print(" %s initial model: NRMSE =  %7.3f,  SMAPE = %4.1f percent"
-          % (profname, nrmse_0, smape_0))
+    print(" %s initial model: dfit =  %7.3f"
+          % (profname, dfit_0))
     print(" %s final model:  iter  %6i NRMSE =  %7.3f,  SMAPE = %4.1f percent, occ RegPar is %10.4g "
           % (profname, niter, nrmse_iter, smape_iter, tau_iter))
     # print(numpy.shape(sensi))
@@ -923,9 +939,6 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
     start inversion loop
     """
     niter = -1
-    nrmse_iter = 1.0e30
-    nrmse_old = nrmse_iter
-
 
     while (niter < maxiter):
 
@@ -941,72 +954,79 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                 data_err=d_err,
                                                 data_act=d_act)
 
-
         if niter == 0:
-            conv_status = 1
-            nrmse_old = nrmse_iter
-            smape_old = smape_iter
-            model_old = model.copy()
-            nrmse_0 = nrmse_iter
-            smape_0 = smape_iter
-
-            dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
-                                    data_err=d_err, data_act=d_act)])
-            mnorm_iter = numpy.array([scipy.linalg.norm(m_apr)])
-            rvals_iter = numpy.array([0.,0.])
-            dfits_iter = numpy.array([nrmse_0, smape_0])
-
-
-
-            if OutInfo:
-                print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
-                      % (nrmse_0, smape_0))
-
+             conv_status = 1
+             
+             if "rms" in thresh[3]:                
+                 dfit_iter = nrmse_iter
+                 dfit_old = nrmse_iter
+                 dfit_0 = nrmse_iter
+        
+        
+             if "smp" in thresh[3]:
+                 dfit_iter = smape_iter
+                 dfit_old = smape_iter
+                 dfit_0 = smape_iter
+                 
+             model_old = model.copy()
+             dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
+                                     data_err=d_err, data_act=d_act)])
+             mnorm_iter = numpy.array([scipy.linalg.norm(model)])
+             rvals_iter = numpy.array([0.,0.])
+             dfits_iter = numpy.array([nrmse_iter, smape_iter])
+        
+             if OutInfo:
+                 print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
+                       % (nrmse_iter, smape_iter))
         else:
+             
+             if "rms" in thresh[3]:  dfit_iter = nrmse_iter
+        
+             if "smp" in thresh[3]: dfit_iter = smape_iter
+             
+             if dfit_iter < dfit_old:
+                 if OutInfo==True:
+                     print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
+        
+                 dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
+                 modl_change = scipy.linalg.norm((model - model_old)/model_old)
+        
+        
+                 if (dfit_iter < thresh[0]):
+                     conv_status = 1
+                     if OutInfo==True:
+                         print("Iteration %6i data fit =  %7.3f <= threshold = %7.3f percent" %
+                               (niter, dfit_iter, thresh[0]))
+                     break
+        
+                 if (dfit_change < thresh[1]):
+                     conv_status = 1
+                     if OutInfo==True:
+                         print("Iteration %6i data fit change =  %7.3f <= threshold = %4.1f" %
+                               (niter, dfit_change, thresh[1]))
+                     break
+        
+                 if (modl_change < thresh[2]):
+                     conv_status = 1
+                     if OutInfo==True:
+                         print("Iteration %6i model change =  %7.3f <= threshold = %4.1f" %
+                               (niter, modl_change, thresh[2]))
+                     break
+        
+                 if "rms" in thresh[3]: dfit_old = nrmse_iter
+                 if "smp" in thresh[3]: dfit_old = smape_iter
+                 model_old = model.copy()
+        
+             else:
+        
+                 if OutInfo==True:
+                     print("Iteration %6i dfit =  %8.4f >= dfit_old = %8.4f." %
+                           (niter, dfit_iter, dfit_old))
+        
+                 dfit_iter = dfit_old
+                 model = model_old.copy()
+                 break
 
-            if nrmse_iter < nrmse_old:
-                if OutInfo==True:
-                    print("Iteration %6i NRMSE =  %7.3f" % (niter, nrmse_iter))
-
-                nrmse_change = numpy.abs((nrmse_iter - nrmse_old)/nrmse_old)
-                modl_change = scipy.linalg.norm((model - model_old)/model_old)
-
-
-                if (nrmse_iter < thresh[0]):
-                    conv_status = 1
-                    if OutInfo==True:
-                        print("Iteration %6i NRMSE =  %7.3f <= threshold = %7.3f percent" %
-                              (niter, nrmse_iter, thresh[0]))
-                    break
-
-                if (nrmse_change < thresh[1]):
-                    conv_status = 1
-                    if OutInfo==True:
-                        print("Iteration %6i NRMSE change =  %7.3f <= threshold = %4.1f" %
-                              (niter, nrmse_change, thresh[1]))
-                    break
-
-                if (modl_change < thresh[2]):
-                    conv_status = 1
-                    if OutInfo==True:
-                        print("Iteration %6i model change =  %7.3f <= threshold = %4.1f" %
-                              (niter, modl_change, thresh[2]))
-                    break
-
-                nrmse_old = nrmse_iter
-                smape_old = smape_iter
-                model_old = model.copy()
-
-            else:
-
-                if OutInfo==True:
-                    print("Iteration %6i NRMSE =  %8.4f >= NRMSE_old = %8.4f." %
-                          (niter, nrmse_iter, nrmse_old))
-
-                nrmse_iter = nrmse_old
-                smape_iter = smape_old
-                model = model_old.copy()
-                break
 
 
         Jac  = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
@@ -1141,8 +1161,8 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
             dfits_iter = numpy.append(dfits_iter, [nrmse_iter, smape_iter])
 
     # if OutInfo==True:
-    print(" %s initial model: NRMSE =  %7.3f,  SMAPE = %4.1f percent"
-          % (profname, nrmse_0, smape_0))
+    print(" %s initial model: dfit =  %7.3f"
+          % (profname, dfit_0))
     print(" %s final model:  iter  %6i NRMSE =  %7.3f,  SMAPE = %4.1f percent, %s RegPar is %10.4g "
           % (profname, niter, nrmse_iter, smape_iter, regfun.lower(),  tau[g_index]))
     # print(numpy.shape(sensi))
