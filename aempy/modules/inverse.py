@@ -148,19 +148,13 @@ def run_linesearch(fwdcall, alt,
             model = m
             model_old = m
             
-            linrms = linrms_iter
-            linsmp = linsmp_iter
-            linrms_old = linrms_iter
-            linsmp_old = linsmp_iter
-            
+         
         else:
             linfit = linfit_old
             model = model_old
-            linrms = linrms_old
-            linsmp = linsmp_old
             break
 
-    return model, linfit, linrms, linsmp
+    return model, linfit
 
 
 def perturb_random(vbase=numpy.array([]),

@@ -35,7 +35,6 @@ import core1d
 import alg
 
 
-
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
 
@@ -44,7 +43,9 @@ nan = numpy.nan  # float("NaN")
 
 # @ray.remote
 
-#@jit(nopython=True, parallel=True)
+# @jit(nopython=True, parallel=True)
+
+
 def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     Tikhonov inversion with optimal tau, using several popular
@@ -74,7 +75,6 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     """
 
-
     """
     unpack control block:
 
@@ -87,18 +87,15 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         ])
     """
 
-
     system, fwdcall = Ctrl["system"]
-    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, gshift = Ctrl["inversion"]
+    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, gshift = Ctrl[
+        "inversion"]
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
     uncert = Ctrl["uncert"]
     profname = Ctrl["name"]
 
-
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
-
-
 
     nreg = numpy.size(tau0)*numpy.size(tau1)
 
@@ -113,24 +110,24 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     unpack data block
     Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
     """
-    d_act = Data["d_act"] #.reshape(-1,1)
-    d_obs = Data["d_obs"] #.reshape(-1,1)
-    d_err = Data["d_err"]# .reshape(-1,1)
-    alt   = Data["alt"]
+    d_act = Data["d_act"]  # .reshape(-1,1)
+    d_obs = Data["d_obs"]  # .reshape(-1,1)
+    d_err = Data["d_err"]  # .reshape(-1,1)
+    alt = Data["alt"]
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
 
     d_state = 0
     d_obs, d_err, dobs_state = inverse.transform_data(d_vec=d_obs,
-                                                      e_vec = d_err,
+                                                      e_vec=d_err,
                                                       d_trn=d_trn,
-                                                      d_state = d_state)
+                                                      d_state=d_state)
     # print(d_obs)
 
     obs = inverse.extract_dat(d_obs, d_act)
     err = inverse.extract_dat(d_err, d_act)
 
-    Wd =  numpy.diagflat(1.0/err, 0)
+    Wd = numpy.diagflat(1.0/err, 0)
     Wd = scipy.sparse.csr_matrix(Wd)
     Cdi = numpy.diagflat(1.0/err**2, 0)
     Cdi = scipy.sparse.csr_matrix(Cdi)
@@ -151,13 +148,13 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     m_err = numpy.sqrt(m_var)
 
     m_state = 0
-    m_apr, _ = inverse.transform_parameter(m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")
-    m_ini, _ = inverse.transform_parameter(m_vec=m_ini, m_trn=m_trn, m_state=m_state, mode="f")
+    m_apr, _ = inverse.transform_parameter(
+        m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")
+    m_ini, _ = inverse.transform_parameter(
+        m_vec=m_ini, m_trn=m_trn, m_state=m_state, mode="f")
     m_state = m_trn
 
-
-    mpara =  numpy.shape(numpy.flatnonzero(m_act))[0]
-
+    mpara = numpy.shape(numpy.flatnonzero(m_act))[0]
 
     merr = numpy.nan * numpy.ones_like(m_apr)
     sens = numpy.nan * numpy.ones_like(m_apr)
@@ -167,8 +164,6 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     model_error = m_err
     model_error_old = model_error
 
-
-
     """
     start inversion loop
     """
@@ -176,90 +171,87 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     dfit_iter = 1.0e30
     dfit_old = dfit_iter
 
-
     while (niter < maxiter):
 
         niter = niter + 1
         d_cal, dcal_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                                  m_vec = model,
+                                                  m_vec=model,
                                                   m_trn=m_trn, m_state=m_state,
                                                   d_trn=d_trn)
 
-
         nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
-                                                data_cal=d_cal,
-                                                data_err=d_err,
-                                                data_act=d_act)
-
+                                                      data_cal=d_cal,
+                                                      data_err=d_err,
+                                                      data_act=d_act)
 
         if niter == 0:
             conv_status = 1
-            
-            if "rms" in thresh[3]:                
+
+            if "rms" in thresh[3]:
                 dfit_iter = nrmse_iter
                 dfit_old = nrmse_iter
                 dfit_0 = nrmse_iter
-
 
             if "smp" in thresh[3]:
                 dfit_iter = smape_iter
                 dfit_old = smape_iter
                 dfit_0 = smape_iter
-                
+
             model_old = model.copy()
             dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
-                                    data_err=d_err, data_act=d_act)])
+                                                         data_err=d_err, data_act=d_act)])
             mnorm_iter = numpy.array([scipy.linalg.norm(model)])
-            rvals_iter = numpy.array([0.,0.])
+            rvals_iter = numpy.array([0., 0.])
             dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
             if OutInfo:
                 print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
                       % (nrmse_iter, smape_iter))
         else:
-            
-            if "rms" in thresh[3]:  
+
+            if "rms" in thresh[3]:
                 dfit_iter = nrmse_iter
 
             if "smp" in thresh[3]:
                 dfit_iter = smape_iter
-            
+
             if dfit_iter < dfit_old:
-                if OutInfo==True:
+                if OutInfo == True:
                     print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
 
                 dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
                 modl_change = scipy.linalg.norm((model - model_old)/model_old)
 
-
                 if (dfit_iter < thresh[0]):
                     conv_status = 1
-                    if OutInfo==True:
+                    if OutInfo == True:
                         print("Iteration %6i data fit =  %7.3f <= threshold = %7.3f percent" %
                               (niter, dfit_iter, thresh[0]))
                     break
 
                 if (dfit_change < thresh[1]):
                     conv_status = 1
-                    if OutInfo==True:
+                    if OutInfo == True:
                         print("Iteration %6i data fit change =  %7.3f <= threshold = %4.1f" %
                               (niter, dfit_change, thresh[1]))
                     break
 
                 if (modl_change < thresh[2]):
                     conv_status = 1
-                    if OutInfo==True:
+                    if OutInfo == True:
                         print("Iteration %6i model change =  %7.3f <= threshold = %4.1f" %
                               (niter, modl_change, thresh[2]))
                     break
 
-                if "rms" in thresh[3]: dfit_old = nrmse_iter
-                if "smp" in thresh[3]: dfit_old = smape_iter
+                if "rms" in thresh[3]:
+                    dfit_old = nrmse_iter
+                if "smp" in thresh[3]:
+                    dfit_old = smape_iter
                 model_old = model.copy()
 
             else:
 
-                if OutInfo==True:
+                if OutInfo == True:
                     print("Iteration %6i dfit =  %8.4f >= dfit_old = %8.4f." %
                           (niter, dfit_iter, dfit_old))
 
@@ -267,11 +259,10 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 model = model_old.copy()
                 break
 
-
-        Jac  = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
-                                m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                                d_vec=d_obs, d_act=d_act, d_trn=d_trn,
-                                delta=delta, scalejac=False, out=False)
+        Jac = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
+                               m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                               d_vec=d_obs, d_act=d_act, d_trn=d_trn,
+                               delta=delta, scalejac=False, out=False)
 
         cal = inverse.extract_dat(d_cal, d_act)
 
@@ -286,7 +277,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         sensi = inverse.calc_sensitivity(Jac=Jd)
 
         m_test = numpy.zeros((nreg, mpara))
-        m_err  = numpy.zeros((nreg, mpara))
+        m_err = numpy.zeros((nreg, mpara))
 
         reg_choice = numpy.zeros((nreg, 1))
 
@@ -303,20 +294,20 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
                 model_test = model.copy()
                 itest = itest + 1
-                tau[itest, :] = [t0 ,t1]
+                tau[itest, :] = [t0, t1]
 
                 A = JJ + Cmi0 + Cmi1
                 r = Jac.T@Cdi@(cal - obs).T+Cmi0@diff_m.T+Cmi1@diff_m.T
 
-                m_delta = scipy.linalg.solve(A,r)
+                m_delta = scipy.linalg.solve(A, r)
                 m_test[itest] = m_iter - m_delta
-                model_test=inverse.insert_mod(M=model_test, m=m_test[itest],
+                model_test = inverse.insert_mod(M=model_test, m=m_test[itest],
                                                 m_act=m_act)
 
-                cali, d_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec = model_test,
-                                          m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
+                cali, d_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec=model_test,
+                                                      m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
 
-                r_test = Wd@(obs - cali[d_act!=0]).T
+                r_test = Wd@(obs - cali[d_act != 0]).T
 
                 dnorm[itest] = scipy.linalg.norm(r_test)
                 mnorm[itest] = scipy.linalg.norm(m_test[itest])
@@ -328,33 +319,33 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 m_err[itest] = numpy.sqrt(C.diagonal())
                 G = C@Jd.T
 
-
                 """
                 Calc target function for tau optimization
                 """
 
-
-                if   "ufc" in regfun.lower():
-                    reg_choice[itest] = inverse.calc_ufc(dnorm[itest], mnorm[itest])
+                if "ufc" in regfun.lower():
+                    reg_choice[itest] = inverse.calc_ufc(
+                        dnorm[itest], mnorm[itest])
 
                 elif "upr" in regfun.lower():
                     M = Jd@G
-                    reg_choice[itest] = inverse.calc_upr(dnorm[itest],M, d_err)
+                    reg_choice[itest] = inverse.calc_upr(
+                        dnorm[itest], M, d_err)
 
                 elif "gcv" in regfun.lower():
                     M = Jd@G
-                    reg_choice[itest] = inverse.calc_gcv(dnorm[itest],M)
+                    reg_choice[itest] = inverse.calc_gcv(dnorm[itest], M)
 
                 elif "mle" in regfun.lower():
                     M = Jd@G
-                    reg_choice[itest] = inverse.calc_gcv(dnorm[itest],M)
+                    reg_choice[itest] = inverse.calc_gcv(dnorm[itest], M)
 
-                elif "fix" in regfun.lower() or "lcc"in regfun.lower():
+                elif "fix" in regfun.lower() or "lcc" in regfun.lower():
                     pass
 
                 else:
-                    error("Regularisation method "+regfun.lower()+" not yet implemented! Exit.")
-
+                    error("Regularisation method "+regfun.lower() +
+                          " not yet implemented! Exit.")
 
         if "fix" in regfun.lower():
             g_index = 0
@@ -362,30 +353,34 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         elif "lcc" in regfun.lower():
             g_index = inverse.calc_lc_corner(dnorm, mnorm)+gshift
             g_index = g_index.item()
-            g_index = numpy.amax([g_index,0])
-            g_index = numpy.amin([g_index,numpy.shape(tau)[0]-1])
+            g_index = numpy.amax([g_index, 0])
+            g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
         elif any(s in regfun.lower() for s in ["gcv", "upr", "ufc", "mle"]):
             g_index = numpy.argmin(reg_choice, axis=0)+gshift
             g_index = g_index.item()
-            g_index = numpy.amax([g_index,0])
-            g_index = numpy.amin([g_index,numpy.shape(tau)[0]-1])
+            g_index = numpy.amax([g_index, 0])
+            g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
 
         else:
             error(regfun.lower() + " not implemented!")
 
         reg = [tau[g_index, 0].item(), tau[g_index, 1].item()]
         mdl = m_test[g_index, :]
-        model=inverse.insert_mod(M=model, m=mdl, m_act=m_act)
+        model = inverse.insert_mod(M=model, m=mdl, m_act=m_act)
 
         """
         Line Search
         """
         if do_linesearch:
-            model, dfit_iter, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
-                                        d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
-                                        model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                                        dfit=dfit_iter, mdfit=thresh[3],
-                                        facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+            model, dfit_iter = inverse.run_linesearch(fwdcall, alt,
+                                                      d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act=d_act, d_state=d_state,
+                                                      model=model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                                                      dfit=dfit_iter, mdfit=thresh[3],
+                                                      facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+            nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
+                                                          data_cal=d_cal,
+                                                          data_err=d_err,
+                                                          data_act=d_act)
 
         if niter > 0:
             dnorm_iter = numpy.append(dnorm_iter, dnorm[g_index])
@@ -399,10 +394,11 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     print(" %s final model:  iter  %6i NRMSE =  %7.3f,  SMAPE = %4.1f percent, %s RegPars are %10.4g / %10.4g"
           % (profname, niter, nrmse_iter, smape_iter, regfun.lower(),  tau[g_index, 0],  tau[g_index, 1]))
     # print(numpy.shape(sensi))
-    sens = sensi # inverse.insert_mod(M=sens, m=sensi,m_act=m_act)
-    modl, m_state = inverse.transform_parameter(m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
+    sens = sensi  # inverse.insert_mod(M=sens, m=sensi,m_act=m_act)
+    modl, m_state = inverse.transform_parameter(
+        m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
     modl = inverse.extract_mod(modl, m_act)
-    merr = m_err [g_index, :].flat
+    merr = m_err[g_index, :].flat
     # inverse.insert_mod(M=merr, m=tmp, m_act=m_act)
     # print(numpy.shape(modl),numpy.shape(merr),numpy.shape(sens))
     print()
@@ -410,16 +406,15 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         dict([
             ("model", [modl, merr, sens, m_state, m_act]),
             ("data", [d_obs, d_cal, d_err, d_state, d_act]),
-            ("log", [niter, conv_status, nrmse_iter, smape_iter, dnorm_iter, mnorm_iter, rvals_iter, dfits_iter]),
-            ])
+            ("log", [niter, conv_status, nrmse_iter, smape_iter,
+             dnorm_iter, mnorm_iter, rvals_iter, dfits_iter]),
+        ])
 
     # print(type(dnorm_iter))
 
-
-
     if uncert:
-        A = JJ + Cm0.multiply(reg[0]) +  Cm1.multiply(reg[1])
-         # Cov a posteriori & Generalized Inverse
+        A = JJ + Cm0.multiply(reg[0]) + Cm1.multiply(reg[1])
+        # Cov a posteriori & Generalized Inverse
         C = scipy.linalg.inv(A)
         E = numpy.sqrt(C.diagonal())
 
@@ -436,19 +431,21 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         uncpars =\
             dict([
-            ("jacd", Jd),               # jacobian
-            ("cpost", C),               # cov a-post
-            ("merr", E),                # model error
-            ("mresm", [Rm, Sm, Nm]),    # model resolution
-            ("dresm", [Rd, Sd, Nd]),    # data resolution
-            ("gi", G),                  # generalized inverse
+                ("jacd", Jd),               # jacobian
+                ("cpost", C),               # cov a-post
+                ("merr", E),                # model error
+                ("mresm", [Rm, Sm, Nm]),    # model resolution
+                ("dresm", [Rd, Sd, Nd]),    # data resolution
+                ("gi", G),                  # generalized inverse
             ])
-            
+
         results.update(uncpars)
 
     return results
 
 # @ray.remote
+
+
 def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     Tikhonov/MAP inversion with tau, determined by cooling scheme (Occam)
@@ -491,7 +488,6 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
 
-
     if linepars == []:
         do_linesearch = False
     else:
@@ -499,38 +495,36 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
         maxreduce = linepars[0]
         facreduce = linepars[1]
 
-
-    if len(tauseq)==2:
-        set_taustart= False
+    if len(tauseq) == 2:
+        set_taustart = False
         taustart = tauseq[1]
-        taufac   = tauseq[0]
-    if len(tauseq)==1:
-        set_taustart= True
-        taufac =tauseq[0]
-    if len(tauseq)==0:
-        set_taustart= True
-        taufac =0.66
+        taufac = tauseq[0]
+    if len(tauseq) == 1:
+        set_taustart = True
+        taufac = tauseq[0]
+    if len(tauseq) == 0:
+        set_taustart = True
+        taufac = 0.66
     """
     unpack data block
     Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
     """
-    d_act = Data["d_act"]  #.reshape(-1,1)
-    d_obs = Data["d_obs"] #.reshape(-1,1)
+    d_act = Data["d_act"]  # .reshape(-1,1)
+    d_obs = Data["d_obs"]  # .reshape(-1,1)
     d_err = Data["d_err"]  # .reshape(-1,1)
-    alt   = Data["alt"]
+    alt = Data["alt"]
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
 
     d_state = 0
     d_obs, d_err, dobs_state = inverse.transform_data(d_vec=d_obs,
-                                                      e_vec = d_err,
+                                                      e_vec=d_err,
                                                       d_trn=d_trn,
-                                                      d_state = d_state)
-
+                                                      d_state=d_state)
 
     obs = inverse.extract_dat(d_obs, d_act)
     err = inverse.extract_dat(d_err, d_act)
-    Wd =  numpy.diagflat(1.0/err, 0)
+    Wd = numpy.diagflat(1.0/err, 0)
     Wd = scipy.sparse.csr_matrix(Wd)
     Cdi = numpy.diagflat(1.0/err**2, 0)
     Cdi = scipy.sparse.csr_matrix(Cdi)
@@ -550,13 +544,13 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     m_err = numpy.sqrt(m_var)
 
     m_state = 0
-    m_apr, _ = inverse.transform_parameter(m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")
-    m_ini, _ = inverse.transform_parameter(m_vec=m_ini, m_trn=m_trn, m_state=m_state, mode="f")
+    m_apr, _ = inverse.transform_parameter(
+        m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")
+    m_ini, _ = inverse.transform_parameter(
+        m_vec=m_ini, m_trn=m_trn, m_state=m_state, mode="f")
     m_state = m_trn
 
-
-    mpara =  numpy.shape(numpy.flatnonzero(m_act))[0]
-
+    mpara = numpy.shape(numpy.flatnonzero(m_act))[0]
 
     merr = numpy.nan * numpy.ones_like(m_apr)
     sens = numpy.nan * numpy.ones_like(m_apr)
@@ -565,7 +559,6 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     model_old = model.copy()
     model_error = m_err
     model_error_old = model_error
-
 
     """
     start inversion loop
@@ -576,85 +569,83 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         niter = niter + 1
         d_cal, dcal_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                                  m_vec = model,
+                                                  m_vec=model,
                                                   m_trn=m_trn, m_state=m_state,
                                                   d_trn=d_trn)
 
-
         nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
-                                                data_cal=d_cal,
-                                                data_err=d_err,
-                                                data_act=d_act)
-
+                                                      data_cal=d_cal,
+                                                      data_err=d_err,
+                                                      data_act=d_act)
 
         if niter == 0:
             conv_status = 1
-            
-            if "rms" in thresh[3]:                
+
+            if "rms" in thresh[3]:
                 dfit_iter = nrmse_iter
                 dfit_old = nrmse_iter
                 dfit_0 = nrmse_iter
-
 
             if "smp" in thresh[3]:
                 dfit_iter = smape_iter
                 dfit_old = smape_iter
                 dfit_0 = smape_iter
-                
+
             model_old = model.copy()
             dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
-                                    data_err=d_err, data_act=d_act)])
+                                                         data_err=d_err, data_act=d_act)])
             mnorm_iter = numpy.array([scipy.linalg.norm(model)])
-            rvals_iter = numpy.array([0.,0.])
+            rvals_iter = numpy.array([0., 0.])
             dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
             if OutInfo:
                 print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
                       % (nrmse_iter, smape_iter))
         else:
-            
-            if "rms" in thresh[3]:  
+
+            if "rms" in thresh[3]:
                 dfit_iter = nrmse_iter
 
             if "smp" in thresh[3]:
                 dfit_iter = smape_iter
-            
+
             if dfit_iter < dfit_old:
-                if OutInfo==True:
+                if OutInfo == True:
                     print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
 
                 dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
                 modl_change = scipy.linalg.norm((model - model_old)/model_old)
 
-
                 if (dfit_iter < thresh[0]):
                     conv_status = 1
-                    if OutInfo==True:
+                    if OutInfo == True:
                         print("Iteration %6i data fit =  %7.3f <= threshold = %7.3f percent" %
                               (niter, dfit_iter, thresh[0]))
                     break
 
                 if (dfit_change < thresh[1]):
                     conv_status = 1
-                    if OutInfo==True:
+                    if OutInfo == True:
                         print("Iteration %6i data fit change =  %7.3f <= threshold = %4.1f" %
                               (niter, dfit_change, thresh[1]))
                     break
 
                 if (modl_change < thresh[2]):
                     conv_status = 1
-                    if OutInfo==True:
+                    if OutInfo == True:
                         print("Iteration %6i model change =  %7.3f <= threshold = %4.1f" %
                               (niter, modl_change, thresh[2]))
                     break
 
-                if "rms" in thresh[3]: dfit_old = nrmse_iter
-                if "smp" in thresh[3]: dfit_old = smape_iter
+                if "rms" in thresh[3]:
+                    dfit_old = nrmse_iter
+                if "smp" in thresh[3]:
+                    dfit_old = smape_iter
                 model_old = model.copy()
 
             else:
 
-                if OutInfo==True:
+                if OutInfo == True:
                     print("Iteration %6i dfit =  %8.4f >= dfit_old = %8.4f." %
                           (niter, dfit_iter, dfit_old))
 
@@ -662,10 +653,10 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 model = model_old.copy()
                 break
 
-        Jac  = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
-                                m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                                d_vec=d_obs, d_act=d_act, d_trn=d_trn,
-                                delta=delta, scalejac=False, out=False)
+        Jac = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
+                               m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                               d_vec=d_obs, d_act=d_act, d_trn=d_trn,
+                               delta=delta, scalejac=False, out=False)
 
         cal = inverse.extract_dat(d_cal, d_act)
 
@@ -680,16 +671,15 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         sensi = inverse.calc_sensitivity(Jac=Jd)
 
-
         # Cmi0 = Cm0.multiply(tau)
 
         if niter == 0 and set_taustart:
-            tau_start = inverse.calc_regstart(D = JJ, M =Cm1)
+            tau_start = inverse.calc_regstart(D=JJ, M=Cm1)
             tau_iter = tau_start
-            print("initial tau1: ",tau_iter)
+            print("initial tau1: ", tau_iter)
         else:
             tau_iter = tau_iter*taufac
-            print("tau1: ",tau_iter)
+            print("tau1: ", tau_iter)
 
         Cmi1 = Cm1.multiply(tau_iter)
 
@@ -698,38 +688,36 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
         A = JJ + Cmi1
         r = Jac.T@Cdi@(obs - cal).T+Cmi1@diff_m.T
 
-        m_delta = scipy.linalg.solve(A,r)
+        m_delta = scipy.linalg.solve(A, r)
         m_test = m_iter - m_delta
-        model_test=inverse.insert_mod(M=model_test, m=m_test,
+        model_test = inverse.insert_mod(M=model_test, m=m_test,
                                         m_act=m_act)
 
-        cali, d_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec = model_test,
-                                  m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
-
+        cali, d_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec=model_test,
+                                              m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
 
         r_test = Wd@(obs - cali).T
 
         dnorm = scipy.linalg.norm(r_test)
         mnorm = scipy.linalg.norm(m_test)
 
-
     reg = [tau_iter]
     mdl = m_test
-    model=inverse.insert_mod(M=model, m=mdl, m_act=m_act)
-
+    model = inverse.insert_mod(M=model, m=mdl, m_act=m_act)
 
     """
     Line Search
     """
     if do_linesearch:
-        model, dfit_iter, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
-                                    d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
-                                    model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                                    dfit=dfit_iter, mdfit=thresh[3],
-                                    facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
-
-
-
+        model, dfit_iter = inverse.run_linesearch(fwdcall, alt,
+                                                                          d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act=d_act, d_state=d_state,
+                                                                          model=model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                                                                          dfit=dfit_iter, mdfit=thresh[3],
+                                                                          facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+        nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
+                                                      data_cal=d_cal,
+                                                      data_err=d_err,
+                                                      data_act=d_act)
     if niter > 0:
         dnorm_iter = numpy.append(dnorm_iter, dnorm)
         mnorm_iter = numpy.append(mnorm_iter, mnorm)
@@ -742,8 +730,9 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     print(" %s final model:  iter  %6i NRMSE =  %7.3f,  SMAPE = %4.1f percent, occ RegPar is %10.4g "
           % (profname, niter, nrmse_iter, smape_iter, tau_iter))
     # print(numpy.shape(sensi))
-    sens = sensi # inverse.insert_mod(M=sens, m=sensi,m_act=m_act)
-    modl, m_state = inverse.transform_parameter(m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
+    sens = sensi  # inverse.insert_mod(M=sens, m=sensi,m_act=m_act)
+    modl, m_state = inverse.transform_parameter(
+        m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
     modl = inverse.extract_mod(modl, m_act)
     merr = m_err.flat
     # inverse.insert_mod(M=merr, m=tmp, m_act=m_act)
@@ -753,10 +742,9 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
         dict([
             ("model", [modl, merr, sens, m_state, m_act]),
             ("data", [d_obs, d_cal, d_err, d_state, d_act]),
-            ("log", [niter, conv_status, nrmse_iter, smape_iter, dnorm_iter, mnorm_iter, rvals_iter, dfits_iter]),
-            ])
-
-
+            ("log", [niter, conv_status, nrmse_iter, smape_iter,
+             dnorm_iter, mnorm_iter, rvals_iter, dfits_iter]),
+        ])
 
     if uncert:
 
@@ -777,16 +765,15 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         uncpars =\
             dict([
-            ("jacd", Jd),               # jacobian
-            ("cpost", C),               # cov a-post
-            ("merr", E),                # model error
-            ("mresm", [Rm, Sm, Nm]),    # model resolution
-            ("dresm", [Rd, Sd, Nd]),    # data resolution
-            ("gi", G),                  # generalized inverse
+                ("jacd", Jd),               # jacobian
+                ("cpost", C),               # cov a-post
+                ("merr", E),                # model error
+                ("mresm", [Rm, Sm, Nm]),    # model resolution
+                ("dresm", [Rd, Sd, Nd]),    # data resolution
+                ("gi", G),                  # generalized inverse
             ])
-            
-        results.update(uncpars)
 
+        results.update(uncpars)
 
     return results
 
@@ -847,20 +834,17 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
 
     system, fwdcall = Ctrl["system"]
-    invtype, invspace, regfun, tau, maxiter, thresh, linepars, setprior, delta, gshift = Ctrl["inversion"]
+    invtype, invspace, regfun, tau, maxiter, thresh, linepars, setprior, delta, gshift = Ctrl[
+        "inversion"]
 
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
 
-    
-
     if "par" in invspace.lower():
         Cmi, CmiS = Ctrl["covar"]
     else:
-        Cm, CmS  = Ctrl["covar"]
+        Cm, CmS = Ctrl["covar"]
 
-
-     
     nreg = numpy.size(tau)
 
     if linepars == []:
@@ -872,24 +856,23 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     uncert = Ctrl["uncert"]
     profname = Ctrl["name"]
-    
+
     """
     unpack data block
     Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
     """
-    d_obs = Data["d_obs"] #.reshape(-1,1)
-    d_act = Data["d_act"] #.reshape(-1,1)
-    d_err = Data["d_err"]# .reshape(-1,1)
-    alt   = Data["alt"]
+    d_obs = Data["d_obs"]  # .reshape(-1,1)
+    d_act = Data["d_act"]  # .reshape(-1,1)
+    d_err = Data["d_err"]  # .reshape(-1,1)
+    alt = Data["alt"]
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
 
     d_state = 0
     d_obs, d_err, dobs_state = inverse.transform_data(d_vec=d_obs,
-                                                      e_vec = d_err,
+                                                      e_vec=d_err,
                                                       d_trn=d_trn,
-                                                      d_state = d_state)
-
+                                                      d_state=d_state)
 
     obs = inverse.extract_dat(d_obs, d_act)
     err = inverse.extract_dat(d_err, d_act)
@@ -900,9 +883,6 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
     Cdi = numpy.diagflat(1.0/err**2, 0)
     Cdi = scipy.sparse.csr_matrix(Cdi)
     Sdi = numpy.diagflat(1.0/err, 0)
-
-
-        
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
 
@@ -919,13 +899,13 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
     m_err = numpy.sqrt(m_var)
 
     m_state = 0
-    m_apr, _ = inverse.transform_parameter(m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")
-    m_ini, _ = inverse.transform_parameter(m_vec=m_ini, m_trn=m_trn, m_state=m_state, mode="f")
+    m_apr, _ = inverse.transform_parameter(
+        m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")
+    m_ini, _ = inverse.transform_parameter(
+        m_vec=m_ini, m_trn=m_trn, m_state=m_state, mode="f")
     m_state = m_trn
 
-
-    mpara =  numpy.shape(numpy.flatnonzero(m_act))[0]
-
+    mpara = numpy.shape(numpy.flatnonzero(m_act))[0]
 
     merr = numpy.nan * numpy.ones_like(m_apr)
     sens = numpy.nan * numpy.ones_like(m_apr)
@@ -944,96 +924,94 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         niter = niter + 1
         d_cal, dcal_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                                  m_vec = model,
+                                                  m_vec=model,
                                                   m_trn=m_trn, m_state=m_state,
                                                   d_trn=d_trn)
 
-
         nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
-                                                data_cal=d_cal,
-                                                data_err=d_err,
-                                                data_act=d_act)
+                                                      data_cal=d_cal,
+                                                      data_err=d_err,
+                                                      data_act=d_act)
 
         if niter == 0:
-             conv_status = 1
-             
-             if "rms" in thresh[3]:                
-                 dfit_iter = nrmse_iter
-                 dfit_old = nrmse_iter
-                 dfit_0 = nrmse_iter
-        
-        
-             if "smp" in thresh[3]:
-                 dfit_iter = smape_iter
-                 dfit_old = smape_iter
-                 dfit_0 = smape_iter
-                 
-             model_old = model.copy()
-             dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
-                                     data_err=d_err, data_act=d_act)])
-             mnorm_iter = numpy.array([scipy.linalg.norm(model)])
-             rvals_iter = numpy.array([0.,0.])
-             dfits_iter = numpy.array([nrmse_iter, smape_iter])
-        
-             if OutInfo:
-                 print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
-                       % (nrmse_iter, smape_iter))
+            conv_status = 1
+
+            if "rms" in thresh[3]:
+                dfit_iter = nrmse_iter
+                dfit_old = nrmse_iter
+                dfit_0 = nrmse_iter
+
+            if "smp" in thresh[3]:
+                dfit_iter = smape_iter
+                dfit_old = smape_iter
+                dfit_0 = smape_iter
+
+            model_old = model.copy()
+            dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
+                                                         data_err=d_err, data_act=d_act)])
+            mnorm_iter = numpy.array([scipy.linalg.norm(model)])
+            rvals_iter = numpy.array([0., 0.])
+            dfits_iter = numpy.array([nrmse_iter, smape_iter])
+
+            if OutInfo:
+                print("Starting NRMSE      =  %7.3f,  SMAPE = %4.1f percent"
+                      % (nrmse_iter, smape_iter))
         else:
-             
-             if "rms" in thresh[3]:  dfit_iter = nrmse_iter
-        
-             if "smp" in thresh[3]: dfit_iter = smape_iter
-             
-             if dfit_iter < dfit_old:
-                 if OutInfo==True:
-                     print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
-        
-                 dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
-                 modl_change = scipy.linalg.norm((model - model_old)/model_old)
-        
-        
-                 if (dfit_iter < thresh[0]):
-                     conv_status = 1
-                     if OutInfo==True:
-                         print("Iteration %6i data fit =  %7.3f <= threshold = %7.3f percent" %
-                               (niter, dfit_iter, thresh[0]))
-                     break
-        
-                 if (dfit_change < thresh[1]):
-                     conv_status = 1
-                     if OutInfo==True:
-                         print("Iteration %6i data fit change =  %7.3f <= threshold = %4.1f" %
-                               (niter, dfit_change, thresh[1]))
-                     break
-        
-                 if (modl_change < thresh[2]):
-                     conv_status = 1
-                     if OutInfo==True:
-                         print("Iteration %6i model change =  %7.3f <= threshold = %4.1f" %
-                               (niter, modl_change, thresh[2]))
-                     break
-        
-                 if "rms" in thresh[3]: dfit_old = nrmse_iter
-                 if "smp" in thresh[3]: dfit_old = smape_iter
-                 model_old = model.copy()
-        
-             else:
-        
-                 if OutInfo==True:
-                     print("Iteration %6i dfit =  %8.4f >= dfit_old = %8.4f." %
-                           (niter, dfit_iter, dfit_old))
-        
-                 dfit_iter = dfit_old
-                 model = model_old.copy()
-                 break
 
+            if "rms" in thresh[3]:
+                dfit_iter = nrmse_iter
 
+            if "smp" in thresh[3]:
+                dfit_iter = smape_iter
 
-        Jac  = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
-                                m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                                d_vec=d_obs, d_act=d_act, d_trn=d_trn,
-                                delta=delta, scalejac=False, out=False)
-        
+            if dfit_iter < dfit_old:
+                if OutInfo == True:
+                    print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
+
+                dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
+                modl_change = scipy.linalg.norm((model - model_old)/model_old)
+
+                if (dfit_iter < thresh[0]):
+                    conv_status = 1
+                    if OutInfo == True:
+                        print("Iteration %6i data fit =  %7.3f <= threshold = %7.3f percent" %
+                              (niter, dfit_iter, thresh[0]))
+                    break
+
+                if (dfit_change < thresh[1]):
+                    conv_status = 1
+                    if OutInfo == True:
+                        print("Iteration %6i data fit change =  %7.3f <= threshold = %4.1f" %
+                              (niter, dfit_change, thresh[1]))
+                    break
+
+                if (modl_change < thresh[2]):
+                    conv_status = 1
+                    if OutInfo == True:
+                        print("Iteration %6i model change =  %7.3f <= threshold = %4.1f" %
+                              (niter, modl_change, thresh[2]))
+                    break
+
+                if "rms" in thresh[3]:
+                    dfit_old = nrmse_iter
+                if "smp" in thresh[3]:
+                    dfit_old = smape_iter
+                model_old = model.copy()
+
+            else:
+
+                if OutInfo == True:
+                    print("Iteration %6i dfit =  %8.4f >= dfit_old = %8.4f." %
+                          (niter, dfit_iter, dfit_old))
+
+                dfit_iter = dfit_old
+                model = model_old.copy()
+                break
+
+        Jac = inverse.calc_jac(fwdcall=fwdcall, alt=alt,
+                               m_vec=model, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                               d_vec=d_obs, d_act=d_act, d_trn=d_trn,
+                               delta=delta, scalejac=False, out=False)
 
         cal = inverse.extract_dat(d_cal, d_act)
 
@@ -1042,12 +1020,11 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         diff_m = m_iter - m_apri
 
-
         Jd = Sd@Jac
         sensi = inverse.calc_sensitivity(Jac=Jd)
 
         m_test = numpy.zeros((nreg, mpara))
-        m_err  = numpy.zeros((nreg, mpara))
+        m_err = numpy.zeros((nreg, mpara))
 
         reg_choice = numpy.zeros((nreg, 1))
         dnorm = numpy.zeros((nreg, 1))
@@ -1057,7 +1034,7 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         itest = -1
 
         for tt in tau:
-            
+
             model_test = model.copy()
             itest = itest + 1
             if "par" in invspace.lower():
@@ -1065,25 +1042,23 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 JJ = Jac.T@Cdi@Jac
                 A = JJ + tt*Cmi.todense()
                 r = Jac.T@Cdi@((obs - cal).T+Jac@diff_m.T)
-                m_delta = scipy.linalg.solve(A,r)
+                m_delta = scipy.linalg.solve(A, r)
                 # cov a posteriori
                 C = scipy.linalg.inv(A)
-            else:                
+            else:
                 Ctmp = tt*Cm
                 JJ = Jac@Ctmp@Jac.T
                 A = JJ + Cd
                 r = (obs - cal).T+Jac@diff_m.T
-                m_delta =Ctmp*Jac.T@scipy.linalg.solve(A,r)
-                # cov a posteriori 
+                m_delta = Ctmp*Jac.T@scipy.linalg.solve(A, r)
+                # cov a posteriori
                 C = Ctmp + Ctmp*Jac.T@scipy.linalg.inv(A)@Jac*Ctmp
-                
-                
-            m_test[itest] = m_apri + m_delta
-            model_test=inverse.insert_mod(M=model_test, m=m_test[itest],
-                                            m_act=m_act)
-            cali, d_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec = model_test,
-                                      m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
 
+            m_test[itest] = m_apri + m_delta
+            model_test = inverse.insert_mod(M=model_test, m=m_test[itest],
+                                            m_act=m_act)
+            cali, d_state = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec=model_test,
+                                                  m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
 
             # print(model_test)
             # print(obs)
@@ -1094,31 +1069,27 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
             dnorm[itest] = scipy.linalg.norm(r_test)
             mnorm[itest] = scipy.linalg.norm(m_test[itest])
 
-                
             # print(numpy.shape(C))
             m_err[itest] = numpy.sqrt(C.diagonal())
-            
-
 
             """
             Calc target function for tau optimization
             """
 
-
             if "gcv" in regfun.lower():
                 M = Jd@C@Jd.T
-                reg_choice[itest] = inverse.calc_gcv(dnorm[itest],M)
+                reg_choice[itest] = inverse.calc_gcv(dnorm[itest], M)
 
             elif "mle" in regfun.lower():
                 M = Jd@C@Jd.T
-                reg_choice[itest] = inverse.calc_gcv(dnorm[itest],M)
+                reg_choice[itest] = inverse.calc_gcv(dnorm[itest], M)
 
-            elif "fix" in regfun.lower() or "lcc"in regfun.lower():
+            elif "fix" in regfun.lower() or "lcc" in regfun.lower():
                 pass
 
             else:
-                error("Regularisation method "+regfun.lower()+" not yet implemented! Exit.")
-
+                error("Regularisation method "+regfun.lower() +
+                      " not yet implemented! Exit.")
 
         if "fix" in regfun.lower():
             g_index = 0
@@ -1126,33 +1097,35 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         elif "lcc" in regfun.lower():
             g_index = inverse.calc_lc_corner(dnorm, mnorm)+gshift
             g_index = g_index.item()
-            g_index = numpy.amax([g_index,0])
-            g_index = numpy.amin([g_index,numpy.shape(tau)[0]-1])
-
+            g_index = numpy.amax([g_index, 0])
+            g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
 
         elif any(s in regfun.lower() for s in ["gcv", "upr", "ufc", "mle"]):
             g_index = numpy.argmin(reg_choice, axis=0)+gshift
             g_index = g_index.item()
-            g_index = numpy.amax([g_index,0])
-            g_index = numpy.amin([g_index,numpy.shape(tau)[0]-1])
+            g_index = numpy.amax([g_index, 0])
+            g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
 
         else:
             error(regfun.lower() + " not iplemented!")
 
         reg = tau[g_index]
         mdl = m_test[g_index, :]
-        model=inverse.insert_mod(M=model, m=mdl, m_act=m_act)
+        model = inverse.insert_mod(M=model, m=mdl, m_act=m_act)
 
         """
         Line Search
         """
         if do_linesearch:
-            model, dfit_iter, nrmse_iter, smape_iter = inverse.run_linesearch(fwdcall, alt,
-                                        d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act =d_act, d_state=d_state,
-                                        model = model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                                        dfit=dfit_iter, mdfit=thresh[3],
-                                        facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
-
+            model, dfit_iter = inverse.run_linesearch(fwdcall, alt,
+                                                                              d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act=d_act, d_state=d_state,
+                                                                              model=model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                                                                              dfit=dfit_iter, mdfit=thresh[3],
+                                                                              facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+            nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
+                                                          data_cal=d_cal,
+                                                          data_err=d_err,
+                                                          data_act=d_act)
         if niter > 0:
             dnorm_iter = numpy.append(dnorm_iter, dnorm[g_index])
             mnorm_iter = numpy.append(mnorm_iter, mnorm[g_index])
@@ -1165,8 +1138,9 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
     print(" %s final model:  iter  %6i NRMSE =  %7.3f,  SMAPE = %4.1f percent, %s RegPar is %10.4g "
           % (profname, niter, nrmse_iter, smape_iter, regfun.lower(),  tau[g_index]))
     # print(numpy.shape(sensi))
-    sens = sensi # inverse.insert_mod(M=sens, m=sensi,m_act=m_act)
-    modl, m_state = inverse.transform_parameter(m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
+    sens = sensi  # inverse.insert_mod(M=sens, m=sensi,m_act=m_act)
+    modl, m_state = inverse.transform_parameter(
+        m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
     modl = inverse.extract_mod(modl, m_act)
     merr = m_err[g_index, :].flat
     # inverse.insert_mod(M=merr, m=tmp, m_act=m_act)
@@ -1176,10 +1150,9 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         dict([
             ("model", [modl, merr, sens, m_state, m_act]),
             ("data", [d_obs, d_cal, d_err, d_state, d_act]),
-            ("log", [niter, conv_status, nrmse_iter, smape_iter, dnorm_iter, mnorm_iter, rvals_iter, dfits_iter]),
-            ])
-
-
+            ("log", [niter, conv_status, nrmse_iter, smape_iter,
+             dnorm_iter, mnorm_iter, rvals_iter, dfits_iter]),
+        ])
 
     if uncert:
         # Cov a posteriori & Generalized Inverse
@@ -1192,13 +1165,11 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
             A = JJ + tau[g_index]*Cmi
             C = scipy.linalg.inv(A)
 
-
         else:
             Ctmp = tau[g_index]*Cm
             JJ = Jac@Ctmp@Jac.T
-            A = JJ +  Cd
+            A = JJ + Cd
             C = Ctmp + Ctmp*Jac.T@scipy.linalg.inv(A)@Jac*Ctmp
-
 
         E = numpy.sqrt(C.diagonal())
         G = C@Jd.T
@@ -1209,29 +1180,30 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         Nm = numpy.sum(Rm.diagonal())
         Sm = scipy.linalg.norm(numpy.identity(numpy.shape(Rm)[0])-Rm)
 
-        Rd = Jd@G        
+        Rd = Jd@G
         print(numpy.shape(Rd))
         Nd = numpy.sum(Rd.diagonal())
         Sd = scipy.linalg.norm(numpy.identity(numpy.shape(Rd)[0])-Rd)
-        
+
         print("Nm =", str(Nm), "Nd =", str(Nd),)
 
         uncpars =\
             dict([
-            ("jacd", Jd),               # jacobian
-            ("cpost", C),               # cov a-post
-            ("merr", E),                # model error
-            ("mresm", [Rm, Sm, Nm]),    # model resolution
-            ("dresm", [Rd, Sd, Nd]),    # data resolution
-            ("gi", G),                  # generalized inverse
+                ("jacd", Jd),               # jacobian
+                ("cpost", C),               # cov a-post
+                ("merr", E),                # model error
+                ("mresm", [Rm, Sm, Nm]),    # model resolution
+                ("dresm", [Rd, Sd, Nd]),    # data resolution
+                ("gi", G),                  # generalized inverse
             ])
 
-           
         results.update(uncpars)
 
     return results
 
 # @ray.remote
+
+
 def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     Calculate Jackknife variance:
@@ -1253,7 +1225,6 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     """
 
-
     """
     unpack contol variables
 
@@ -1268,10 +1239,11 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
 
     system, fwdcall = Ctrl["system"]
-    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
+    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl[
+        "inversion"]
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
-    jcn_out=  Ctrl["output"][0]
-    
+    jcn_out = Ctrl["output"][0]
+
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
 
@@ -1281,31 +1253,27 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
     jcn_num = numpy.sum(d_act)
     d_err = Data["d_act"]
 
-
-
     if "tikh" in invtype.lower():
         results =\
             run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
-                              OutInfo=OutInfo)
+                         OutInfo=OutInfo)
 
     if "occ" in invtype.lower():
         results =\
             run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                             OutInfo =OutInfo)
+                         OutInfo=OutInfo)
 
     if "map" in invtype.lower():
         results =\
             run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                              OutInfo=OutInfo)
-
+                    OutInfo=OutInfo)
 
     jcn_results = results
-    
+
     ref_mod = results["model"][0]
     ref_rms = results["log"][2]
     ref_act = d_act.reshape((-1, 1))
 
-    
     """
     loop over leave-out-one samples
     """
@@ -1317,11 +1285,10 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
         """
         d_sample = copy.deepcopy(d_act)
 
-        if d_act[isample]==0:
+        if d_act[isample] == 0:
             break
         else:
             d_sample[isample] = 0
-
 
         Data["d_act"] = d_sample
 
@@ -1329,61 +1296,61 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
             results =\
                 run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
+                             OutInfo=OutInfo)
 
         if "occ" in invtype.lower():
             results =\
                 run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                                 OutInfo =OutInfo)
+                             OutInfo=OutInfo)
 
         if "map" in invtype.lower():
             results =\
                 run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
+                        OutInfo=OutInfo)
 
         model = results["model"][0]
         nrmse = results["log"][2]
         d_calc = results["data"][0]
-        
-        if isample ==0:
+
+        if isample == 0:
             w_jcn = numpy.array([1./nrmse])
             m_jcn = model.reshape((-1, 1))
             a_jcn = d_act.reshape((-1, 1))
         else:
-            w_jcn = numpy.append(w_jcn,numpy.array([1./nrmse]))
+            w_jcn = numpy.append(w_jcn, numpy.array([1./nrmse]))
             m_jcn = numpy.append(m_jcn, model.reshape((-1, 1)), axis=1)
             a_jcn = d_act.reshape((-1, 1))
-        
-    w_jcn =  w_jcn/numpy.sum(w_jcn)
+
+    w_jcn = w_jcn/numpy.sum(w_jcn)
 
     """
     jackknife average & variance
     """
-    
+
     jcn_avg = numpy.mean(m_jcn, axis=1).reshape((-1, 1))
-    fac =(jcn_num-1)/jcn_num
+    fac = (jcn_num-1)/jcn_num
     jcn_var = fac * numpy.sum((m_jcn - jcn_avg)**2)
 
     jcn_med = numpy.median(m_jcn, axis=1).reshape((-1, 1))
     d = numpy.abs(m_jcn - jcn_med)
     jcn_mad = numpy.nanmedian(d)
 
-    jcnfields=(
-        ("ref_mod", ref_mod),            
+    jcnfields = (
+        ("ref_mod", ref_mod),
         ("ref_act", ref_act),
         ("ref_rms", ref_rms),
         ("jcn_avg", jcn_avg),
         ("jcn_var", jcn_var),
         ("jcn_med", jcn_med),
         ("jcn_mad", jcn_mad),
-        )
+    )
     jcn_results.update(jcnfields)
-    
+
     if "ens" in jcn_out:
         jcn_ens = numpy.vstack((m_jcn, w_jcn))
         jcn_results["jcn_ens"] = jcn_ens
 
-    return  jcn_results
+    return jcn_results
 
 
 def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
@@ -1433,7 +1400,8 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     
     """
     system, fwdcall = Ctrl["system"]
-    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
+    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl[
+        "inversion"]
 
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
@@ -1441,9 +1409,7 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
     nsamples, Percentiles = Ctrl["rto"]
 
-    rto_out=  Ctrl["output"][0]
-    
-
+    rto_out = Ctrl["output"][0]
 
     """
     run reference model
@@ -1452,15 +1418,14 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         results =\
             run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
-                              OutInfo=OutInfo)
+                         OutInfo=OutInfo)
     if "map" in invtype.lower():
         results =\
             run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                              OutInfo=OutInfo)
+                    OutInfo=OutInfo)
     # print(results.keys())
     rto_results = results
-    
-    
+
     """
     unpack results:
             ("model", [modl, merr, sens, m_state, m_act]),
@@ -1468,11 +1433,9 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
             ("log", [niter, conv_status, nrmse_iter, smape_iter, 
                      dnorm_iter, mnorm_iter, rvals_iter, dfits_iter]),
     """
-    d_obs = results["data"][0] #.reshape(-1,1)
+    d_obs = results["data"][0]  # .reshape(-1,1)
     d_err = results["data"][2]
     d_act = results["data"][4]
-    
-
 
     """
     unpack model 
@@ -1480,7 +1443,7 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     m_act = Model["m_act"]
     m_bas = Model["m_apr"].copy()
     m_opt = results["model"][0]
-    
+
     m_ref = inverse.insert_mod(M=m_bas, m_act=m_act, m=m_opt)
     c_ref = results["cpost"]
 
@@ -1488,9 +1451,9 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     Draw perturbed data set: d  ̃ ∼ N (d, Cd)
     """
     d_ens = inverse.generate_data_ensemble(dref=d_obs, dact=d_act,
-                                          nens=nsamples,
-                                          perturb=["gauss" , d_err],
-                                          out=OutInfo)
+                                           nens=nsamples,
+                                           perturb=["gauss", d_err],
+                                           out=OutInfo)
     # print(d_ens)
     # print("@@@")
     # print(d_err)
@@ -1498,59 +1461,58 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     Draw prior model: m̃ ∼ N (0, 1 (LT L)−1 )
     """
-    m_ens = inverse.generate_param_ensemble(mref=m_ref, mact = m_act,
+    m_ens = inverse.generate_param_ensemble(mref=m_ref, mact=m_act,
                                             nens=nsamples,
-                                            perturb=["gauss", c_ref, numpy.array([])],
+                                            perturb=["gauss", c_ref,
+                                                     numpy.array([])],
                                             out=OutInfo)
     """
     Solve inverse problem for rto_ens
     """
-    rto_ens  = m_ref.copy()
-    
-    for isample in numpy.arange (nsamples):
-        Data["d_obs"] = d_ens[isample,:]
-        # print(isample, numpy.shape(m_ref))
-        Model["m_apr"] = inverse.insert_mod(M=m_ref.copy(), m_act=m_act, 
-                                            m=m_ens[isample,:])
+    rto_ens = m_ref.copy()
 
+    for isample in numpy.arange(nsamples):
+        Data["d_obs"] = d_ens[isample, :]
+        # print(isample, numpy.shape(m_ref))
+        Model["m_apr"] = inverse.insert_mod(M=m_ref.copy(), m_act=m_act,
+                                            m=m_ens[isample, :])
 
         if "opt" in invtype.lower():
 
             results =\
                 run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
+                             OutInfo=OutInfo)
 
-  
         m = inverse.insert_mod(M=m_ref, m_act=m_act, m=results["model"][0])
-        if isample==0:
+        if isample == 0:
             rto_ens = m
         else:
             rto_ens = numpy.vstack((rto_ens, m))
 
-
-    ne = numpy.shape(rto_ens) 
+    ne = numpy.shape(rto_ens)
     rto_avg = numpy.mean(rto_ens, axis=1)
     # rto_std = numpy.std(rto_ens, axis=1)
     rto_var = numpy.var(rto_ens, axis=1)
     rto_med = numpy.median(rto_ens, axis=1)
     # print(numpy.shape(rto_ens), numpy.shape(rto_med))
     # print(ne)
-    mm = numpy.tile(rto_med,(ne[1], 1))
+    mm = numpy.tile(rto_med, (ne[1], 1))
     # print(numpy.shape(mm))
-    
-    rto_mad = numpy.median(numpy.abs(rto_ens.T -  numpy.tile(rto_med, (ne[1],1))))
+
+    rto_mad = numpy.median(
+        numpy.abs(rto_ens.T - numpy.tile(rto_med, (ne[1], 1))))
 
     rto_prc = numpy.percentile(rto_ens, Percentiles)
-    
-    rtofields=(
+
+    rtofields = (
         ("rto_avg", rto_avg),
         ("rto_var", rto_var),
         ("rto_med", rto_med),
         ("rto_mad", rto_mad),
         ("rto_prc", rto_prc)
-        )
+    )
     rto_results.update(rtofields)
-    
+
     if "ens" in rto_out:
         rto_results["jcn_ens"] = rto_ens
 
@@ -1565,33 +1527,33 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
         “The ensemble Kalman filter for inverse problems”,
         Inverse Problems, 29, 2013,
         doi:10. 1088/0266-5611/29/4/045001.
-        
+
     C.-H. M. Tso, M. Iglesias, P. Wilkinson, O. Kuras, J. Chambers, A. Binley,
         “Efficient multiscale imaging of subsurface resistivity with
         uncertainty quantification using ensemble Kalman inversion”,
         Geophysical Journal International, 225, 2021
         doi: 10.1093/gji/ggab013.
-                
+
     M. Iglesias, D. M. McGrath, M. V. Tretyakov, and Susan T Francis, 
         “Ensemble Kalman inversion for magnetic resonance elastography” ,
         Phys. Med. Biol., vol. 67, p. 235003, 2022, doi: 10.1088/1361-6560/ac9fa1.
-      
+
     C.-H. M. Tso and M. Iglesias and A. Binley 
         “Ensemble Kalman inversion of induced polarization data” 
         Geophysical Journal International, 236, 2024, 
         doi: 10.1093/gji/ggae012.
-  
-    
+
+
     M. Y. Matveev, A. Endruweit, A. C. Long, M. A. Iglesias, and M. V. Tretyakov, 
         “Bayesian inversion algorithm for estimating local variations 
         in permeability and porosity of reinforcements using experimental data”,
         Composites Part A: Applied Science and Manufacturing, 143, 106323, 2021, 
         doi: 10.1016/j.compositesa.2021.106323.
-        
+
     S. Lan, S. Li, and M. Pasha 
         "Bayesian spatiotemporal modeling for inverse problems",
         Stat Comput 33, 89 (2023). https://doi.org/10.1007/s11222-023-10253-z
-     
+
 
     Created on Jan 17, 2022
 
@@ -1610,42 +1572,41 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
     """
     system, fwdcall = Ctrl["system"]
-    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
+    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl[
+        "inversion"]
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
-    
 
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
 
     nsamples, percentiles = Ctrl["enk"]
 
-    ens_out=  Ctrl["output"][0]
+    ens_out = Ctrl["output"][0]
     # print(Cm1)
 
     """
     unpack data block
     Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
     """
-    d_act = Data["d_act"] #.reshape(-1,1)
-    d_obs = Data["d_obs"] #.reshape(-1,1)
-    d_err = Data["d_err"]# .reshape(-1,1)
-    alt   = Data["alt"]
-    n_data = round(numpy.sum(d_act[d_act!=0]/d_act[d_act!=0]))
-    
-    print("N_samples=",nsamples,",   N_data=",n_data)
-    d_cal = 0. * numpy.ones((nsamples,n_data))    
-    d_res = 0. * numpy.ones((nsamples,n_data))
+    d_act = Data["d_act"]  # .reshape(-1,1)
+    d_obs = Data["d_obs"]  # .reshape(-1,1)
+    d_err = Data["d_err"]  # .reshape(-1,1)
+    alt = Data["alt"]
+    n_data = round(numpy.sum(d_act[d_act != 0]/d_act[d_act != 0]))
+
+    print("N_samples=", nsamples, ",   N_data=", n_data)
+    d_cal = 0. * numpy.ones((nsamples, n_data))
+    d_res = 0. * numpy.ones((nsamples, n_data))
 
     d_state = 0
     d_obs, d_err, dobs_state = inverse.transform_data(d_vec=d_obs,
-                                                      e_vec = d_err,
+                                                      e_vec=d_err,
                                                       d_trn=d_trn,
-                                                      d_state = d_state)
-    
-    Cd = numpy.diag(d_err**2,0)
+                                                      d_state=d_state)
+
+    Cd = numpy.diag(d_err**2, 0)
     CdiSq = numpy.diag(1./d_err)
 
-    
     """
     unpack model block
 
@@ -1657,18 +1618,18 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
     m_ref = Model["m_apr"]
     # print(" mref", m_ref[:36])
     m_state = 0
-    m_ref, m_state = inverse.transform_parameter(m_vec=m_ref, 
-                                                  m_trn=m_trn, m_state=m_state, mode="f")
+    m_ref, m_state = inverse.transform_parameter(m_vec=m_ref,
+                                                 m_trn=m_trn, m_state=m_state, mode="f")
 
     # print(m_state, " mref", m_ref[:36])
     """
     Draw prior model: m_p∼ N (0, 1 (LT L)−1 )
     """
-    m_ens = inverse.generate_param_ensemble(mref=m_ref, mact = m_act,
+    m_ens = inverse.generate_param_ensemble(mref=m_ref, mact=m_act,
                                             nens=nsamples,
-                                            perturb=["gauss" ,Cm1],
+                                            perturb=["gauss", Cm1],
                                             out=OutInfo)
-    #"""
+    # """
     # Draw perturbed data set: d  ̃ ∼ N (d, Cd)
     # """
     # d_ens = inverse.generate_data_ensemble(dref=d_obs, dact = d_act,
@@ -1686,70 +1647,72 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
         Prediction
         """
 
-        for isample in numpy.arange (nsamples):
-            # print("XXX ",numpy.shape(m_ref))           
+        for isample in numpy.arange(nsamples):
+            # print("XXX ",numpy.shape(m_ref))
             # print("XXX ",type(m_ref))
             model = m_ref.copy()
-            m_smp=m_ens[isample,:]
+            m_smp = m_ens[isample, :]
             # print(isample, " m_ens ", m_smp)
             # print("model", model[m_act!=0])
             print(m_state)
-            m= inverse.insert_mod(model, m_smp, m_act)
-            d_cal[isample,:],_ = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                m_vec=m, m_trn=m_trn, m_state=m_state,
-                d_act=d_act, d_trn=d_trn, d_state = d_state, out=True)
+            m = inverse.insert_mod(model, m_smp, m_act)
+            d_cal[isample, :], _ = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt,
+                                                         m_vec=m, m_trn=m_trn, m_state=m_state,
+                                                         d_act=d_act, d_trn=d_trn, d_state=d_state, out=True)
             print(" dobs ", d_obs)
-            print(" dcal ", d_cal[isample,:])
-            d_res[isample,:] = CdiSq@(d_obs[:]-d_cal[isample,:])
-            print(" dres", d_res[isample,:])
+            print(" dcal ", d_cal[isample, :])
+            d_res[isample, :] = CdiSq@(d_obs[:]-d_cal[isample, :])
+            print(" dres", d_res[isample, :])
         """
         Analysis
         """
-        a =numpy.sum(d_res**2)/(n_data*nsamples)    
+        a = numpy.sum(d_res**2)/(n_data*nsamples)
         s, alpha = update_reg(s=s, alpha_ast=a)
         print("s, a,  alpha:  ",  s, a, alpha)
-        
-        Gyy = inverse.calc_encovar(x=d_cal, y=d_cal, method = 0, out=True)
-        Gxy = inverse.calc_encovar(x=m_ens, y=d_cal, method = 0, out=True)
-        
-        #print("Gyy ",Gyy)
+
+        Gyy = inverse.calc_encovar(x=d_cal, y=d_cal, method=0, out=True)
+        Gxy = inverse.calc_encovar(x=m_ens, y=d_cal, method=0, out=True)
+
+        # print("Gyy ",Gyy)
 
         """
         Ensemble update
         """
-        
+
         sqalph = numpy.sqrt(alpha)
-        
-        for isample in numpy.arange (nsamples):
+
+        for isample in numpy.arange(nsamples):
 
             p = sqalph*Cd @ rng.standard_normal(numpy.shape(d_err))
-            rhs = d_obs - d_cal[isample,:] + p 
-            sol = numpy.linalg.solve(Gyy + alpha*Cd,rhs )
+            rhs = d_obs - d_cal[isample, :] + p
+            sol = numpy.linalg.solve(Gyy + alpha*Cd, rhs)
             # print("pert  ",numpy.shape(p),numpy.shape(pert))
             # print("rhs  ",numpy.shape(rhs))
             # print(numpy.shape(Gxy))
             # print(numpy.shape(sol))
 
-            m_ens[isample,:] = m_ens[isample,:] + Gxy@sol
-        
-        if s >= 1.: break
-        
+            m_ens[isample, :] = m_ens[isample, :] + Gxy@sol
+
+        if s >= 1.:
+            break
+
     mod_avg = numpy.mean(m_ens, axis=1)
     mod_std = numpy.std(m_ens, axis=1)
     mod_med = numpy.percentile(m_ens, 50.)
-    mod_prc = numpy.percentile(m_ens,percentiles)
+    mod_prc = numpy.percentile(m_ens, percentiles)
 
     ekiresults =\
-            dict([
+        dict([
             ("avg", mod_avg),
             ("std", mod_std),
             ("med", mod_med),
             ("percentiles", mod_prc),
-            ])
+        ])
     if ens_out:
         ekiresults["ens"] = m_ens
 
-    return  ekiresults
+    return ekiresults
+
 
 def update_reg(s=None, alpha_ast=None):
     """
@@ -1768,19 +1731,19 @@ def update_reg(s=None, alpha_ast=None):
         paramter s_n+1 in EKI.
     alpha : float
         regularisation paramter updated.
-        
+
     M. Iglesias, D. M. McGrath, M. V. Tretyakov, and Susan T Francis, 
         “Ensemble Kalman inversion for magnetic resonance elastography” ,
         Phys. Med. Biol., vol. 67, p. 235003, 2022, doi: 10.1088/1361-6560/ac9fa1.
 
 
     """
-    
+
     alphast = alpha_ast
-    
-    if (s+1./alphast)>=1.:
-        alpha = 1./(1-s) 
-        s = 1. 
+
+    if (s+1./alphast) >= 1.:
+        alpha = 1./(1-s)
+        s = 1.
     else:
         alpha = alphast
         s = s + 1./alpha
@@ -1808,8 +1771,8 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     Deal M, Nolet G (1996)
     Nullspace shuttles 
     Geophys. J. Int.,124, 372-380
-    
-    
+
+
     Muñoz G, Rath V (2006)
     Beyond smooth inversion: the use of nullspace projection for 
     the exploration of non-uniqueness in MT 
@@ -1817,31 +1780,32 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
     """
     system, fwdcall = Ctrl["system"]
-    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
+    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl[
+        "inversion"]
 
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
 
-    L0, Cm0, L1, Cm1 = Ctrl["covar"] 
+    L0, Cm0, L1, Cm1 = Ctrl["covar"]
     nsamples, percentiles, k, randsvd = Ctrl["nss"]
-    ens_out=  Ctrl["output"][0]
-    
+    ens_out = Ctrl["output"][0]
+
     """
     unpack data block
     Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
     """
-    d_act = Data["d_act"] #.reshape(-1,1)
-    d_obs = Data["d_obs"] #.reshape(-1,1)
-    d_err = Data["d_err"]# .reshape(-1,1)
-    alt   = Data["alt"]
+    d_act = Data["d_act"]  # .reshape(-1,1)
+    d_obs = Data["d_obs"]  # .reshape(-1,1)
+    d_err = Data["d_err"]  # .reshape(-1,1)
+    alt = Data["alt"]
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
-    
+
     d_state = 0
     d_obs, d_err, dobs_state = inverse.transform_data(d_vec=d_obs,
-                                              e_vec = d_err,
-                                              d_trn=d_trn,
-                                              d_state = d_state)
+                                                      e_vec=d_err,
+                                                      d_trn=d_trn,
+                                                      d_state=d_state)
     """
     unpack model block
     
@@ -1852,39 +1816,38 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     m_act = Model["m_act"]
     m_bas = Model["m_apr"].copy()
 
-    
     """
     run reference model
     """
     if "opt" in invtype.lower():
         results =\
-        run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
-                     OutInfo=OutInfo)
+            run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+                         OutInfo=OutInfo)
     if "occ" in invtype.lower():
         results =\
-        run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                     OutInfo=OutInfo)
-    
+            run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
+                         OutInfo=OutInfo)
+
     if "map" in invtype.lower():
         results =\
-        run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                OutInfo=OutInfo)
-    
-    
+            run_map(Ctrl=Ctrl, Model=Model, Data=Data,
+                    OutInfo=OutInfo)
+
     m_opt = results["model"][0]
     m_ref = inverse.insert_mod(M=m_bas, m_act=m_act, m=m_opt)
     c_ref = results["cpost"]
-    
+
     """
     now calculate the SVD of the Jacobian
     """
     Jacd = results["jacd"]
-    
+
     if randsvd:
-            U, S, Vt = inverse.rsvd(Jacd, rank=k, n_oversamples=0, n_subspace_iters=2)
+        U, S, Vt = inverse.rsvd(
+            Jacd, rank=k, n_oversamples=0, n_subspace_iters=2)
     else:
-            U, S, Vt = scipy.linalg.svd(Jacd, full_matrices=False)
-    
+        U, S, Vt = scipy.linalg.svd(Jacd, full_matrices=False)
+
     """
     truncation
     """
@@ -1893,7 +1856,7 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     V = V[:, :k]
     S = S[:k]
     U = U[:, :k]
-    
+
     """
     chek  how mauch of Jacd is explained by k 
     """
@@ -1903,37 +1866,37 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     j_op = numpy.linalg.norm(Jacd@x_op)/numpy.linalg.norm(x_op)
     if OutInfo:
         print(" Op-norm J_k = "+str(n_op)+", explains "
-              +str(100. - n_op*100./j_op)+"% of variations")
-        
-    
+              + str(100. - n_op*100./j_op)+"% of variations")
+
     """
     Draw prior model: m̃ ∼ N (0, 1 (LT L)−1 )
     """
-    m_ens = inverse.generate_model_ensemble(mref=m_ref, mact = m_act,
-                                            nens=nsamples, 
-                                            perturb=["gauss", c_ref, numpy.array([])],
-                                            out=OutInfo)     
-    
+    m_ens = inverse.generate_model_ensemble(mref=m_ref, mact=m_act,
+                                            nens=nsamples,
+                                            perturb=["gauss", c_ref,
+                                                     numpy.array([])],
+                                            out=OutInfo)
+
     m_prj = numpy.zeros_like(m_ens)
     for isample in numpy.arange(nsamples):
-        m_prj[isample,:] = inverse.project_nullspace(U=U, m_test=m_ens[isample,:])
-    
+        m_prj[isample, :] = inverse.project_nullspace(
+            U=U, m_test=m_ens[isample, :])
+
     nss_avg = numpy.mean(m_ens, axis=1)
     nss_std = numpy.std(m_ens, axis=1)
     nss_med = numpy.percentile(m_ens, 50.)
     nss_prc = numpy.percentile(m_ens, percentiles)
-    
-    
-    
+
     nss_results = results
     nss_results["nss_avg"] = nss_avg
     nss_results["nss_std"] = nss_std
     nss_results["nss_med"] = nss_med
-    nss_results["nss_percentiles"]=nss_prc
+    nss_results["nss_percentiles"] = nss_prc
     if ens_out:
         nss_results["ens"] = m_ens
         nss_results["prj"] = m_prj
     return nss_results
+
 
 def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
@@ -1955,76 +1918,79 @@ def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
     Can EY, You Y, Nichols D, Woodward M (2013)
     Model-uncertainty quantification in seismic tomography: method and applications 
     Geophysical Prospecting, 61, pp. 1114–1134, 2013, doi: 10.1111/1365-2478.12058.
-  
+
 
     """
     system, fwdcall = Ctrl["system"]
-    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl["inversion"]
+    invtype, regfun, tau0, tau1, maxiter, thresh, linepars, setprior, delta, regshift = Ctrl[
+        "inversion"]
 
     d_trn = Ctrl["data"][0]
     m_trn = Ctrl["model"][0]
 
     L0, Cm0, L1, Cm1 = Ctrl["covar"]
     nsamples, perc, k, randsvd = Ctrl["nss"]
-    nss_out=  Ctrl["output"][0]
-    
+    nss_out = Ctrl["output"][0]
+
     """
     unpack data block
     Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
     """
-    d_act = Data["d_act"] #.reshape(-1,1)
-    d_obs = Data["d_obs"] #.reshape(-1,1)
-    d_err = Data["d_err"]# .reshape(-1,1)
-    alt   = Data["alt"]
+    d_act = Data["d_act"]  # .reshape(-1,1)
+    d_obs = Data["d_obs"]  # .reshape(-1,1)
+    d_err = Data["d_err"]  # .reshape(-1,1)
+    alt = Data["alt"]
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
-    
+
     d_state = 0
     d_obs, d_err, dobs_state = inverse.transform_data(d_vec=d_obs,
-                                              e_vec = d_err,
-                                              d_trn=d_trn,
-                                              d_state = d_state)
+                                                      e_vec=d_err,
+                                                      d_trn=d_trn,
+                                                      d_state=d_state)
     """
     unpack model block
     
     Model =\
     [model_act, model_prior, model_var, model_bounds, model_ini]
     """
-    
+
     m_act = Model["m_act"]
     m_ref = Model["m_apr"]
-    
+
     m_state = 0
-    m_ref, m_state = inverse.transform_parameter(m_vec=m_ref, m_trn=m_trn, m_state=m_state, mode="f")
+    m_ref, m_state = inverse.transform_parameter(
+        m_vec=m_ref, m_trn=m_trn, m_state=m_state, mode="f")
     """
     run reference model
     """
     if "opt" in invtype.lower():
         results =\
-        run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
-                     OutInfo=OutInfo)
+            run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+                         OutInfo=OutInfo)
     if "occ" in invtype.lower():
         results =\
-        run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                     OutInfo=OutInfo)
-    
+            run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
+                         OutInfo=OutInfo)
+
     if "map" in invtype.lower():
         results =\
-        run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                OutInfo=OutInfo)
-    
+            run_map(Ctrl=Ctrl, Model=Model, Data=Data,
+                    OutInfo=OutInfo)
+
     nss_results = results
-    
+
     """
     now calculate the SVD of the Jacobian
     """
     Jacd = results["jacd"]
-    
+
     if randsvd:
-            U, S, Vt = inverse.rsvd(Jacd.T, rank=k, n_oversamples=0, n_subspace_iters=2)
+        U, S, Vt = inverse.rsvd(
+            Jacd.T, rank=k, n_oversamples=0, n_subspace_iters=2)
     else:
-            U, S, Vt = scipy.linalg.svd(Jacd.T, full_matrices=False)
-    
+        U, S, Vt = scipy.linalg.svd(Jacd.T, full_matrices=False)
+
     """
     truncation
     """
@@ -2033,7 +1999,7 @@ def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
     V = V[:, :k]
     S = S[:k]
     U = U[:, :k]
-    
+
     """
     chek  how mauch of Jacd is explained by k 
     """
@@ -2043,14 +2009,14 @@ def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
     j_op = numpy.linalg.norm(Jacd.T@x_op)/numpy.linalg.norm(x_op)
     if OutInfo:
         print(" Op-norm J_k = "+str(n_op)+", explains "
-              +str(100. - n_op*100./j_op)+"% of variations")
-    
-    
-    
+              + str(100. - n_op*100./j_op)+"% of variations")
+
     print("This algorithm is not yet implemented! Exit.")
     return nss_results
 
 # @ray.remote
+
+
 def run_most_squares(OutInfo=True):
     """
     Most Squares iteration
@@ -2092,4 +2058,3 @@ def run_most_squares(OutInfo=True):
     msqresults = dict([])
     error("This algorithm is not yet implemented! Exit.")
     return msqresults
-
