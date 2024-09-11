@@ -118,6 +118,8 @@ def run_linesearch(fwdcall, alt,
 
     liniter = 0
     linfit = dfit
+    linfit_old = dfit
+    
     fact = facreduce
     mbase = model.copy()
     mact = extract_mod(M=mbase, m_act=m_act)
