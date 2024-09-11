@@ -122,6 +122,7 @@ def run_linesearch(fwdcall, alt,
     
     fact = facreduce
     mbase = model.copy()
+    m_old =  model.copy()
     mact = extract_mod(M=mbase, m_act=m_act)
     while (liniter < maxreduce) and (linfit <= dfit):
         liniter = liniter + 1
