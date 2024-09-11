@@ -142,11 +142,13 @@ def run_linesearch(fwdcall, alt,
             fact = fact * facreduce
             linfit = linfit_iter
             linfit_old = linfit_iter
-            linrms_old = linrms_iter
-            linsmp_old = linsmp_iter
             model = m
             model_old = m
             
+            linrms = linrms_iter
+            linsmp = linsmp_iter
+            linrms_old = linrms_iter
+            linsmp_old = linsmp_iter
             
         else:
             linfit = linfit_old
