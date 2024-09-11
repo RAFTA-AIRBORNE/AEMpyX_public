@@ -77,7 +77,7 @@ def run_linesearch(fwdcall, alt,
                    m_act=numpy.array([]), m_trn=1, m_state=0,
                    dfit=999999.9, facreduce=0.6666, maxreduce=6,
                    mdfit="rms",
-                   out=False):
+                   out=True):
     """
     Run simple line search with 0.>alpha<1.
 
@@ -138,8 +138,8 @@ def run_linesearch(fwdcall, alt,
                                              data_act=d_act)
         if "rms" in mdfit: linfit_iter =  linrms_iter
         if "smp" in mdfit: linfit_iter =  linsmp_iter
-        if out:
-            print("Linesearch: "+str(linfit)+"  /  "+str(linfit_iter))
+        # if out:
+        #     print("Linesearch: "+str(linfit)+"  /  "+str(linfit_iter))
 
         if linfit_iter < linfit:
             fact = fact * facreduce
@@ -153,7 +153,9 @@ def run_linesearch(fwdcall, alt,
             linfit = linfit_old
             model = model_old
             break
-
+        if out:
+            print("Linesearch: "+str(linfit)+"  /  "+str(linfit_iter))
+            
     return model, linfit
 
 
