@@ -9,18 +9,20 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
-"""
-Created on Tue Sep  6 10:57:01 2016
+# +
+# #!/usr/bin/env python3
+# -
 
-@author: vrath
+# This script allows you to do forward modelling, with several options on the output. The purpose for including this is multifold: (1) It is useful to see the response for a given model which may be hypothetical, to see what might be inverted for. (2) A series of models for parameter studies is possible. (3) a set of (perturbed) responses can be generated, which in turn may be fed into one of the inversion algorithms.
 
-edited by dkiyan - Sep 30
-edited by vrath  - May 7, 2021
-
-"""
+# +
 import time
 import sys
 from sys import exit as error
@@ -34,62 +36,58 @@ import numpy
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
 
+
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
 
 from version import versionstrg
-
 import util
-#import core1d_par as core1d
 import core1d
 import inverse
 import aesys
-
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
+# -
 
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
+# +
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan
+
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+#script = "Tutorial0_FWD_synth.py"
+script = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
+Header = titstrng
+# -
 
 OutInfo = False
-now = datetime.now()
-
-# OutDir  = AEMPYX_DATA+"/SynthData/data/"
-OutDir  = AEMPYX_ROOT+"/aempy/data/SYNTH/"
-
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+OutDir  = AEMPYX_DATA+"/synth/data/"
 if not os.path.isdir(OutDir):
     print("File: %s does not exist, but will be created" % OutDir)
     os.mkdir(OutDir)
 
 
-"""
-System related settings.
-Data transformation is now allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
+# The following cell gives values to AEM-system related settings.
+#
+# Data transformation is activated by the variable DataTrans. Currently three possible options are allowed: _DataTrans = 0_: No transformation, i.e., the raw data are used. _DataTrans = 1_: The natural log of data is taken, only allowed for strictly positive values. _DataTrans = 2_: If data scale logarithmically, an asinh transformation (introduced by Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, when IP effects are present.
+#
+# A general additive/multiplicative error model is applied on the raw data before transformation, and errors are also transformed.
+
+# +
 AEM_system = "aem05"
 # AEM_system = "genesis"
-
 print("AEM system: " + AEM_system + "\n \n")
 
 if "aem05" in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     ParaTrans = 1
-    DataTrans=0
+    DataTrans = 0
     DatErr_add = 50.
-    DatErr_mult = 0.03
+    DatErr_mult = 0.00
     alt = 60.
     DataActive = numpy.ones((1,NN[2]))
 
@@ -103,82 +101,63 @@ if "genes" in AEM_system.lower():
     DataActive = numpy.ones((1,NN[2]))
 
 nD = NN[0]
+# -
 
-"""
-Define models:
-These are loops over different parameters, in this case for a 3-Layer case.
-Should be adapted according to your needs.
-"""
-
-Alt = [alt]
+# In case an ensemble of model responses is desired, e.g. for future inversions, the resukting output can be controlled here.
 
 Nsamples = 300
 # NSamples = 1
-Perturb = True
+PerturbDat = True
+
 SplitData= True
 
-"""
-Set up base model
-"""
+# To initialize loops over different parameters,
+# first a reference model must be set up, with reasonable values for all parameters not within the loop. Default settings is rho only, no IP. Currently, one parameter and altitude can be varied within a loop.
+# The following should be adapted according to the user's needs.
 
 nlyr = 3
 Model_active, Model_base, model_var, m_bounds, m_state = inverse.init_1dmod(nlyr)
 
-"""
-Background model: default settings is rho only, - IP is nonexistent 
-Adapted for reasonable IP values
-""" 
 Model_base[0*nlyr:1*nlyr] =[100., 100., 100.]   #rho
-Model_base[6*nlyr:7*nlyr-1] =[30.,30.]          #layers 
+Model_base[6*nlyr:7*nlyr-1] =[30.,30.]          #layers
+
+# +
+# Adapted for reasonable IP values
 
 # Model_base[3*nlyr:4*nlyr] =[0.,  0.5, 0.]      #chargeability
 # Model_base[4*nlyr:5*nlyr] =[0.,  0.5, 0.]      #exponent
 # Model_base[5*nlyr:6*nlyr] =[0., 100., 0.]      #frequency
+# -
 
-
-"""
-Currently, one parameter  and altitude can be varied within a loop.
-Examples below:
-"""
-
-"""
-rho for layer 1 (starting from 0!)
-"""
-FWDBaseName = AEM_system.upper()+"_Rho1"
+# rho for layer 1 (starting from 0!)
+FWDBaseName = "AEM05_Rho1"
 VarPar = [ 10., 100.,1000.]
 VarInd = 0 * nlyr+1
 
-"""
-thickness of layer 1 (starting from 0!)
-"""
-# FWDBaseName = AEM_system.upper()+"_Thk1"
-# VarPar = [10., 30., 50.] 
+# +
+
+# thickness of layer 1 (starting from 0!)
+# FWDBaseName = "AEM05_Thk1"
+# VarPar = [10., 30., 50.]
 # VarInd = 6*nlyr+1
-"""
-chargeability of layer 1 (starting from 0!)
-"""
-# FWDBaseName = AEM_system.upper()+"_Chrg1"
-# VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8] 
-# VarInd = 3*nlyr+1 
 
-"""
-center frequency of layer 1 (starting from 0!)
-"""
-# FWDBaseName = AEM_system.upper()+"_Freq1"
-# VarPar = [0.001, 0.01, 0.1, 1., 10., 100., 1000., 10000.] 
-# VarInd = 5*nlyr+1 
+# chargeability of layer 1 (starting from 0!)
+# FWDBaseName = "AEM05_m1"
+# VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8]
+# VarInd = 3*nlyr+1
 
-"""
-Generate Data
+#Alt = [60., 120.]
+Alt = [60]
+# -
 
-"""
+# Now generate the response data:
 
 
 mod_num = -1
 for par in numpy.arange(len(VarPar)):
 
         mod_num += 1
-        
+
         m_i = Model_base.copy()
 
         if VarInd==numpy.size(m_i):
@@ -191,7 +170,7 @@ for par in numpy.arange(len(VarPar)):
             p_i = numpy.array([mod_num, VarInd, VarPar[par], DataTrans, DatErr_add, DatErr_mult])
 
 
-       
+
 
         d_state = 0
         m_state = 0
@@ -211,9 +190,9 @@ for par in numpy.arange(len(VarPar)):
             Data =  numpy.vstack((Data, numpy.insert(d_ref,0,[mod_num, -1, alt])))
             Para =  numpy.vstack((Para, p_i))
         # print(mod_num, numpy.shape(Model))
-       
+
         for ismp in numpy.arange(Nsamples):
-            _, data_obs = inverse.set_errors(d_ref, DatErr_add, DatErr_mult, perturb=Perturb)
+            _, data_obs = inverse.set_errors(d_ref, DatErr_add, DatErr_mult, perturb=PerturbDat)
             data_obs =numpy.insert(data_obs,0,[mod_num, ismp, alt])
             Data =  numpy.vstack((Data, data_obs))
 

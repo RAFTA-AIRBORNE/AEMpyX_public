@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
 
@@ -74,7 +74,7 @@ if "aem05" in AEM_system.lower():
     ParaTrans = 1
     DataTrans = 0
     DatErr_add =  50.
-    DatErr_mult = 0.03
+    DatErr_mult = 0.00
     data_active = numpy.ones(NN[2], dtype="int8")
 
 
@@ -93,10 +93,11 @@ if "genes" in AEM_system.lower():
 """
 input format is ".npz"
 """
-InDatDir = AEMPYX_DATA + "/SynthData/data/"
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+InDatDir = AEMPYX_DATA + "/synth/data/"
 FileList = "search"  # "search", "read"
 SearchStrng = "*.npz"
-# SearchStrng = "GEN*3LayerMod*Alt_120*.npz"
+
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -116,7 +117,7 @@ if ns ==0:
 """
 Output formats is ".npz"
 """
-OutDatDir = AEMPYX_DATA + "/SynthData/results/"
+OutDatDir = AEMPYX_DATA + "/synth/results/"
 print("Models written to dir: %s " % OutDatDir)
 
 
@@ -132,7 +133,7 @@ RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "
 Uncert = True
 
 RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
-RegVal0 = 1.e-5
+RegVal0 = 1.e-7
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
 Tau0max = numpy.log10(RegVal0)
@@ -140,7 +141,7 @@ Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
     RegVal1Min = 0.1
-    RegVal1Max = 1000.
+    RegVal1Max = 10000.
     NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
@@ -164,7 +165,12 @@ Model definition
 SetPrior = "set"
 ParaTrans = 1
 
-Nlyr = 33
+PerturbPrior = True
+if PerturbPrior:
+    PertVar = 0.05
+    PertShift = 0.
+
+Nlyr = 25
 dzstart = 3.
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
@@ -173,11 +179,10 @@ z = numpy.append(0.0, numpy.cumsum(dz))
 zerolayer = numpy.zeros(Nlyr)
 
 """
-Background model: default settings is rho only, - IP is nonexistent 
+Background model: default settings is rho only, - IP is nonexistent
 Neeeds to be adapted for reasonable IP
-""" 
+"""
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
-
 mod_act[0*Nlyr:1*Nlyr] = 1
 """
 For activating chargeability:
@@ -196,11 +201,11 @@ mpara = sizepar[0]
 All activated parameter need reasonable priors
 """
 Guess_rv = 100.0  # initial guess for resistivity in mod_apr
-Guess_rs = 0.3    # std defines standard deviation 
+Guess_rs = 0.3    # std defines standard deviation
 mod_apr[0*Nlyr:1*Nlyr] = Guess_rv
 mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_rs,2)
 Guess_mv = 0.5    # initial guess for chargeability in mod_apr
-Guess_ms = 0.05   # std defines standard deviation 
+Guess_ms = 0.05   # std defines standard deviation
 mod_apr[2*Nlyr:3*Nlyr] = Guess_rv
 mod_var[2*Nlyr:3*Nlyr] = numpy.power(Guess_rs,2)
 """
@@ -251,29 +256,37 @@ if "tikhopt" in  RunType.lower():
     Cm1 = L1.T@L1
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
-    Maxiter = 10
+
+    ReverseDir = True
+
+
     Maxreduce = 5
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-
-    ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
+    Maxiter = 10
+    ThreshFit = [0.5, 1.0e-2, 1.0e-2, 'rms']
     Delta = [1.e-5]
-    RegShift = 2
+    TauSeq = [0.5]
+    RegShift = 0
 
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion",
-         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar", 
-         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
+    Ctrl = {
+       "system":
+           [AEM_system, FwdCall],
+       "header":
+           [titstrng, ""],
+       "inversion":
+           numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
+                     LinPars, SetPrior, Delta, RegShift], dtype=object),
+       "covar":
+           numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+       "uncert":
+           [Uncert],
+       "data":
+           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+       "model":
+           numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+               }
 
 if "occ" in RunType.lower():
     """
@@ -291,31 +304,37 @@ if "occ" in RunType.lower():
     Cm1 = L1.T@L1
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
-    Maxiter = 10
     Maxreduce = 5
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
+    ReverseDir = True
+
+
     Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
-    L = L1
-    TauSeq = [0.5]
+    ThreshFit = [0.5, 1.0e-2, 1.0e-2, 'rms']
     Delta = [1.e-5]
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion", 
-         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
-                      LinPars, SetPrior, Delta],dtype=object)),
-        ("covar", 
-         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
+    TauSeq = [0.5]
+    RegShift = 0
+
+    Ctrl = {
+       "system":
+           [AEM_system, FwdCall],
+       "header":
+           [titstrng, ""],
+       "inversion":
+           numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
+                     LinPars, SetPrior, Delta, RegShift], dtype=object),
+       "covar":
+           numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+       "uncert":
+           [Uncert],
+
+       "data":
+           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+       "model":
+           numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+               }
 
 if "map" in  RunType.lower():
 
@@ -346,7 +365,7 @@ if "map" in  RunType.lower():
         C, sC = Cmi, CmiS
     else:
         InvSpace = "dat"
-        Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
+        Cm, CmS = inverse.covar(xc, yc, zc, covtypfileine= ["exp", CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=False)
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
@@ -354,28 +373,38 @@ if "map" in  RunType.lower():
         CmS = scipy.sparse.block_diag([CmS for CmS in range(7)])
         C, sC = Cm, CmS
 
-    Maxiter = 10
+
+
     Maxreduce = 5
     Rfact = 0.66
-    ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
+    LinPars = [Maxreduce, Rfact]
+
+    ReverseDir = True
+
+    Maxiter = 10
+    ThreshFit = [0.5, 1.0e-2, 1.0e-2, 'rms']
     Delta = [1.e-5]
     TauSeq = [0.5]
     RegShift = 0
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion",
-         numpy.array([RunType, InvSpace, RegFun, Tau0, Tau1, Maxiter,ThreshRMS,
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar",
-         numpy.array([C, sC], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert",
-         Uncert)
-       ])
 
+    Ctrl = {
+       "system":
+           [AEM_system, FwdCall],
+       "header":
+           [titstrng, ""],
+       "inversion":
+           numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
+                     LinPars, SetPrior, Delta, RegShift], dtype=object),
+       "covar":
+           numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+       "uncert":
+           [Uncert],
 
+       "data":
+           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+       "model":
+           numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+               }
 
 
 if OutInfo:
@@ -386,6 +415,7 @@ OutStrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
             +"_"+RegFun\
             +"_Prior"+str(int(Guess_rv))\
+            +"P"+str(round(PertShift,2))+"_"+str(round(PertVar,2))\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))\
             +"_results"
 print("ID string: input file + %s " % OutStrng)
@@ -401,6 +431,8 @@ for file in dat_files:
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
     print("\n Reading file " + filein)
+
+    Ctrl["name"] = "synthetic"+str(fcount)
 
 
     fileout = (OutDatDir + name + OutStrng).replace("_results", "_ctrl")
@@ -455,31 +487,30 @@ for file in dat_files:
         if ii==0:
             mod_true = imod_modl
             dat_true = dat_obs[ii, :]
-
-        if "read" in SetPrior.lower():
-            mod_apr = mod_prior[ii]
             mod_ini = mod_apr.copy()
+            model = mod_ini.copy()
 
-        elif "upd" in SetPrior:
+        if PerturbPrior:
+            mod_apr_ii = mod_apr.copy()
+            ind_act = mod_act != 0
+            par_act = mod_apr[ind_act]
+            perturb = PertShift*rng.standard_normal()*numpy.ones_like(par_act)\
+                      + PertVar*rng.standard_normal(numpy.shape(par_act))
+            mod_apr_ii[ind_act] = mod_apr_ii[ind_act] + perturb
 
-            if ii == 0:
-                mod_ini = mod_apr.copy()
-                model = mod_ini.copy()
-            else:
-                mod_ini = model.copy()
-                model = mod_ini.copy()
-
-        elif "set" in SetPrior:
-
-                mod_ini = mod_apr.copy()
-                model = mod_ini.copy()
+            # print("orig:",mod_apr)
+            mod_ini_ii = mod_apr_ii.copy()
+            # print("pert:",mod_apr_ii)
+        else:
+            mod_apr_ii = mod_apr
+            mod_ini_ii = mod_apr.copy()
 
         Model = dict([
             ("m_act", mod_act),
-            ("m_apr", mod_apr),
+            ("m_apr", mod_apr_ii),
             ("m_var", mod_var),
             ("m_bnd", mod_bnd),
-            ("m_ini", mod_ini)
+            ("m_ini", mod_ini_ii)
             ])
 
         """
@@ -495,6 +526,8 @@ for file in dat_files:
             ("d_err", dat_err[ii,:]),
             ("alt", imod_alt[ii])
             ])
+
+
 
         """
         Call inversion algorithms
@@ -534,18 +567,18 @@ for file in dat_files:
             ens_dobs = D[0].reshape((1,-1))
             ens_dcal = D[1].reshape((1,-1))
             ens_derr = D[2].reshape((1,-1))
- 
+
         else:
            ens_num = numpy.vstack((ens_num, ii))
            ens_nrms = numpy.vstack((ens_nrms, C[2]))
-           
+
            ens_modl = numpy.vstack((ens_modl, M[0]))
            ens_merr = numpy.vstack((ens_merr, M[1]))
            ens_sens = numpy.vstack((ens_sens, M[2]))
            ens_dobs = numpy.vstack((ens_dobs, D[0]))
            ens_dcal = numpy.vstack((ens_dcal, D[1]))
            ens_derr = numpy.vstack((ens_derr, D[2]))
- 
+
 
     m_quants, m_mean, m_stdv, m_skew, m_kurt, m_mode = \
         inverse.calc_stat_ens(ensemble=ens_modl, quantiles=Percentiles, sum_stats=True)
@@ -556,11 +589,11 @@ for file in dat_files:
     stat_dcal = numpy.vstack((d_quants, d_mean, d_stdv, d_skew, d_kurt, d_mode))
 
     r_quants, r_mean, r_stdv, r_skew, r_kurt, r_mode = \
-        inverse.calc_stat_ens(ensemble=ens_nrms, quantiles=Percentiles, sum_stats=True) 
+        inverse.calc_stat_ens(ensemble=ens_nrms, quantiles=Percentiles, sum_stats=True)
     stat_nrms= numpy.vstack((r_quants, r_mean, r_stdv, r_skew, r_kurt, r_mode))
 
     mod_alt =  imod_alt[0]
-    
+
     if EnsOut:
         fileout = OutDatDir + name + OutStrng +".npz"
         numpy.savez_compressed(
@@ -570,13 +603,13 @@ for file in dat_files:
             mod_true=mod_true, dat_true=dat_true, mod_alt=mod_alt,
             mod_ref=mod_apr,
             mod_act=mod_act,
-            dat_act=dat_act,            
+            dat_act=dat_act,
             ens_modl=ens_modl,
             ens_merr=ens_merr,
             ens_dobs=ens_dobs,
             ens_dcal=ens_dcal,
             ens_derr=ens_derr,
-            ens_nrms=ens_nrms,            
+            ens_nrms=ens_nrms,
             stat_dcal=stat_dcal,
             stat_modl=stat_modl,
             stat_nrms=stat_nrms)
@@ -589,7 +622,7 @@ for file in dat_files:
             mod_true=mod_true, dat_true=dat_true, mod_alt=mod_alt,
             mod_ref=mod_apr,
             mod_act=mod_act,
-            dat_act=dat_act,            
+            dat_act=dat_act,
             stat_dcal=stat_dcal,
             stat_modl=stat_modl,
             stat_nrms=stat_nrms)

@@ -8,7 +8,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
 # ---
 
 
@@ -62,9 +62,8 @@ print(titstrng+"\n\n")
 
 
 now = datetime.now()
-
-
-InModDir = AEMPYX_DATA+"/SynthData/results/"
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+InModDir = AEMPYX_DATA+"/synth/results/"
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
@@ -80,7 +79,7 @@ if "search" in FileList.lower():
 if "set" in FileList.lower():
    data_files =[]
 
-PlotDir = AEMPYX_DATA+"/SynthData/plots/"
+PlotDir = AEMPYX_DATA+"/synth/plots/"
 print("Plots written to dir: %s " % PlotDir)
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
@@ -100,7 +99,7 @@ PlotTrue = True #True
 
 """
 Placement of plots
-"""   
+"""
 Horiz = True
 
 """
@@ -114,7 +113,7 @@ FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
 
 if "aem05" in AEM_system.lower():
 
-    DataLimits = [0., 2500.]    
+    DataLimits = [0., 2500.]
     FreqLimits = []
 
 
@@ -142,9 +141,9 @@ PlotSize = [8., 8.]
 Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
 see:
-MatplotlibDeprecationWarning: The seaborn styles shipped by Matplotlib 
+MatplotlibDeprecationWarning: The seaborn styles shipped by Matplotlib
 are deprecated since 3.6, as they no longer correspond to the styles s
-hipped by seaborn. However, they will remain available as 
+hipped by seaborn. However, they will remain available as
 'seaborn-v0_8-<style>'. Alternatively, directly use the seaborn API instead.
 
 """
@@ -194,70 +193,70 @@ pdf_list = []
 for file in data_files:
 
     filename, filext0 = os.path.splitext(file)
-    
+
     PlotFile = filename
-    
+
     results = numpy.load(InModDir+file)
 
     print("Data loaded from file ", InModDir+file)
-    
+
 
     m_act    = results["mod_act"]
     m_ref    = results["mod_ref"]
     m_ens    = results["ens_modl"]
-    
+
     print("minimum: ",numpy.amin(m_ens))
     print("maximum: ",numpy.amax(m_ens))
-    
-    nlyr     = inverse.get_nlyr(m_ref)
-    dz       = m_ref[6*nlyr:7*nlyr-1] 
-    z_ens = inverse.set_znodes(dz)   
 
-  
-    
+    nlyr     = inverse.get_nlyr(m_ref)
+    dz       = m_ref[6*nlyr:7*nlyr-1]
+    z_ens = inverse.set_znodes(dz)
+
+
+
     d_act    = results["dat_act"]
     d_ens    = results["ens_dcal"]
     m_alt    = results["mod_alt"]
-    
+
     r_ens    = results["stat_nrms"]
-    
+
     control = numpy.load((InModDir+file).replace("_results","_ctrl"), allow_pickle=True)
     method =  control["inversion"][1]
-    
+
 
     nlyr = inverse.get_nlyr(m_ref)
 
     ens_modl = \
         inverse.calc_stat_ens(ensemble=m_ens, quantiles=Percentiles, sum_stats=True)
     ens_dcal = \
-        inverse.calc_stat_ens(ensemble=d_ens, quantiles=Percentiles, sum_stats=True)    
+        inverse.calc_stat_ens(ensemble=d_ens, quantiles=Percentiles, sum_stats=True)
     ens_nrms = \
-        inverse.calc_stat_ens(ensemble=r_ens, quantiles=Percentiles, sum_stats=True)    
- 
-    
+        inverse.calc_stat_ens(ensemble=r_ens, quantiles=Percentiles, sum_stats=True)
+
+
     if PlotTrue:
         m_true = results["mod_true"]
-        d_true = results["dat_true"]  
+        d_true = results["dat_true"]
         print("read: ",m_true)
         l_true = inverse.get_nlyr(m_true)
-        z_true = inverse.set_znodes(m_true[6* l_true:7* l_true-1])     
+        z_true = inverse.set_znodes(m_true[6* l_true:7* l_true-1])
         z_true = numpy.append(z_true, 10000.)
-        
+
         m_true = m_true[0*l_true:1*l_true]
         m_true = numpy.append(m_true, m_true[-1])
         print("calc: ", m_true)
         print("calc: ", z_true)
-        
-        
-        
+
+
+
     nplots = 2
-    if Horiz: 
+    if Horiz:
         horz = nplots
         vert = 1
     else:
         horz = 1
         vert = nplots
-        
+
     fig, ax = matplotlib.pyplot.subplots(1,nplots,
                                       figsize=(horz*PlotSize[0]*cm, vert*PlotSize[0]*cm),
                                       gridspec_kw={
@@ -265,9 +264,9 @@ for file in data_files:
                                           "width_ratios": [1., 1.]})
     fig.suptitle(PlotTitle+" ("+method+")", fontsize=Fontsizes[2])
 
-    
+
     ax[0] = eviz.plot_model_ensemble(
-            ThisAxis = ax[0], 
+            ThisAxis = ax[0],
             PlotType = "percentiles", # lines, percentiles. iso
             System  = AEM_system,
             ModEns = m_ens,
@@ -285,12 +284,12 @@ for file in data_files:
             XLimits=ModLimits,
             YLimits= DepthLimits,
             Legend=False)
-    
+
     if PlotTrue:
-        # print(m_true) 
+        # print(m_true)
         # print(z_true)
         ax[0] = eviz.plot_model(
-                ThisAxis = ax[0], 
+                ThisAxis = ax[0],
                 System  = AEM_system,
                 Model = m_true,
                 Depth = z_true,
@@ -304,10 +303,10 @@ for file in data_files:
                 XLimits= ModLimits,
                 YLimits= DepthLimits,
                 Legend=True)
-    
-    
+
+
     ax[1] = eviz.plot_data_ensemble(
-            ThisAxis = ax[1],  
+            ThisAxis = ax[1],
             PlotType = "percentiles", # lines, percentiles. iso
             System  = AEM_system,
             DatEns = d_ens,
@@ -320,15 +319,15 @@ for file in data_files:
             Linewidth=Linewidth,
             Markers = [""],
             Markersize =[4],
-            Fontsizes=Fontsizes, 
+            Fontsizes=Fontsizes,
             XLimits= FreqLimits,
             YLimits= DataLimits,
             Legend=False)
 
     if PlotTrue:
-      
+
         ax[1] = eviz.plot_data(
-                ThisAxis = ax[1], 
+                ThisAxis = ax[1],
                 System  = AEM_system,
                 Data = d_true,
                 Errs = [],
@@ -337,17 +336,17 @@ for file in data_files:
                 Linewidth=Linewidth,
                 Markers = ["s", "o"],
                 Markersize = Markersize,
-                Fontsizes=Fontsizes, 
+                Fontsizes=Fontsizes,
                 XLimits= FreqLimits,
                 YLimits= DataLimits,
                 Legend=True)
-    
+
     for F in PlotFormat:
         matplotlib.pyplot.savefig(PlotDir+PlotFile+F)
-        
+
     if PDFCatalog:
         pdf_list.append(PlotDir+PlotFile+".pdf")
 
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)           
+    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)

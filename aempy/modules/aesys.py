@@ -14,7 +14,7 @@ from datetime import datetime
 import util
 import netCDF4 as nc
 
-from numba import njit
+# from numba import njit
 
 def get_system_params(System="aem05", OutInfo = True):
     """

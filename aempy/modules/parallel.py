@@ -15,7 +15,7 @@ import scipy.sparse.linalg
 import scipy.special
 import scipy.sparse
 
-from numba import njit
+# from numba import njit
 
 import numpy
 import numpy.random
