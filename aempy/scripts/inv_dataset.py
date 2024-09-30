@@ -110,8 +110,8 @@ if "set" in FileList.lower():
     # dat_files = []
     dat_files = [InDatDir+"A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3.npz"]
     # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
-    
-    dat_files = [os.path.basename(f) for f in dat_files]  
+
+    dat_files = [os.path.basename(f) for f in dat_files]
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
@@ -221,10 +221,7 @@ if OutInfo:
 Setup Controls for different Algorithms
 """
 if "tikhopt" in  RunType.lower():
-    """
-    Prepare differential operator base methods for regularization matrices
-    """
-    
+
     D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
     L = [D0 for D in range(7)]
     L0 = scipy.sparse.block_diag(L)
@@ -238,27 +235,34 @@ if "tikhopt" in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
     Maxiter = 10
-    Maxreduce = 5
+    Maxreduce = 10
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-
-    ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
+    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
-    RegShift = 1
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion",
-         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar", 
-         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
+    RegShift = 0
+
+
+    Ctrl ={
+        "system":
+            [AEM_system, FwdCall],
+        "header":
+            [titstrng, ""],
+        "inversion":
+            numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object),
+        "covar":
+            numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+        "uncert":
+            [Uncert],
+
+        "data":
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+        "model":
+            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+                }
 
 if "occ" in RunType.lower():
     """
@@ -276,31 +280,36 @@ if "occ" in RunType.lower():
     Cm1 = L1.T@L1
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
+
     Maxiter = 10
-    Maxreduce = 5
+    Maxreduce = 10
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-    Maxiter = 10
-    Maxreduce = 5
-    Rfact = 0.66
-    ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
-    L = L1
-    TauSeq = [0.5]
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
+    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),        
-        ("name", ""),
-        ("inversion", 
-         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
-                      LinPars, SetPrior, Delta],dtype=object)),
-        ("covar", 
-         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert", 
-         Uncert)
-       ])
+    RegShift = 0
+
+    Ctrl ={
+        "system":
+            [AEM_system, FwdCall],
+        "header":
+            [titstrng, ""],
+        "inversion":
+            numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object),
+        "covar":
+            numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+        "uncert":
+            [Uncert],
+
+        "data":
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+        "model":
+            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+                }
+
 
 if "map" in  RunType.lower():
 
@@ -355,31 +364,33 @@ if "map" in  RunType.lower():
         err = scipy.diag(numpy.sqrt(var))
 
     Maxiter = 10
-    Maxreduce = 5
+    Maxreduce = 10
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
-    
-    
-    
-    ThreshRMS = [0.5, 1.0e-2, 1.0e-2]
-    Delta = [1.e-5]
-    TauSeq = [0.5]
-    RegShift = 0
-    Ctrl = dict([
-        ("system",
-         [AEM_system, FwdCall]),
-        ("name", ""),
-        ("inversion",
-         numpy.array([RunType, InvSpace, RegFun, Tau1, Maxiter,ThreshRMS,
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar",
-         numpy.array([C, sC], dtype=object)),
-        ("transform",
-         [DataTrans, ParaTrans]),
-        ("uncert",
-         Uncert)
-       ])
 
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
+    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
+    Delta = [1.e-5]
+    RegShift = 0
+
+    Ctrl ={
+        "system":
+            [AEM_system, FwdCall],
+        "header":
+            [titstrng, ""],
+        "inversion":
+            numpy.array([RunType, InvSpace, RegFun, Tau1, Maxiter, ThreshFit,
+                      LinPars, SetPrior, Delta, RegShift], dtype=object),
+        "covar":
+            numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+        "uncert":
+            [Uncert],
+
+        "data":
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+        "model":
+            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+                }
 
 if "rto" in RunType.lower():
     """
@@ -400,13 +411,20 @@ if "eki" in RunType.lower():
     Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.]  # linear
     # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
 
-    Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),
-        ("covar", numpy.array([C, sC], dtype=object)),
-        ("transform", [DataTrans, ParaTrans]),
-        ("eki", [NSamples]),
-        ("output", numpy.array(["quant", Percentiles], dtype=object))
-           ])
+    Ctrl = {
+        "system":
+            [AEM_system, FwdCall],
+        "covar":
+            numpy.array([C, sC], dtype=object),
+        "eki":
+            [NSamples],
+        "output":
+            numpy.array(["quant", Percentiles], dtype=object),
+        "data":
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+        "model":
+            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+          }
 
 if "jac" in RunType.lower():
     """
@@ -664,7 +682,7 @@ for file in dat_files:
         site_dem=site_dem)
 
     if Uncert:
-        numpy.savez_compressed(        
+        numpy.savez_compressed(
             file=fileout+"_results.npz",
             fl_data=file,
             fl_name=fl_name,
@@ -679,7 +697,7 @@ for file in dat_files:
             site_dobs=site_dobs,
             site_dcal=site_dcal,
             site_derr=site_derr,
-            site_nrms=site_nrms,        
+            site_nrms=site_nrms,
             site_smap=site_smap,
             site_num=site_num,
             site_y=site_y,
