@@ -151,7 +151,7 @@ Both calls will open a new browser window, in which you can edit and run the not
 A typical work flow would be something like:
 
 <p align="center">
-   <img src="img/flowchart.png" alt="Typical AEMpyX work flow" width="600"/>
+   <img src="img/flowchart.png" alt="Typical AEMpyX work flow" width="900"/>
 </p>
 
 <p align="center">   
