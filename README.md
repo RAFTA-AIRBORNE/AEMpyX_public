@@ -151,7 +151,7 @@ Both calls will open a new browser window, in which you can edit and run the not
 A typical work flow would be something like:
 
 <p align="center">
-   <img src="img/flowchart.png" alt="Typical AEMpyX work flow" width="900"/>
+   <img src="img/flowchart.png" alt="Typical AEMpyX work flow" width="700"/>
 </p>
 <p align="center">   
 Fig 2:Typical workflow for AEM interpretation with AEMpyX.
@@ -174,4 +174,4 @@ Enjoy, read the docs, but please keep in mind that this is an experimental softw
 
 D. Kiyan & V. Rath
 
-May 27, 2024
+
