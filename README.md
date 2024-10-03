@@ -168,7 +168,7 @@ correlation. Top right: Parameter resolution. Bottom right: Data resolution.
 </p>
 
 
-Enjoy, read the docs, but please keep in mind that this is an experimental software, and may contain errors. Use at your own risk! However, we will frequently update the repository correcting bugs, and adding additional functionality.   
+Enjoy, read the docs, but please keep in mind that this is an experimental software, and will contain errors. Use at your own risk! However, we will frequently update the repository correcting bugs, and adding additional functionality.   
 
 D. Kiyan & V. Rath
 
