@@ -108,7 +108,7 @@ respectively. If this is succesful, a dynamical library, _core1d.xxx.so_ (_core1
 (5) In order to reproduce identical behavior of matplotlib, you should copy the included  _matplotlibrc_ file to the appropriate directory. Under Linux (Ubuntu), this should be : _$HOME/.config/matplotlib/matplotlibrc_. Pertinent changes should be made there, or have to be made within the scripts/modules using the _mpl.rcParams[name]=value_ mechanism. 
 
 
-(6) For running aempy scripts, we have defined two environmental variable, _AEMPYX_ROOT_ and _AEMPYX_DATA_. These point to the place where AEMpyX is installed, and where you keep your AEM data, respectively. Keeping to this scheme makes life much easier if more than one person work on the tools. In particular, it allows to keep the scripts adapted for a certain data set in the corresponding directory, without interfering with the AEMpyX repository.
+(6) For running aempy scripts, we have defined two environmental variable, _AEMPYX_ROOT_ and _AEMPYX_DATA_. These point to the place where AEMpyX is installed, and where you keep your AEM data, respectively. In particular, it allows to keep the scripts adapted for a certain data set in the corresponding directory, without interfering with the AEMpyX repository. Keeping to this scheme makes life much easier if working on more than one data set.
 
 In linux you can set them in your _.bashrc_ file. Example: 
 
