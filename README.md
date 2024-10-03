@@ -20,12 +20,8 @@ _git clone https://github.com/RAFTA-AIRBORNE/AEMpyX_public.git_
 The created local repository AEMpyX contains the following subdirectories:
 
 
-- 	**aempy/tutorial**
- 	Contains python scripts and jupyter notebooks for the most important scripts, explaining typical AEM preprocessing, 
-	visualization, one-dimensional inversion, and uncertainty quantification workflows, using the toolbox. 
-
 -	**aempy/modules**
- 	Contains the modules _aesys.py_, _prep.py_, _post.py_, _viz.py_, _inverse.py_, _alg.py_, and _util.py_, which 
+ 	Contains the modules _aesys.py_, _prep.py_, _post.py_, _viz.py_, _inverse.py_, _alg.py_, _parallel.py_, and _util.py_, which 
 	are called from the Python scripts in **aempy/scripts** and **aempy/tutorial**, accomplishing 
 	different tasks of AEM inversion. It also contains the _core1d.so_ (or _core1d.pyd_ whem using windows) module, 
 	once compiled from the sources in **aempy/core1d**.
@@ -41,6 +37,12 @@ The created local repository AEMpyX contains the following subdirectories:
  	Contains a collection of scripts for processing, visualization, and other tasks related to one-dimensional inversion of
  	AEM data.
 
+
+- 	**aempy/examples**
+ 	Contains tutorial scripts, explaining typical AEM preprocessing, 
+	visualization, one-dimensional inversion, and uncertainty quantification workflows using the toolbox. 
+
+
 - 	**aempy/other_scripts**
  	Contains a collection of various scripts for processing, visualization, and other tasks related to one-dimensional inversion of
  	AEM data. Also included is a workflow for static shift correction of MT observations (work in progress). These scripts
@@ -48,7 +50,7 @@ The created local repository AEMpyX contains the following subdirectories:
   	represent a useful source. Happy cannibalizing!
 
 -	**aempy/util**
-    Contains  useful helper shell scripts etc. 
+    	Contains  useful helper shell scripts etc. 
 	
 -	**aempy/doc**
 	This is the place where the manual, but also publications/presentations are developed.
