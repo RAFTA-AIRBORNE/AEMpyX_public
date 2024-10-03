@@ -108,7 +108,7 @@ respectively. If this is succesful, a dynamical library, _core1d.xxx.so_ (_core1
 (5) In order to reproduce identical behavior of matplotlib, you should copy the included  _matplotlibrc_ file to the appropriate directory. Under Linux (Ubuntu), this should be : _$HOME/.config/matplotlib/matplotlibrc_. Pertinent changes should be made there, or have to be made within the scripts/modules using the _mpl.rcParams[name]=value_ mechanism. 
 
 
-(6) For running aempy scripts, we have defined two environmental variable, _AEMPYX_ROOT_ and _AEMPYX_DATA_. These point to the place where AEMpyX is installed, and where you keep your AEM data, respectively. Keeping to this scheme makes life much easier if more than one person work on the tools.
+(6) For running aempy scripts, we have defined two environmental variable, _AEMPYX_ROOT_ and _AEMPYX_DATA_. These point to the place where AEMpyX is installed, and where you keep your AEM data, respectively. Keeping to this scheme makes life much easier if more than one person work on the tools. In particular, it allows to keep the scripts adapted for a certain data set in the corresponding directory, without interfering with the AEMpyX repository.
 
 In linux you can set them in your _.bashrc_ file. Example: 
 
@@ -123,7 +123,7 @@ Under windows, you should use the system settings dialogue to do so (Settings =>
 
 (8) Once in the activated conda environment _AEMpyX_, there are several ways to start python scripts or jupyter notebooks (https://jupyter.org/). 
 
-For getting started with python **scripts**, we suggest to use the _spyder_ IDE (https://www.spyder-ide.org/), which is already installed within _AEMpyX_. It has been developed for easy development of python software, including visualisation with _matplotlib_ and derived packages. Current versions (5.X) also allow to work with other languages as  JULIA or R languages, or with jupyter notebooks by installing the appropriate plugin. 
+For getting started with python **scripts**, we suggest to use the _spyder_ IDE (https://www.spyder-ide.org/), which is already installed within _AEMpyX_. It has been developed for easy development of python software, including visualisation with _matplotlib_ and derived packages. 
 
 However, as we have defined the environmental variables in step (6), the scripts can be run from anywhere in the system, either from the activated AEMpyX environment, or using _conda run_ (see, _https://docs.conda.io/projects/conda/en/latest/commands/run.html_) from an initialized conda (i.e., base environment). Running python scripts directly from the command line can be done in different ways:
 
@@ -137,7 +137,7 @@ If anywhere in an conda environment, use
 
 _conda run_ -n AEMpyX mypythonscript.py
 
-The usual way to work with **notebooks** is with your favorite web browser, or from within your favorite IDE, _spyder_ or Visual Sudia Code (https://code.visualstudio.com/). The latter requires the jupyter plug-in _spyder-notebook_. If using your browser (as set in your system as default) you can simply use the classical interface
+The usual way to work with **notebooks** is with your favorite web browser, or from within your favorite IDE, _spyder_ or Visual Studio Code (https://code.visualstudio.com/). The latter requires the jupyter plug-in _spyder-notebook_. If using your browser (as set in your system as default) you can simply use the classical interface
 
 _jupyter notebook mynotebook.ipynb_ 
 
