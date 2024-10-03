@@ -29,7 +29,7 @@ The created local repository AEMpyX contains the following subdirectories:
 - 	**aempy/core1d**
 	This directory contains the Fortran 90 source code for the computational core run by the Python toolbox. 
 	The numerics is derived from the AMIRA/CSIRO AirBeo software. Currently it contains working wrappers for 
-	the two systems used in Tellus: GTK4, and CGG GENESIS, with TEMPEST and GEOTEM under development. This 
+	the two systems used in Tellus: GTK4, and CGG GENESIS, with TEMPEST, GEOTEM and SkyTEM under development. This 
 	directory also contains makefiles for both operating systems, named _Makefile_linux_ or _Makefile_windows_, 
 	respectively.
  	
@@ -53,11 +53,9 @@ The created local repository AEMpyX contains the following subdirectories:
     	Contains  useful helper shell scripts etc. 
 	
 -	**aempy/doc**
-	This is the place where the manual, but also publications/presentations are developed.
-
--	**aempy/info**
-	Documentation for software related to the toolbox, as python (including the most important extensions, numpy,
-	scipy, and matplotlib), and other tools. 
+	This is the place where the manual, but also publications/presentations are developed. Also, some handy documentation for software
+	related to the toolbox, as python (including the most important extensions, numpy,
+	scipy, and matplotlib), and other relevant tools. 
 	
 - 	**environment**
 	Contains conda environment description files, and some useful helper files for working within the 
@@ -169,7 +167,6 @@ From the inversion output several graphical representation of parameters can be 
    Fig 3: Uncertainty-related plots for a site from Tellus A1 block. Top left: model with error bars. Bottom left: sensitivities. Top center: Parameter covariance a posteriori. Bottom center: Parameter 
 correlation. Top right: Parameter resolution. Bottom right: Data resolution. 
 </p>
-
 
 
 Enjoy, read the docs, but please keep in mind that this is an experimental software, and may contain errors. Use at your own risk! However, we will frequently update the repository correcting bugs, and adding additional functionality.   
