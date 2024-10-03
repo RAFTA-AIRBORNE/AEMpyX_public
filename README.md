@@ -53,7 +53,7 @@ The created local repository AEMpyX contains the following subdirectories:
     	Contains  useful helper shell scripts etc. 
 	
 -	**aempy/doc**
-	This is the place where the manual, but also publications/presentations are developed. Also, some handy documentation for software
+	This is the place where the manual, but also publications/presentations can be found. Also, some handy documentation for software
 	related to the toolbox, as python (including the most important extensions, numpy,
 	scipy, and matplotlib), and other relevant tools. 
 	
@@ -77,7 +77,6 @@ _conda update conda_
 
 _conda update --all_
 
-
 Do this regularly to keep everything consistent! 
 
 
@@ -95,7 +94,7 @@ This will set up a Python 3.11 environment with all dependencies for aempy. Don'
 
 (3) Activate this environment by:
 
-_conda activate AEMpyX_
+_conda activate AEM_
 
 
 (4) Within this envionment you now need to compile the aempy core with _f2py_,  which is written in Fortran 90. Here, we rely on _f2py_, which is part of the _numpy_ package. As the current conda fortran-compiler meta-package now uses a different compiler (LLVM-based flang), we suggest to install a seperate gfortran version under Windows, e.g., 
@@ -138,7 +137,7 @@ If anywhere in an conda environment, use
 
 _conda run_ -n AEMpyX mypythonscript.py
 
-The usual way to work with **notebooks** is with your favorite web browser, or from within _spyder_. The latter requires the jupyter plug-in _spyder-notebook_. If using your browser (as set in your system as default) you can simply use the classical interface
+The usual way to work with **notebooks** is with your favorite web browser, or from within your favorite IDE, _spyder_ or Visual Sudia Code (https://code.visualstudio.com/). The latter requires the jupyter plug-in _spyder-notebook_. If using your browser (as set in your system as default) you can simply use the classical interface
 
 _jupyter notebook mynotebook.ipynb_ 
 
