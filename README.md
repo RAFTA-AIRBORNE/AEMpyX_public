@@ -77,7 +77,7 @@ _conda update conda_
 
 _conda update --all_
 
-Do this regularly to keep everything consistent! 
+Do this regularly to keep everything consistent! Don't forget to run _conda clean -y -a_ once ion a while, as conda keeps a lot of old packages, and can easily grow to several Gb. 
 
 
 (2)  Create an appropriate conda environment (including the necessary prerequisites) from the files AEM.yml or AEM.txt found in the AEMpyX/environment  directories by entering
