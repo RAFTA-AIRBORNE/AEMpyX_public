@@ -257,7 +257,7 @@ if "tikhopt" in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
 
-    ReverseDir = True
+     "reverse" in Direction.lower()
 
 
     Maxreduce = 5
@@ -283,7 +283,7 @@ if "tikhopt" in  RunType.lower():
        "uncert":
            [Uncert],
        "data":
-           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
        "model":
            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                }
@@ -308,7 +308,7 @@ if "occ" in RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-    ReverseDir = True
+     "reverse" in Direction.lower()
 
 
     Maxiter = 10
@@ -331,7 +331,7 @@ if "occ" in RunType.lower():
            [Uncert],
 
        "data":
-           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
        "model":
            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                }
@@ -379,7 +379,7 @@ if "map" in  RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-    ReverseDir = True
+     "reverse" in Direction.lower()
 
     Maxiter = 10
     ThreshFit = [0.5, 1.0e-2, 1.0e-2, 'rms']
@@ -401,7 +401,7 @@ if "map" in  RunType.lower():
            [Uncert],
 
        "data":
-           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+           numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
        "model":
            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                }

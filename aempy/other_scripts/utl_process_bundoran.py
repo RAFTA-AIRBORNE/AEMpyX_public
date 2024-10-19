@@ -132,7 +132,7 @@ if not os.path.isdir(OutDatDir):
 
 TellusAng = 345.
 AngLimits = [TellusAng-5., TellusAng+5. ]
-CorrectDirection = True
+Correct "reverse" in Direction.lower()
 
 setE = setW = setC = []
 avgE0 = avgW0 = avgC0= numpy.array([0., 0.])

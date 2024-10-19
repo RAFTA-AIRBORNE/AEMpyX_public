@@ -193,7 +193,7 @@ poslatlon = True
 if poslatlon:
     EPSG=32629
 
-InvertDirection = True
+Invert "reverse" in Direction.lower()
 ProfScale = 1. # 0.001  # m to km
 ProfUnit  = "(m)" #
 

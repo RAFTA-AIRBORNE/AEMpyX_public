@@ -91,7 +91,7 @@ def run_tikh_flightline(data_dir= None,
             [Uncert],
 
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
@@ -181,7 +181,7 @@ def run_tikh_flightline(data_dir= None,
                                        m_ref=mod_apr,
                                        m_apr=mod_apr,
                                        m_act=mod_act)
-    if "set" in setprior:
+    if ("set" in setprior.lower()) or ("upd" in setprior.lower()):
         for ii in sites:
                 site_prior[ii, :] = mod_apr
 
@@ -232,6 +232,7 @@ def run_tikh_flightline(data_dir= None,
             mod_apr = site_prior[ii,:]
             mod_ini = mod_apr.copy()
 
+        model = mod_ini.copy()
 
         # print("\n",ii)
         # print(mod_ini[ii, :])
@@ -246,7 +247,7 @@ def run_tikh_flightline(data_dir= None,
             ("m_ini", mod_ini)
             ])
 
-        print(ii, mod_apr)
+        # print(ii, mod_apr)
 
         site_dict = \
             alg.run_tikh_opt(Ctrl=ctrl, Model=model_dict, Data=data_dict,
@@ -403,7 +404,7 @@ def run_tikh_flightline(data_dir= None,
 #             [Ensemble, Percentiles],
 
 #         "data":
-#             numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+#             numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
 #         "model":
 #             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
 #                 }
@@ -768,6 +769,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     m_err = numpy.sqrt(m_var)
 
+    print(m_apr)
     m_state = 0
     m_apr, _ = inverse.transform_parameter(
         m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")

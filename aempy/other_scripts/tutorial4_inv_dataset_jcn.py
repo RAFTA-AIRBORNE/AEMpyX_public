@@ -92,7 +92,7 @@ if "genes" in AEM_system.lower():
 
 
 
-ReverseDir = False
+Direction =  "normal"
 
 FileList = "search"  # "search", "read"
 SearchStrng = "*k3*.npz"
@@ -168,7 +168,7 @@ if not os.path.isdir(OutResDir):
     os.mkdir(OutResDir)
 
 
-ReverseDir = False
+Direction =  "normal"
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """

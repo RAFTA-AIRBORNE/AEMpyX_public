@@ -112,7 +112,7 @@ if "genes" in AEM_system.lower():
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' horizontals'
 
-ReverseDir = False
+Direction =  "normal"
 
 
 FileList = "search"  # "search", "read"
@@ -282,7 +282,7 @@ if "tikhopt" in  RunType.lower():
             [Uncert],
 
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }

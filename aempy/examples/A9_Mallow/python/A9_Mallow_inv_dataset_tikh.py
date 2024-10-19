@@ -114,7 +114,7 @@ if "genes" in AEM_system.lower():
 
 # parpool = multiprocessing.Pool()
 
-ReverseDir = False
+Direction =  "normal"
 
 
 

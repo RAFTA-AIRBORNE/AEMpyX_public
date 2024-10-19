@@ -90,7 +90,7 @@ Put all flightlines in same direction
 """
 TellusAng = 345.
 Spread = 5.
-CorrectDirection = True
+Correct "reverse" in Direction.lower()
 
 
 """

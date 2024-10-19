@@ -92,7 +92,7 @@ if "genes" in AEM_system.lower():
 """
 input formats are ".npz",".nc4",".asc"
 """
-ReverseDir = False
+Direction =  "normal"
 
 FileList = "search"   # "set",  "read"
 InDatDir =  AEMPYX_DATA + "/CGG2023/Data_Bundoran/data/raw/"
@@ -450,7 +450,7 @@ for file in dat_files:
     Loop over sites
     """
     sequence = range(nsite)
-    if ReverseDir:
+    if "reverse" in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence

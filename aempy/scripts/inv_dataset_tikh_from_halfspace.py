@@ -111,7 +111,7 @@ if "genes" in AEM_system.lower():
 
 # parpool = multiprocessing.Pool()
 
-ReverseDir = False
+Direction =  "normal"
 
 
 
@@ -348,7 +348,7 @@ for ifile in numpy.arange(len(dat_files)):
     Loop over sites
     """
     sequence = range(nsite)
-    if ReverseDir:
+    if "reverse" in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence

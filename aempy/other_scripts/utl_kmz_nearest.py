@@ -64,7 +64,7 @@ Fline_files = [data_dir+"TD_Nearest_Somaye_2.txt",]
 
 TellusAng = 345.
 AngLimits = [TellusAng-5., TellusAng+5. ]
-InvertDirection = True
+Invert "reverse" in Direction.lower()
 
 for ii in range(len(Fline_files)):
     lines = numpy.loadtxt(Fline_files[ii], dtype=object)

@@ -119,7 +119,7 @@ def run_linesearch(fwdcall, alt,
     liniter = 0
     linfit = dfit
     linfit_old = dfit
-    
+
     fact = facreduce
     mbase = model.copy()
     model_old =  model.copy()
@@ -147,15 +147,15 @@ def run_linesearch(fwdcall, alt,
             linfit_old = linfit_iter
             model = m
             model_old = m
-            
-         
+
+
         else:
             linfit = linfit_old
             model = model_old
             break
         if out:
             print("Linesearch: "+str(linfit)+"  /  "+str(linfit_iter))
-            
+
     return model, linfit
 
 
@@ -235,8 +235,8 @@ def generate_data_ensemble(dref=numpy.array([]),
     dbas, _, _ = transform_data(d_vec= dref.copy(), d_trn=dtrn, d_state=0)
     dbas = dref[dact != 0]
     dshp = numpy.shape(dbas)
-    
-    
+
+
 
     if incovar.size == 0:
         for iens in numpy.arange(nens):
@@ -266,7 +266,7 @@ def generate_data_ensemble(dref=numpy.array([]),
             else:
                 dens = numpy.vstack(
                     (dens, dbas.copy() + l @ rng.standard_normal(dshp)))
-            
+
             # print(dens)
 
     return dens
@@ -295,25 +295,25 @@ def generate_param_ensemble(mref=numpy.array([]),
     if mpar == 0:
         error("generate_param_ensemble: no active parameter given! exit.")
 
-    
+
     meth = perturb[0]
     covm = perturb[1]
     chol = numpy.array([])
     if len(perturb)==3: chol = perturb[2]
-    
-    
+
+
     # print("mbas")
     # print(mref[mact != 0])
-    mbas, mtrn = transform_parameter(m_vec= mref.copy(), mode="f", 
+    mbas, mtrn = transform_parameter(m_vec= mref.copy(), mode="f",
                                      m_trn=mtrn, m_state=mstate)
-    
+
     mwrk = mbas[mact != 0]
     mshp = numpy.shape(mwrk)
-    
+
     # print(mshp)
     # print("mbas", mbas)
     # print(numpy.exp(mbas))
-    
+
     if "gau" in meth.lower():
         print("generate_param_ensemble: normal perturbation assumed.")
         covm = perturb[1]
@@ -332,7 +332,7 @@ def generate_param_ensemble(mref=numpy.array([]),
                     mens = numpy.vstack((mens, mtmp))
                     # print(numpy.shape(mens))
                 # print(mtmp[0:5])
-    
+
         else:
             # print(numpy.shape(covm))
             if scipy.sparse.issparse(covm):
@@ -340,35 +340,35 @@ def generate_param_ensemble(mref=numpy.array([]),
             else:
                 l = msqrt(covm)
                # l = scipy.linalg.cholesky(covm)
-    
+
             # print(inchol.size)
             # print(" mwrk", mwrk[0:7])
-            
+
             for iens in numpy.arange(nens):
-                mtmp = mwrk.copy() + l @ rng.standard_normal(mshp)                 
-                # print(mtmp[1:5])       
+                mtmp = mwrk.copy() + l @ rng.standard_normal(mshp)
+                # print(mtmp[1:5])
                 mtmp = insert_mod(M=mbas.copy(), m=mtmp, m_act=mact)[mact != 0]
                 # mtmp, _ = transform_parameter(m_vec= mtmp, mode="b", m_trn=mtrn, m_state=1)
                 if iens == 0:
                     mens = mtmp
                 else:
                     mens = numpy.vstack((mens, mtmp))
-                
+
                 print(mtmp[0:7])
-                
+
     else:
         print("generate_param_ensemble: uniform perturbation assumed. ")
         low, high = perturb[1]
         for iens in numpy.arange(nens):
-            mtmp = mwrk.copy() + rng.uniform(low=low, high=high, size=mshp)                 
-            # print(mtmp[1:5])       
+            mtmp = mwrk.copy() + rng.uniform(low=low, high=high, size=mshp)
+            # print(mtmp[1:5])
             mtmp = insert_mod(M=mbas.copy(), m=mtmp, m_act=mact)[mact != 0]
             # mtmp, _ = transform_parameter(m_vec= mtmp, mode="b", m_trn=mtrn, m_state=1)
             if iens == 0:
                 mens = mtmp
             else:
                 mens = numpy.vstack((mens, mtmp))
-    
+
     return mens
 
 
@@ -403,7 +403,7 @@ def calc_encovar(x=numpy.array([]),
         # naive version, library versions probably faster)
         C = numpy.zeros((N_x, N_y))
         for n in numpy.arange(N_e):
-            # print("XT  ",X.T)           
+            # print("XT  ",X.T)
             # print("Y   ",Y)
             Cn = X.T@Y
             # print(Cn)
@@ -704,7 +704,7 @@ def calc_jac(
 #         #     print("raw sensitivities")
 #         # smax = Jac.max(axis = 0)
 #         # smin = Jac.max(axis = 0)
-        
+
 #     elif "cov" in Type.lower():
 #         S = Jac.abs().sum(axis=0)
 #         if OutInfo:
@@ -742,10 +742,10 @@ def calc_jac(
 #         #     print("euclidean (default)")
 
 #         # S = S.reshape[-1,1]
- 
+
 #     S[numpy.where(numpy.abs(S)<small_val)]=small_val
 #     print("calc: ", numpy.any(S==0))
-#     # S=S.A1    
+#     # S=S.A1
 #     S = numpy.asarray(S).ravel()
 #     return S
 
@@ -762,11 +762,11 @@ def calc_sensitivity(Jac=numpy.array([]),
         "abs"     absolute sensitivities summed along the data axis
                     (often called coverage)
         "euc"     squared sensitivities summed along the data axis.
-        "cum"     cummulated sensitivities as proposed by 
-                  Christiansen & Auken, 2012. Not usable for negative data. 
+        "cum"     cummulated sensitivities as proposed by
+                  Christiansen & Auken, 2012. Not usable for negative data.
 
     Usesigma:
-        if true, sensitivities with respect to sigma  are calculated. 
+        if true, sensitivities with respect to sigma  are calculated.
 
     Christiansen, A. V. & Auken, E.
     A global measure for depth of investigation
@@ -804,7 +804,7 @@ def calc_sensitivity(Jac=numpy.array([]),
         if OutInfo:
             print("raw:", S)
 
-        
+
     elif "cov" in sens_type.lower():
         S = numpy.sum(numpy.abs(Jac), axis=0)
         if OutInfo:
@@ -815,7 +815,7 @@ def calc_sensitivity(Jac=numpy.array([]),
         S = numpy.sum(numpy.power(Jac, 2), axis=0)
         if OutInfo:
             print("euc:", S)
- 
+
     elif "cum" in sens_type.lower():
         S = numpy.sum(numpy.abs(Jac), axis=0)
         S = numpy.append(0.+1.e-10, numpy.cumsum(S[-1:0:-1]))
@@ -830,9 +830,9 @@ def calc_sensitivity(Jac=numpy.array([]),
 
         if OutInfo:
             print("euc (default):", S)
- 
+
     S[numpy.where(numpy.abs(S)<small_val)]=small_val
-    
+
     S = numpy.asarray(S).ravel()
     return S
 
@@ -846,18 +846,18 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
     used in the literature.
 
     Normalize options:
-        "siz"       Normalize by the values optional array V ("volume"), 
-                    i.e in our case layer thickness. 
+        "siz"       Normalize by the values optional array V ("volume"),
+                    i.e in our case layer thickness.
         "max"       Normalize by maximum value.
         "sur"       Normalize by surface value.
-        "sqr"       Take the square root. Only usefull for euc sensitivities. 
-        "log"       Take the logaritm. This should always be the 
+        "sqr"       Take the square root. Only usefull for euc sensitivities.
+        "log"       Take the logaritm. This should always be the
                     last value in Transform list
-                    
-        "asinh"     asinh transform. WARNING: excludes log option, 
+
+        "asinh"     asinh transform. WARNING: excludes log option,
                     and should be used only for raw sensitivities
-                    (C. Scholl, Die Periodizitaet von Sendesignalen 
-                    bei Long-Offset Transient Electromagnetics, 
+                    (C. Scholl, Die Periodizitaet von Sendesignalen
+                    bei Long-Offset Transient Electromagnetics,
                     Diploma Thesis, Universität zu Koeln, 2001).
 
     author:VR 4/23
@@ -866,18 +866,18 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
 
     if numpy.size(S)==0:
         error("transform_sensitivity: Sensitivity size is 0! Exit.")
-    
-    # ns = numpy.shape(S)
-    
 
-    for item in transform:       
-        
-           
+    # ns = numpy.shape(S)
+
+
+    for item in transform:
+
+
         if "sqr" in item.lower():
             S = numpy.sqrt(S)
             # print("S0s", numpy.shape(S))
-            
-        if "log" in item.lower():    
+
+        if "log" in item.lower():
             S = numpy.log10(S)
 
         if "asinh" in item.lower():
@@ -893,7 +893,7 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
                     scale = get_scale(S, method=asinhpar[0])
 
                     S = numpy.arcsinh(S/scale)
-        
+
         if "siz" in item.lower():
              print("trans_sensitivity: Transformed by volumes/layer thickness.")
              if numpy.size(vol)==0:
@@ -901,7 +901,7 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
 
              else:
                  S = S/vol
-        
+
         if "max" in item.lower():
              print("trans_sensitivity: Transformed by maximum value.")
              if max_val is None:
@@ -911,11 +911,11 @@ def transform_sensitivity(S=numpy.array([]), vol=numpy.array([]),
              print("maximum value: ", maxval)
              S = S/maxval
              # print("S0m", numpy.shape(S))
-             
-             
+
+
         S[numpy.where(numpy.abs(S)<small_val)]=small_val
 
-        
+
     return S, maxval
 
 
@@ -1245,7 +1245,7 @@ def get_S(d=numpy.array([]), F=0.1, method="other", OutInfo=False):
 
 def transform_parameter(m_vec=numpy.array([]),
                         mode="fwd", m_trn=0, m_state=0,
-                        bounds=None, dp=False, deltap=numpy.array([1.e-5]), npar=7):
+                        bounds=None, dp=False, deltap=numpy.array([1.e-5])):
     """
     m_trn model to different parametrizations.
 
@@ -1260,14 +1260,17 @@ def transform_parameter(m_vec=numpy.array([]),
 
     author: VR 2/22
     """
+    npar = 7
 
     if m_vec.size == 0:
         error("transform_para: transform possible, no model given! Exit.")
 
     mshape = numpy.shape(m_vec)
+    # print(mshape)
     nlyr = mshape[0]//npar
 
     m_trans = m_vec.copy()
+    # print(m_trans.shape)
     m_trans = numpy.reshape(m_trans, (npar, nlyr))
 
     if "b" in mode:
@@ -1360,7 +1363,7 @@ def impose_bounds(m=None, bounds=None, mode="fwd",
     f = 1.  results in  the scheme described in Kim (1999).
     f = 2.  results in  the scheme described by Commer (2008)
             or Abubakar (2008).
-            
+
     The logistic sigmoid transform is suggested in SimPEG's documentation at:
         https://docs.simpeg.xyz/content/api/generated/SimPEG.maps.LogisticSigmoidMap.dot.html
 
@@ -1369,7 +1372,7 @@ def impose_bounds(m=None, bounds=None, mode="fwd",
     """
     lower = bounds[0]
     upper = bounds[1]
-    
+
     if "kim" in method.lower():
 
         if mode[0:1] == "f":
@@ -1377,10 +1380,10 @@ def impose_bounds(m=None, bounds=None, mode="fwd",
         elif mode[0:1] == "b":
             ex = numpy.exp(f*m)
             m_trans = (lower + upper*ex)/(1. + ex)#
-            
-            
+
+
     elif "sig" in method.lower():
-        
+
         if mode[0:1] == "f":
             m_trans = scipy.special.expit(m)
         elif mode[0:1] == "b":
@@ -1805,7 +1808,7 @@ def diffops(dz=None, der=False,
     J. Comp. Appl. Math., 272, doi:10.1016/j.cam.2013.08.015, 2014.
 
     C. Scholl, S. Helwig, B. Tezkan, M. Goldman, U. Kafri (2009)
-    1-D multimodel joint inversion of TEM-data over multidimensional structures 
+    1-D multimodel joint inversion of TEM-data over multidimensional structures
     Geophys J Int  , Vol. 176(1), 81-94
 
 
@@ -2273,7 +2276,7 @@ def msqrt_sparse(M=numpy.array([]), smallval=1.e-12):
     """
     n =M.shape[0]
     MM = M.copy() + numpy.identity(n)*smallval
-    
+
     LU = scipy.sparse.linalg.splu(
         MM, diag_pivot_thresh=0)  # sparse LU decomposition
 
@@ -2283,10 +2286,10 @@ def msqrt_sparse(M=numpy.array([]), smallval=1.e-12):
 
     else:
         error("The matrix is not positive definite")
-        
+
     return SqrtM
-        
-        
+
+
 def msqrt(M=numpy.array([]), method="cho", smallval=1.e-12):
     """
     Computes a matrix square-root (Choleky, or eig).
@@ -2299,27 +2302,27 @@ def msqrt(M=numpy.array([]), method="cho", smallval=1.e-12):
     Here, SqrtM is a matrix such that SqrtM * SqrtM.T = M.
     The vector Mevals contains the eigenvectors of M,
     and the matrix Mevecs the corresponding eigenvectors.
-    
+
     Also Calculate sparse Cholesky, missing in scipy.
-    
+
     Parameters
     ----------
     A : double
         Positive definite sparse matrix.
     smallval: double
-        small value to guarantee positive definiteness in 
+        small value to guarantee positive definiteness in
         the case of numueerical noise.
     method: str
         eigenvalue or cholesky in case of dense input matrices
-    
+
     Returns
     -------
     CholM: double
         Cholesky factor of A.
-    
+
     Last change: VR Mar 2024
-    
-    
+
+
     """
     n = numpy.shape(M)[0]
     MM = M.copy() + numpy.identity(n)*smallval
@@ -2338,9 +2341,9 @@ def msqrt(M=numpy.array([]), method="cho", smallval=1.e-12):
     return SqrtM
 
 def isspd(A):
-    
+
     n = A.shape[0]
-    
+
     AAT = A@A.T
     if numpy.allclose(AAT, numpy.identity(n), rtol = 1.e-8, atol=1.e-8):
         print("A is symmetric.")
@@ -2349,7 +2352,7 @@ def isspd(A):
 
     spd = numpy.all(numpy.linalg.eigvals(A) > 1.e-12)
 
-        
+
     return spd
 
 def rsvd(A, rank=300,
@@ -2417,7 +2420,7 @@ def find_range(A, n_samples, n_subspace_iters=None):
     """
     # print('here we are in range-finder')
     rng = numpy.random.default_rng()
-    
+
     m, n = A.shape
     # print(A.shape)
     O = rng.normal(size=(n, n_samples))
@@ -2862,21 +2865,21 @@ def calc_datafit(data_obs=numpy.array([]),
         d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
         smape0 = numpy.sum(d0/d1)
         smape = 100.0 * smape0 / nd
-        
+
     if smaptype==2:
         fac = 2.
         d0 = numpy.abs(dat_obs - dat_cal)
         d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
         smape0 = numpy.sum(d0/d1)
-        smape = 100.0 * smape0 / nd       
-    
+        smape = 100.0 * smape0 / nd
+
     if smaptype==3:
         fac = 1.
         d0 = numpy.abs(dat_obs - dat_cal)
         d1 = (numpy.abs(dat_obs) + numpy.abs(dat_cal))/fac
         smape0 = numpy.sum(d0)/numpy.sum(d1)
-        smape = 100.0 * smape0 / nd       
-    
+        smape = 100.0 * smape0 / nd
+
 
     return nrmse, smape
 
@@ -3129,7 +3132,7 @@ def calc_stat_ens(ensemble=numpy.array([]),
     if sum_stat = False:
         median, mupp, mlow : numpy.array of floats
             Median snd symmetric quantiles corresponding to quantiles.
-    else:  
+    else:
         additional mean, standard dev, skew, kurtosis, mode
 
     Last change: vrath, May 18, 2023
@@ -3226,11 +3229,11 @@ def KLD(P=numpy.array([]), Q=numpy.array([]), epsilon=1.e-8):
 
     Parameters
     ----------
-    P, Q: numpy.array 
+    P, Q: numpy.array
         pdfs
     epsilon : TYPE
         Epsilon is used here to avoid conditional code for
-        checking that neither P nor Q is equal to 0. 
+        checking that neither P nor Q is equal to 0.
 
     Returns
     -------
@@ -3267,9 +3270,9 @@ def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
 
     References:
 
-    Osypov K, Yang Y, Fournier A, Ivanova N, Bachrach R, 
+    Osypov K, Yang Y, Fournier A, Ivanova N, Bachrach R,
     Can EY, You Y, Nichols D, Woodward M (2013)
-    Model-uncertainty quantification in seismic tomography: method and applications 
+    Model-uncertainty quantification in seismic tomography: method and applications
     Geophysical Prospecting, 61, pp. 1114–1134, 2013, doi: 10.1111/1365-2478.12058.
 
 
@@ -3298,7 +3301,7 @@ def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
 
     return spc_sample
 
-def init_layers(nlyr=26, start=1., end=10., 
+def init_layers(nlyr=26, start=1., end=10.,
                logspace=True, out=True):
     """
     Set layer Parameters
@@ -3322,22 +3325,22 @@ def init_layers(nlyr=26, start=1., end=10.,
         Layer thicknesses (nlyr).
     z_node : numpy array
         Node coordinates (nlyr+1).
-    z_cent : numpy array 
+    z_cent : numpy array
        Layer center coordinates (nlyr+1).
     """
-    
+
     if logspace:
         dz = numpy.logspace(numpy.log10(start), numpy.log10(end), nlyr)
-    else: 
+    else:
         dz = numpy.linspace(start, end, nlyr)
-        
+
     z_node = numpy.append(0.0, numpy.cumsum(dz))
-    
+
     dz_tmp = numpy.append(dz, dz[-1])
     z_tmp = numpy.append(0.0, numpy.cumsum(dz_tmp))
     z_cent = 0.5 * (z_tmp[0:nlyr] + z_tmp[1:nlyr+1])
-    
-    if out: 
+
+    if out:
         print("\n")
         if logspace:
             print(" Number of log-spaced layers:", nlyr)
@@ -3345,7 +3348,7 @@ def init_layers(nlyr=26, start=1., end=10.,
             print(" Number of lin-spaced (possibly equidistant) layers:", nlyr)
         print("Number of nodes:", nlyr+1)
         print("Number of cell centers:", nlyr+1)
-        
+
     return dz, z_node, z_cent
 
 
@@ -3439,7 +3442,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         # tmp = results["site_log"]
         # print(numpy.shape(tmp))
         # print(tmp)
-        
+
         # site_log = numpy.array([tmp[1], tmp[2], tmp[3]])
 
         site_d = numpy.zeros_like(site_mod)
@@ -3449,7 +3452,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
         tmp = numpy.cumsum(mod_ref[6*nlyr:7*nlyr-1])
         tmp = numpy.insert(tmp, 0, 0.)
         tmp = numpy.append(tmp, tmp[-1])
-        
+
         choose =[]
         for isite in numpy.arange(numpy.shape(site_mod)[0]):
             site_d[isite] = 0.5*(tmp[0:len(tmp)-1]+tmp[1:len(tmp)])
@@ -3460,7 +3463,7 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
                     choose.append(isite)
                 else:
                     continue
-                
+
             if ("rms" in qthresh[0].lower()):
                 if (site_rms[isite] > qthresh[1]):
                     choose.append(isite)
@@ -3470,12 +3473,12 @@ def merge_model_sets(infile_list=None, outfile_name="./mod_tmp.npz",
             print("\n",infile+":")
             print("original sites:",numpy.shape(site_mod)[0] )
             print("chosen sites:  ",len(choose) )
-        
+
         all_sites = all_sites + numpy.shape(site_mod)[0]
         chs_sites = chs_sites + len(choose)
         if k == 1:
             # merged_log = site_log
-           
+
             merged_mod = site_mod[choose]
             merged_sns = site_sns[choose]
             merged_rms = site_rms[choose]

@@ -156,7 +156,7 @@ elif "list" in Sample[0].lower():
         Distlist = [ 1500.]
 
 
-ReverseDir = False
+Direction =  "normal"
 
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
@@ -417,7 +417,7 @@ for file in dat_files:
     Loop over sites
     """
     sequence = range(nsite)
-    if ReverseDir:
+    if "reverse" in Direction.lower():
         site_list = sequence[::-1]
     else:
         site_list = sequence

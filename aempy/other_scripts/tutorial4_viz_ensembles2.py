@@ -92,7 +92,7 @@ if "genes" in AEM_system.lower():
 
 
 
-ReverseDir = False
+Direction =  "normal"
 
 FileList = "search"  # "search", "read"
 InDatDir =  AEMPYX_DATA + "/Projects/StGormans/proc_delete_PLM3s/"

@@ -312,7 +312,7 @@ for file in dat_files:
     Loop over sites
     """
     sequence = range(nsite)
-    if ReverseDir:
+    if "reverse" in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence

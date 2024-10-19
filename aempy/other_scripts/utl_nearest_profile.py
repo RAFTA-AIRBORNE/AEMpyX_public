@@ -124,7 +124,7 @@ if not os.path.isdir(OutDatDir):
 
 TellusAng = 345.
 AngLimits = [TellusAng-5., TellusAng+5. ]
-CorrectDirection = True
+Correct "reverse" in Direction.lower()
 
 
 for file in dat_files:

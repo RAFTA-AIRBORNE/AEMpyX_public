@@ -92,7 +92,7 @@ if "genes" in AEM_system.lower():
 
 # parpool = multiprocessing.Pool()
 
-ReverseDir = False
+Direction =  "normal"
 
 
 
@@ -259,7 +259,7 @@ if "tikhopt" in  RunType.lower():
             [Uncert],
 
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
@@ -305,7 +305,7 @@ if "occ" in RunType.lower():
             [Uncert],
 
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
@@ -387,7 +387,7 @@ if "map" in  RunType.lower():
             [Uncert],
 
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
@@ -421,7 +421,7 @@ if "eki" in RunType.lower():
         "output":
             numpy.array(["quant", Percentiles], dtype=object),
         "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
         "model":
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
           }
@@ -501,7 +501,7 @@ for file in dat_files:
     Loop over sites
     """
     sequence = range(nsite)
-    if ReverseDir:
+    if "reverse" in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence

@@ -159,7 +159,7 @@ elif "list" in Sample[0].lower():
     else:
         Distlist = [ 1500.]
 
-ReverseDir = False
+Direction =  "normal"
 
 
 """
@@ -418,7 +418,7 @@ for file in dat_files:
     Loop over sites
     """
     sequence = range(nsite)
-    if ReverseDir:
+    if "reverse" in Direction.lower():
         site_list = sequence[::-1]
     else:
         site_list = sequence

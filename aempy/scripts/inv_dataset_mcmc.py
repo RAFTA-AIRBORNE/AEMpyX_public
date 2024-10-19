@@ -92,7 +92,7 @@ if "genes" in AEM_system.lower():
 """
 input formats are ".npz",".nc4",".asc"
 """
-ReverseDir = False
+Direction =  "normal"
 
 InDatDir =  AEMPYX_DATA + "/Projects/StGormans/proc_delete_PLM3s/"
 print("Data files read from dir:  %s" % InDatDir)

@@ -267,7 +267,7 @@ if "tikhopt" in  RunType.lower():
     Delta = [1.e-5]
     RegShift = 2
     
-    ReverseDir = False 
+    Direction =  "normal" 
 
     ctrl_dict ={
     "system":
@@ -283,7 +283,7 @@ if "tikhopt" in  RunType.lower():
         [Uncert],
 
     "data":
-        numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+        numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
     "model":
         numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
             }
@@ -336,7 +336,7 @@ if "map" in  RunType.lower():
     TauSeq = [0.5]
     RegShift = 0
 
-    ReverseDir = False 
+    Direction =  "normal" 
 
     ctrl_dict ={
     "system":
@@ -352,7 +352,7 @@ if "map" in  RunType.lower():
         [Uncert, Percentiles],
 
     "data":
-        numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, ReverseDir], dtype=object),
+        numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
     "model":
         numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
             }
