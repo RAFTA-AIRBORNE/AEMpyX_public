@@ -171,7 +171,7 @@ def run_tikh_flightline(data_dir= None,
     mod_var = ctrl["model"][3].copy()
     mod_bnd = ctrl["model"][4].copy()
 
-
+    print(mod_apr.shape)
     site_prior = numpy.zeros((nsite,numpy.shape(mod_apr)[0]))
 
     if "read" in setprior:
@@ -225,7 +225,7 @@ def run_tikh_flightline(data_dir= None,
                 mod_ini = site_prior[ii,:]
                 mod_apr = mod_ini.copy()
             else:
-                mod_ini = mtmp[0].copy()
+                mod_ini = inverse.insert_mod(M=mod_apr, m=mtmp[0], m_act=mod_act)
                 mod_apr = mod_ini.copy()
 
         elif "set" in setprior:
@@ -259,10 +259,13 @@ def run_tikh_flightline(data_dir= None,
             print("site_dict: ",site_dict.keys())
 
 
+
+
         mtmp = site_dict["model"]
         dtmp = site_dict["data"]
         ctmp = site_dict["log"]
 
+        print(mtmp[0].shape)
         if ii==0:
             site_num  = numpy.array([ii])
             site_conv = ctmp[1]
@@ -769,7 +772,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
     m_err = numpy.sqrt(m_var)
 
-    print(m_apr)
+    # print(m_apr)
     m_state = 0
     m_apr, _ = inverse.transform_parameter(
         m_vec=m_apr, m_trn=m_trn, m_state=m_state, mode="f")
@@ -823,7 +826,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
             model_old = model.copy()
             dnorm_iter = numpy.array([inverse.calc_dnorm(data_obs=d_obs, data_cal=d_cal,
                                                          data_err=d_err, data_act=d_act)])
-            print(model)
+            # print(model)
             mnorm_iter = numpy.array([scipy.linalg.norm(model)])
             rvals_iter = numpy.array([0., 0.])
             dfits_iter = numpy.array([nrmse_iter, smape_iter])
