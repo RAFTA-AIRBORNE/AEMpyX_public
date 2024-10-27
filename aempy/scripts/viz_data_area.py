@@ -19,7 +19,7 @@
 #!/usr/bin/env python3
 # -
 
-# This script plots data over an spatial area. 
+# This script plots data over an spatial area.
 
 # +
 import os
@@ -35,6 +35,8 @@ import matplotlib.pyplot
 import matplotlib.ticker
 import matplotlib.axis
 import mpl_toolkits.axes_grid1
+import matplotlib.backends.backend_pdf #  matplotlib.backends. backend_pdf.PdfPages
+
 
 import scipy.interpolate
 import scipy.spatial
@@ -65,16 +67,16 @@ print(titstrng+"\n\n")
 Header = titstrng
 # -
 
-# The following cell gives values to AEM-system related settings. 
+# The following cell gives values to AEM-system related settings.
 #
-# Data transformation is activated by the variable _DataTrans_. Currently 
-# three possible options are allowed: _DataTrans = 0_: No transformation, 
-# i.e., the raw data are used. _DataTrans = 1_: The natural log of data 
-# is taken, only allowed for strictly positive values. _DataTrans = 2_: 
+# Data transformation is activated by the variable _DataTrans_. Currently
+# three possible options are allowed: _DataTrans = 0_: No transformation,
+# i.e., the raw data are used. _DataTrans = 1_: The natural log of data
+# is taken, only allowed for strictly positive values. _DataTrans = 2_:
 # If data scale logarithmically, an _asinh_ transformation (introduced by
-# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, 
+# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM,
 # when IP effects are present.
-#        
+#
 # A general additive/multiplicative error model is applied on the raw data
 # before transformation, and errors are also transformed.
 
@@ -89,7 +91,7 @@ if "aem05" in AEM_system.lower():
     DatErr_add =  50.
     DatErr_mult = 0.03
     data_active = numpy.ones(NN[2], dtype="int8")
-    
+
     CompDict = Misc[3]
     CompLabl = list(CompDict.keys())
     print(CompLabl)
@@ -111,10 +113,10 @@ if "genes" in AEM_system.lower():
 
 InFileFmt = ".npz"
 
-FileList = "search"  
+FileList = "search"
 
 
-AEMPYX_DATA = AEMPYX_ROOT+"/data/"  
+AEMPYX_DATA = AEMPYX_ROOT+"/data/"
 
 
 # SearchStrng = "*FL*.npz"# "search", "read"
@@ -221,7 +223,7 @@ if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
     # InterpMethod = ["rbf", "cubic", 0.01]
 
     # InterpMethod = ["krig", "linear", 0.5, 340.]
-    
+
     S = 500.
     numIndexes = [121, 141]
     smooth = 0.
@@ -250,7 +252,7 @@ if ("scatter" in ImageType.lower()):
 
 
 
-# The following cell determines the settings for individual components. Each sublist associated to a componet contains the name, followed by a list of parameters determining the data limits, and a step determining the color bar, or the isolines. Further paramers, as e.g. the threshhold for the PLM, may be added.  
+# The following cell determines the settings for individual components. Each sublist associated to a componet contains the name, followed by a list of parameters determining the data limits, and a step determining the color bar, or the isolines. Further paramers, as e.g. the threshhold for the PLM, may be added.
 
 
 # CompList=[

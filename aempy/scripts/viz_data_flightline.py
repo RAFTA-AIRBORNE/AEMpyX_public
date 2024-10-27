@@ -20,7 +20,7 @@
 # -
 
 
-# This script is used for the visualization of AEM data along a flightline. 
+# This script is used for the visualization of AEM data along a flightline.
 
 
 # +
@@ -35,6 +35,7 @@ from cycler import cycler
 import numpy
 import matplotlib
 import matplotlib.pyplot
+import matplotlib.backends.backend_pdf #  matplotlib.backends. backend_pdf.PdfPages
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
@@ -96,7 +97,7 @@ if "genes" in AEM_system.lower():
 
 # +
 InFileFmt = ".npz"
-FileList = "search"  
+FileList = "search"
 AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 
 # un/comment according to which data  you want to plot
@@ -110,7 +111,7 @@ PDFCatName = PlotDir+"StGormans_raw.pdf"
 # # processed data
 # InDatDir =  AEMPYX_DATA + "/proc/"
 # PlotDir =  InDatDir + "/plots/"
-# SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen 
+# SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
 # #SearchStrng = "*FL*.npz" # else
 # PlotStrng = " - proc"
 # PDFCatName = PlotDir+"StGormans_processed.pdf"
@@ -118,7 +119,7 @@ PDFCatName = PlotDir+"StGormans_raw.pdf"
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
     dat_files = []
-    
+
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
@@ -199,11 +200,11 @@ else:
 
 
 # This block sets graphical parameters related to the \textit{matplotlib}.
-# package. A list of available plotting styles can be found on matplotlib's 
+# package. A list of available plotting styles can be found on matplotlib's
 # website at https://matplotlib.org/stable/users/explain/customizing.htm, or
-# entering the python command 
+# entering the python command
 # _print(matplotlib.pyplot.style.available)} in an appropriate_
-# window. 
+# window.
 #
 
 matplotlib.pyplot.style.use("seaborn-v0_8-paper")
@@ -226,8 +227,8 @@ Grey = 0.7
 Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
           * cycler("color", ["r", "g", "b", "y"]))
 
-# For just plotting to files ("headless plotting"), choose the 
-# cairo backend (eps, pdf, png, jpg...). 
+# For just plotting to files ("headless plotting"), choose the
+# cairo backend (eps, pdf, png, jpg...).
 
 if FilesOnly:
     matplotlib.use("cairo")
@@ -235,17 +236,17 @@ if FilesOnly:
 if PDFCatalog:
     pdf_list = []
 
-# Depending on the region of interest, the number of plots may be quite large. 
+# Depending on the region of interest, the number of plots may be quite large.
 
 ifl = 0
 for file in dat_files:
 
     ifl = ifl+1
-    
+
     name, ext = os.path.splitext(file)
-    
+
     filein = InDatDir+file
-    Data, Header, _ = aesys.read_aempy(File=filein, 
+    Data, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
     sD = numpy.shape(Data)
     print("flightline "+name+"  #"
@@ -294,7 +295,7 @@ for file in dat_files:
             Logparams=Logparams,
             PlotStrng=PlotStrng,
             PlotPLM = True)
-        
+
     if "genes" in AEM_system.lower():
         viz.plot_flightline_genesis(
             PlotName = name,

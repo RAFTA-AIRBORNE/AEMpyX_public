@@ -47,6 +47,8 @@ import matplotlib.pyplot
 import matplotlib
 import matplotlib.cm
 
+import matplotlib.backends.backend_pdf #  matplotlib.backends. backend_pdf.PdfPages
+
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
 # mypath = ["/home/vrath/AEMpyX/aempy/modules/", "/home/vrath/AEMpyX/aempy/scripts/"]
@@ -124,7 +126,7 @@ else:
 
 """
 Placement of plots
-"""   
+"""
 Horiz = True
 
 """
@@ -140,7 +142,7 @@ nD = NN[0]
 
 if "aem05" in AEM_system.lower():
 
-    DataLimits = [0., 2500.]    
+    DataLimits = [0., 2500.]
     FreqLimits = []
 
 
@@ -161,7 +163,7 @@ Percentiles = [2.3, 15.9 ]                   # 95/68
 
 """
 Placement and size of plots
-"""   
+"""
 Nplots = 2
 Horiz = True
 
@@ -170,10 +172,10 @@ PlotSize = [8., 8.]
 """
 Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
-see: 
-MatplotlibDeprecationWarning: The seaborn styles shipped by Matplotlib 
+see:
+MatplotlibDeprecationWarning: The seaborn styles shipped by Matplotlib
 are deprecated since 3.6, as they no longer correspond to the styles s
-hipped by seaborn. However, they will remain available as 
+hipped by seaborn. However, they will remain available as
 'seaborn-v0_8-<style>'. Alternatively, directly use the seaborn API instead.
 
 """
@@ -257,57 +259,57 @@ for file in data_files:
         site_jcn_var=site_jcn_var,
         site_jcn_med=site_jcn_med,
         site_jcn_mad=site_jcn_mad)
-           
+
         if "ens" in Ctrl["output"]:
             util.add_object_npz(filein=Fileout+".npz",
                        xkeys=["site_jcn_ens"], xobjects=[site_jcn_ens])
-            
+
         """
-        
+
     results = numpy.load(InModDir+file)
-    
+
     fl_name = results["fl_name"]
     fl_orig = results["fl_orig"]
-    
+
     site_num = results["site_num"]
     site_x   = results["site_x"] - fl_orig[0]
     site_y   = results["site_y"] - fl_orig[1]
-          
-   
-   
+
+
+
     site_alt = results["site_alt"]
-    
+
     num_sites = len(site_num)
-    
+
     pdf_list = []
     for isit in numpy.arange(num_sites):
-        
-        
+
+
         ensemble = results["site_jcn_ens"][isit]
-        
-        
-        
-        pos = site_x[isit]**2 + site_y[isit]**2 
+
+
+
+        pos = site_x[isit]**2 + site_y[isit]**2
         PlotTitle = FileName+"  site "+str(isit)+" at position "+str(numpy.around(pos),0)+" m"
 
-        
-        if Horiz: 
+
+        if Horiz:
             horz = Nplots
             vert = 1
         else:
             horz = 1
             vert = Nplots
-            
+
         fig, ax = matplotlib.pyplot.subplots(1,nplots,
                                           figsize=(horz*PlotSize[0]*cm, vert*PlotSize[0]*cm),
                                           gridspec_kw={
                                               "height_ratios": [1.],
                                               "width_ratios": [1., 1.]})
         fig.suptitle(PlotTitle+" ("+method+")", fontsize=Fontsizes[2])
-     
-        
+
+
         ax[0] = eviz.plot_model_ensemble(
-                ThisAxis = ax[0], 
+                ThisAxis = ax[0],
                 PlotType = "percentiles", # lines, percentiles. iso
                 System  = AEM_system,
                 ModEns = m_ens,
@@ -325,12 +327,12 @@ for file in data_files:
                 XLimits=ModLimits,
                 YLimits= DepthLimits,
                 Legend=False)
-        
+
         if PlotTrue:
-            # print(m_true) 
+            # print(m_true)
             # print(z_true)
             ax[0] = eviz.plot_model(
-                    ThisAxis = ax[0], 
+                    ThisAxis = ax[0],
                     System  = AEM_system,
                     Model = m_true,
                     Depth = z_true,
@@ -344,10 +346,10 @@ for file in data_files:
                     XLimits= ModLimits,
                     YLimits= DepthLimits,
                     Legend=True)
-        
-        
+
+
         ax[1] = eviz.plot_data_ensemble(
-                ThisAxis = ax[1],  
+                ThisAxis = ax[1],
                 PlotType = "percentiles", # lines, percentiles. iso
                 System  = AEM_system,
                 DatEns = d_ens,
@@ -360,15 +362,15 @@ for file in data_files:
                 Linewidth=Linewidth,
                 Markers = [""],
                 Markersize =[4],
-                Fontsizes=Fontsizes, 
+                Fontsizes=Fontsizes,
                 XLimits= FreqLimits,
                 YLimits= DataLimits,
                 Legend=False)
 
 
-        
-        
-        
+
+
+
 
 
     for F in PlotFmt:

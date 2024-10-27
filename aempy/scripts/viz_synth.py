@@ -30,6 +30,8 @@ import matplotlib.pyplot
 import matplotlib
 import matplotlib.cm
 
+import matplotlib.backends.backend_pdf #  matplotlib.backends. backend_pdf.PdfPages
+
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
 # mypath = ["/home/vrath/AEMpyX/aempy/modules/", "/home/vrath/AEMpyX/aempy/scripts/"]

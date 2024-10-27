@@ -145,6 +145,7 @@ def run_tikh_flightline(data_dir= None,
     data_act = ctrl["data"][1]
     data_err_add = ctrl["data"][2]
     data_err_mult = ctrl["data"][3]
+    direction = ctrl["data"][4]
 
     dat_act = numpy.tile(data_act,(nsite,1))
     dat_err = numpy.zeros_like(dat_obs)
@@ -171,7 +172,7 @@ def run_tikh_flightline(data_dir= None,
     mod_var = ctrl["model"][3].copy()
     mod_bnd = ctrl["model"][4].copy()
 
-    print(mod_apr.shape)
+    # print(mod_apr.shape)
     site_prior = numpy.zeros((nsite,numpy.shape(mod_apr)[0]))
 
     if "read" in setprior:
@@ -194,11 +195,17 @@ def run_tikh_flightline(data_dir= None,
     """
     Loop over sites
     """
+    sequence = range(nsite)
+    if "rev" in direction.lower():
+        sites = sequence[::-1]
+    else:
+        sites = sequence
 
     # logsize = (2 + 7*maxiter)
     # site_log = numpy.full((len(sites),logsize), numpy.nan)
     mtmp = numpy.array([])
-    for ii in sites:
+    # for ii in sites:
+    for ii in [0, 1, 2]:
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
 
         """
@@ -265,7 +272,7 @@ def run_tikh_flightline(data_dir= None,
         dtmp = site_dict["data"]
         ctmp = site_dict["log"]
 
-        print(mtmp[0].shape)
+        # print(mtmp[0].shape)
         if ii==0:
             site_num  = numpy.array([ii])
             site_conv = ctmp[1]
@@ -747,7 +754,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                       e_vec=d_err,
                                                       d_trn=d_trn,
                                                       d_state=d_state)
-    # print(d_obs)
+
 
     obs = inverse.extract_dat(d_obs, d_act)
     err = inverse.extract_dat(d_err, d_act)
@@ -809,14 +816,16 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                       data_cal=d_cal,
                                                       data_err=d_err,
                                                       data_act=d_act)
-
+        print(niter,"####",model, m_trn, m_state,d_trn)
+        # print("dfit0", nrmse_iter, smape_iter)
         if niter == 0:
             conv_status = 1
-
+            print("ThreshVal =", thresh)
             if "rms" in thresh[3]:
                 dfit_iter = nrmse_iter
                 dfit_old = nrmse_iter
                 dfit_0 = nrmse_iter
+
 
             if "smp" in thresh[3]:
                 dfit_iter = smape_iter
@@ -892,6 +901,8 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                delta=delta, scalejac=False, out=False)
 
         cal = inverse.extract_dat(d_cal, d_act)
+        # print("cal:", cal)
+        # print("obs:", obs)
 
         m_iter = inverse.extract_mod(model, m_act)
         m_apri = inverse.extract_mod(m_apr, m_act)
@@ -1004,14 +1015,24 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                       model=model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
                                                       dfit=dfit_iter, mdfit=thresh[3],
                                                       facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+            d_cal, _ = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec=model,
+                                                      m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
+
             nrmse_iter, smape_iter = inverse.calc_datafit(data_obs=d_obs,
                                                           data_cal=d_cal,
                                                           data_err=d_err,
                                                           data_act=d_act)
+            dnorm_ii= scipy.linalg.norm(Wd@(obs - d_cal[d_act != 0]).T)
+            mnorm_ii = scipy.linalg.norm(model)
+
+
+        else:
+            dnorm_ii = dnorm[g_index]
+            mnorm_ii = mnorm[g_index]
 
         if niter > 0:
-            dnorm_iter = numpy.append(dnorm_iter, dnorm[g_index])
-            mnorm_iter = numpy.append(mnorm_iter, mnorm[g_index])
+            dnorm_iter = numpy.append(dnorm_iter, dnorm_ii)
+            mnorm_iter = numpy.append(mnorm_iter, mnorm_ii)
             rvals_iter = numpy.append(rvals_iter, reg)
             dfits_iter = numpy.append(dfits_iter, [nrmse_iter, smape_iter])
 

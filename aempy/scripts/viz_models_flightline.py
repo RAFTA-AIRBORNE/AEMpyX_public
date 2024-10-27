@@ -68,11 +68,11 @@ input formats are "npz","nc4","asc"
 
 
 AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InModDir = AEMPYX_DATA +"results/"
+InModDir = AEMPYX_DATA +"/test/results_parallel/"
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng ="*A1*k2*a50.0_m0.0*results.npz"
+SearchStrng ="*results.npz"
 if "search" in FileList.lower():
     print("Search flightline ID string: %s " % SearchStrng)
     data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir)
@@ -122,7 +122,7 @@ ILimits = [-500., 4000.]
 """
 Parameter for nRMS/SMAPE plot
 """
-PlotFit = "smp"
+PlotFit = "rms"
 rms_limits = [0., 4.]
 smp_limits = [0., 20.]
 
@@ -132,7 +132,7 @@ smp_limits = [0., 20.]
 Parameter for model plot
 """
 min_lrho =  1.
-max_lrho =  3.
+max_lrho =  4.
 cl = [min_lrho, max_lrho]
 cb_ticks = [-1, 0, 1, 2, 3, 4]
 
@@ -151,12 +151,12 @@ high_rms = False
 if high_rms:
     highrms = 3.
     alpha_rms= 0.3
-    
+
 high_smp = False
 if high_smp:
     highsmp = 10.
-    alpha_smp= 0.3    
-    
+    alpha_smp= 0.3
+
 
 high_err = False
 if high_err:
@@ -192,7 +192,7 @@ poslatlon = True
 if poslatlon:
     EPSG=32629
 
-Invert "reverse" in Direction.lower()
+InvertDirection = True
 ProfScale = 1. # 0.001  # m to km
 ProfUnit  = "(m)" #
 
@@ -297,7 +297,7 @@ for file in data_files:
 
     site_rms = tmp["site_nrms"]
     site_smp = tmp["site_smap"]
-    
+
     site_x = tmp["site_x"] * ProfScale
     site_y = tmp["site_y"] * ProfScale
 
@@ -343,7 +343,7 @@ for file in data_files:
         zm = 0.5 * (z0[0:nlyr] + z0[1 : nlyr + 1])
         size_lay = numpy.repeat(thk.T, sites, axis=0)
         site_val = numpy.log10(site_model[:,:])
-        
+
         # print ("sens_raw", numpy.shape(site_sens))
         site_sens, maxval = inverse.transform_sensitivity(S=site_sens, transform=sens_map)
         # print ("sens_trn",numpy.shape(site_sens))
@@ -363,14 +363,14 @@ for file in data_files:
             if high_rms:
                 if site_rms[nmod] > highrms:
                     alpha[nmod, :] = alpha_rms
-                    
+
             if high_smp:
                 if site_smp[nmod] > highsmp:
                     alpha[nmod, :] = alpha_smp
-                    
-                    
+
+
             if low_sens:
-                
+
                  for il in numpy.arange(nlyr):
                      if site_sens[nmod, il] < lowsens:
                              alpha[nmod, il] = alpha_sens
@@ -404,7 +404,7 @@ for file in data_files:
             med_rms = round(numpy.nanmedian(site_rms),2)
             med = med_rms*numpy.ones_like(site_rms)
             avg = avg_rms*numpy.ones_like(site_rms)
-            
+
         if "smp" in PlotFit:
             avg_smp = round(numpy.nanmean(site_smp), 2)
             med_smp = round(numpy.nanmedian(site_smp),2)
@@ -468,7 +468,7 @@ for file in data_files:
     if PlotType in [0, 1]:
 
         ii = ii+1
-        
+
         if "rms" in PlotFit:
             ax[ii].plot(site_r[:-1], site_rms[:-1], "r", linewidth=Linewidth)
             ax[ii].plot(site_r[:-1], avg[:-1], "b:", linewidth=Linewidth)
@@ -482,7 +482,7 @@ for file in data_files:
             ax[ii].set_ylim(rms_limits)
             ax[ii].grid(True)
             ax[ii].tick_params(labelsize=Labelsize)
-       
+
         if "smp" in PlotFit:
             ax[ii].plot(site_r[:-1], site_smp[:-1], "r", linewidth=Linewidth)
             ax[ii].plot(site_r[:-1], avg[:-1], "b:", linewidth=Linewidth)

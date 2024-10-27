@@ -39,7 +39,7 @@ import matplotlib
 import matplotlib.pyplot
 import matplotlib.ticker
 import matplotlib.axis
-
+import matplotlib.backends.backend_pdf #  matplotlib.backends. backend_pdf.PdfPages
 
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
@@ -118,18 +118,18 @@ if "model" in Plotlist:
     print("Model will be plotted")
     err = "lsq"
     err = "msq"
-    err = "jsq"  
+    err = "jsq"
     Modelcolor = ["b", "r", "r", ]
-    Modellines = ["-", ":", ":" ]    
+    Modellines = ["-", ":", ":" ]
     Modelwidth = [ 1,  1,  1,]
-    ModelLimits = [1., 10000.] 
+    ModelLimits = [1., 10000.]
     DepthLimits = [0., 100.]
 
 if "sens" in Plotlist:
     print("Sensitivities will be plotted")
-    whichsens = ["raw","cov", "euc" , "cum"] 
+    whichsens = ["raw","cov", "euc" , "cum"]
     print("   Sensitivity type is ", str(whichsens))
-    
+
     Senscolor = ["b", "g", "r", "m", "y"]
     Senslines =  ["-", "-", "-", "-", "-"]
     Senswidth = [ 1, 1,  1, 1, 1.]
@@ -143,7 +143,7 @@ if "respar" in Plotlist:
     PhysAxes = True
     NoHalfspace = True
 
-if "resdat" in Plotlist:     
+if "resdat" in Plotlist:
     print("Data resolution will be plotted")
     whichspread = "fro"   #, too"", "euc", "mic"
     print("   Spread type is "+whichspread)
@@ -193,14 +193,14 @@ if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Models read from dir: %s " % InModDir)
 # FileList = "set" #"search"
 
-FileList ="search" 
+FileList ="search"
 if "search" in FileList.lower():
     how = ["search", SearchStrng, InModDir]
     # how = ["read", FileList, InModDir]
     print("Method is ", how )
     mod_files = util.get_data_list(how, out= True, sort=True)
 
-# FileList ="set" 
+# FileList ="set"
 # mod_files = ["A1*results.npz"]
 
 ns = numpy.size(mod_files)
@@ -223,7 +223,7 @@ format matplotlib allows.
 """
 PlotFormat = [".pdf", ".png"] #".png", ".pdf",]
 # PlotDir = AEMPYX_DATA+"/ClaraUncert/plots/"
-# PlotDir = InModDir+"/Lvar1/" 
+# PlotDir = InModDir+"/Lvar1/"
 PlotDir = InModDir
 print("Plots written to dir: %s " % PlotDir)
 
@@ -250,7 +250,7 @@ matplotlib.rcParams["figure.dpi"] = 600
 matplotlib.rcParams["axes.linewidth"] = 0.5
 matplotlib.rcParams["savefig.facecolor"] = "none"
 matplotlib.rcParams["savefig.transparent"] = True
-matplotlib.rcParams["savefig.bbox"] = "tight" 
+matplotlib.rcParams["savefig.bbox"] = "tight"
 Fontsize = 6
 Labelsize = Fontsize
 Titlesize = 6
@@ -292,11 +292,11 @@ for filein in mod_files:
     results = numpy.load(modfile, allow_pickle=True)
 
     print("\nCtrl read from: %s" % modfile)
-    control = numpy.load(ctrfile, allow_pickle=True)    
+    control = numpy.load(ctrfile, allow_pickle=True)
     Runtyp = control["inversion"][0]
     Regfun = control["inversion"][1]
     OptStrng = "Opts: "+Runtyp+"|"+Regfun
-    
+
     fline = results["fl_name"]
     site_x = results["site_x"]
     site_y = results["site_y"]
@@ -305,7 +305,7 @@ for filein in mod_files:
     m_act = results["mod_act"]
     m_ref = results["mod_ref"]
 
-    
+
     site_mod = results["site_modl"]
     site_err = results["site_merr"]
     site_sns = results["site_sens"]
@@ -319,23 +319,23 @@ for filein in mod_files:
 
     site_jac= results["site_jacd"]
     site_cov= results["site_pcov"]
-    
+
     nlyr = inverse.get_nlyr(m_ref)
     dz = m_ref[6*nlyr:7*nlyr-1]
 
-    zn = inverse.set_znodes(dz)    
+    zn = inverse.set_znodes(dz)
     zm = inverse.set_zcenters(dz)
-    DepthN = zn 
+    DepthN = zn
     DepthC = numpy.append(zm, 999.9)
     LayThk = numpy.append(dz, 9999.)
-    
+
     """
     construct site_list
     """
     site_x = site_x - site_x[0]
     site_y = site_y - site_y[0]
     site_r = numpy.sqrt(numpy.power(site_x, 2.0) + numpy.power(site_y, 2.0))
-    
+
     site_list = []
     if "rand" in Sample:
         site_list = random.sample(range(len(site_x)), NSamples)
@@ -349,9 +349,9 @@ for filein in mod_files:
                 site_list.append(nds)
     else:
         site_list = numpy.arange(len(site_x))
-                
 
-        
+
+
     for isite in site_list:
 
         # calculatio
@@ -369,70 +369,70 @@ for filein in mod_files:
 
         v = numpy.sqrt(1./numpy.diag(cov))
         cor = cov*numpy.outer(v,v)
-  
+
         # sensitivities
         sens = []
-        
+
         sens0 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "raw") #[:-1]
-        sens0 = inverse.transform_sensitivity(S=sens0, V=LayThk, 
+        sens0 = inverse.transform_sensitivity(S=sens0, V=LayThk,
                                               Transform=[" val","max"])
-                                              # Transform=[" val","max", "sqr"]) 
+                                              # Transform=[" val","max", "sqr"])
         sens.append(numpy.abs(sens0))
-        
-        sens1 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "cov") #[:-1]            
-        sens1 = inverse.transform_sensitivity(S=sens1, V=LayThk, 
+
+        sens1 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "cov") #[:-1]
+        sens1 = inverse.transform_sensitivity(S=sens1, V=LayThk,
                                               Transform=["max"])
-                                              # Transform=[" val","max", "sqr"]) 
-        if NoHalfspace: 
-            sens1 = sens1[:-1] 
+                                              # Transform=[" val","max", "sqr"])
+        if NoHalfspace:
+            sens1 = sens1[:-1]
         sens.append(numpy.abs(sens1))
-        
-        sens2 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "euc") #[:-1]   
-        sens2 = inverse.transform_sensitivity(S=sens2, V=LayThk,  
-                                              Transform=[" max", "sqr"]) 
-                                              # Transform=[" val","max", "sqr"]) 
-        if NoHalfspace: 
-            sens2 = sens2[:-1] 
+
+        sens2 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "euc") #[:-1]
+        sens2 = inverse.transform_sensitivity(S=sens2, V=LayThk,
+                                              Transform=[" max", "sqr"])
+                                              # Transform=[" val","max", "sqr"])
+        if NoHalfspace:
+            sens2 = sens2[:-1]
         sens.append(numpy.abs(sens2))
 
-        sens3 = inverse.calc_sensitivity(Jac=scal@jac, UseSigma=True, Type = "cum") 
-        sens3 = inverse.transform_sensitivity(S=sens3, V=LayThk, 
-                                             Transform=["max"]) 
-                                             # Transform=[" val","max", "sqr"]) 
-        if NoHalfspace: 
-            sens3 = sens3[:-1]                                            
-        sens.append(numpy.abs(sens3))        
+        sens3 = inverse.calc_sensitivity(Jac=scal@jac, UseSigma=True, Type = "cum")
+        sens3 = inverse.transform_sensitivity(S=sens3, V=LayThk,
+                                             Transform=["max"])
+                                             # Transform=[" val","max", "sqr"])
+        if NoHalfspace:
+            sens3 = sens3[:-1]
+        sens.append(numpy.abs(sens3))
         sens.pop(0)
-        
-       
+
+
         # parameter resolution matrix & spread(s)
-        
+
         gi =  cov@jac.T
-        
+
         rm = gi@jac
         nm = numpy.sum(rm.diagonal())
-     
-        _, mspread0 = inverse.calc_model_resolution(J=jac, G=gi, 
+
+        _, mspread0 = inverse.calc_model_resolution(J=jac, G=gi,
                                                     Spread=["frob"])
-        _, mspread1 = inverse.calc_model_resolution(J=jac, G=gi, 
+        _, mspread1 = inverse.calc_model_resolution(J=jac, G=gi,
                                                     Spread=["toomey"])
-        _, mspread2 = inverse.calc_model_resolution(J=jac, G=gi, 
+        _, mspread2 = inverse.calc_model_resolution(J=jac, G=gi,
                                                     Spread=["miller"])
-    
-    
+
+
         rd =  jac@gi
         nd = numpy.sum(rd.diagonal())
-            
-                
 
- 
+
+
+
         fl = str(numpy.around(fline,2)).replace(".","-")
-        if "dist" in Sample: 
+        if "dist" in Sample:
             PlotFile = "Uncert_FL"+fl+"_site"+str(numpy.rint(site_r[isite]))+"m"
             PlotTitle= "Uncert, FL"+fl+" site = "+str(numpy.rint(site_r[isite]))+" m"
-        else:   
+        else:
             PlotFile = "Uncert_FL"+fl+"_site"++str(isite)
-            PlotTitle= "Uncert, FL"+fl+" site = "+str(isite)                
+            PlotTitle= "Uncert, FL"+fl+" site = "+str(isite)
 
         fig, ax = matplotlib.pyplot.subplots(nvert,nhorz,
                                       figsize=(nhorz*PlotSize[0], nvert*PlotSize[1]),
@@ -441,50 +441,50 @@ for filein in mod_files:
                                           "width_ratios": [1., 1., 1.]})
 
         fig.suptitle(PlotTitle+OptStrng, fontsize=Fontsizes[2])
-       
+
         if "model" in Plotlist:
-            
-           
-            model = site_mod[isite, :]          
+
+
+            model = site_mod[isite, :]
             error = site_err[isite, :]
             val = numpy.log(model)
             errm = numpy.exp(val-error)
             errp = numpy.exp(val+error)
             model = [model, errm, errp]
-            
+
             viz.plot_depth_prof(
                     ThisAxis=ax[0,0],
                     XScale = "log",
-                    PlotType = "steps filled",                    
-                    Depth = [zn],                    
+                    PlotType = "steps filled",
+                    Depth = [zn],
                     Params = [model],
                     Partyp = "model",
                     DLabel = "depth (m)",
                     PLabel = "resistivity (Ohm m)",
-                    Legend = [], 
+                    Legend = [],
                     Linecolor=Modelcolor,
                     Linetypes=Modellines,
-                    Linewidth=Modelwidth,                    
+                    Linewidth=Modelwidth,
                     Fillcolor = [Grey50],
                     Fontsizes=Fontsizes,
                     PLimits = ModelLimits,
                     DLimits = DepthLimits,
                     PlotStrng="nRMS = "+str(numpy.around(site_rms[isite][0],2)),
-                    StrngPos=[0.05,0.05])          
-            
+                    StrngPos=[0.05,0.05])
+
         if "sens" in Plotlist:
-            
+
 
             viz.plot_depth_prof(
                     ThisAxis=ax[1,0],
                     Depth = [zn],
                     Partyp = "sens",
-                    Params = [sens],                    
+                    Params = [sens],
                     DLabel = "depth (m)",
                     PLabel = "sensitivity (-)",
                     Legend = ["coverage", "euclidean","cumulative"],    #  "cummulative"
                     XScale = "log",
-                    PlotType = "steps",                    
+                    PlotType = "steps",
                     Linecolor=Senscolor,
                     Linetypes=Senslines,
                     Linewidth=Senswidth,
@@ -494,90 +494,15 @@ for filein in mod_files:
                     DLimits = DepthLimits,
                     PlotStrng="", #Formula, #"", #"Error: mult="+str(DatErr_mult)+" add="+str(DatErr_add),
                     StrngPos=[0.05,0.05])
-            
-                
-      
-            
+
+
+
+
 
         if "cov" in Plotlist:
 
             Matrix = cov
-            
-            xticks = numpy.arange(nlyr)[0:-1:5]
-            xticklabels = xticks.astype(str)
-            yticks = xticks
-            if PhysAxes:
-                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
-                AxLabels = [" layer #"," depth (m)"]
-            else:
-                yticklabels = yticks.astype(str)
-                AxLabels =  ["layer #","layer #"]    
-            Aspect = "equal"
-            AxTicks = [xticks, yticks]
-            AxTickLabels =  [xticklabels, yticklabels]
-            TickStr=["", ""]    
-            
-            viz.plot_matrix(
-                 ThisAxis=ax[0,1],
-                 Matrix=Matrix,
-                 FigSize=FigSize,
-                 ColorMap=ColorMapCovMat,
-                 TickStr=TickStr,
-                 AxLabels=AxLabels,
-                 AxTicks=AxTicks ,                    
-                 AxTickLabels=AxTickLabels,
-                 Aspect =Aspect,
-                 Fontsizes=Fontsizes,
-                 PlotStrng="p-covar",
-                 StrngPos=[0.05,0.05])
-                
 
-        if "cor" in Plotlist:
-
-
-            Matrix = cor
-            
-            xticks = numpy.arange(nlyr)[0:-1:5]
-            xticklabels = xticks.astype(str)
-            yticks = xticks
-            if PhysAxes:
-                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
-                AxLabels = [" layer #"," depth (m)"]
-            else:
-                yticklabels = yticks.astype(str)
-                AxLabels =  ["layer #","layer #"]    
-
-            AxTicks = [xticks, yticks]
-            AxTickLabels =  [xticklabels, yticklabels]
-            TickStr=["", ""]
-
-   
-            viz.plot_matrix(
-                 ThisAxis=ax[1,1],
-                 Matrix=Matrix,
-                 FigSize=FigSize,
-                 ColorMap=ColorMapCorMat,
-                 TickStr=TickStr,
-                 AxLabels=AxLabels,
-                 AxTicks=AxTicks ,                    
-                 AxTickLabels=AxTickLabels,
-                 Fontsizes=Fontsizes,
-                 Aspect =Aspect,
-                 PlotStrng="p-cor",
-                 StrngPos=[0.05,0.05])
-                
-   
-
-        if "respar" in Plotlist:
-
-            Matrix = rm 
-            if NoHalfspace:
-                Matrix = Matrix[:-1,:-1]
-            
-            Np = numpy.sum(numpy.diag(rm))
-            PlotStrng = " Npar = "+numpy.around(Np,1).astype(str)
-            StrngPos=[0.05,0.1]
-            
             xticks = numpy.arange(nlyr)[0:-1:5]
             xticklabels = xticks.astype(str)
             yticks = xticks
@@ -587,12 +512,87 @@ for filein in mod_files:
             else:
                 yticklabels = yticks.astype(str)
                 AxLabels =  ["layer #","layer #"]
-            
-
-            Aspect = "equal"            
+            Aspect = "equal"
             AxTicks = [xticks, yticks]
             AxTickLabels =  [xticklabels, yticklabels]
-            TickStr=["", ""]                                    
+            TickStr=["", ""]
+
+            viz.plot_matrix(
+                 ThisAxis=ax[0,1],
+                 Matrix=Matrix,
+                 FigSize=FigSize,
+                 ColorMap=ColorMapCovMat,
+                 TickStr=TickStr,
+                 AxLabels=AxLabels,
+                 AxTicks=AxTicks ,
+                 AxTickLabels=AxTickLabels,
+                 Aspect =Aspect,
+                 Fontsizes=Fontsizes,
+                 PlotStrng="p-covar",
+                 StrngPos=[0.05,0.05])
+
+
+        if "cor" in Plotlist:
+
+
+            Matrix = cor
+
+            xticks = numpy.arange(nlyr)[0:-1:5]
+            xticklabels = xticks.astype(str)
+            yticks = xticks
+            if PhysAxes:
+                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
+                AxLabels = [" layer #"," depth (m)"]
+            else:
+                yticklabels = yticks.astype(str)
+                AxLabels =  ["layer #","layer #"]
+
+            AxTicks = [xticks, yticks]
+            AxTickLabels =  [xticklabels, yticklabels]
+            TickStr=["", ""]
+
+
+            viz.plot_matrix(
+                 ThisAxis=ax[1,1],
+                 Matrix=Matrix,
+                 FigSize=FigSize,
+                 ColorMap=ColorMapCorMat,
+                 TickStr=TickStr,
+                 AxLabels=AxLabels,
+                 AxTicks=AxTicks ,
+                 AxTickLabels=AxTickLabels,
+                 Fontsizes=Fontsizes,
+                 Aspect =Aspect,
+                 PlotStrng="p-cor",
+                 StrngPos=[0.05,0.05])
+
+
+
+        if "respar" in Plotlist:
+
+            Matrix = rm
+            if NoHalfspace:
+                Matrix = Matrix[:-1,:-1]
+
+            Np = numpy.sum(numpy.diag(rm))
+            PlotStrng = " Npar = "+numpy.around(Np,1).astype(str)
+            StrngPos=[0.05,0.1]
+
+            xticks = numpy.arange(nlyr)[0:-1:5]
+            xticklabels = xticks.astype(str)
+            yticks = xticks
+            if PhysAxes:
+                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
+                AxLabels = [" layer #"," depth (m)"]
+            else:
+                yticklabels = yticks.astype(str)
+                AxLabels =  ["layer #","layer #"]
+
+
+            Aspect = "equal"
+            AxTicks = [xticks, yticks]
+            AxTickLabels =  [xticklabels, yticklabels]
+            TickStr=["", ""]
 
             viz.plot_matrix(
                 ThisAxis=ax[0,2],
@@ -610,49 +610,49 @@ for filein in mod_files:
 
         if "resdat" in Plotlist:
 
-                
+
             Matrix = rd
-            
+
             Nd = numpy.sum(numpy.diag(rd))
             PlotStrng = " Ndat = "+numpy.around(Nd,1).astype(str)
             StrngPos=[0.05,0.1]
-                
+
             if "aem05" in AEM_system:
                 Axlabels =  ["data #","data #"]
                 xticks = numpy.arange(8)
                 xticklabels = xticks.astype(str)
                 yticks =  xticks
                 yticklabels = xticklabels
-   
-                if PhysAxes: 
-                    AxLabels =  ["data #"," frequency (kHz)"]  
+
+                if PhysAxes:
+                    AxLabels =  ["data #"," frequency (kHz)"]
                     pars = Pars[0]*1.e-3
                     vals = numpy.concatenate((pars, pars))
-                    iticks = numpy.array([0, 2, 4 , 6])                     
-                    yticks = yticks[iticks] 
+                    iticks = numpy.array([0, 2, 4 , 6])
+                    yticks = yticks[iticks]
                     yticklabels = numpy.round(vals,2).astype(str)[iticks]
 
 
-                    
+
             if "genes" in AEM_system:
                 AxLabels =  ["data #","data #"]
-                xticks = numpy.arange(11) 
+                xticks = numpy.arange(11)
                 xticklabels = xticks.astype(str)
-  
+
                 yticks = xticks
                 yticklabels = xticklabels
-                
+
                 if PhysAxes:
                     AxLabels =  ["data #"," window center (1e-6 s)"]
                     vals = Pars[0]*1000.
-                    iticks = numpy.array([0, 2, 4, 6, 8, 10])  
+                    iticks = numpy.array([0, 2, 4, 6, 8, 10])
                     yticks = yticks[iticks]
                     yticklabels = numpy.round(vals,1).astype(str)[iticks]
-                                
-            Aspect = "equal"         
+
+            Aspect = "equal"
             AxTicks = [xticks, yticks]
             AxTickLabels =  [xticklabels, yticklabels]
-            TickStr=["", ""]   
+            TickStr=["", ""]
 
 
             viz.plot_matrix(
@@ -668,60 +668,60 @@ for filein in mod_files:
                 Aspect =Aspect,
                 PlotStrng=PlotStrng,
                 StrngPos=StrngPos)
-                                 
+
         if "jac" in Plotlist:
 
 
             Matrix = jac.T
             if NoHalfspace:
                 Matrix  = Matrix[:-1]
-            
+
             yticks = numpy.arange(nlyr)[0:-1:5]
-            
+
             if PhysAxes:
                 yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
                 ylabel = "depth (m)"
             else:
                 yticklabels = yticks.astype(str)
-                ylabel =  "layer #"    
-                
-                            
+                ylabel =  "layer #"
+
+
             if "aem05" in AEM_system:
                 xlabel = "data #"
                 xticks = numpy.arange(8)
                 xticklabels = xticks.astype(str)
-   
-                if PhysAxes: 
+
+                if PhysAxes:
                     xlabel = "frequency (kHz)"
                     pars = Pars[0]*1.e-3
                     vals = numpy.concatenate((pars, pars))
-                    iticks = numpy.array([0, 2, 4 , 6])                     
-                    xticks = xticks[iticks] 
+                    iticks = numpy.array([0, 2, 4 , 6])
+                    xticks = xticks[iticks]
                     xticklabels = numpy.round(vals,2).astype(str)[iticks]
 
 
-                    
+
             if "genes" in AEM_system:
                 xlabel =  "data #"
-                xticks = numpy.arange(11) 
+                xticks = numpy.arange(11)
                 xticklabels = xticks.astype(str)
-  
-               
+
+
                 if PhysAxes:
                     xlabel = "window center (1e-6 s)"
                     vals = Pars[0]*1000.
-                    iticks = numpy.array([0, 2, 4, 6, 8, 10]) 
-                    xticks = xticks[iticks] 
+                    iticks = numpy.array([0, 2, 4, 6, 8, 10])
+                    xticks = xticks[iticks]
                     xticklabels = numpy.round(vals,1).astype(str)[iticks]
-                                    
-            
-         
+
+
+
             Aspect = "auto" #aspect
             AxLabels = [xlabel, ylabel]
             AxTicks  = [xticks, yticks]
             AxTickLabels =  [xticklabels, yticklabels]
-            TickStr=["", ""]    
- 
+            TickStr=["", ""]
+
             viz.plot_matrix(
                   ThisAxis=None,
                   Matrix=Matrix,
@@ -729,20 +729,20 @@ for filein in mod_files:
                   ColorMap=ColorMapJacMat,
                   TickStr=TickStr,
                   AxLabels=AxLabels,
-                  AxTicks=AxTicks ,                    
+                  AxTicks=AxTicks ,
                   AxTickLabels=AxTickLabels,
                   Fontsizes=Fontsizes,
                   Aspect =Aspect,
                   PlotStrng="jacobian",
                   StrngPos=[0.05,0.05])
-         
+
     matplotlib.pyplot.tight_layout()
-    
+
     for F in PlotFormat:
         matplotlib.pyplot.savefig(PlotDir+PlotFile+F)
-    
+
     if PDFCatalog:
-        pdf_list.append(PlotDir+PlotFile+".pdf")    
+        pdf_list.append(PlotDir+PlotFile+".pdf")
 
 
 if PDFCatalog:

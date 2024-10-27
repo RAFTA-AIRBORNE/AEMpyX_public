@@ -75,8 +75,8 @@ def run_linesearch(fwdcall, alt,
                    d_trn=0, d_act=numpy.array([]), d_state=0,
                    model=numpy.array([]), m_delta=numpy.array([]),
                    m_act=numpy.array([]), m_trn=1, m_state=0,
-                   dfit=999999.9, facreduce=0.6666, maxreduce=6,
-                   mdfit="rms",
+                   dfit=[999999.9,999999.9],
+                   facreduce=0.6666, maxreduce=6, mdfit="rms",
                    out=True):
     """
     Run simple line search with 0.>alpha<1.
@@ -116,6 +116,8 @@ def run_linesearch(fwdcall, alt,
     linsmp: float
     """
 
+    # print(dfit)
+
     liniter = 0
     linfit = dfit
     linfit_old = dfit
@@ -138,8 +140,8 @@ def run_linesearch(fwdcall, alt,
                                              data_act=d_act)
         if "rms" in mdfit: linfit_iter =  linrms_iter
         if "smp" in mdfit: linfit_iter =  linsmp_iter
-        # if out:
-        #     print("Linesearch: "+str(linfit)+"  /  "+str(linfit_iter))
+        if out:
+            print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
 
         if linfit_iter < linfit:
             fact = fact * facreduce

@@ -62,8 +62,8 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  75.
-    DatErr_mult = 0.05
+    DatErr_add =  50.
+    DatErr_mult = 0.0
     data_active = numpy.ones(NN[2], dtype="int8")
 
 
@@ -92,18 +92,20 @@ if "genes" in AEM_system.lower():
 
 # parpool = multiprocessing.Pool()
 
-Direction =  "normal"
+Direction = "normal"
 
 
 
-FileList = "search"  # "search", "read"
-FileList = "set"  # "search", "read"
+AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+InDatDir =  AEMPYX_DATA + "/test/data/"
 
-InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
+OutResDir =   AEMPYX_DATA + "/test/results_parallel/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
+FileList = "search"  # "search", "read"
+# FileList = "set"  # "search", "read"
 # SearchStrng = "*PLM3s_k3.npz"
-SearchStrng = "*1379*k[1,2,3,5].npz"
+SearchStrng = "*FL*k3*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -140,9 +142,12 @@ if not os.path.isdir(OutDatDir):
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
+Direction = "normal"
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
+SetPrior = "set"
+ParaTrans = 1
 
 RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
@@ -171,14 +176,20 @@ nreg = NTau0 * NTau1
 Model definition
 """
 
-SetPrior = "set"
-ParaTrans = 1
+# Nlyr = 30
+# dzstart = 2.5
+# dzend = 10.
+# dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+# z = numpy.append(0.0, numpy.cumsum(dz))
 
-Nlyr = 30
-dzstart = 2.5
+Nlyr = 23
+dzstart = 2.
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+# print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
+# print(z)
+
 
 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
@@ -447,6 +458,10 @@ if "nul" in RunType.lower():
     Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
     pass
 
+# Ctrl["data"]  = numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult,
+#                              Direction], dtype=object)
+# Ctrl["model"] = numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd],
+#                             dtype=object)
 
 
 if OutInfo:
@@ -489,11 +504,7 @@ for file in dat_files:
     [nsite,ndata] = numpy.shape(dat_obs)
     dat_act = numpy.tile(data_active,(nsite,1))
 
-    if "read" in SetPrior.lower():
-        halfspace ="halfspace_results"
-        file, filext0 = os.path.splitext(file)
-        prior_file = file+halfspace+filext0
-        mod_prior, var_prior = inverse.load_prior(prior_file)
+    Ctrl["name"] = fl_name
 
 
     start = time.time()
@@ -501,16 +512,27 @@ for file in dat_files:
     Loop over sites
     """
     sequence = range(nsite)
-    if "reverse" in Direction.lower():
+    if "rev" in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence
 
+    mod_prior = numpy.zeros((nsite,numpy.shape(mod_apr)[0]))
+    if "read" in SetPrior.lower():
+        halfspace ="halfspace_results"
+        file, filext0 = os.path.splitext(file)
+        prior_file = file+halfspace+filext0
+        mod_prior, var_prior = inverse.load_prior(prior_file)
+
+    if ("set" in SetPrior.lower()) or ("upd" in SetPrior.lower()):
+        for ii in sites:
+                mod_prior[ii, :] = mod_apr
 
     logsize = (2 + 7*Maxiter)
     site_log = numpy.full((len(sites),logsize), numpy.nan)
 
-    for ii in sites:
+    # for ii in sites:
+    for ii in [0,1,2]:
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
 
         """
