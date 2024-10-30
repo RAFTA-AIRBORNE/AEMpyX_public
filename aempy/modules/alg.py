@@ -204,8 +204,8 @@ def run_tikh_flightline(data_dir= None,
     # logsize = (2 + 7*maxiter)
     # site_log = numpy.full((len(sites),logsize), numpy.nan)
     mtmp = numpy.array([])
-    # for ii in sites:
-    for ii in [0, 1, 2]:
+    for ii in sites:
+    # for ii in [0, 1, 2]:
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
 
         """
@@ -816,11 +816,11 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                       data_cal=d_cal,
                                                       data_err=d_err,
                                                       data_act=d_act)
-        print(niter,"####",model, m_trn, m_state,d_trn)
+        # print(niter,"####",model, m_trn, m_state,d_trn)
         # print("dfit0", nrmse_iter, smape_iter)
         if niter == 0:
             conv_status = 1
-            print("ThreshVal =", thresh)
+            print(" ThreshVal =", thresh)
             if "rms" in thresh[3]:
                 dfit_iter = nrmse_iter
                 dfit_old = nrmse_iter

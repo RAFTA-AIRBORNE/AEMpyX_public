@@ -257,7 +257,7 @@ if "tikhopt" in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
 
-     "reverse" in Direction.lower()
+    Direction = "reverse"
 
 
     Maxreduce = 5
@@ -308,7 +308,7 @@ if "occ" in RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-     "reverse" in Direction.lower()
+    Direction = "reverse"
 
 
     Maxiter = 10
@@ -379,7 +379,7 @@ if "map" in  RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-     "reverse" in Direction.lower()
+    Direction = "reverse"
 
     Maxiter = 10
     ThreshFit = [0.5, 1.0e-2, 1.0e-2, 'rms']

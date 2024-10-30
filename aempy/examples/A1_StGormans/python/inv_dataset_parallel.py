@@ -62,7 +62,7 @@ Parallel = True
 if Parallel:
     import parallel
     
-    Njobs = 17
+    Njobs = 10
 
     if Njobs<0:
         Njobs=multiprocessing.cpu_count()
@@ -96,8 +96,8 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  70.
-    DatErr_mult = 0. #03
+    DatErr_add =  0. #50.
+    DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
     # data_active[0] = 0   # real at 900Hz
 
@@ -112,11 +112,11 @@ if "genes" in AEM_system.lower():
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' horizontals'
 
-Direction =  "normal"
+Direction = "normal"
 
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k2.npz"
+SearchStrng = "*FL*k1.npz"
 
 AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 InDatDir =  AEMPYX_DATA + "/proc/"
@@ -129,7 +129,7 @@ OutFileFmt = ".npz"
 OutResDir =   AEMPYX_DATA + "/results/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
-if not os.path.isdir(OutResDir):
+if not os.path.isdir(OutResDir): 
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
 
@@ -192,7 +192,7 @@ SetPrior = "set"
 ParaTrans = 1
 
 Nlyr = 21
-dzstart = 4.
+dzstart = 3.
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 print(dz)
@@ -262,10 +262,10 @@ if "tikhopt" in  RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-    # ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
-    ThreshFit = [0.5, 1.0e-2, 1.0e-2, "rms"]
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
+    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
-    RegShift = -1
+    RegShift = 0
 
 
     ctrl_dict ={
@@ -291,8 +291,11 @@ if OutInfo:
     print(ctrl_dict.keys())
 # -
 
-outstrng =  "_t"+RunType+"_q"+ThreshFit[3]+"_r"+RegFun+\
-            "_a"+str(round(DatErr_add,0))+"_m"+str(round(DatErr_mult*100,0))
+outstrng =  "_"+RunType+\
+            "_"+RegFun+\
+            "_a"+str(round(DatErr_add,0))+\
+            "_m"+str(round(DatErr_mult*100,0))+\
+            "_parallel"
 print("ID string: input file + %s " % outstrng)
 
 

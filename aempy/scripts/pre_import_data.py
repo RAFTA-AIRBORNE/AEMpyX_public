@@ -150,6 +150,150 @@ OutStrng = InSurvey+"_rect_stgormans"
 RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
 RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
 
+# InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A1/raw/"
+# InSurvey = "A1"
+# InPoly = "A1_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A2/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A2/raw/"
+# InSurvey = "A2"
+# InPoly = "A2_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A3/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A3/raw/"
+# InSurvey = "A3"
+# InPoly = "A3_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A4/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A4/raw/"
+# InSurvey = "A4"
+# InPoly = "A4_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A5/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A5/raw/"
+# InSurvey = "A5"
+# InPoly = "A5_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A6/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A6/raw/"
+# InSurvey = "A6"
+# InPoly = "A6_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A7/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A7/raw/"
+# InSurvey = "A7"
+# InPoly = "A7_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A8/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A8/raw/"
+# InSurvey = "A8"
+# # InPoly = "A7_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/A9/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/A9/raw/"
+# InSurvey = "A9"
+# # InPoly = "A7_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/TB/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/TB/raw/"
+# InSurvey = "TB"
+# InPoly = "TB_2019_utm.npz"
+# OutStrng = InSurvey
+
+# InDatDir = AEMPYX_DATA+"/Blocks/WF/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/WF/raw/"
+# InSurvey = "WF"
+# InPoly = "WF_2019_utm.npz"
+# OutStrng = InSurvey
+
+###############################################################################
+# StGormans
+###############################################################################
+
+# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+# InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
+# OutDatDir = AEMPYX_DATA+"/Projects/StGormans/raw/"
+# RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
+# InSurvey = "A1"
+# OutStrng = InSurvey+"_rect_StGormans"
+###############################################################################
+# LoughGur
+###############################################################################
+# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+# InDatDir = AEMPYX_DATA+"/Blocks/A5/orig/"
+# OutDatDir = AEMPYX_DATA+"/Projects/LoughGur/raw/"
+# RectCorners = [529600., 5816800., 534200., 5820250.] # StGormans
+# InSurvey = "A5"
+# OutStrng = InSurvey+"_rect_LoughGur"
+
+# ###############################################################################
+# # Limerick
+# ###############################################################################
+# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+# InDatDir = AEMPYX_ROOT+"/work/data/"
+# OutDatDir = AEMPYX_DATA+"/Projects/LoughGur/raw/"
+# RectCorners = [486000., 5815000., 498000., 5828000.] # StGormans
+# InSurvey = "A5"
+# OutStrng = InSurvey+"_rect_shale"
+
+###############################################################################
+# Munster
+###############################################################################
+
+#DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+#InDatDir = AEMPYX_DATA+"/Blocks/A9/orig/"
+#OutDatDir = AEMPYX_DATA+"/Projects/Munster/raw/"
+## RectCorners = [516860.94, 5786658.92,   536925.58, 5768259.04 ]# Munster
+#RectCorners = [516000., 5768000.,   541000., 5788000. ]# Munster
+#InSurvey = "A9"
+#OutStrng = InSurvey+"_rect_Munster"
+
+###############################################################################
+# CGG NM
+###############################################################################
+# AEM_system = "genesis"
+# _, NN, _, _, _, = aesys.get_system_params(AEM_system)
+# nD = NN[0]
+# InDatDir = AEMPYX_DATA+"/Blocks/NM/orig/"
+# OutDatDir = AEMPYX_DATA+"/Blocks/NM/raw/"
+# InSurvey = "NM"
+# # InPoly = "NM_2019_utm.npz"
+# OutStrng = InSurvey
+
+###############################################################################
+# Overlap Area
+###############################################################################
+# InSurvey = "A1"
+# InPoly = "A1_2019_utm.npz"
+# InDatDir = AEMPYX_DATA+"/Blocks/A1/orig/"
+# OutStrng = InSurvey+"_NM_intersection"
+
+# InSurvey = "A2"
+# InPoly = "A2_2019_utm.npz"
+# InDatDir = AEMPYX_DATA+"/Blocks/A2/orig/"
+# OutStrng = InSurvey+"_NM_intersection"
+
+# InSurvey = "TB"
+# InPoly = "TB_2019_utm.npz"
+# InDatDir = AEMPYX_DATA+"/Blocks/TB/orig/"
+# OutStrng = InSurvey+"_NM_intersection"
+
+# DataSelect = "Intersection"   # "Polygon", "Intersection", "Union"
+# OutDatDir = AEMPYX_DATA+"/RAFTA/Intersection/raw/"
+# PolyDir = AEMPYX_DATA+"/RAFTA/Intersection/polygons/"
+# PolyFiles = [PolyDir+InPoly,PolyDir+"TNM_2019_utm.npz"]
+
+# + [markdown]
 # After this, generally no code changes are necessary. 
 
 # +

@@ -92,20 +92,34 @@ if "genes" in AEM_system.lower():
 
 # parpool = multiprocessing.Pool()
 
-Direction = "normal"
-
-
 
 AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 InDatDir =  AEMPYX_DATA + "/test/data/"
-
-OutResDir =   AEMPYX_DATA + "/test/results_parallel/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+print("Data read from dir: %s " % InDatDir)
+
+
 
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
 # SearchStrng = "*PLM3s_k3.npz"
 SearchStrng = "*FL*k3*data.npz"
+
+
+"""
+Output format is ".npz"
+"""
+OutFileFmt = ".npz"
+OutResDir =   AEMPYX_DATA + "/test/results_sequential/"
+if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
+print("Models written to dir: %s " % OutResDir)
+if not os.path.isdir(OutResDir):
+    print("File: %s does not exist, but will be created" % OutResDir)
+    os.mkdir(OutResDir)
+
+
+
+
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -124,19 +138,6 @@ else:
 ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
-
-"""
-Output format is ".npz"
-"""
-OutFileFmt = ".npz"
-OutDatDir =  InDatDir + "results_diffop"
-if not OutDatDir.endswith("/"): OutDatDir=OutDatDir+"/"
-print("Models written to dir: %s " % OutDatDir)
-
-
-if not os.path.isdir(OutDatDir):
-    print("File: %s does not exist, but will be created" % OutDatDir)
-    os.mkdir(OutDatDir)
 
 
 """
@@ -486,7 +487,7 @@ for file in dat_files:
 
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
-    fileout = OutDatDir + name + outstrng
+    fileout = OutResDir + name + outstrng
 
     numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
 
@@ -531,8 +532,8 @@ for file in dat_files:
     logsize = (2 + 7*Maxiter)
     site_log = numpy.full((len(sites),logsize), numpy.nan)
 
-    # for ii in sites:
-    for ii in [0,1,2]:
+    for ii in sites:
+        # for ii in [0,1,2]:
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
 
         """

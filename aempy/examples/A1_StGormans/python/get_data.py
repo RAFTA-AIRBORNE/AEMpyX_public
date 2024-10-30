@@ -114,7 +114,7 @@ if SetProj:
 
 TellusAng = 345.
 Spread = 5.
-Correct "reverse" in Direction.lower()
+CorrectDirection = True
 
 
 # + [markdown]
