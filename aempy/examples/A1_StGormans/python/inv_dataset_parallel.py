@@ -45,12 +45,12 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-# import alg
+import alg
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 rng = numpy.random.default_rng()
-nan = numpy.nan  
+nan = numpy.nan
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
@@ -58,11 +58,10 @@ print(titstrng+"\n\n")
 
 OutInfo = False
 
-Parallel = True
+Parallel = False
 if Parallel:
-    import parallel
-    
-    Njobs = 10
+
+    Njobs = 5
 
     if Njobs<0:
         Njobs=multiprocessing.cpu_count()
@@ -75,16 +74,16 @@ else:
     Njobs = 1
 # -
 
-# The following cell gives values to AEM-system related settings. 
+# The following cell gives values to AEM-system related settings.
 #
-# Data transformation is activated by the variable _DataTrans_. Currently 
-# three possible options are allowed: _DataTrans = 0_: No transformation, 
-# i.e., the raw data are used. _DataTrans = 1_: The natural log of data 
-# is taken, only allowed for strictly positive values. _DataTrans = 2_: 
+# Data transformation is activated by the variable _DataTrans_. Currently
+# three possible options are allowed: _DataTrans = 0_: No transformation,
+# i.e., the raw data are used. _DataTrans = 1_: The natural log of data
+# is taken, only allowed for strictly positive values. _DataTrans = 2_:
 # If data scale logarithmically, an _asinh_ transformation (introduced by
-# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, 
+# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM,
 # when IP effects are present.
-#        
+#
 # A general additive/multiplicative error model is applied on the raw data
 # before transformation, and errors are also transformed.
 
@@ -96,8 +95,8 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  0. #50.
-    DatErr_mult = 0.05
+    DatErr_add =  50.
+    DatErr_mult = 0.0
     data_active = numpy.ones(NN[2], dtype="int8")
     # data_active[0] = 0   # real at 900Hz
 
@@ -107,31 +106,32 @@ if "genes" in AEM_system.lower():
     ParaTrans = 1
     DataTrans = 0
     DatErr_add = 100.
-    DatErr_mult = 0.01
+    DatErr_mult = 0.0
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' horizontals'
 
-Direction = "normal"
 
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k1.npz"
+SearchStrng = "*FL*k3*data.npz"
 
 AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InDatDir =  AEMPYX_DATA + "/proc/"
+InDatDir =  AEMPYX_DATA + "/test/data/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+print("Data read from dir: %s " % InDatDir)
 # +
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/results/"
+OutResDir =   AEMPYX_DATA + "/test/results_parallel/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
-if not os.path.isdir(OutResDir): 
+if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
+
 
 
 if "set" in FileList.lower():
@@ -139,8 +139,8 @@ if "set" in FileList.lower():
     # dat_files = []
     dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
     # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
-    
-    dat_files = [os.path.basename(f) for f in dat_files]  
+
+    dat_files = [os.path.basename(f) for f in dat_files]
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
@@ -161,7 +161,12 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+Direction = "normal"
+
+SetPrior = "set"
+ParaTrans = 1
+
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -188,16 +193,15 @@ nreg = NTau0 * NTau1
 Model definition
 """
 
-SetPrior = "set"
-ParaTrans = 1
 
-Nlyr = 21
-dzstart = 3.
+
+Nlyr = 23
+dzstart = 2.
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
-print(dz)
+# print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
-print(z)
+# print(z)
 
 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
@@ -234,12 +238,12 @@ if OutInfo:
     print(" Layer interface depths: \n", z)
     print(" Initial halfspace resistivity of %6.2f Ohm*m" % (Guess_r))
     print(" Log Standard error of %6.2f " % (Guess_s))
-    if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
+    if numpy.size(mod_bnd) != 0:
         print(" Upper limits: \n", mod_bnd[:, 1])
         print(" Lower limits: \n", mod_bnd[:, 0])
 # -
 
-# Setup controls for different slgorithms, here in particular prepare 
+# Setup controls for different slgorithms, here in particular prepare
 # differential operator base methods for regularization matrices
 
 # +
@@ -291,8 +295,8 @@ if OutInfo:
     print(ctrl_dict.keys())
 # -
 
-outstrng =  "_"+RunType+\
-            "_"+RegFun+\
+outstrng =  "_"+RunType.lower()+\
+            "_"+RegFun.lower()+\
             "_a"+str(round(DatErr_add,0))+\
             "_m"+str(round(DatErr_mult*100,0))+\
             "_parallel"
@@ -305,17 +309,17 @@ if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
-        joblib.delayed(parallel.run_tikh_flightline)(ctrl=ctrl_dict, 
+        joblib.delayed(alg.run_tikh_flightline)(ctrl=ctrl_dict,
                                                      data_dir=InDatDir,
                                                      data_file=filin,
-                                                     result_dir=OutResDir, 
+                                                     result_dir=OutResDir,
                                                      result_strng=outstrng) for filin in dat_files)
 else:
     for filin in dat_files:
-        _ = parallel.run_tikh_flightline(ctrl=ctrl_dict, 
+        _ = alg.run_tikh_flightline(ctrl=ctrl_dict,
                                          data_dir=InDatDir,
                                          data_file=filin,
-                                         result_dir=OutResDir, 
+                                         result_dir=OutResDir,
                                          result_strng=outstrng)
 
 print("\n\nAll done!")

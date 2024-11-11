@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: py:light,ipynb
+#     main_language: python
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (Spyder)
+#     language: python3
+#     name: python3
+# ---
+
 
 import os
 import sys
@@ -15,8 +32,7 @@ import numpy
 import scipy
 
 # import multiprocessing
-
-
+# from numba import njit
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
@@ -30,31 +46,36 @@ import aesys
 import util
 import inverse
 import alg
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
+import post
+# -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
-
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  
+
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
 print(titstrng+"\n\n")
 
 OutInfo = False
-now = datetime.now()
 
 
-"""
-System related settings.
-Data transformation is allowed with three possible options:
-DataTrans   = 0           raw data
-            = 1           natural log of data
-            = 2           asinh transformation
-An error model is applied for the raw data, which is
-mixed additive/multiplicative. in case of data transformation,
-errors are also transformed.
-"""
+# -
+
+# The following cell gives values to AEM-system related settings. 
+#
+# Data transformation is activated by the variable _DataTrans_. Currently 
+# three possible options are allowed: _DataTrans = 0_: No transformation, 
+# i.e., the raw data are used. _DataTrans = 1_: The natural log of data 
+# is taken, only allowed for strictly positive values. _DataTrans = 2_: 
+# If data scale logarithmically, an _asinh_ transformation (introduced by
+# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, 
+# when IP effects are present.
+#        
+# A general additive/multiplicative error model is applied on the raw data
+# before transformation, and errors are also transformed.
+
+# +
 # AEM_system = "genesis"
 AEM_system = "aem05"  # "genesis"
 if "aem05" in AEM_system.lower():
@@ -62,8 +83,8 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  50.
-    DatErr_mult = 0.0
+    DatErr_add =  75.
+    DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
 
 
@@ -78,12 +99,10 @@ if "genes" in AEM_system.lower():
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
-
-# """
+# +
+# 
 # configure moltiprocessing
-# """
-
-
+# 
 # nprocs = 8
 # if nprocs<0:
 #     nprocs=multiprocessing.cpu_count()
@@ -92,25 +111,30 @@ if "genes" in AEM_system.lower():
 
 # parpool = multiprocessing.Pool()
 
-
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InDatDir =  AEMPYX_DATA + "/test/data/"
-if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
-print("Data read from dir: %s " % InDatDir)
+Direction =  "normal"
 
 
 
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
-# SearchStrng = "*PLM3s_k3.npz"
-SearchStrng = "*FL*k3*data.npz"
+# SearchStrng = "*delete_dec5_mean.npz" # no svd
+SearchStrng = "*delete_dec5_mean.npz"
+#SearchStrng = "*k2_dec5_mean.npz"
+
+AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
+InDatDir = AEMPYX_DATA + "/aem05_limerick/dec/"
+if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
 
+SetPrior = "read"
+if "read" in SetPrior.lower():
+    InPriorDir = AEMPYX_DATA + "/aem05_limerick/dec/halfspace_results/"
+# +
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/test/results_sequential/"
+OutResDir =  InDatDir + "/results/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -118,39 +142,41 @@ if not os.path.isdir(OutResDir):
     os.mkdir(OutResDir)
 
 
-
-
-
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
-    # dat_files = []
-    dat_files = [InDatDir+"A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3.npz"]
-    # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
-
+    dat_files = []
+    # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    
     dat_files = [os.path.basename(f) for f in dat_files]
+    apr_files = [os.path.basename(f) for f in apr_files]
+
 else:
     # how = ["search", SearchStrng, InDatDir]
     # how = ["read", FileList, InDatDir]
     dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
                               out= True, sort=True)
 
+    if "read" in SetPrior.lower():
+       apr_files = util.get_data_list(how=["search",
+                                           SearchStrng.replace("dec5_mean.npz", "dec5_mean_halfspace_results.npz"), InPriorDir],
+                                           out= True, sort=True)
+       if len(apr_files) != len(dat_files):
+           error("Number of prior files does not match data files! Exit.")
+
 
 ns = numpy.size(dat_files)
 if ns ==0:
     error("No files set!. Exit.")
 
-
+# +
 """
 Define inversion type  optional additional parameters (e.g., Waveforms )
 """
-Direction = "normal"
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-SetPrior = "set"
-ParaTrans = 1
 
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -172,25 +198,18 @@ else:
 Tau1 = numpy.logspace(Tau1min, Tau1max, NTau1)
 nreg = NTau0 * NTau1
 
-
+# +
 """
 Model definition
 """
 
-# Nlyr = 30
-# dzstart = 2.5
-# dzend = 10.
-# dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
-# z = numpy.append(0.0, numpy.cumsum(dz))
+ParaTrans = 1
 
-Nlyr = 23
-dzstart = 2.
+Nlyr = 36
+dzstart = 5.
 dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
-# print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
-# print(z)
-
 
 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
@@ -200,7 +219,9 @@ sizepar = numpy.shape(mod_act)
 mpara = sizepar[0]
 
 Guess_r = 100.0  # initial guess for resistivity in mod_apr
-Guess_s = 0.3   # mod_std defines standard deviation of mod_apr
+# Guess_r = 10.0    # low value for DoI estimate
+# Guess_r = 1000.0  # high value for DoI estimate
+Guess_s = 0.3   # mod_std (logscale) defines standard deviation of mod_apr
 mod_apr[0*Nlyr:1*Nlyr] = Guess_r
 mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_s,2)
 mod_apr[6*Nlyr:7*Nlyr-1] = dz[0:Nlyr - 1]
@@ -228,10 +249,12 @@ if OutInfo:
     if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
         print(" Upper limits: \n", mod_bnd[:, 1])
         print(" Lower limits: \n", mod_bnd[:, 0])
+# -
 
-"""
-Setup Controls for different Algorithms
-"""
+# Setup controls for different slgorithms, here in particular prepare 
+# differential operator base methods for regularization matrices
+
+# +
 if "tikhopt" in  RunType.lower():
 
     D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
@@ -247,246 +270,50 @@ if "tikhopt" in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
     Maxiter = 10
-    Maxreduce = 10
+    Maxreduce = 5
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
-    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
+
+    ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
-    RegShift = 0
-
-
-    Ctrl ={
-        "system":
-            [AEM_system, FwdCall],
-        "header":
-            [titstrng, ""],
-        "inversion":
-            numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
-                      LinPars, SetPrior, Delta, RegShift], dtype=object),
-        "covar":
-            numpy.array([L0, Cm0, L1, Cm1], dtype=object),
-        "uncert":
-            [Uncert],
-
-        "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
-        "model":
-            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
-                }
-
-if "occ" in RunType.lower():
-    """
-    Prepare differential operator base methods for regularization matrices
-    """
-    D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
-    L = [D0 for D in range(7)]
-    L0 = scipy.sparse.block_diag(L)
-    Cm0 = L0.T@L0
-    Cm0 = inverse.extract_cov(Cm0, mod_act)
-
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
-    L = [D1 for D in range(7)]
-    L1 = scipy.sparse.block_diag(L)
-    Cm1 = L1.T@L1
-    Cm1 = inverse.extract_cov(Cm1, mod_act)
-
-
-    Maxiter = 10
-    Maxreduce = 10
-    Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
-
-    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
-    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
-    Delta = [1.e-5]
-    RegShift = 0
-
-    Ctrl ={
-        "system":
-            [AEM_system, FwdCall],
-        "header":
-            [titstrng, ""],
-        "inversion":
-            numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
-                      LinPars, SetPrior, Delta, RegShift], dtype=object),
-        "covar":
-            numpy.array([L0, Cm0, L1, Cm1], dtype=object),
-        "uncert":
-            [Uncert],
-
-        "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
-        "model":
-            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
-                }
-
-
-if "map" in  RunType.lower():
-
-    """
-    Prepare explicit covariances for MAP and related methods
-    """
-
-    zc = inverse.set_zcenters(dz)
-    xc = numpy.zeros_like(zc)
-    yc = numpy.zeros_like(zc)
-    CorrL = numpy.array([30.0, 30.0, 30.0])
-
-    """
-    This setup is a workaround, correct only for rho-only inversion
-    """
-    mvar  = mod_var[0*Nlyr:1*Nlyr]
-    v_act  = inverse.extract_mod(mod_var, mod_act)
-
-
-    if "par"in RunType.lower():
-        InvSpace = "par"
-        Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=False, thresh=0.05, inverse=True)
-
-
-        Cmi = inverse.full_cov([Cmi])
-        Cmi = inverse.extract_cov(Cmi, mod_act)
-        C = scipy.sparse.csr_matrix(Cmi)
-
-
-        CmiS = inverse.full_cov([CmiS])
-        CmiS = inverse.extract_cov(CmiS, mod_act)
-        sC = scipy.sparse.csr_matrix(CmiS)
-
-        var = 1./v_act
-        err = numpy.sqrt(var)
-        print(numpy.shape(C),numpy.shape(sC))
-    else:
-        InvSpace = "dat"
-        Cm, CmS = inverse.covar(xc, yc, zc, covtype= ["exp", CorrL],
-                  var=mvar, sparse=False, thresh=0.05, inverse=False)
-
-        Cm = inverse.full_cov([Cm])
-        Cm = inverse.extract_cov(Cm, mod_act)
-        C = scipy.sparse.csr_matrix(Cm)
-
-        CmS = inverse.full_cov([CmS])
-        CmS = inverse.extract_cov(CmS, mod_act)
-        sC = scipy.sparse.csr_matrix(CmS)
-
-        var = scipy.diag(v_act)
-        err = scipy.diag(numpy.sqrt(var))
-
-    Maxiter = 10
-    Maxreduce = 10
-    Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
-
-    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
-    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
-    Delta = [1.e-5]
-    RegShift = 0
-
-    Ctrl ={
-        "system":
-            [AEM_system, FwdCall],
-        "header":
-            [titstrng, ""],
-        "inversion":
-            numpy.array([RunType, InvSpace, RegFun, Tau1, Maxiter, ThreshFit,
-                      LinPars, SetPrior, Delta, RegShift], dtype=object),
-        "covar":
-            numpy.array([L0, Cm0, L1, Cm1], dtype=object),
-        "uncert":
-            [Uncert],
-
-        "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
-        "model":
-            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
-                }
-
-if "rto" in RunType.lower():
-    """
-    Prepre parameters for rto (randomize-then-optimize) algorithm
-    """
-    NSamples = 100
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
-    Ctrl["rto"] = [NSamples]
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-
-if "eki" in RunType.lower():
-    """
-    Prepare pramters for ensemble kalman inversion (eki)
-    """
-    NSamples = 100
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.]  # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-
-    Ctrl = {
-        "system":
-            [AEM_system, FwdCall],
-        "covar":
-            numpy.array([C, sC], dtype=object),
-        "eki":
-            [NSamples],
-        "output":
-            numpy.array(["quant", Percentiles], dtype=object),
-        "data":
-            numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
-        "model":
-            numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
-          }
-
-if "jac" in RunType.lower():
-    """
-    no new parameteres for jackknife estimates
-    """
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-    pass
-
-if "nul" in RunType.lower():
-    """
-    no new parametrres for nullspace projection
-    """
-    NSing = 3
-    NSamples = 1000
-    Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
-    # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
-    Ctrl["nullspace"] = [NSing, NSamples]
-    Ctrl["output"] = numpy.array(["quant", Percentiles], dtype=object)  # ["ens "]
-    pass
-
-# Ctrl["data"]  = numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult,
-#                              Direction], dtype=object)
-# Ctrl["model"] = numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd],
-#                             dtype=object)
-
+    RegShift = 1
+    Ctrl = dict([
+        ("system", [AEM_system, FwdCall]),
+        ("name", ""),
+        ("inversion",
+         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
+                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
+        ("covar", 
+         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
+        ("transform",
+         [DataTrans, ParaTrans]),
+        ("uncert", 
+         Uncert)
+       ])
 
 if OutInfo:
     print(Ctrl.keys())
-
-
+# -
 
 outstrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType\
             +"_"+RegFun\
-            +"_Prior"+str(int(Guess_r))\
+            +"_Prior_halfspace"\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
 print("ID string: input file + %s " % outstrng)
 
-
 fcount =0
-for file in dat_files:
+for ifile in numpy.arange(len(dat_files)):
+
+    datfile = dat_files[ifile]
 
     start = time.time()
 
     fcount=fcount+1
 
-    name, ext = os.path.splitext(file)
-    filein = InDatDir+file
+    name, ext = os.path.splitext(datfile)
+    filein = InDatDir+datfile
     fileout = OutResDir + name + outstrng
 
     numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
@@ -494,6 +321,8 @@ for file in dat_files:
     print("\n Reading file " + filein)
     DataObs, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
+
+# models = numpy.load(filein, allow_pickle=True)
 
     fl_name = DataObs[0, 0]
     site_x = DataObs[:, 1]
@@ -505,35 +334,30 @@ for file in dat_files:
     [nsite,ndata] = numpy.shape(dat_obs)
     dat_act = numpy.tile(data_active,(nsite,1))
 
-    Ctrl["name"] = fl_name
+    if "read" in SetPrior.lower():
+        prior_file = apr_files[ifile]
+        if name.lower() not in prior_file.lower():
+            error("Halfspace file name does not match! Exit.")
+        mod_prior = inverse.load_prior(InPriorDir+prior_file)
 
+
+# This is the main loop over sites in a flight line or within an area:        
 
     start = time.time()
     """
     Loop over sites
     """
     sequence = range(nsite)
-    if "rev" in Direction.lower():
+    if "reverse" in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence
 
-    mod_prior = numpy.zeros((nsite,numpy.shape(mod_apr)[0]))
-    if "read" in SetPrior.lower():
-        halfspace ="halfspace_results"
-        file, filext0 = os.path.splitext(file)
-        prior_file = file+halfspace+filext0
-        mod_prior, var_prior = inverse.load_prior(prior_file)
-
-    if ("set" in SetPrior.lower()) or ("upd" in SetPrior.lower()):
-        for ii in sites:
-                mod_prior[ii, :] = mod_apr
 
     logsize = (2 + 7*Maxiter)
     site_log = numpy.full((len(sites),logsize), numpy.nan)
 
     for ii in sites:
-        # for ii in [0,1,2]:
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
 
         """
@@ -582,49 +406,12 @@ for file in dat_files:
             ("alt", site_alt[ii])
             ])
 
-        """
-        Call inversion algorithms
-        """
-        if "opt" in RunType.lower():
-            Results =\
+        Results =\
                 alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
-        if "occ" in RunType.lower():
-            Results =\
-                alg.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
+#         Now store inversion results for this site:
 
-        if "map" in RunType.lower():
-            Results =\
-                alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "rto" in RunType.lower():
-
-            Results =\
-                alg.run_rto(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "eki" in RunType.lower():
-            Results =\
-                alg.run_eki(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "jac" in RunType.lower():
-            Results =\
-                alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-        if "nul" in RunType.lower():
-            Results =\
-                alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
-                                  OutInfo=OutInfo)
-
-
-        """
-        Store inversion Results
-        """
         if OutInfo:
             print("Results: ",Results.keys())
 
@@ -635,6 +422,7 @@ for file in dat_files:
 
         if ii==0:
             site_num  = numpy.array([ii])
+            site_conv = C[1]
             site_nrms = C[2]
             site_smap = C[3]
             site_modl = M[0]
@@ -657,6 +445,7 @@ for file in dat_files:
                 site_pcov = pcov.reshape((1,numpy.size(pcov)))
         else:
            site_num = numpy.vstack((site_num, ii))
+           site_conv = numpy.vstack((site_conv, C[1]))
            site_nrms = numpy.vstack((site_nrms, C[2]))
            site_smap = numpy.vstack((site_smap, C[3]))
            site_modl = numpy.vstack((site_modl, M[0]))
@@ -678,8 +467,9 @@ for file in dat_files:
                pcov = Results["cpost"]
                site_pcov = numpy.vstack((site_pcov, pcov.reshape((1,numpy.size(pcov)))))
 
+# The _Ctrl_ paramter set as well as the results for data set (flight line or area) are stored in _.npz_ files, which strings _"ctrl.npz"_ and _"results.npz"_ appended:
 
-
+# +
     numpy.savez_compressed(
         file=fileout+"_results.npz",
         fl_data=file,
@@ -697,6 +487,7 @@ for file in dat_files:
         site_derr=site_derr,
         site_nrms=site_nrms,
         site_smap=site_smap,
+        site_conv=site_conv,
         site_num=site_num,
         site_y=site_y,
         site_x=site_x,
@@ -705,7 +496,8 @@ for file in dat_files:
         site_dem=site_dem)
 
     if Uncert:
-        numpy.savez_compressed(
+
+        numpy.savez_compressed(        
             file=fileout+"_results.npz",
             fl_data=file,
             fl_name=fl_name,
@@ -720,8 +512,9 @@ for file in dat_files:
             site_dobs=site_dobs,
             site_dcal=site_dcal,
             site_derr=site_derr,
-            site_nrms=site_nrms,
+            site_nrms=site_nrms,        
             site_smap=site_smap,
+            site_conv=site_conv,
             site_num=site_num,
             site_y=site_y,
             site_x=site_x,
