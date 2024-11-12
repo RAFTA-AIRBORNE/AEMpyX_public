@@ -347,10 +347,11 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
     print("Survey is "+Survey.lower())
 
     # Invalid could also be fac*numpy.finfo(float).max
-    
+
     invalid_strng = str(Invalid)
-    
-    if Survey.lower() in ["a1", "a2", "a3", "a4", "wf", "tb", ]:
+
+    if any(s in Survey.lower() for s in ["a1", "a2", "a3", "a4", "wf", "tb", ]):
+
         """
         ===================================================================================================================
         Surveys A1 - A4, TB, WF (NEW, 2022):
@@ -394,8 +395,8 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         P25lev        	 12	             15         ppm	    	Levelled and filtered in-phase 24510 Hz
         Q25lev        	 13	             16         ppm		    Levelled and filtered quadrature 24510 Hz
         PLM_nT           14 	         17         nT		    Power line monitor                                                                (B=Block, L=line, S=segment, R=reflight)
-      
-        DLV2088: 
+
+        DLV2088:
         LINE             0               0                              Line Number  BBLLLL.SR
         DATE                             1           -                  Date YYYYMMDD
         DAY                              2           -                  Day of year
@@ -455,7 +456,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
 
 
-    if Survey.lower() in [ "cav","cv" ]:
+    if any(s in Survey.lower() for s in [ "cav","cv", ]):
         """
         =======================================================================
         Surveys cavan2006 :
@@ -522,7 +523,8 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
 
 
-    if Survey.lower() in [ "a5","a6", "a7", ]:
+    if any(s in Survey.lower() for s in [ "a5","a6", "a7", ]):
+
         """
         ===================================================================================================================
         Surveys A5 - A7 :
@@ -595,8 +597,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
 
 
 
-
-    if Survey.lower() in [  "a8", "a9",]:
+    if any(s in Survey.lower() for s in [ "a8","a9", ]):
 
         """
        ===================================================================================================================
@@ -718,7 +719,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
 
 """
         print(Survey.lower(), EPSG_in,EPSG_out)
-        
+
         # filtered:
         ncol = [ 0,  5, 6,  10, 13,  23, 25, 27, 29, 24, 26, 28, 30, 36, ]
 
@@ -752,9 +753,9 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
             Data[:,1], Data[:,2] = util.project_utm_to_utm(Data[:,1], Data[:,2],
                                                            utm_zone_in=EPSG_in,
                                                            utm_zone_out=EPSG_out)
-            
+
         Data = numpy.insert(Data, 5, Data[:, 3]-Data[:, 4], axis=1)
-        
+
         Data = numpy.where(Data<Invalid/1.e2,Data, Invalid)
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
@@ -857,7 +858,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
 
 
-    if Survey.lower() in ["nm", ]:
+    if any(s in Survey.lower() for s in ["nm", ]):
         """
         ===================================================================================================================
         Survey NM (GENESIS TDEM system):
@@ -928,8 +929,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
 
 
 
-
-    if Survey.lower() in ["nmx", ]:
+    if any(s in Survey.lower() for s in [ "nmx", ]):
         """
         ===================================================================================================================
         Survey NM (GENESIS TDEM system):
@@ -1027,9 +1027,9 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
 
 
         """
-        
+
         ncol = [0, 1, 2, 3, 4, 5,
-                7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 
+                7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
                 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
 
         Data = []
@@ -1495,11 +1495,11 @@ def read_aempy_ncd(File=None, Data=None, Split=False, OutInfo=False):
         return Data, Header, System
 
 
-def merge_data_files(File_list=[], 
-                     Merged="merged_data", MergedHeader=None, 
+def merge_data_files(File_list=[],
+                     Merged="merged_data", MergedHeader=None,
                      AEM_system="aem05", OutInfo=False):
     """
-    
+
 
     Parameters
     ----------
@@ -1516,9 +1516,9 @@ def merge_data_files(File_list=[],
     nf = len (File_list)
     if nf==0:
         error("merge_data_files: file list is empty! Exit.")
-    
-    
-   
+
+
+
     for ifile in numpy.arange(nf):
         filein = File_list[ifile]
         print("\n Reading file " + filein)
@@ -1528,13 +1528,13 @@ def merge_data_files(File_list=[],
             system_out = system
             data_out = data_in.copy()
             # print(numpy.shape(data_out))
-        else: 
+        else:
             data_out = numpy.vstack((data_out, data_in))
-            # print(numpy.shape(data_out))    
-     
-    print("\n\n", numpy.shape(data_out), " data written to ", Merged )    
-             
-    write_aempy_npz(File=Merged, Data=data_out, Header=MergedHeader, 
+            # print(numpy.shape(data_out))
+
+    print("\n\n", numpy.shape(data_out), " data written to ", Merged )
+
+    write_aempy_npz(File=Merged, Data=data_out, Header=MergedHeader,
                         System=system_out , OutInfo=False)
-        
+
     return data_out
