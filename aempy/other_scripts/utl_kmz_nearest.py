@@ -62,10 +62,6 @@ if (not os.path.isdir(indatdir)) or (not os.path.isdir(inpltdir)):
 Fline_files = [data_dir+"TD_Nearest_FDLines.txt"]
 Fline_files = [data_dir+"TD_Nearest_Somaye_2.txt",]
 
-TellusAng = 345.
-AngLimits = [TellusAng-5., TellusAng+5. ]
-Invert "reverse" in Direction.lower()
-
 for ii in range(len(Fline_files)):
     lines = numpy.loadtxt(Fline_files[ii], dtype=object)
 
@@ -144,21 +140,6 @@ for f in FLines:
     fd_name,  ext = os.path.splitext(f[1])
     fd_file = indatdir+f[1]
     print("fd_file = "+fd_file)
-    Data, _ = aesys.read_aempy(File=fd_file, System=AEM_system, OutInfo=False)
-    if InvertDirection:
-        nd =numpy.shape(Data)[0]
-        spoint = [Data[round(nd*0.3),1], Data[round(nd*0.3),2]]
-        epoint = [Data[round(nd*0.6),1], Data[round(nd*0.6),2]]
-        ang, _ = util.get_direction_angle(spoint, epoint)
-        if ang < AngLimits[0] or ang > AngLimits[1]:
-            Data = numpy.flipud(Data)
-            print(" Angle = "+str(round(ang,1))
-                +" not in interval "
-                +str(round(AngLimits[0],1))+" - "
-                +str(round(AngLimits[1],1)))
-            print("FD flightline direction has been reversed.")
-        else:
-            print("FD flightline direction is approx. 345 degrees")
     fdata = Data
     nfd =numpy.shape(fdata)[0]
     flat, flon = util.project_utm_to_latlon(fdata[:,1], fdata[:,2])
@@ -169,20 +150,6 @@ for f in FLines:
     td_name,  ext = os.path.splitext(f[0])
     print("td_file = "+td_file)
     Data, _ = aesys.read_aempy(File=td_file, System=AEM_system, OutInfo=False)
-    if InvertDirection:
-        nd =numpy.shape(Data)[0]
-        spoint = [Data[round(nd*0.3),1], Data[round(nd*0.3),2]]
-        epoint = [Data[round(nd*0.6),1], Data[round(nd*0.6),2]]
-        ang, _ = util.get_direction_angle(spoint, epoint)
-        if ang < AngLimits[0] or ang > AngLimits[1]:
-            Data = numpy.flipud(Data)
-            print(" Angle = "+str(round(ang,1))
-                +" not in interval "
-                +str(round(AngLimits[0],1))+" - "
-                +str(round(AngLimits[1],1)))
-            print("TD flightline direction has been reversed.")
-        else:
-            print("TD flightline direction is approx. 345 degrees")
     tdata = Data
     ntd = numpy.shape(tdata)[0]
     tlat, tlon = util.project_utm_to_latlon(tdata[:,1], tdata[:,2])

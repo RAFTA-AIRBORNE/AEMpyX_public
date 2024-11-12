@@ -122,11 +122,6 @@ if not os.path.isdir(OutDatDir):
     os.mkdir(OutDatDir)
 
 
-TellusAng = 345.
-AngLimits = [TellusAng-5., TellusAng+5. ]
-Correct "reverse" in Direction.lower()
-
-
 for file in dat_files:
 
     name,  ext = os.path.splitext(file)
@@ -140,21 +135,6 @@ for file in dat_files:
     Data, Header, _ = aesys.read_aempy(File=input_file, 
                                   System=AEM_system, 
                                   OutInfo=False)
-    
-    if CorrectDirection:
-        nd =numpy.shape(Data)[0]
-        spoint = [Data[round(nd*0.3),1], Data[round(nd*0.3),2]]
-        epoint = [Data[round(nd*0.6),1], Data[round(nd*0.6),2]]
-        ang, _ = util.get_direction_angle(spoint, epoint)
-        if ang < AngLimits[0] or ang > AngLimits[1]:
-            Data = numpy.flipud(Data)
-            print(" Angle = "+str(round(ang,1))
-                +" not in interval "
-                +str(round(AngLimits[0],1))+" - "
-                +str(round(AngLimits[1],1)))
-            print("FD flightline direction has been reversed.")
-        else:
-            print("FD flightline direction is approx. 345 degrees")
     
     
     Profile = Data[:,1:3]

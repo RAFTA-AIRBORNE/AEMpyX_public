@@ -190,17 +190,10 @@ poslatlon = True
 if poslatlon:
     EPSG=32629
 
-Invert "reverse" in Direction.lower()
+
 ProfScale = 1. # 0.001  # m to km
 ProfUnit  = "(m)" #
 
-
-Invert "reverse" in Direction.lower()
-TellusAng = 345.
-AngLimits = [TellusAng-5.,TellusAng+5.]
-
-ProfScale = 1. # 0.001  # m to km
-ProfUnit  = "m" #
 
 PlotThresh =20
 PosDegrees = False
