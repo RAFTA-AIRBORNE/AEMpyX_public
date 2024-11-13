@@ -377,13 +377,13 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
 
         Name              Storage        Pos        units              Description
         Rerelease2022:
-        ITM_X            1               0         m       	X coordinate, IRENET95 ITM
-        ITM_Y            2               1	       m       	Y coordinate, IRENET95 ITM
+        ITM_X            1               0          m       	X coordinate, IRENET95 ITM
+        ITM_Y            2               1	        m       	Y coordinate, IRENET95 ITM
         DATE           	                 2	                    Date YYYYMMDD
-        LINE             0               3                     Line Number  BBLLLL.SR
+        LINE             0               3                      Line Number  BBLLLL.SR  (B=Block, L=line, S=segment, R=reflight)
         LONG         		             4      degree    	    Longitude, WGS-84
         LAT          		             5      degree    	    Latitude, WGS-84
-        MSLHGT           3               6         m		    GPS Elevation above Mean Sea Level
+        MSLHGT           3               6          m		    GPS Elevation above Mean Sea Level
         RADAR		      4	              7         m		    Clearance above Terrain from Radar
         DEM              5	              8 		m           Digital Elevation Model with respect to Mean Sea Level from Radar Clearance
         P09lev        	  6	              9         ppm		    Levelled and filtered in-phase 912 Hz
@@ -394,10 +394,14 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         Q12lev        	 11	             14         ppm	    	Levelled and filtered quadrature 11962 Hz
         P25lev        	 12	             15         ppm	    	Levelled and filtered in-phase 24510 Hz
         Q25lev        	 13	             16         ppm		    Levelled and filtered quadrature 24510 Hz
-        PLM_nT           14 	         17         nT		    Power line monitor                                                                (B=Block, L=line, S=segment, R=reflight)
+        PLM_nT           14 	         17         nT		    Power line monitor
+
+        ====>  ncol =  [3,  0, 1,    6, 7, 8,     9, 11, 13, 15,  10, 12, 14, 16, 17]
+
+        If the original delivery DLV2088 needs to be read:
 
         DLV2088:
-        LINE             0               0                              Line Number  BBLLLL.SR
+        LINE             0               0                              Line Number  BBLLLL.SR  (B=Block, L=line, S=segment, R=reflight)
         DATE                             1           -                  Date YYYYMMDD
         DAY                              2           -                  Day of year
         TIME                             3          sec                 Fiducial Seconds
@@ -420,9 +424,10 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         Q25lev           12              20          ppm                Levelled and filtered quadrature 24510 Hz
         PLM_nT           13              21           nT                Power line monitor
 
+        ====>  ncol =  [0, 6, 7,    11, 12,     13, 15, 17, 19,  14, 16, 18, 20, 21]       # DLV2088
 
         """
-        # ncol =  [0, 6, 7,    11, 12,     13, 15, 17, 19,  14, 16, 18, 20, 21]       # DLV2088
+
         ncol =  [3,  0, 1,    6, 7, 8,     9, 11, 13, 15,  10, 12, 14, 16, 17]        #2022
 
         Data = []
@@ -459,7 +464,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
     if any(s in Survey.lower() for s in [ "cav","cv", ]):
         """
         =======================================================================
-        Surveys cavan2006 :
+        Surveys cavan 2006 :
         =======================================================================
         0       1    X              Easting coordinate (Irish Grid)
         1       2    Y              Northing coordinate (Irish Grid)
@@ -528,6 +533,11 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         """
         ===================================================================================================================
         Surveys A5 - A7 :
+        Refers to formats for original deliveries
+
+            a5       GSI___18.IRL_DLV2123_FEM.xyz
+            a6       GSI___18.IRL_DLV2159_FEM.xyz
+            a7       GSI___19.IRL_DLV2198_FEM.xyz
         ===================================================================================================================
 
         Translation table from .xyz files to internal data format:
@@ -563,8 +573,48 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
                    40           Radio_Flag      -            Radio call flag
        14          41           PLM_nT          nT           Power line monitor
 
+
+        ====>    ncol = [0, 7, 8,  12, 13, 14,   32, 34, 36, 38, 33, 35, 37, 39,   41]
+
+
+        ===================================================================================================================
+        Surveys A5 - A7 :
+
+        Refers to formats for web data (reason unknown):
+
+            a5      EM_A5_2018_2029_WEB1.XYZ
+            a6      EM_A6_2018_2019_WEB1.XYZ
+            a7      EM_A7_2019B_WEB1.XYZ
+
+        ===================================================================================================================
+
+        Translation table from .xyz files to internal data format:
+
+        AEMPY  N        Name          Units     	Description
+        1      0       ITM_X          m       	X coordinate, IRENET95 ITM
+        2      1       ITM_Y          m       	Y coordinate, IRENET95 ITM
+               2       DATE           -         Date YYYYMMDD
+        0      3       LINE		      -		    Line number
+               4       LONG           degree    Longitude, WGS-84
+               5       LAT            degree    Latitude, WGS-84
+        3      6       MSLHGT         m		    GPS Elevation above Mean Sea Level
+        4      7       CLEARANCE      m		    Clearance above Terrain from Laser
+        5      8       DEM            m		    Digital Elevation Model with respect
+                                                to Mean Sea Level from Laser Clearance
+               9       TEMP           degree C	Temperature
+        6      10      P09lev         ppm		Levelled and filtered in-phase 912 Hz
+       10      11      Q09lev         ppm		Levelled and filtered quadrature 912 Hz
+        7      12      P3lev          ppm		Levelled and filtered in-phase 3005 Hz
+       11      13      Q3lev          ppm		Levelled and filtered quadrature 3005 Hz
+        8      14      P12lev         ppm		Levelled and filtered in-phase 11962 Hz
+       12      15      Q12lev         ppm		Levelled and filtered quadrature 11962 Hz
+        9      16      P25lev         ppm		Levelled and filtered in-phase 24510 Hz
+       13      17      Q25lev         ppm		Levelled and filtered quadrature 24510 Hz
+       14      18      PLM_nT         nT		Power line monitor
+
        """
-        ncol = [0, 7, 8,  12, 13, 14,   32, 34, 36, 38, 33, 35, 37, 39,   41]
+
+        ncol = [3, 0, 1, 6, 7, 8,   10, 12, 14, 16, 11, 13, 15, 17,   18]
 
         Data = []
         iline = 0

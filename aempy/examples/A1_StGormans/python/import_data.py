@@ -74,7 +74,7 @@ Header = titstrng
 OutInfo = True
 
 FileList = "search"
-SearchStr = ".xyz"
+SearchStr = ".xyz"   # may be in capitals!
 DataSet = []
 
 # FileList = "set"
@@ -138,11 +138,12 @@ _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
 
 AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+
 ##############################################################################
 # StGormans
 ###############################################################################
 
-DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union"
+DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union", "Lines"
 InDatDir = AEMPYX_DATA+"/orig/"
 OutDatDir = AEMPYX_DATA+"/raw/"
 InSurvey = "A1"
@@ -150,6 +151,7 @@ OutStrng = InSurvey+"_rect_stgormans"
 # RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
 RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
 
+LineList = []
 # After this, generally no code changes are necessary.
 
 # +
@@ -239,6 +241,21 @@ if ("uni" in DataSelect.lower()) or ("int" in DataSelect.lower()):
         Data = Poly
     else:
         error("No data found in polygons!\n")
+
+if "lines" in DataSelect.lower():
+    LinesOut = True
+    FlightLines = []
+    for ilin in LineList:
+        tmp = Data[numpy.where(Data[:, 0] == ilin), :]
+        ns = numpy.shape(tmp)
+        tmp = numpy.reshape(tmp, (ns[1], ns[2]))
+        print("OutInfo: "+str(numpy.shape(tmp)))
+        FlightLines.append(tmp)
+
+    if FlightLines.size != 0:
+        Data = FlightLines
+    else:
+        error("No lines found from list!\n")
 
 print("Data select time taken = ", process_time() - start, "s \n")
 print("Out: "+str(numpy.shape(Data)))
