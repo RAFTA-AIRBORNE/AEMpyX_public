@@ -137,7 +137,7 @@ AEM_system = "aem05"
 _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
 
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+AEMPYX_DATA  = "/home/vrath/AEMpyX_public/aempy/examples/A1_StGormans/"
 
 ##############################################################################
 # StGormans

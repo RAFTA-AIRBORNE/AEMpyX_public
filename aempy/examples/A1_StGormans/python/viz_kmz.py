@@ -45,7 +45,7 @@ from version import versionstrg
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 rng = numpy.random.default_rng()
-nan = numpy.nan  
+nan = numpy.nan
 # -
 
 version, _ = versionstrg()
@@ -72,16 +72,16 @@ if "genes" in AEM_system.lower():
 # -
 
 
-# Define the directories for the flightline files 
+# Define the directories for the flightline files
 # (_DataDir = AEMPYX_DATA + "/data/aem05_limerick/raw/"_) and the correponding plots
-# (_PlotDir  =  DataDir+"/plots/"_). The plots can be seen in the resulting KMZ 
+# (_PlotDir  =  DataDir+"/plots/"_). The plots can be seen in the resulting KMZ
 # file by clicking the yellow symbols at the start of the flightlines.
 
 
 AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+OutDatDir = AEMPYX_DATA+"/raw/"
 
-
-FileList = "search"  
+FileList = "search"
 DataDir =  AEMPYX_DATA + "/raw/"
 print(" data files read from: %s" % DataDir)
 PlotDir =  DataDir + "/plots/"
@@ -108,7 +108,7 @@ ImageWidth= 600
 plots_fmt = ".png"
 
 AddSpecial = True
-if AddSpecial: 
+if AddSpecial:
     SpecialDat = DataDir+"Special.dat"
     specials = []
     with open(SpecialDat) as file:
@@ -121,10 +121,10 @@ if AddSpecial:
             tmp[4] = float(tmp[4])
             tmp[5] = tmp[5].strip()
             specials.append(tmp)
-            
+
     print("specials:",specials)
-      
-            
+
+
 
 # Determine what is added to the KML-tags:
 
@@ -236,12 +236,12 @@ if AddSpecial:
         d = folder_spec.newpoint(name=point[2])
         lat, lon = util.project_utm_to_latlon(point[0], point[1])
         d.coords = [(lon, lat)]
-        
+
         # d.style.labelstyle.color = simplekml.Color.white
         # d.style.labelstyle.scale = data_tscale
         spec_ref = kml.addfile(icon_dir + point[5])
         d.style.iconstyle.icon.href = spec_ref
-        
+
         d.style.iconstyle.scale = point[4]
         d.style.iconstyle.color = point[3]
         d.style.labelstyle.color = point[3]
