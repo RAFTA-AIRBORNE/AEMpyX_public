@@ -79,7 +79,7 @@ if "genes" in AEM_system.lower():
 
 
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-OutDatDir = AEMPYX_DATA+"/raw/"
+OutDatDir = AEMPYX_DATA
 
 FileList = "search"
 DataDir =  AEMPYX_DATA + "/raw/"
@@ -94,7 +94,7 @@ data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=DataDir)#, fu
 data_files = sorted(data_files)
 ns = numpy.size(data_files)
 
-KMZDir = DataDir
+KMZDir = OutDatDir
 KMZFile = KMZDir+"StGormans_sites"
 print(" resulting KMZ file will  be  %s" % KMZFile)
 
@@ -109,7 +109,7 @@ plots_fmt = ".png"
 
 AddSpecial = True
 if AddSpecial:
-    SpecialDat = DataDir+"Special.dat"
+    SpecialDat = OutDatDir+"Special.dat"
     specials = []
     with open(SpecialDat) as file:
         for line in file:

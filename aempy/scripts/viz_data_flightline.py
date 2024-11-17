@@ -97,13 +97,13 @@ if "genes" in AEM_system.lower():
 
 # +
 InFileFmt = ".npz"
-FileList = "search"
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 # un/comment according to which data  you want to plot
 # # raw data
 InDatDir =  AEMPYX_DATA + "/raw/"
 PlotDir =  InDatDir + "/plots/"
+
+FileList = "search"
 SearchStrng = "*FL*.npz"
 PlotStrng = " - raw"
 PDFCatName = PlotDir+"StGormans_raw.pdf"
@@ -139,14 +139,14 @@ if not os.path.isdir(PlotDir):
 # The next block determines the graphical output. if _PDFCatalog_ is set, a catalogue including all generated figures, named _PDFCatName_. This option is only available if ".pdf" is included in the output file format list (_PlotFmt_).
 
 FilesOnly = False    # for headless plotting.
-PlotFmt = [".png", ]
+PlotFmt = [".png", ".pdf"]
 PDFCatalog = True
 
 
 if ".pdf" in PlotFmt:
     pass
 else:
-    error(" No pdf files generated. No catalog possible!")
+    print(" No pdf files generated. No catalog possible!")
     PdfCatalog = False
 
 if "aem05" in AEM_system.lower():
@@ -235,6 +235,7 @@ if FilesOnly:
 
 if PDFCatalog:
     pdf_list = []
+
 
 # Depending on the region of interest, the number of plots may be quite large.
 
