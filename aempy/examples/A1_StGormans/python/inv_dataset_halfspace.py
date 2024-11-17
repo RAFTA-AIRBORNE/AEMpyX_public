@@ -92,25 +92,19 @@ if "genes" in AEM_system.lower():
 """
 input formats are ".npz",".nc4",".asc"
 """
-
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InDatDir =  AEMPYX_DATA + "/test/data/"
+InFileFmt = ".npz"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+FileList = "search"
+SearchStrng = "*FL*k3*.npz"
+InDatDir =  AEMPYX_DATA + "/proc/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
-
-
-
-
-FileList = "search"  # "search", "read"
-# FileList = "set"  # "search", "read"
-# SearchStrng = "*PLM3s_k3.npz"
-SearchStrng = "*FL*k3*data.npz"
 
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/test/results_halfspace/"
+OutResDir =   AEMPYX_DATA + "/results_halfspace/"
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)

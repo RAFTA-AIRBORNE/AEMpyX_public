@@ -19,7 +19,7 @@
 #!/usr/bin/env python3
 # -
 
-# This script plots data over an spatial area. 
+# This script plots data over an spatial area.
 
 # +
 import os
@@ -65,16 +65,16 @@ print(titstrng+"\n\n")
 Header = titstrng
 # -
 
-# The following cell gives values to AEM-system related settings. 
+# The following cell gives values to AEM-system related settings.
 #
-# Data transformation is activated by the variable _DataTrans_. Currently 
-# three possible options are allowed: _DataTrans = 0_: No transformation, 
-# i.e., the raw data are used. _DataTrans = 1_: The natural log of data 
-# is taken, only allowed for strictly positive values. _DataTrans = 2_: 
+# Data transformation is activated by the variable _DataTrans_. Currently
+# three possible options are allowed: _DataTrans = 0_: No transformation,
+# i.e., the raw data are used. _DataTrans = 1_: The natural log of data
+# is taken, only allowed for strictly positive values. _DataTrans = 2_:
 # If data scale logarithmically, an _asinh_ transformation (introduced by
-# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, 
+# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM,
 # when IP effects are present.
-#        
+#
 # A general additive/multiplicative error model is applied on the raw data
 # before transformation, and errors are also transformed.
 
@@ -89,7 +89,7 @@ if "aem05" in AEM_system.lower():
     DatErr_add =  50.
     DatErr_mult = 0.05
     data_active = numpy.ones(NN[2], dtype="int8")
-    
+
     CompDict = Misc[3]
     CompLabl = list(CompDict.keys())
     print(CompLabl)
@@ -110,21 +110,26 @@ if "genes" in AEM_system.lower():
 # +
 
 InFileFmt = ".npz"
-FileList = "search"  
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
 
+
+##############################################################################
+# StGormans
+##############################################################################
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+FileList = "search"
 # un/comment according to which data  you want to plot
-# # raw data
-SearchStrng = "*.npz"# "search", "read"
-InDatDir = AEMPYX_DATA+"/raw/"
-PlotDir = InDatDir+"/plots/"
-PlotStrng = "proc"
 
-# # processed data
-# SearchStrng = "*FL*k5.npz"# "search", "read"
+# # raw data
+# SearchStrng = "*FL*.npz"# "search", "read"
 # InDatDir = AEMPYX_DATA+"/raw/"
 # PlotDir = InDatDir+"/plots/"
 # PlotStrng = "proc"
+
+# # processed data
+SearchStrng = "*FL*k2.npz"# "search", "read"
+InDatDir = AEMPYX_DATA+"/proc/"
+PlotDir = InDatDir+"/plots/"
+PlotStrng = "proc, k2"
 
 
 PlotName = "StGormans_"+PlotStrng
@@ -216,12 +221,12 @@ if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
     # InterpMethod = ["rbf", "cubic", 0.01]
 
     # InterpMethod = ["krig", "linear", 0.5, 340.]
-    
-  
+
+
     numIndexes = [121, 141]
     smooth = 0.
     Levels = []
-    MaskNeg = False
+    MaskNeg = True
     MaskPoly = False
     MaskDist = True
 
@@ -245,7 +250,7 @@ if ("scatter" in ImageType.lower()):
 
 
 
-# The following cell determines the settings for individual components. Each sublist associated to a componet contains the name, followed by a list of parameters determining the data limits, and a step determining the color bar, or the isolines. Further paramers, as e.g. the threshhold for the PLM, may be added.  
+# The following cell determines the settings for individual components. Each sublist associated to a componet contains the name, followed by a list of parameters determining the data limits, and a step determining the color bar, or the isolines. Further paramers, as e.g. the threshhold for the PLM, may be added.
 
 
 # CompList=[
@@ -281,7 +286,7 @@ CompList=[
     ["P3", [0., 2000., 200.]],
     ["Q3", [0., 2000., 200.]],
     ["P4", [0., 2000., 200.]],
-    ["Q4", [0., 2000., 200.]],    
+    ["Q4", [0., 2000., 200.]],
     ["PLM", [], 0.5],      # PLMthresh = 0.25
     ["ALT", [40., 120., 20.], 300.]   # ALTthresh = 120
 ]
@@ -295,7 +300,7 @@ CompList=[
     ["P3", []],
     ["Q3", []],
     ["P4", []],
-    ["Q4", []],    
+    ["Q4", []],
     ["PLM", [], 0.5],      # PLMthresh = 0.25
     ["ALT", [40., 120., 20.], 300.]   # ALTthresh = 120
 ]

@@ -80,14 +80,17 @@ SingValMax = 5
 
 # +
 InFileFmt = ".npz"
-
-Filelist = "search" # "set", "read"
-SearchStrng = "*FL*.npz"
-
 OutFileFmt = ".npz"
 
 # -
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+
+
+##############################################################################
+# StGormans
+##############################################################################
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+Filelist = "search" # "set", "read"
+SearchStrng = "*FL*.npz"
 InputDataDir =  AEMPYX_DATA + "/raw/"
 OutputDataDir =  AEMPYX_DATA + "/proc/"
 
@@ -203,7 +206,7 @@ for filename in dat_files:
     print(Header)
     print("time taken = ", process_time() - start, "s \n")
 
-    if OutNaN:    
+    if OutNaN:
         OutNameStrng = name + "_proc"
         filout = OutputDataDir + OutNameStrng +"_nan"+OutFileFmt
         aesys.write_aempy(File=filout, Data=D, System=AEM_system,
@@ -224,8 +227,8 @@ for filename in dat_files:
 
     if numpy.shape(D)[0] == 0:
         continue
-        
-        
+
+
     OutNameStrng = name + "_proc_"+impute[0] # +"_PLM"+str(int(plmthresh))+"s"
     filout = OutputDataDir + OutNameStrng + OutFileFmt
     aesys.write_aempy(File=filout, Data=D, System=AEM_system,
@@ -262,7 +265,7 @@ for filename in dat_files:
 
         head = aesys.grow_header(
             Header,"TSVD: "+" k="+str(k)+" S(rel)="+str(S)+" FRO="+str(FRO))
-        
+
         OutNameStrng = name + "_proc_"+impute[0]+"_k" + str(k)
         filout = OutputDataDir + OutNameStrng+ OutFileFmt
         aesys.write_aempy(File=filout, Data=Data_k,

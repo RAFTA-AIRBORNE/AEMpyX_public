@@ -3,23 +3,24 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: py:light,ipynb
+#     formats: py,ipynb
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#       jupytext_version: 1.16.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
-
-"""
-Created on 2020/11/11
-
-This script present a work flow of processing data
-for inversions with INV.py scripts
-
-@author: vrath Oct 2020
-"""
+# +
+# #!/usr/bin/env python3
+# -
+# This script controls preprocessing of data required ore advantageous for
+# subsequent inversions.
+#
 
 import os
 import sys
@@ -27,10 +28,8 @@ from sys import exit as error
 import copy
 from time import process_time
 from datetime import datetime
-from random import randrange
-import warnings
-
-warnings.simplefilter(action="ignore", category=FutureWarning)
+# from random import randrange
+# import warnings
 
 import numpy
 
@@ -41,79 +40,80 @@ for pth in mypath:
         sys.path.insert(0,pth)
 
 from version import versionstrg
-
 import util
 import prep
 import aesys
 
-OutInfo = True
+# +
+
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+# -
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+script = __file__  # this only works in python, not jupyter notebook
+titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
+Header = titstrng
 
-now = datetime.now()
+# Define some parameters required for the different systems.
 
-
-
+# +
+# AEM_system = "genesis"
 AEM_system = "aem05"
-FwdCall,NN,_,_,_, = aesys.get_system_params(System=AEM_system)
-nD = NN[0]
 
-# impute = ["noise", 100.]
-impute = ["delete", 0.]
-plmthresh = 3.
-kmax = 5
-DatErr_add = 50.
-DatErr_mult = 0.05
+if "aem05" in AEM_system.lower():
+    _, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
+    nD = NN[0]
 
+if "genes" in AEM_system.lower():
+    _, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
+    nD = NN[0]
+
+
+# +
+OutInfo = True
 OutNaN = True
 OutRes = False
 
+SingValMax = 5
 
-"""
-input formats are '.npz','.nc4','.asc'
-"""
-InFileFmt = ".npz" # ".npz"
-InpNameStrng = "raw"
-Filelist = "search" # "set", "read"
-SearchStrng = "*.npz"
-"""
-Output formats are '.npz','.nc4','.asc'
-"""
+
+# +
+InFileFmt = ".npz"
 OutFileFmt = ".npz"
-OutNameStrng = "proc_"+impute[0]+"_PLM"+str(int(plmthresh))+"s"
 
-InpDatDir =  AEMPYX_ROOT + "/work/data/raw/"
-OutDatDir  =  AEMPYX_ROOT + "/work/data/"+OutNameStrng+"/"
+# -
+
+
+##############################################################################
+# StGormans
+##############################################################################
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+Filelist = "search" # "set", "read"
+SearchStrng = "*FL*.npz"
+InputDataDir =  AEMPYX_DATA + "/raw/"
+OutputDataDir =  AEMPYX_DATA + "/proc/"
+
 
 print("\n\n")
-print("Data read from dir:  %s" % InpDatDir)
+print("Data read from dir:  %s" % InputDataDir)
 print("Search flightline ID string: %s " % SearchStrng)
-print("Processed data  written to dir: %s " % OutDatDir)
-print("New flightline ID string: %s " % OutNameStrng)
+print("Processed data  written to dir: %s " % OutputDataDir)
 
 
-if not os.path.isdir(OutDatDir):
-    print("File: %s does not exist, but will be created" % OutDatDir)
-    os.mkdir(OutDatDir)
+
+if not os.path.isdir(OutputDataDir):
+    print("File: %s does not exist, but will be created" % OutputDataDir)
+    os.mkdir(OutputDataDir)
 
 
-print("Data read from dir: %s " % InpDatDir)
+print("Data read from dir: %s " % InputDataDir)
 
-dat_files = util.get_data_list(how=["search", SearchStrng, InpDatDir],
+dat_files = util.get_data_list(how=["search", SearchStrng, InputDataDir],
                               out= True, sort=True)
 ns = numpy.size(dat_files)
 if ns ==0:
     error("No files corresponding to searchstring <"+SearchStrng+"> found!. Exit.")
-
-# run_number =str(randrange(10000))
-# files_to_do = dat_files.copy()
-# with open(InpDatDir+"data_files_"+run_number+".txt", "w") as file:
-#     for item in files_to_do:
-#         file.write('%s\n' % item)
-
 
 start = process_time()
 num_sites = 0
@@ -123,7 +123,7 @@ bad_files = 0
 for filename in dat_files:
     num_files = num_files+1
     name, ext = os.path.splitext(filename)
-    filein = InpDatDir + filename
+    filein = InputDataDir + filename
     print("\n Preprocessing file " + filein)
     Data, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
@@ -148,7 +148,6 @@ for filename in dat_files:
         continue
 
     fline = Data[:, 0]
-    print(impute)
     sizedat = numpy.shape(D)
     nvars = sizedat[1]
     last = nvars - 1
@@ -171,70 +170,73 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
+    plmthresh = 0.6
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)
     print(" columns: ", columns)
     print(" thresh = ", threshval)
     Header = aesys.grow_header(
-        Header, "PLM, threshold = " + str(threshval) + " " + impute[0])
+        Header, "PLM, threshold = " + str(threshval))
     D, nanindex = prep.insert_flag(D, action, threshval, columns,
                                     System=AEM_system)
 
     action = "less than"
-    threshval = -500.0
+    threshval = 0.0
     columns = [6, 14]
     print("\n Proc action: " + action)
     print(" columns: ", columns)
     print(" thresh = ", threshval)
     Header = aesys.grow_header(
-        Header, "DAT, threshold = " + str(threshval) + " " + impute[0])
+        Header, "DAT, threshold = " + str(threshval))
     D, nanindex = prep.insert_flag(D, action, threshval, columns,
                                    System=AEM_system)
     action = "greater than"
-    threshval = 100.0
+    threshval = 120.0
     columns = [4, 4]
     print("\n Proc action: " + action)
     print(" columns: ", columns)
     print(" thresh = ", threshval)
     Header = aesys.grow_header(
-        Header, "ALT, threshold = " + str(threshval) + " " + impute[0])
+        Header, "ALT, threshold = " + str(threshval))
     D, nanindex = prep.insert_flag(D, action, threshval, columns,
                                    System=AEM_system)
 
-    head = Header
     print("Info:")
-    print(head)
+    print(Header)
     print("time taken = ", process_time() - start, "s \n")
 
     if OutNaN:
-        filout = OutDatDir + name +"_nan"+OutFileFmt
+        OutNameStrng = name + "_proc"
+        filout = OutputDataDir + OutNameStrng +"_nan"+OutFileFmt
         aesys.write_aempy(File=filout, Data=D, System=AEM_system,
-                            Header=head, OutInfo=False)
+                            Header=Header, OutInfo=False)
         print("Data with NaN written to File: " + filout)
 
 
+    # impute = ["noise", 100.]
+    action = "handle_gaps"
+    impute = ["delete", 0.]
     print("Impute method:")
     print(impute)
     columns = [6, 14]
+    Header = aesys.grow_header(
+        Header, "GAP, method = " + impute[0])
     D = prep.handle_gaps(D, columns, Impute=impute, System=AEM_system)
     print(" data block now has shape: ", numpy.shape(D))
-    print(impute)
-    # columns = []
-    # D = prep.handle_gaps(D, columns, Impute=impute, System=AEM_system)
-    # print(" data block now has shape: ", numpy.shape(D))
-    # print(impute)
 
     if numpy.shape(D)[0] == 0:
         continue
 
-    filout = OutDatDir + name + "_" + OutNameStrng + OutFileFmt
+
+    OutNameStrng = name + "_proc_"+impute[0] # +"_PLM"+str(int(plmthresh))+"s"
+    filout = OutputDataDir + OutNameStrng + OutFileFmt
     aesys.write_aempy(File=filout, Data=D, System=AEM_system,
-                    Header=head, OutInfo=False)
+                    Header=Header, OutInfo=False)
 
     print("Imputed data written to File: " + filout)
     print("Info:")
-    print(head)
+    print(Header)
     print("time taken = ", process_time() - start, "s \n")
 
     nDfinal = numpy.shape(D)
@@ -243,13 +245,13 @@ for filename in dat_files:
     print("\nRunning pca ")
     columns = [6, 13]
     ncols = numpy.size(range(columns[0], columns[1] + 1))
-    F = numpy.zeros(kmax)
+    F = numpy.zeros(SingValMax)
 
     k = 0
-    M = numpy.zeros(kmax)
+    M = numpy.zeros(SingValMax)
     SVals = numpy.nan * numpy.ones((0, 8))
     MVals = numpy.nan * numpy.ones((0, 8))
-    while k < kmax:
+    while k < SingValMax:
 
         k = k + 1
         print(" N pca: ", k)
@@ -263,7 +265,9 @@ for filename in dat_files:
 
         head = aesys.grow_header(
             Header,"TSVD: "+" k="+str(k)+" S(rel)="+str(S)+" FRO="+str(FRO))
-        filout = OutDatDir + name+ "_" + OutNameStrng+"_k" + str(k) + OutFileFmt
+
+        OutNameStrng = name + "_proc_"+impute[0]+"_k" + str(k)
+        filout = OutputDataDir + OutNameStrng+ OutFileFmt
         aesys.write_aempy(File=filout, Data=Data_k,
                         System=AEM_system, Header=head, OutInfo=False)
         print("Data written to File: " + filout)
@@ -283,7 +287,8 @@ for filename in dat_files:
                                                 +" / max "+str(numpy.amax(D_res[:,nd1:nd2]))
                                                 +" / std "+str(numpy.std(D_res[:,nd1:nd2])))
 
-            filout = OutDatDir + name+ "_" + OutNameStrng+"_k" + str(k)+"_res" + OutFileFmt
+            OutNameStrng = name + "_proc_"+impute[0]+"_k" + str(k)+"_res"
+            filout = OutputDataDir + OutNameStrng+ OutFileFmt
             aesys.write_aempy(File=filout, Data=D_res,
                             System=AEM_system, Header=head, OutInfo=False)
             print("Data written to File: " + filout)
@@ -291,14 +296,8 @@ for filename in dat_files:
             print(head)
             print("time taken = ", process_time() - start, "s \n")
 
-    # files_to_do.pop(0)
-    # with open(InpDatDir+"data_files_to_do"+run_number+".txt", "w") as file:
-    #     for item in files_to_do:
-    #         file.write('%s\n' % item)
 
 print("\nAll done!")
 
 elapsed = process_time() - start
 print(" Used %7.4f sec for %6i lines  - %8i sites\n" % (elapsed, num_files + 1, num_sites))
-
-#

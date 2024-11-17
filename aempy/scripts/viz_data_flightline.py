@@ -98,24 +98,28 @@ if "genes" in AEM_system.lower():
 # +
 InFileFmt = ".npz"
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+FileList = "search"
+
+
 # un/comment according to which data  you want to plot
 # # raw data
-InDatDir =  AEMPYX_DATA + "/raw/"
-PlotDir =  InDatDir + "/plots/"
-
-FileList = "search"
-SearchStrng = "*FL*.npz"
-PlotStrng = " - raw"
-PDFCatName = PlotDir+"StGormans_raw.pdf"
-# +
-# # processed data
-# InDatDir =  AEMPYX_DATA + "/proc/"
+# InDatDir =  AEMPYX_DATA + "/raw/"
 # PlotDir =  InDatDir + "/plots/"
-# SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
-# #SearchStrng = "*FL*.npz" # else
-# PlotStrng = " - proc"
-# PDFCatName = PlotDir+"StGormans_processed.pdf"
+# SearchStrng = "*FL*.npz"
+# PlotStrng = " - raw"
+# PDFCatName = PlotDir+"StGormans_raw.pdf"
 # +
+
+
+# processed data
+InDatDir =  AEMPYX_DATA + "/proc/"
+PlotDir =  InDatDir + "/plots/"
+SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
+#SearchStrng = "*FL*.npz" # else
+PlotStrng = " - proc"
+PDFCatName = PlotDir+"StGormans_processed.pdf"
+# +
+
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
     dat_files = []
