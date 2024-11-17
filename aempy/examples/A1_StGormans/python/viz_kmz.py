@@ -78,7 +78,7 @@ if "genes" in AEM_system.lower():
 # file by clicking the yellow symbols at the start of the flightlines.
 
 
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 OutDatDir = AEMPYX_DATA+"/raw/"
 
 FileList = "search"
