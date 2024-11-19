@@ -25,6 +25,7 @@ import sys
 from sys import exit as error
 import csv
 import warnings
+import getpass
 from time import process_time
 from datetime import datetime
 import simplekml

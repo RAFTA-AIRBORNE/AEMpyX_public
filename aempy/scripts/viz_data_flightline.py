@@ -7,7 +7,7 @@
 #     text_representation:
 #       extension: .py
 #       format_name: light
-#       format_version: '1.5'
+#       format_version: "1.5"
 #       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (Spyder)
@@ -29,7 +29,10 @@ import sys
 from sys import exit as error
 from time import process_time
 from datetime import datetime
+
 import warnings
+import getpass
+
 from cycler import cycler
 
 import numpy
@@ -91,7 +94,7 @@ if "genes" in AEM_system.lower():
     DatErr_mult = 0.01
     data_active = numpy.ones(NN[2], dtype="int8")
     data_active[0:11]=0  # only vertical component
-    # data_active[10:11]=0  # Vertical + 'good' hoizontals'
+    # data_active[10:11]=0  # Vertical + "good" hoizontals"
 # -
 
 
@@ -114,10 +117,12 @@ FileList = "search"
 # processed data
 InDatDir =  AEMPYX_DATA + "/proc/"
 PlotDir =  InDatDir + "/plots/"
-SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
+SearchStrng = "*FL*k2*.npz" # if no interpolation was chosen
 #SearchStrng = "*FL*.npz" # else
 PlotStrng = " - proc"
-PDFCatName = PlotDir+"StGormans_processed.pdf"
+
+
+
 # +
 
 if "set" in FileList.lower():
@@ -140,13 +145,15 @@ if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
     os.mkdir(PlotDir)
 
-# The next block determines the graphical output. if _PDFCatalog_ is set, a catalogue including all generated figures, named _PDFCatName_. This option is only available if ".pdf" is included in the output file format list (_PlotFmt_).
+# The next block determines the graphical output. if _PDFCatalog_ is set, a catalogue
+# including all generated figures, named _PDFCatName_ is generated. This option is only
+# available if ".pdf" is included in the output file format list (_PlotFmt_).
 
 FilesOnly = False    # for headless plotting.
 PlotFmt = [".png", ".pdf"]
+
+PDFCatName = PlotDir+"StGormans_processed.pdf"
 PDFCatalog = True
-
-
 if ".pdf" in PlotFmt:
     pass
 else:
@@ -204,7 +211,7 @@ else:
 
 
 # This block sets graphical parameters related to the \textit{matplotlib}.
-# package. A list of available plotting styles can be found on matplotlib's
+# package. A list of available plotting styles can be found on matplotlib"s
 # website at https://matplotlib.org/stable/users/explain/customizing.htm, or
 # entering the python command
 # _print(matplotlib.pyplot.style.available)} in an appropriate_
@@ -228,7 +235,7 @@ Markersize = 4
 ncols = 11
 Colors = matplotlib.pyplot.cm.jet(numpy.linspace(0,1,ncols))
 Grey = 0.7
-Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
+Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
           * cycler("color", ["r", "g", "b", "y"]))
 
 # For just plotting to files ("headless plotting"), choose the
@@ -239,7 +246,7 @@ if FilesOnly:
 
 if PDFCatalog:
     pdf_list = []
-
+    catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
 
 # Depending on the region of interest, the number of plots may be quite large.
 
@@ -280,48 +287,60 @@ for file in dat_files:
     Data[:, 2] = Data[:, 2] * ProfScale
 
     if "aem05" in AEM_system.lower():
-        viz.plot_flightline_aem05(
-            PlotName = name,
-            PlotDir = PlotDir,
-            PlotFmt=PlotFmt,
-            IncludePlots=IncludePlots,
-            PlotSize = PlotSize,
-            DataObs=Data,
-            DataCal=[],
-            QLimits =[],
-            ILimits =[],
-            DLimits = [],
-            HLimits = HLimits,
-            PLimits = PLimits,
-            ProfLabel=ProfLabel,
-            Linecolor=Colors,
-            Linewidth=Linewidths,
-            Fontsizes=Fontsizes,
-            Logparams=Logparams,
-            PlotStrng=PlotStrng,
-            PlotPLM = True)
+        fig, _ = viz.plot_flightline_aem05(
+                PlotName = name,
+                PlotDir = PlotDir,
+                PlotFmt=PlotFmt,
+                IncludePlots=IncludePlots,
+                PlotSize = PlotSize,
+                DataObs=Data,
+                DataCal=[],
+                QLimits =[],
+                ILimits =[],
+                DLimits = [],
+                HLimits = HLimits,
+                PLimits = PLimits,
+                ProfLabel=ProfLabel,
+                Linecolor=Colors,
+                Linewidth=Linewidths,
+                Fontsizes=Fontsizes,
+                Logparams=Logparams,
+                PlotStrng=PlotStrng,
+                PlotPLM = True)
 
     if "genes" in AEM_system.lower():
-        viz.plot_flightline_genesis(
-            PlotName = name,
-            PlotDir = PlotDir,
-            PlotFmt=PlotFmt,
-            IncludePlots=IncludePlots,
-            PlotSize = PlotSize,
-            DataObs=Data,
-            DataCal=[],
-            DataTrans = DataTrans,
-            DLimits = [],
-            XLimits =XLimits,
-            ZLimits =ZLimits,
-            HLimits =[],
-            ProfLabel=ProfLabel,
-            Linecolor=Colors,
-            Linewidth=Linewidths,
-            Fontsizes=Fontsizes,
-            Logparams=Logparams,
-            PlotStrng=PlotStrng)
+        fig, _ = viz.plot_flightline_genesis(
+                PlotName = name,
+                PlotDir = PlotDir,
+                PlotFmt=PlotFmt,
+                IncludePlots=IncludePlots,
+                PlotSize = PlotSize,
+                DataObs=Data,
+                DataCal=[],
+                DataTrans = DataTrans,
+                DLimits = [],
+                XLimits =XLimits,
+                ZLimits =ZLimits,
+                HLimits =[],
+                ProfLabel=ProfLabel,
+                Linecolor=Colors,
+                Linewidth=Linewidths,
+                Fontsizes=Fontsizes,
+                Logparams=Logparams,
+                PlotStrng=PlotStrng)
 
+    if PDFCatalog:
+        pdf_list.append(PlotDir+name+".pdf")
+        catalog.savefig(fig)
+
+
+print(pdf_list)
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    d = catalog.infodict()
+    d["Title"] =  name
+    d["Author"] = getpass.getuser()
+    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    catalog.close()

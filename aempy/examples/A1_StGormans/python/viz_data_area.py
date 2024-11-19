@@ -28,6 +28,7 @@ from sys import exit as error
 from time import process_time
 from datetime import datetime
 import warnings
+import getpass
 
 import numpy
 import matplotlib
@@ -129,7 +130,7 @@ FileList = "search"
 SearchStrng = "*FL*k2.npz"# "search", "read"
 InDatDir = AEMPYX_DATA+"/proc/"
 PlotDir = InDatDir+"/plots/"
-PlotStrng = "proc, k2"
+PlotStrng = "proc_k2"
 
 
 PlotName = "StGormans_"+PlotStrng
@@ -169,7 +170,7 @@ PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
 FilesOnly = False
 
 PDFCatalog = True
-PDFCName = PlotName+"_catalog.pdf"
+PDFCatName = PlotName+"_catalog.pdf"
 if ".pdf" in PlotFmt:
     pass
 else:
@@ -400,8 +401,9 @@ for filein in dat_files:
                                                         Polygon)
                 blankpoly.append(outside)
 
-
-    pdf_list = []
+    if PDFCatalog:
+        pdf_list = []
+        catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
     # for Comp in CompList:
     for nc in numpy.arange(len(CompList)):
 
@@ -617,9 +619,16 @@ for filein in dat_files:
 
         if PDFCatalog:
             pdf_list.append(plotfile+".pdf")
+            catalog.savefig(fig)
 
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCName)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCName)
+    d = catalog.infodict()
+    d["Title"] =  name
+    d["Author"] = getpass.getuser()
+    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    catalog.close()

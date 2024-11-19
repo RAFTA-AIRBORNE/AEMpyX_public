@@ -27,6 +27,7 @@ from sys import exit as error
 # import warnings
 # import inspect
 # import copy
+import getpass
 
 import numpy
 import scipy

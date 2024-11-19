@@ -26,6 +26,8 @@ import os
 import sys
 from sys import exit as error
 import copy
+import getpass
+
 from time import process_time
 from datetime import datetime
 # from random import randrange
