@@ -24,7 +24,6 @@ export AEMPYX_DATA=$MY_ROOT/AEM_Data/
 # unset __conda_setup
 # # <<< conda initialize <<<
 
-# now activate
 
 cd ${AEMPYX_ROOT}
 conda activate ${AEMPYX_ENVI}
