@@ -7,6 +7,7 @@ export AEMPYX_ENVI=AEM
 export AEMPYX_ROOT=$MY_ROOT/AEMpyX_public/
 export AEMPYX_DATA=$MY_ROOT/AEM_Data/
 
+
 # # >>> conda initialize >>>
 # # !! Contents within this block are managed by 'conda init' !!
 # # __conda_setup="$('${HOME}.Miniconda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
@@ -22,6 +23,8 @@ export AEMPYX_DATA=$MY_ROOT/AEM_Data/
 # fi
 # unset __conda_setup
 # # <<< conda initialize <<<
+
+# now activate
 
 cd ${AEMPYX_ROOT}
 conda activate ${AEMPYX_ENVI}
