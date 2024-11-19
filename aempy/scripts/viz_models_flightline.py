@@ -20,8 +20,9 @@ Show several 1d block models as (stitched) section.
 import os
 import sys
 # from sys import exit as error
-# from datetime import datetime
+from datetime import datetime
 import warnings
+import getpass
 
 import numpy
 
@@ -90,11 +91,13 @@ if not os.path.isdir(PlotDir):
 
 FilesOnly = True
 PlotFmt = [".pdf"]
-PdfCatalog = True
+
+PDFCatName = PlotDir+"StGormans_mods.pdf"
+PDFCatalog = True
 if ".pdf" in PlotFmt:
-    PdfCStr = "StGormans_mods.pdf"
+    pass
 else:
-    print(" No pdfs generated. No catalog possible!")
+    print(" No pdf files generated. No catalog possible!")
     PdfCatalog = False
 
 
@@ -238,7 +241,10 @@ if FilesOnly:
 ns = numpy.size(data_files)
 
 ifl = 0
-pdf_list = []
+if PDFCatalog:
+    pdf_list = []
+    catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
+
 for file in data_files:
 
     nplots = 0
@@ -816,9 +822,16 @@ for file in data_files:
         matplotlib.pyplot.show()
     matplotlib.pyplot.clf()
 
+    if PDFCatalog:
+        pdf_list.append(PlotDir+FileName+".pdf")
+        catalog.savefig(fig)
 
-    if PdfCatalog:
-        pdf_list.append(PlotDir+FileName+"_model.pdf")
 
-if PdfCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PdfCStr)
+if PDFCatalog:
+    print(pdf_list)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    d = catalog.infodict()
+    d["Title"] =  FileName
+    d["Author"] = getpass.getuser()
+    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    catalog.close()

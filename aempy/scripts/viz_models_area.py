@@ -24,6 +24,7 @@ from sys import exit as error
 from time import process_time
 from datetime import datetime
 import warnings
+import getpass
 
 import numpy
 import matplotlib
@@ -123,25 +124,22 @@ if ns ==0:
     error("No files set!. Exit.")
 
 MergeModels = False
-ModelMergeFile = InModDir+"MUN_k3_data_merged.npz"
-
-"""
-Output formats are "npz","nc4","ascii"
-"""
-PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
-
-PdfCatalog = True
-PdfCName = "MUN_k3_Models.pdf"
-if ".pdf" in PlotFmt:
-    pass
-else:
-    error(" No pdfs generated. No catalog possible!")
-    PdfCatalog = False
+ModelMergeFile = InModDir+"StGormans_models_merged.npz"
 
 PlotDir = InModDir+"/plots/"
 print("Plots written to dir: %s " % PlotDir)
-PlotName = "MUN"
+PlotName = "StGormans_models"
 print("Plot filname: %s " % PlotName)
+PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
+
+
+PDFCatName = PlotDir+"StGormans_mods.pdf"
+PDFCatalog = True
+if ".pdf" in PlotFmt:
+    pass
+else:
+    print(" No pdf files generated. No catalog possible!")
+    PdfCatalog = False
 
 
 ImageType = "image"
@@ -332,7 +330,10 @@ for filein in mod_files:
                 blankpoly.append(outside)
 
 
-    pdf_list = []
+    if PDFCatalog:
+        pdf_list = []
+        catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
+
     for nc in numpy.arange(len(LayList)):
 
         layl = LayList[nc][0]
@@ -500,11 +501,21 @@ for filein in mod_files:
                                       transparent=True)
 
 
-        if PdfCatalog:
+        if PDFCatalog:
             pdf_list.append(plotfile+".pdf")
+            catalog.savefig(fig)
+
+
+
 
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
 
 if PdfCatalog:
-    viz.make_pdf_catalog(PdfList=pdf_list, FileName=PdfCName)
+    print(pdf_list)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    d = catalog.infodict()
+    d["Title"] =  PDFCatName
+    d["Author"] = getpass.getuser()
+    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    catalog.close()

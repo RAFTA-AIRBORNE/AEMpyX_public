@@ -31,17 +31,17 @@ import inverse
 import util
 
 def plot_depth_prof(
-        ThisAxis = None, 
+        ThisAxis = None,
         PlotFile = "",
-        PlotFormat = ["png",],                    
-        PlotTitle = "",                    
+        PlotFormat = ["png",],
+        PlotTitle = "",
         FigSize = [8.5*0.3937, 8.5*0.3937],
-        Depth = [],        
-        DLimits = [],        
+        Depth = [],
+        DLimits = [],
         DLabel = " Depth (m)",
-        Params = [],           
+        Params = [],
         Partyp = "",
-        PLabel = "",  
+        PLabel = "",
         PLimits = [],
         Shade = [ 0.25 ],
         XScale = "log",
@@ -57,20 +57,20 @@ def plot_depth_prof(
         Fontsizes =[10, 10, 12],
         PlotStrng="",
         StrngPos=[0.05,0.05],
-        Save = True, 
+        Save = True,
         Invalid=1.e30):
     """
-    General plot of (multiple) depth profiiles 
-    
+    General plot of (multiple) depth profiiles
+
     Parameters
     ----------
-    
+
     Depth :  np.array
         DESCRIPTION. The default is [].
     Params : np.array
         DESCRIPTION. The default is [].
     PLabels : list of strings, optional
-        DESCRIPTION. The default is []. 
+        DESCRIPTION. The default is [].
 
     XScale: string, optional
         "linear", "log", "symlog", "asinh"
@@ -79,11 +79,11 @@ def plot_depth_prof(
         x.set_yscale("symlog", linthresh=2,)
     Ptype : string, optional
         Proy type. The default is "steps".
-    
+
     ALabels: string, optional
         Axis Labels for Params and Depth. The default is "", and "(m}.
     PLimits,  DLimits : lists, optional
-        Limits for Params and Depth The default is [].    
+        Limits for Params and Depth The default is [].
     Errors : TYPE, optional
         DESCRIPTION. The default is [].
     PlotFile : string, optional
@@ -93,7 +93,7 @@ def plot_depth_prof(
         Plot title
         he default is None.
     PlotFormat : string, optional
-        List of output formats. The default is ["png",].    
+        List of output formats. The default is ["png",].
      Linecolor : TYPE, optional
         DESCRIPTION. The default is ["y", "r", "g", "b", "m"].
     Linetypes : TYPE, optional
@@ -108,162 +108,162 @@ def plot_depth_prof(
     Returns
     -------
     ax
-       
+
     Created May 1, 2023
     @author: vrath
 
     """
 
     cm = 1/2.54  # centimeters in inches
-    
+
     if ThisAxis is None:
         fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
     else:
         ax = ThisAxis
-    
+
 
     for iparset in range(len(Params)):
-        
+
         P = Params[iparset]
         D = Depth[iparset]
         np = numpy.shape(P)[0]
         nd = numpy.shape(D)[0]
 
         df = D[-1] + 3*numpy.abs(D[-1]-D[-2])
- 
- 
+
+
         if Partyp=="":
-    
+
             if "steps" in PlotType.lower():
                 d = D
                 for pp in numpy.arange(np):
                     print("PPPP ",P[pp])
                     p = numpy.append(P[pp],P[pp][-1])
-                    ax.step(p , d , 
+                    ax.step(p , d ,
                          where='pre',
                          c=Linecolor[pp],
-                         ls=Linetypes[pp], lw=Linewidth[pp])        
-            else: 
+                         ls=Linetypes[pp], lw=Linewidth[pp])
+            else:
                 d = D
                 for pp in numpy.arange(np):
-                    p = P[pp]                       
+                    p = P[pp]
                     p = numpy.append(P[pp],P[pp][-1])
                     ax.plot(p , d,
-                            c=Linecolor[pp],                                  
+                            c=Linecolor[pp],
                             ls=Linetypes[pp], lw=Linewidth[pp])
-                    
-                    
+
+
         if "sens" in Partyp.lower():
             if "steps" in PlotType.lower():
                 d = D[:-1]
                 for pp in numpy.arange(np):
                     p = P[pp]
                     print(numpy.shape(d),numpy.shape(p))
-                    ax.step(p , d , 
+                    ax.step(p , d ,
                          where='pre',
                          c=Linecolor[pp],
-                         ls=Linetypes[pp], lw=Linewidth[pp])        
-            else: 
+                         ls=Linetypes[pp], lw=Linewidth[pp])
+            else:
                 d = D[:-1]
                 for pp in numpy.arange(np):
                     p = P[pp]
                     ax.plot(p , d,
-                            c=Linecolor[pp],                                  
+                            c=Linecolor[pp],
                             ls=Linetypes[pp], lw=Linewidth[pp])
-                    
+
 
         if "model" in Partyp.lower():
-            
-            d = numpy.append(D, df)
-            
-            if np==3: 
 
-             
+            d = numpy.append(D, df)
+
+            if np==3:
+
+
                 p = numpy.append(P[0],P[0][-1])
                 ep = numpy.append(P[1],P[1][-1])
                 em = numpy.append(P[2],P[2][-1])
-                
-                if "fill" in PlotType.lower():    
-                    ax.fill_betweenx(d, em, ep, 
-                                step='post', 
-                                color=Fillcolor[0],                                  
+
+                if "fill" in PlotType.lower():
+                    ax.fill_betweenx(d, em, ep,
+                                step='post',
+                                color=Fillcolor[0],
                                 ls=Linetypes[0], lw=Linewidth[0],
                                 alpha=Shade)
-                                    
-                ax.step(p , d , 
+
+                ax.step(p , d ,
                          where='pre',
                          c=Linecolor[0],
-                         ls=Linetypes[0], lw=Linewidth[0])        
+                         ls=Linetypes[0], lw=Linewidth[0])
                 ax.plot(p[-1] , d[-1],
                         c=Linecolor[0],  ls=Linetypes[0], lw=0,
-                        marker=Marker[0], markersize=Markersize[0])     
-                ax.step(em , d , 
+                        marker=Marker[0], markersize=Markersize[0])
+                ax.step(em , d ,
                          where='pre',
                          c=Linecolor[1],
-                         ls=Linetypes[1], lw=Linewidth[1])                         
-                ax.step(ep , d , 
+                         ls=Linetypes[1], lw=Linewidth[1])
+                ax.step(ep , d ,
                          where='pre',
                          c=Linecolor[1],
-                         ls=Linetypes[1], lw=Linewidth[1]) 
+                         ls=Linetypes[1], lw=Linewidth[1])
 
             else:
-   
+
                 if "step" in PlotType.lower():
                     for pp in numpy.arange(np):
                         p = P[pp]
-                        ax.step(p , d, 
+                        ax.step(p , d,
                                 where='pre',
                                 color=Linecolor[pp],
                                     ls=Linetypes[pp],lw=Linewidth[0])
-                else: 
+                else:
                     for pp in numpy.arange(np):
-                        p = P[pp]   
+                        p = P[pp]
                         ax.plot(p , d,
-                                c=Linecolor[pp],                                  
+                                c=Linecolor[pp],
                                 ls=Linetypes[pp], lw=Linewidth[0])
-        
+
         ax.set_xlabel(PLabel, fontsize=Fontsizes[1])
         ax.set_ylabel(DLabel, fontsize=Fontsizes[1])
         ax.xaxis.set_label_position("top")
         ax.xaxis.set_ticks_position("both")
-        ax.tick_params(labelsize=Fontsizes[0])    
-        
+        ax.tick_params(labelsize=Fontsizes[0])
+
         if PLimits != []:
             ax.set_xlim(PLimits)
         if DLimits != []:
             ax.set_ylim(DLimits)
-        
+
         if "lin" not in XScale:
             ax.set_xscale(XScale)
-    
-            
-            
+
+
+
         ax.legend(Legend, fontsize=Fontsizes[1]-2, loc="best", ncol=1)
-        
+
         if PLimits != []:
             ax.set_xlim(PLimits)
         if DLimits != []:
             ax.set_ylim(DLimits)
-    
+
         ax.invert_yaxis()
-    
+
         ax.grid("major", "both", linestyle=":", lw=0.3)
         ax.text(StrngPos[0], StrngPos[1],
                  PlotStrng, fontsize=Fontsizes[1]-1,transform=ax.transAxes,
                  bbox=dict(facecolor="white", alpha=0.5) )
-        
+
         if ThisAxis is None:
             for F in PlotFormat:
                  matplotlib.pyplot.savefig(PlotFile+F)
-        
+
             matplotlib.pyplot.show()
             matplotlib.pyplot.clf()
-        
+
         return ax
 
 def plot_matrix(
-        ThisAxis = None, 
+        ThisAxis = None,
         PlotFile = "",
         PlotTitle = "",
         PlotFormat = ["png",],
@@ -271,19 +271,19 @@ def plot_matrix(
         Matrix = [],
         TickStr="",
         AxLabels = ["layer #", "layer #"],
-        AxTicks = [[], []], 
-        AxTickLabels = [[], []], 
+        AxTicks = [[], []],
+        AxTickLabels = [[], []],
         ColorMap="viridis",
         Fontsizes=[10,10,12],
-        Unit = "",        
+        Unit = "",
         PlotStrng="",
         StrngPos=[0.05,0.05],
         Aspect = "auto",
         Invalid=1.e30):
     """
     Plots jacobians, covariance and resolution matrices.
-    
-  
+
+
     Parameters
     ----------
     PlotFile : TYPE, optional
@@ -297,8 +297,8 @@ def plot_matrix(
     Returns
     -------
     ax
-    
-    
+
+
     Created April 30, 2023
     @author: vrath
 
@@ -309,7 +309,7 @@ def plot_matrix(
     if Matrix.ndim==1:
         np =math.isqrt(nn[0])
         Matrix = Matrix.reshape((np,np))
-        
+
     if ThisAxis is None:
         fig, ax =  matplotlib.pyplot.subplots(1, 1, figsize=(FigSize))
         fig.suptitle(PlotTitle, fontsize=Fontsizes[2])
@@ -317,48 +317,48 @@ def plot_matrix(
         ax = ThisAxis
 
     im = ax.imshow(Matrix, cmap=ColorMap, origin="upper")
-    
+
     xticks = AxTicks[0]
     xlabels = AxTickLabels[0]
     # print(xticks)
     # print(xlabels)
     ax.set_xticks(xticks, xlabels) #, minor=False)
     ax.set_xlabel(AxLabels[0], fontsize=Fontsizes[1])
-    ax.xaxis.set_ticks_position("top") 
-    ax.xaxis.set_label_position("top") 
-    
+    ax.xaxis.set_ticks_position("top")
+    ax.xaxis.set_label_position("top")
+
     yticks = AxTicks[1]
-    ylabels = AxTickLabels[1]    
+    ylabels = AxTickLabels[1]
     # print(yticks)
     # print(ylabels)
     ax.set_yticks(yticks, ylabels) #, minor=False)
     ax.set_ylabel(AxLabels[1], fontsize=Fontsizes[1])
-                  
+
     if Aspect == "equal":
         ax.set_aspect("equal","box")
     else:
         ax.set_aspect(Aspect)
-    
+
     divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.1)
     cb = matplotlib.pyplot.colorbar(im, cax=cax)
     cb.ax.set_title(Unit)
-    
+
     if PlotStrng != "":
-        
+
         props = dict(facecolor="white", alpha=0.9) # boxstyle="round"
-        ax.text(StrngPos[0], StrngPos[1], PlotStrng, 
-                transform=ax.transAxes, 
+        ax.text(StrngPos[0], StrngPos[1], PlotStrng,
+                transform=ax.transAxes,
                 fontsize=Fontsizes[1],
                 verticalalignment="center", bbox=props)
- 
+
     if ThisAxis is None:
         for F in PlotFormat:
              matplotlib.pyplot.savefig(PlotFile+F)
-    
+
         # matplotlib.pyplot.show()
         # matplotlib.pyplot.clf()
-    
+
     return ax
 
 
@@ -383,7 +383,7 @@ def plot_data_genesis(
         LogPlot = True,
         SymLog=False,
         TimeLog =True,
-        DataTrans = 2, 
+        DataTrans = 2,
         Invalid=1.e30):
 
 
@@ -396,7 +396,7 @@ def plot_data_genesis(
 
     nn = numpy.shape(Data)
 
-    
+
 
     Prefix = ""
     if DataTrans == 1:
@@ -427,7 +427,7 @@ def plot_data_genesis(
     ax1.yaxis.set_tick_params(labelsize=Fontsizes[1])
     ax1.grid("major", "both", linestyle=":", lw=0.3)
     ax1.legend(Labels[:], fontsize=Fontsizes[1]-2, loc="best", ncol=1)
-    
+
     if TimeLog:
         ax1.set_xscale("log")
     else:
@@ -447,7 +447,7 @@ def plot_data_genesis(
 
 
     if len(Errors) == 0:
-        for ll in numpy.arange(0, nn[0]-1):            
+        for ll in numpy.arange(0, nn[0]-1):
             print(ll, Linetypes[ll], Markers[ll], Linecolor[ll])
             ax2.plot(wincent, Data[ll, 11:22].T,
                  linestyle=Linetypes[ll], marker=Markers[ll], color=Linecolor[ll],
@@ -487,11 +487,11 @@ def plot_data_genesis(
 
     for F in PlotFormat:
          matplotlib.pyplot.savefig(PlotFile+F, dpi=DPI)
-         
+
 
     matplotlib.pyplot.show()
     matplotlib.pyplot.clf()
-    
+
     return ax1, ax2
 
 def plot_data_aem05(
@@ -514,7 +514,7 @@ def plot_data_aem05(
         PlotStrng="",
         StrngPos=[0.05,0.05],
         LogPlot = False,
-        SymLog=False, 
+        SymLog=False,
         Invalid=1.e30):
 
     cm = 1/2.54  # centimeters in inches
@@ -589,7 +589,7 @@ def plot_data_aem05(
 
     matplotlib.pyplot.show()
     matplotlib.pyplot.clf()
-    
+
     return ax1, ax2
 
 
@@ -607,7 +607,7 @@ def plot_flightline_aem05(
         DLimits = [],
         QLimits = [],
         ILimits = [],
-        HLimits = [],        
+        HLimits = [],
         ProfLabel = "profile distsnce (m)",
         PosDegrees=False,
         EPSG=32629,
@@ -620,7 +620,7 @@ def plot_flightline_aem05(
         PlotStrng="",
         PlotAltDiff=False,
         PlotPLM = False,
-        PLimits = [0., 5.], 
+        PLimits = [0., 5.],
         Save=True,
         Invalid=1.e30):
 
@@ -668,7 +668,7 @@ def plot_flightline_aem05(
         D = numpy.sqrt(sx * sx + sy * sy)
     else:
         D = numpy.arange(numpy.shape(site_x)[0])
-        
+
     D_min, D_max = numpy.amin(D), numpy.amax(D)
 
     IData = data_obs[:, 0:4]
@@ -831,7 +831,7 @@ def plot_flightline_aem05(
 
         if matplotlib.get_backend()!="cairo":
             matplotlib.pyplot.show()
-            
+
         matplotlib.pyplot.clf()
 
     return fig, ax
@@ -861,8 +861,8 @@ def plot_flightline_genesis(
         EPSG=32629,
         Logparams=[True,True,0,1],
         PlotStrng="",
-        PlotAltDiff=False, 
-        Save=True, 
+        PlotAltDiff=False,
+        Save=True,
         Invalid=1.e30):
 
     cm = 1./2.54  # centimeters to inches
@@ -871,7 +871,7 @@ def plot_flightline_genesis(
     Fsize = Fontsizes[0]
     Lsize = Fontsizes[1]
     Tsize = Fontsizes[2]
-    
+
     Greyval = Grey[0]
 
     LogPlot= Logparams[0]
@@ -898,7 +898,7 @@ def plot_flightline_genesis(
 
     dunit = "(ppm)"
     if DataTrans==2:
-        
+
         XData = numpy.arcsinh(XData)
         ZData = numpy.arcsinh(ZData)
         LogPlot = False
@@ -1075,44 +1075,44 @@ def plot_flightline_genesis(
         if matplotlib.get_backend()!="cairo":
             matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
-        
-    return fig, ax 
-    
+
+    return fig, ax
 
 
 
 
-def make_pdf_catalog(PDFList= None, FileName="Catalog.pdf"):
-    """
-    Make pdf catalog from list of pdf plots
 
-    Parameters
-    ----------
-    PDFList : List of strings
-        List of Filenames
-    Filename : string
-        Catalog file
+# def make_pdf_catalog(PDFList= None, FileName="Catalog.pdf"):
+#     """
+#     Make pdf catalog from list of pdf plots
+
+#     Parameters
+#     ----------
+#     PDFList : List of strings
+#         List of Filenames
+#     Filename : string
+#         Catalog file
 
 
-    Returns
-    -------
-    None.
+#     Returns
+#     -------
+#     None.
 
-    """
-    # error("not in 3.9! Exit")
+#     """
+#     # error("not in 3.9! Exit")
 
-    import fitz
+#     import fitz
 
-    catalog = fitz.open()
+#     catalog = fitz.open()
 
-    for pdf in PDFList:
-        with fitz.open(pdf) as mfile:
-            catalog.insert_pdf(mfile)
+#     for pdf in PDFList:
+#         with fitz.open(pdf) as mfile:
+#             catalog.insert_pdf(mfile)
 
-    catalog.save(FileName, garbage=4, clean = True, deflate=True)
-    catalog.close()
+#     catalog.save(FileName, garbage=4, clean = True, deflate=True)
+#     catalog.close()
 
-    print("\n"+str(numpy.size(PDFList))+" files collected to "+FileName)
+#     print("\n"+str(numpy.size(PDFList))+" files collected to "+FileName)
 
 def save_geotiff(filename=None,
                  x_grid=None, y_grid=None, v_grid=None,

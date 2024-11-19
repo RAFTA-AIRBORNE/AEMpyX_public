@@ -625,9 +625,9 @@ for filein in dat_files:
         matplotlib.pyplot.clf()
 
 if PDFCatalog:
-    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCName)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCatName)
     d = catalog.infodict()
-    d["Title"] =  name
+    d["Title"] =  PDFCatName
     d["Author"] = getpass.getuser()
     d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 

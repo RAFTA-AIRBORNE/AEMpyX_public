@@ -20,6 +20,7 @@ from sys import exit as error
 
 from datetime import datetime
 import warnings
+import getpass
 
 import numpy
 
@@ -90,9 +91,11 @@ if not os.path.isdir(PlotDir):
 FilesOnly = False
 
 PlotFormat = [".pdf", ".png"]
+
 PDFCatalog = False
+PDFCatName = "AEM05_EnsemblePLots.pdf"
 if ".pdf" in PlotFormat:
-    PDFCatName = "AEM05_EnsemblePLots.pdf"
+    pass
 else:
     print(" No pdfs generated. No catalog possible!")
     PDFCatalog = False
@@ -189,9 +192,10 @@ if FilesOnly:
 
 
 ns = numpy.size(data_files)
+if PDFCatalog:
+    pdf_list = []
+    catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
 
-
-pdf_list = []
 for file in data_files:
 
     filename, filext0 = os.path.splitext(file)
@@ -348,7 +352,13 @@ for file in data_files:
 
     if PDFCatalog:
         pdf_list.append(PlotDir+PlotFile+".pdf")
-
+        catalog.savefig(fig)
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    print(pdf_list)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    d = catalog.infodict()
+    d["Title"] =  PDFCatName
+    d["Author"] = getpass.getuser()
+    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    catalog.close()

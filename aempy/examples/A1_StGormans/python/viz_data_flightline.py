@@ -334,13 +334,12 @@ for file in dat_files:
         catalog.savefig(fig)
 
 
-print(pdf_list)
 
 if PDFCatalog:
+    print(pdf_list)
     # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
     d = catalog.infodict()
     d["Title"] =  name
     d["Author"] = getpass.getuser()
     d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
     catalog.close()
