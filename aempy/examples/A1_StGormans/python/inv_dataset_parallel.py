@@ -20,8 +20,8 @@
 import os
 import sys
 from sys import exit as error
-# from datetime import datetime
-# from time import process_time
+from datetime import datetime
+from time import process_time
 # from random import randrange
 # import time
 # import warnings
@@ -114,26 +114,31 @@ if "genes" in AEM_system.lower():
 
 
 
-FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k3*data.npz"
 
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InDatDir =  AEMPYX_DATA + "/test/data/"
+##############################################################################
+# StGormans
+##############################################################################
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+InDatDir =  AEMPYX_DATA + "/proc/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
+
+
+
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/test/results_parallel/"
+OutResDir =   AEMPYX_DATA + "/results_parallel/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
 
-
+FileList = "search"  # "search", "read"
+SearchStrng = "*FL*k3*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -167,8 +172,8 @@ Direction = "normal"
 SetPrior = "set"
 ParaTrans = 1
 
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
-RegVal0 = 1.e-5
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegVal0 = 1.e-6
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
 Tau0max = numpy.log10(RegVal0)

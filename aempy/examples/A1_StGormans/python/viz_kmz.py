@@ -26,6 +26,7 @@ from sys import exit as error
 import csv
 import warnings
 import getpass
+
 from time import process_time
 from datetime import datetime
 import simplekml
@@ -53,7 +54,7 @@ version, _ = versionstrg()
 script = __file__  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
-Header = titstrng
+# Header = titstrng
 
 OutInfo = False
 

@@ -31,6 +31,8 @@ from sys import exit as error
 from time import process_time
 from datetime import datetime
 import warnings
+import getpass
+
 
 import numpy
 
