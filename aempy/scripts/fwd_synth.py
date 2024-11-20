@@ -30,6 +30,7 @@ import os
 import warnings
 from time import process_time
 from datetime import datetime
+import getpass
 
 import numpy
 

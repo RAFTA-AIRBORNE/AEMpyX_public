@@ -172,7 +172,7 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
-    plmthresh = 0.6
+    plmthresh = 0.25
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)
@@ -209,7 +209,7 @@ for filename in dat_files:
     print("time taken = ", process_time() - start, "s \n")
 
     if OutNaN:
-        OutNameStrng = name.replace("data", "_proc_nan" +"_data")
+        OutNameStrng = name.replace("_data", "_proc_delete_nan_data")
         filout = OutputDataDir + OutNameStrng + OutFileFmt
         aesys.write_aempy(File=filout, Data=D, System=AEM_system,
                             Header=Header, OutInfo=False)

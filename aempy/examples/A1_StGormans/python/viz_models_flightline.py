@@ -66,10 +66,9 @@ OutInfo = True
 """
 input formats are "npz","nc4","asc"
 """
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+InModDir = AEMPYX_DATA+"/results_parallel/"
 
-
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InModDir = AEMPYX_DATA +"/test/results_parallel/"
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"

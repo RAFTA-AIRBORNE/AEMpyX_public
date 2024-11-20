@@ -172,7 +172,7 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
-    plmthresh = 0.6
+    plmthresh = 0.25
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)
@@ -209,7 +209,7 @@ for filename in dat_files:
     print("time taken = ", process_time() - start, "s \n")
 
     if OutNaN:
-        OutNameStrng = name.replace("data", "_proc_nan" +"_data")
+        OutNameStrng = name.replace("_data", "_proc_delete_nan_data")
         filout = OutputDataDir + OutNameStrng + OutFileFmt
         aesys.write_aempy(File=filout, Data=D, System=AEM_system,
                             Header=Header, OutInfo=False)
@@ -231,7 +231,7 @@ for filename in dat_files:
         continue
 
 
-    OutNameStrng = name.replace("data", "proc_"+impute[0]+"_data")
+    OutNameStrng = name.replace("_data", "_proc_"+impute[0]+"_data")
     filout = OutputDataDir + OutNameStrng + OutFileFmt
     aesys.write_aempy(File=filout, Data=D, System=AEM_system,
                     Header=Header, OutInfo=False)
@@ -268,7 +268,7 @@ for filename in dat_files:
         head = aesys.grow_header(
             Header,"TSVD: "+" k="+str(k)+" S(rel)="+str(S)+" FRO="+str(FRO))
 
-        OutNameStrng = name.replace("data", "_proc_"+impute[0]+"_k" + str(k) + "_data")
+        OutNameStrng = name.replace("_data", "_proc_"+impute[0]+"_k" + str(k) + "_data")
         filout = OutputDataDir + OutNameStrng+ OutFileFmt
         aesys.write_aempy(File=filout, Data=Data_k,
                         System=AEM_system, Header=head, OutInfo=False)
@@ -289,7 +289,7 @@ for filename in dat_files:
                                                 +" / max "+str(numpy.amax(D_res[:,nd1:nd2]))
                                                 +" / std "+str(numpy.std(D_res[:,nd1:nd2])))
 
-            OutNameStrng = name.replace("data","_proc_"+impute[0]+"_k" + str(k)+"_res" + "_data")
+            OutNameStrng = name.replace("_data","_proc_"+impute[0]+"_k" + str(k)+"_res" + "_data")
             filout = OutputDataDir + OutNameStrng+ OutFileFmt
             aesys.write_aempy(File=filout, Data=D_res,
                             System=AEM_system, Header=head, OutInfo=False)

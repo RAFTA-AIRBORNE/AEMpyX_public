@@ -4,9 +4,9 @@ import os
 import sys
 from sys import exit as error
 from datetime import datetime
-from time import process_time
+from time import process_time, time
 # from random import randrange
-import time
+# import time
 import warnings
 # import inspect
 import copy
@@ -32,7 +32,7 @@ import util
 import inverse
 import alg
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=FutureWarning)
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
@@ -106,7 +106,7 @@ print("Data read from dir: %s " % InDatDir)
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
 # SearchStrng = "*PLM3s_k3.npz"
-SearchStrng = "*FL*data*k3*.npz"
+SearchStrng = "*FL*k3*data.npz"
 
 
 """
@@ -481,11 +481,11 @@ outstrng = "_nlyr"+str(Nlyr)\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
 print("ID string: input file + %s " % outstrng)
 
-
+# jobstart = process_time()
 fcount =0
 for file in dat_files:
 
-    start = time.time()
+    start = process_time()
 
     fcount=fcount+1
 
@@ -512,7 +512,7 @@ for file in dat_files:
     Ctrl["name"] = fl_name
 
 
-    start = time.time()
+    start = process_time()
     """
     Loop over sites
     """
@@ -736,8 +736,10 @@ for file in dat_files:
             site_pcov= site_pcov)
 
     print("\n\nResults stored to "+fileout)
-    elapsed = (time.time() - start)
+    elapsed = (process_time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
 
+# jobelapsed = (process_time() - jobstart)
+# print (" Used %7.4f sec for this job." % (jobelapsed))
 print("\n\nAll done!")

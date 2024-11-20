@@ -4,12 +4,13 @@ import os
 import sys
 from sys import exit as error
 from datetime import datetime
-# from time import process_time
+from time import process_time, time
 # from random import randrange
-import time
+# import time
 import warnings
 # import inspect
 import copy
+import getpass
 
 import numpy
 import scipy
@@ -31,7 +32,7 @@ import util
 import inverse
 import alg
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=FutureWarning)
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
@@ -92,9 +93,11 @@ if "genes" in AEM_system.lower():
 
 # parpool = multiprocessing.Pool()
 
-
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InDatDir =  AEMPYX_DATA + "/test/data/"
+##############################################################################
+# StGormans
+##############################################################################
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+InDatDir =  AEMPYX_DATA + "/proc/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 
@@ -110,7 +113,7 @@ SearchStrng = "*FL*k3*data.npz"
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/test/results_sequential/"
+OutResDir =   AEMPYX_DATA + "/results_sequential/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -150,8 +153,8 @@ Uncert = True
 SetPrior = "set"
 ParaTrans = 1
 
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
-RegVal0 = 1.e-5
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegVal0 = 1.e-6
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
 Tau0max = numpy.log10(RegVal0)
@@ -189,7 +192,7 @@ dzend = 10.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 # print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
-# print(z)
+print(z)
 
 
 
@@ -210,7 +213,8 @@ mod_var[6*Nlyr:7*Nlyr-1] = numpy.power(1.,2)
 # mod_bnd = mumpy.array([])
 max_val = 1.e+30
 min_val = 1.e-30
-# max_val = mod_apr[mod_act!=0] + 3*mod_std[mod_act!=0]
+# max_val = mod_apr[mod_act!=0] + 3*mod_std[mod_act!=0]import time
+#
 # mod_bnd[mod_act!=0, 1] = max_val
 # min_val = mod_apr[mod_act!=0] - 3*mod_std[mod_act!=0]
 # mod_bnd[mod_act!=0, 0] = min_val
@@ -477,11 +481,11 @@ outstrng = "_nlyr"+str(Nlyr)\
             +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
 print("ID string: input file + %s " % outstrng)
 
-
+# jobstart = process_time()
 fcount =0
 for file in dat_files:
 
-    start = time.time()
+    start = process_time()
 
     fcount=fcount+1
 
@@ -508,7 +512,7 @@ for file in dat_files:
     Ctrl["name"] = fl_name
 
 
-    start = time.time()
+    start = process_time()
     """
     Loop over sites
     """
@@ -732,8 +736,10 @@ for file in dat_files:
             site_pcov= site_pcov)
 
     print("\n\nResults stored to "+fileout)
-    elapsed = (time.time() - start)
+    elapsed = (process_time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
 
+# jobelapsed = (process_time() - jobstart)
+# print (" Used %7.4f sec for this job." % (jobelapsed))
 print("\n\nAll done!")

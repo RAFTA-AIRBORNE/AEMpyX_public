@@ -21,7 +21,7 @@ import os
 import sys
 from sys import exit as error
 from datetime import datetime
-from time import process_time
+from time import process_time, time
 # from random import randrange
 # import time
 # import warnings
@@ -59,10 +59,11 @@ print(titstrng+"\n\n")
 
 OutInfo = False
 
-Parallel = False
+Parallel = True
 if Parallel:
 
-    Njobs = 5
+    Njobs = 10
+    # Njobs = -1
 
     if Njobs<0:
         Njobs=multiprocessing.cpu_count()
@@ -310,6 +311,7 @@ print("ID string: input file + %s " % outstrng)
 
 
 
+# jobstart = process_time()
 
 if Parallel:
     import joblib
@@ -329,3 +331,5 @@ else:
                                          result_strng=outstrng)
 
 print("\n\nAll done!")
+# jobelapsed = (process_time() - jobstart)
+# print (" Used %7.4f sec for this job." % (jobelapsed))

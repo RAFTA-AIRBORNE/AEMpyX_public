@@ -16,12 +16,13 @@ import os
 import sys
 from sys import exit as error
 from datetime import datetime
-# from time import process_time
+from time import process_time
 # from random import randrange
-import time
+# import time
 import warnings
 # import inspect
 import copy
+import getpass
 
 import numpy
 import scipy
@@ -95,7 +96,7 @@ input formats are ".npz",".nc4",".asc"
 InFileFmt = ".npz"
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 FileList = "search"
-SearchStrng = "*FL*k3*.npz"
+SearchStrng = "*FL*k3*data.npz"
 InDatDir =  AEMPYX_DATA + "/proc/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
@@ -281,7 +282,7 @@ print("ID string: input file + %s " % OutStrng)
 fcount =0
 for file in dat_files:
 
-    start = time.time()
+    start = process_time()
 
     fcount=fcount+1
 
@@ -322,7 +323,7 @@ for file in dat_files:
     Ctrl["name"] = fl_name
 
 
-    start = time.time()
+    start = process_time()
     """
     Loop over sites
     """
@@ -428,18 +429,6 @@ for file in dat_files:
                               C[6].ravel()))
            site_log[ii,0:len(cc)] = cc
 
-           if Uncert:
-               jd = Results["jacd"]
-               # print(numpy.shape(site_jacd))
-               site_jacd = numpy.vstack((site_jacd,
-                                         jd.reshape((1,numpy.size(jd)))))
-               postcov = Results["cpost"]
-               site_postcov = numpy.vstack((site_postcov ,
-                                            postcov.reshape((1,numpy.size(postcov)))))
-               mres = Results["mresm"][0]
-               site_nump = numpy.vstack((site_nump, numpy.sum(numpy.diag(mres))))
-
-
 
     header=numpy.array(Header, dtype=object),
     fileout = OutResDir + name + OutStrng + OutFileFmt
@@ -468,37 +457,9 @@ for file in dat_files:
         site_alt=site_alt,
         site_dem=site_dem)
 
-    if Uncert:
-        numpy.savez_compressed(
-            file=fileout,
-            fl_data=file,
-            fl_name=fl_name,
-            header=header,
-            aem_system=AEM_system,
-            site_log =site_log,
-            mod_ref=mod_apr,
-            mod_act=mod_act,
-            dat_act=dat_act,
-            site_modl=site_modl,
-            site_sens=site_sens,
-            site_merr=site_merr,
-            site_dobs=site_dobs,
-            site_dcal=site_dcal,
-            site_derr=site_derr,
-            site_nrms=site_nrms,
-            site_num=site_num,
-            site_y=site_y,
-            site_x=site_x,
-            site_gps=site_gps,
-            site_alt=site_alt,
-            site_dem=site_dem,
-            site_jac= site_jacd,
-            site_cov= site_postcov,
-            site_nump=site_nump)
-
 
     print("\n\nResults stored to "+fileout)
-    elapsed = (time.time() - start)
+    elapsed = (process_time() - start)
     print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
     print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
 
