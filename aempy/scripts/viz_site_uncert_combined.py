@@ -29,6 +29,8 @@ from datetime import datetime
 import warnings
 import random
 import functools
+import getpass
+
 from cycler import cycler
 
 import numpy
@@ -232,9 +234,9 @@ if not os.path.isdir(PlotDir):
     os.mkdir(PlotDir)
 
 PDFCatalog = True
+PDFCatName = "AEM05_F11379_Uncert-Catalog.pdf"
 if ".pdf" in PlotFormat:
-    PDFCatName = "AEM05_F11379_Uncert-Catalog.pdf"
-
+    pass
 else:
     error(" No pdfs generated. No catalog possible!")
     PDFCatalog = False
@@ -278,8 +280,11 @@ Grey50 = (0.5, 0.5, 0.5)
 if FilesOnly:
     matplotlib.use("cairo")
 
+
 if PDFCatalog:
     pdf_list = []
+    catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
+
 
 for filein in mod_files:
     start = process_time()
@@ -743,8 +748,15 @@ for filein in mod_files:
 
     if PDFCatalog:
         pdf_list.append(PlotDir+PlotFile+".pdf")
+        catalog.savefig(fig)
 
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCatName)
-    # print(str(len(pdf_list))+" collected to "+PlotDir+PDFCName)
+    print(pdf_list)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    # print(str(len(pdf_list))+" collected to "+PlotDir+PDFCatName)
+    d = catalog.infodict()
+    d["Title"] =  PDFCatName
+    d["Author"] = getpass.getuser()
+    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    catalog.close()

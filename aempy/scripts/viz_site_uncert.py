@@ -28,7 +28,10 @@ from time import process_time
 from datetime import datetime
 import warnings
 import random
+import getpass
 import functools
+
+
 from cycler import cycler
 
 import numpy
@@ -186,7 +189,7 @@ input format is "npz"
 # InModDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/results_diffop/"
 InModDir =  "/home/vrath/DuyguPoster/FD_uncert/"
 SearchStrng ="A1*36*results.npz"
-PDFCName = "AEM05_F11379_Uncert-Catalog.pdf"
+
 
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Models read from dir: %s " % InModDir)
@@ -225,7 +228,7 @@ if not os.path.isdir(PlotDir):
     os.mkdir(PlotDir)
 
 PDFCatalog = True
-
+PDFCatName = "AEM05_F11379_Uncert-Catalog.pdf"
 if ".pdf" in PlotFmt:
     pass
 else:
@@ -271,8 +274,11 @@ Grey50 = (0.5, 0.5, 0.5)
 if FilesOnly:
     matplotlib.use("cairo")
 
+if PDFCatalog:
+    pdf_list = []
+    catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
 
-pdf_list = []
+
 for filein in mod_files:
     start = process_time()
 
@@ -431,7 +437,7 @@ for filein in mod_files:
             PlotFile = PlotDir+fnam+"_site"+str(isite)+"_sens"
             #PlotFile = PlotDir+fnam+"_site"+str(isite)+"_sens_unscaled"
 
-            viz.plot_depth_prof(
+            fig, _ =viz.plot_depth_prof(
                     PlotFile = PlotFile,
                     PlotTitle = TitleStrng+"\n"+OptnsStrng,
                     PlotFormat = PlotFmt,
@@ -454,9 +460,10 @@ for filein in mod_files:
                     PlotStrng="", #Formula, #"", #"Error: mult="+str(DatErr_mult)+" add="+str(DatErr_add),
                     StrngPos=[0.05,0.05])
 
-            if PDFCatalog:
-                 pdf_list.append(PlotFile+".pdf")
 
+            if PDFCatalog:
+                pdf_list.append(PlotDir+PlotFile+".pdf")
+                catalog.savefig(fig)
 
         if "model" in Plotlist:
 
@@ -476,7 +483,7 @@ for filein in mod_files:
 
 
             PlotFile = PlotDir+fnam+"_site"+str(isite)+"_model"
-            viz.plot_depth_prof(
+            fig, _ = viz.plot_depth_prof(
                     PlotFile = PlotFile,
                     PlotTitle = TitleStrng+"\n"+OptnsStrng,
                     PlotFormat = PlotFmt,
@@ -501,6 +508,7 @@ for filein in mod_files:
 
             if PDFCatalog:
                  pdf_list.append(PlotFile+".pdf")
+                 catalog.savefig(fig)
 
         if "jac" in Plotlist:
 
@@ -579,6 +587,7 @@ for filein in mod_files:
 
             if PDFCatalog:
                   pdf_list.append(PlotFile+".pdf")
+                  catalog.savefig(fig)
 
         if "cov" in Plotlist:
 
@@ -622,6 +631,7 @@ for filein in mod_files:
 
             if PDFCatalog:
                  pdf_list.append(PlotFile+".pdf")
+                 catalog.savefig(fig)
 
         if "cor" in Plotlist:
 
@@ -665,6 +675,7 @@ for filein in mod_files:
 
             if PDFCatalog:
                  pdf_list.append(PlotFile+".pdf")
+                 catalog.savefig(fig)
 
         if "respar" in Plotlist:
 
@@ -716,6 +727,7 @@ for filein in mod_files:
 
             if PDFCatalog:
                 pdf_list.append(PlotFile+".pdf")
+                catalog.savefig(fig)
 
         if "resdat" in Plotlist:
 
@@ -784,11 +796,20 @@ for filein in mod_files:
                 PlotStrng=PlotStrng,
                 StrngPos=StrngPos)
 
+
             if PDFCatalog:
-                pdf_list.append(PlotFile+".pdf")
+                pdf_list.append(PlotDir+PlotFile+".pdf")
+                catalog.savefig(fig)
+
 
 
 
 if PDFCatalog:
-    viz.make_pdf_catalog(PDFList=pdf_list, FileName=PlotDir+PDFCName)
-    # print(str(len(pdf_list))+" collected to "+PlotDir+PDFCName)
+    print(pdf_list)
+    # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
+    # print(str(len(pdf_list))+" collected to "+PlotDir+PDFCatName)
+    d = catalog.infodict()
+    d["Title"] =  PDFCatName
+    d["Author"] = getpass.getuser()
+    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    catalog.close()
