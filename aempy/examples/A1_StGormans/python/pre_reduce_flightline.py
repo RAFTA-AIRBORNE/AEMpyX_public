@@ -151,7 +151,7 @@ for filename in dat_files:
             print(" interval ", interval)
             Header = aesys.grow_header(Header, filename +", CUT = "+str(interval))
             print(" data block now has shape: ", numpy.shape(Dcut))
-            newname = name.replace("data","cut_"+str(interval[0])+"-"+str(interval[1])+"_data")
+            newname = name.replace("_data","_cut_"+str(interval[0])+"-"+str(interval[1])+"_data")
             filout = OutDatDir+newname+OutFileFmt
             head = Header
             aesys.write_aempy(File=filout, Data=Dcut,
@@ -171,7 +171,7 @@ for filename in dat_files:
             D, blkhead = prep.reduce_data(D, Method=Method, System = AEM_system)
             print(" data block now has shape: ", numpy.shape(D))
 
-            newname = name.replace("data", "dec"+str(Window)+"_"+Method[0]+"_data")
+            newname = name.replace("_data", "_dec"+str(Window)+"_"+Method[0]+"_data")
             filout = OutDatDir+newname+OutFileFmt
             head = Header
             aesys.write_aempy(File=filout, Data=D,
@@ -193,7 +193,7 @@ for filename in dat_files:
                 Header = aesys.grow_header(Header, "SPLIT = " + str(Method)+" "+str(start))
                 print(" data block now has shape: ", numpy.shape(Dsplit))
 
-                newname = name.replace("data", "spl"+str(Step)+"-"+str(start)+"_data")
+                newname = name.replace("_data", "_spl"+str(Step)+"-"+str(start)+"_data")
                 filout = OutDatDir+newname+OutFileFmt
                 head = Header
                 aesys.write_aempy(File=filout, Data=Dsplit,
