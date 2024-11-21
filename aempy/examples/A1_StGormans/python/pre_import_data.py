@@ -96,7 +96,7 @@ DataSet = []
 
 # +
 CheckNaN = True
-MergeOut = True
+MergeOut = False
 LinesOut = True
 LinesMin = 30
 
@@ -144,15 +144,22 @@ AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 # StGormans
 ###############################################################################
 
-DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union", "Lines"
-InDatDir = AEMPYX_DATA+"/orig/"
-OutDatDir = AEMPYX_DATA+"/raw/"
-InSurvey = "A1"
-OutStrng = InSurvey+"_rect_stgormans"
-# RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
-RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
+# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union", "Lines"
+# InDatDir = AEMPYX_DATA+"/orig/"
+# OutDatDir = AEMPYX_DATA+"/raw/"
+# InSurvey = "A1"
+# OutStrng = InSurvey+"_rect_stgormans"
+# # RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
+# RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
 
-LineList = []
+LineList = [11379.0, 11380.0, 11381.0]
+DataSelect = "Lines"   # "Polygon", "Intersection", "Union", "Lines"
+InDatDir = AEMPYX_DATA+"/orig/"
+OutDatDir = AEMPYX_DATA+"/lines/"
+InSurvey = "A1"
+OutStrng = InSurvey+"_lines_stgormans"
+# RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
+# RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
 # After this, generally no code changes are necessary.
 
 # +
@@ -245,18 +252,33 @@ if ("uni" in DataSelect.lower()) or ("int" in DataSelect.lower()):
 
 if "lines" in DataSelect.lower():
     LinesOut = True
-    FlightLines = []
+    Lines = []
+    ilist = 0
     for ilin in LineList:
-        tmp = Data[numpy.where(Data[:, 0] == ilin), :]
-        ns = numpy.shape(tmp)
-        tmp = numpy.reshape(tmp, (ns[1], ns[2]))
-        print("OutInfo: "+str(numpy.shape(tmp)))
-        FlightLines.append(tmp)
+        # tmp = Data[numpy.where(numpy.isclose(Data[:, 0], ilin, rtol=1e-05, atol=0.5e0))]
 
-    if FlightLines.size != 0:
-        Data = FlightLines
-    else:
+        tmp = Data[numpy.where(Data[:, 0]==ilin)]
+        siztmp = numpy.shape(tmp)[0]
+        if siztmp == 0:
+            print("No line found:", ilin)
+            continue
+        else:
+            print(siztmp, "points found in flightline", ilin)
+            ilist = ilist + 1
+            Lines.append(ilin)
+
+        if ilist == 1:
+            flightlines = tmp
+        else:
+            flightlines = numpy.vstack((flightlines, tmp))
+
+
+    if len(flightlines) == 0:
         error("No lines found from list!\n")
+    else:
+        Data = flightlines
+
+
 
 print("Data select time taken = ", process_time() - start, "s \n")
 print("Out: "+str(numpy.shape(Data)))
@@ -276,7 +298,8 @@ if MergeOut:
 if LinesOut:
     bad_files = 0
     startlines = process_time()
-    Lines = sorted(numpy.unique(Data[:, 0]))
+    if "lines" not in DataSelect.lower():
+        Lines = sorted(numpy.unique(Data[:, 0]))
     print(">Flight lines in data set:")
     print(Lines)
     for s in Lines:
