@@ -64,8 +64,8 @@ Header = titstrng
 # -
 
 OutInfo = False
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-OutDir  = AEMPYX_DATA+"/synth/data/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/Synth/"
+OutDir  = AEMPYX_DATA+"/data/"
 if not os.path.isdir(OutDir):
     print("File: %s does not exist, but will be created" % OutDir)
     os.mkdir(OutDir)
@@ -105,7 +105,7 @@ nD = NN[0]
 
 # In case an ensemble of model responses is desired, e.g. for future inversions, the resukting output can be controlled here.
 
-Nsamples = 300
+Nsamples = 1000
 # NSamples = 1
 PerturbDat = True
 

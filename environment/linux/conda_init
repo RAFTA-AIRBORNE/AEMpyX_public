@@ -1,14 +1,9 @@
 #! /bin/bash
-export MY_CONDA_ROOT='/home/vrath/.Miniconda24/'
 
-export AEMPYX_ROOT='/home/vrath/AEMpyX/'
-export AEMPYX_DATA='/home/vrath/work/AEM_Data/'
+export MY_CONDA_ROOT=${HOME}/.Miniconda24/
+export AEMPYX_ROOT=${HOME}/AEMpyX_public/
+export AEMPYX_DATA=${HOME}/AEMpyX_public/work/
 
-export PY4MT_ROOT='/home/vrath/Py4MT2/'
-export PY4MT_DATA='/home/vrath/work/MT_Data/'
-
-export JACOPYAN_ROOT='/home/vrath/JacoPyAn/'
-export JACOPYAN_DATA='/home/vrath/work/MT_Data/'
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -25,3 +20,6 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+
+conda activate AEM
+cd ${AEMPYX_ROOT}
