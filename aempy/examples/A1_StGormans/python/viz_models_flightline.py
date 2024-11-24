@@ -32,6 +32,7 @@ import matplotlib
 import matplotlib.colors
 import matplotlib.pyplot
 import matplotlib.cm
+import matplotlib.backends.backend_pdf
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [AEMPYX_ROOT+"/aempy/modules/", AEMPYX_ROOT+"/aempy/scripts/"]
@@ -82,13 +83,13 @@ if "set" in FileList.lower():
     data_files =["NM_A1_intersection_FL13490-0_cnlyr30_TikhOpt_gcv_Results.npz"]
 
 # PlotDir = AEMPYX_DATA + "/Nearest/fwd_compare/plots/"
-PlotDir = InModDir+"/plots_mods_smape/"
+PlotDir = InModDir+"/plots/"
 print("Plots written to dir: %s " % PlotDir)
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
     os.mkdir(PlotDir)
 
-FilesOnly = True
+FilesOnly = False
 PlotFmt = [".pdf"]
 
 PDFCatName = PlotDir+"StGormans_mods.pdf"
@@ -134,7 +135,7 @@ smp_limits = [0., 20.]
 Parameter for model plot
 """
 min_lrho =  1.
-max_lrho =  4.
+max_lrho =  3.
 cl = [min_lrho, max_lrho]
 cb_ticks = [-1, 0, 1, 2, 3, 4]
 
@@ -194,7 +195,7 @@ poslatlon = True
 if poslatlon:
     EPSG=32629
 
-InvertDirection = True
+
 ProfScale = 1. # 0.001  # m to km
 ProfUnit  = "(m)" #
 
@@ -819,11 +820,13 @@ for file in data_files:
 
     if matplotlib.get_backend()!="cairo":
         matplotlib.pyplot.show()
-    matplotlib.pyplot.clf()
+
 
     if PDFCatalog:
         pdf_list.append(PlotDir+FileName+".pdf")
         catalog.savefig(fig)
+
+    matplotlib.pyplot.clf()
 
 
 if PDFCatalog:

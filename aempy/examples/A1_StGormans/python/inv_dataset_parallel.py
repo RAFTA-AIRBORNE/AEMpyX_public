@@ -173,7 +173,7 @@ Direction = "normal"
 SetPrior = "set"
 ParaTrans = 1
 
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-6
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -217,7 +217,7 @@ mod_act[0*Nlyr:1*Nlyr] = 1
 sizepar = numpy.shape(mod_act)
 mpara = sizepar[0]
 
-Guess_r = 100.0  # initial guess for resistivity in mod_apr
+Guess_r = 300.0  # initial guess for resistivity in mod_apr
 # Guess_r = 10.0    # low value for DoI estimate
 # Guess_r = 1000.0  # high value for DoI estimate
 Guess_s = 0.3   # mod_std (logscale) defines standard deviation of mod_apr

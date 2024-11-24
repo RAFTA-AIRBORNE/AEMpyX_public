@@ -27,6 +27,7 @@ import time
 import warnings
 # import inspect
 import copy
+import getpass
 
 import numpy
 import scipy
@@ -51,7 +52,7 @@ import post
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 rng = numpy.random.default_rng()
-nan = numpy.nan  
+nan = numpy.nan
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=__file__, out=False)
@@ -62,16 +63,16 @@ OutInfo = False
 
 # -
 
-# The following cell gives values to AEM-system related settings. 
+# The following cell gives values to AEM-system related settings.
 #
-# Data transformation is activated by the variable _DataTrans_. Currently 
-# three possible options are allowed: _DataTrans = 0_: No transformation, 
-# i.e., the raw data are used. _DataTrans = 1_: The natural log of data 
-# is taken, only allowed for strictly positive values. _DataTrans = 2_: 
+# Data transformation is activated by the variable _DataTrans_. Currently
+# three possible options are allowed: _DataTrans = 0_: No transformation,
+# i.e., the raw data are used. _DataTrans = 1_: The natural log of data
+# is taken, only allowed for strictly positive values. _DataTrans = 2_:
 # If data scale logarithmically, an _asinh_ transformation (introduced by
-# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, 
+# Scholl, 2000) is applied. It allows negatives, which may occur in TDEM,
 # when IP effects are present.
-#        
+#
 # A general additive/multiplicative error model is applied on the raw data
 # before transformation, and errors are also transformed.
 
@@ -100,9 +101,9 @@ if "genes" in AEM_system.lower():
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 # +
-# 
+#
 # configure moltiprocessing
-# 
+#
 # nprocs = 8
 # if nprocs<0:
 #     nprocs=multiprocessing.cpu_count()
@@ -113,16 +114,14 @@ if "genes" in AEM_system.lower():
 
 Direction =  "normal"
 
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+InDatDir =  AEMPYX_DATA + "/proc/"
 
 
 FileList = "search"  # "search", "read"
-# FileList = "set"  # "search", "read"
-# SearchStrng = "*delete_dec5_mean.npz" # no svd
-SearchStrng = "*delete_dec5_mean.npz"
-#SearchStrng = "*k2_dec5_mean.npz"
+SearchStrng = "*data.npz"
 
-AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir = AEMPYX_DATA + "/aem05_limerick/dec/"
+InDatDir = AEMPYX_DATA + "/lines/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
 
@@ -146,7 +145,7 @@ if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
     dat_files = []
     # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
-    
+
     dat_files = [os.path.basename(f) for f in dat_files]
     apr_files = [os.path.basename(f) for f in apr_files]
 
@@ -251,7 +250,7 @@ if OutInfo:
         print(" Lower limits: \n", mod_bnd[:, 0])
 # -
 
-# Setup controls for different slgorithms, here in particular prepare 
+# Setup controls for different slgorithms, here in particular prepare
 # differential operator base methods for regularization matrices
 
 # +
@@ -282,13 +281,13 @@ if "tikhopt" in  RunType.lower():
         ("system", [AEM_system, FwdCall]),
         ("name", ""),
         ("inversion",
-         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
+         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
                       LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ("covar", 
+        ("covar",
          numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
         ("transform",
          [DataTrans, ParaTrans]),
-        ("uncert", 
+        ("uncert",
          Uncert)
        ])
 
@@ -341,7 +340,7 @@ for ifile in numpy.arange(len(dat_files)):
         mod_prior = inverse.load_prior(InPriorDir+prior_file)
 
 
-# This is the main loop over sites in a flight line or within an area:        
+# This is the main loop over sites in a flight line or within an area:
 
     start = time.time()
     """
@@ -497,7 +496,7 @@ for ifile in numpy.arange(len(dat_files)):
 
     if Uncert:
 
-        numpy.savez_compressed(        
+        numpy.savez_compressed(
             file=fileout+"_results.npz",
             fl_data=file,
             fl_name=fl_name,
@@ -512,7 +511,7 @@ for ifile in numpy.arange(len(dat_files)):
             site_dobs=site_dobs,
             site_dcal=site_dcal,
             site_derr=site_derr,
-            site_nrms=site_nrms,        
+            site_nrms=site_nrms,
             site_smap=site_smap,
             site_conv=site_conv,
             site_num=site_num,

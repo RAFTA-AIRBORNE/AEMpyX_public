@@ -91,11 +91,19 @@ OutFileFmt = ".npz"
 # StGormans
 ##############################################################################
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-Filelist = "search" # "set", "read"
-SearchStrng = "*FL*.npz"
-InputDataDir =  AEMPYX_DATA + "/raw/"
-OutputDataDir =  AEMPYX_DATA + "/proc/"
 
+Filelist = "search" # "set", "read"
+
+
+# rectangle case
+# InputDataDir =  AEMPYX_DATA + "/raw/"
+# OutputDataDir =  AEMPYX_DATA + "/proc/"
+# SearchStrng = "*FL*data.npz"
+
+# lines case
+InputDataDir =  AEMPYX_DATA + "/lines/"
+OutputDataDir =  AEMPYX_DATA + "/lines/"
+SearchStrng = "*FL*data.npz"
 
 print("\n\n")
 print("Data read from dir:  %s" % InputDataDir)
