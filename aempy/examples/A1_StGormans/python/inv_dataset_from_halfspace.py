@@ -114,16 +114,14 @@ if "genes" in AEM_system.lower():
 
 Direction =  "normal"
 
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+InDatDir =  AEMPYX_DATA + "/proc/"
 
 
 FileList = "search"  # "search", "read"
-# FileList = "set"  # "search", "read"
-# SearchStrng = "*delete_dec5_mean.npz" # no svd
-SearchStrng = "*delete_dec5_mean.npz"
-#SearchStrng = "*k2_dec5_mean.npz"
+SearchStrng = "*data.npz"
 
-AEMPYX_DATA =  AEMPYX_ROOT + "/data/"
-InDatDir = AEMPYX_DATA + "/aem05_limerick/dec/"
+InDatDir = AEMPYX_DATA + "/lines/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 
 

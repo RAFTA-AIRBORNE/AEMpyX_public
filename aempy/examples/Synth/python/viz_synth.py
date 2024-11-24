@@ -65,8 +65,8 @@ print(titstrng+"\n\n")
 
 
 now = datetime.now()
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InModDir = AEMPYX_DATA+"/synth/results/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/Synth/"
+InModDir = AEMPYX_DATA+"/results/"
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
@@ -82,7 +82,7 @@ if "search" in FileList.lower():
 if "set" in FileList.lower():
    data_files =[]
 
-PlotDir = AEMPYX_DATA+"/synth/plots/"
+PlotDir = AEMPYX_DATA+"/plots/"
 print("Plots written to dir: %s " % PlotDir)
 if not os.path.isdir(PlotDir):
     print("File: %s does not exist, but will be created" % PlotDir)
@@ -93,7 +93,7 @@ FilesOnly = False
 PlotFormat = [".pdf", ".png"]
 
 PDFCatalog = False
-PDFCatName = "AEM05_EnsemblePLots.pdf"
+PDFCatName = "AEM05_EnsemblePlots.pdf"
 if ".pdf" in PlotFormat:
     pass
 else:

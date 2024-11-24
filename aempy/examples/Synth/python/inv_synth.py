@@ -93,11 +93,11 @@ if "genes" in AEM_system.lower():
 """
 input format is ".npz"
 """
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-InDatDir = AEMPYX_DATA + "/synth/data/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/Synth/"
+
+InDatDir = AEMPYX_DATA + "/data/"
 FileList = "search"  # "search", "read"
 SearchStrng = "*.npz"
-
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -117,7 +117,7 @@ if ns ==0:
 """
 Output formats is ".npz"
 """
-OutDatDir = AEMPYX_DATA + "/synth/results/"
+OutDatDir = AEMPYX_DATA + "/results/"
 print("Models written to dir: %s " % OutDatDir)
 
 
