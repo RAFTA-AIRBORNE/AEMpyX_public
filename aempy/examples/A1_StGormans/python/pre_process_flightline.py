@@ -94,16 +94,16 @@ AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 
 Filelist = "search" # "set", "read"
 
-
 # rectangle case
-# InputDataDir =  AEMPYX_DATA + "/raw/"
-# OutputDataDir =  AEMPYX_DATA + "/proc/"
-# SearchStrng = "*FL*data.npz"
+InputDataDir =  AEMPYX_DATA + "/rect/"
+OutputDataDir =  AEMPYX_DATA + "/rect/"
+SearchStrng = "*FL*data.npz"
+SearchStrng = "*FL*[0,1]_data.npz"
 
 # lines case
-InputDataDir =  AEMPYX_DATA + "/lines/"
-OutputDataDir =  AEMPYX_DATA + "/lines/"
-SearchStrng = "*FL*0_data.npz"
+# InputDataDir =  AEMPYX_DATA + "/lines/"
+# OutputDataDir =  AEMPYX_DATA + "/lines/"
+# SearchStrng = "*FL*[0,1]_data.npz"
 
 print("\n\n")
 print("Data read from dir:  %s" % InputDataDir)
