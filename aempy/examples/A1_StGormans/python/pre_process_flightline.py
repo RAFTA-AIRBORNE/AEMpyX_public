@@ -74,7 +74,7 @@ if "genes" in AEM_system.lower():
 
 # +
 OutInfo = True
-OutNaN = True
+OutNaN = False
 OutRes = False
 
 SingValMax = 5
@@ -90,20 +90,20 @@ OutFileFmt = ".npz"
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 
 Filelist = "search" # "set", "read"
 
+
 # rectangle case
-InputDataDir =  AEMPYX_DATA + "/rect/"
-OutputDataDir =  AEMPYX_DATA + "/rect/"
-SearchStrng = "*FL*data.npz"
-SearchStrng = "*FL*[0,1]_data.npz"
+# InputDataDir =  AEMPYX_DATA + "/raw/"
+# OutputDataDir =  AEMPYX_DATA + "/proc/"
+# SearchStrng = "*FL*data.npz"
 
 # lines case
-# InputDataDir =  AEMPYX_DATA + "/lines/"
-# OutputDataDir =  AEMPYX_DATA + "/lines/"
-# SearchStrng = "*FL*[0,1]_data.npz"
+InputDataDir =  AEMPYX_DATA + "/lines/"
+OutputDataDir =  AEMPYX_DATA + "/lines/"
+SearchStrng = "*FL*data.npz"
 
 print("\n\n")
 print("Data read from dir:  %s" % InputDataDir)
@@ -180,7 +180,7 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
-    plmthresh = 0.2
+    plmthresh = 0.25
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)
@@ -192,7 +192,7 @@ for filename in dat_files:
                                     System=AEM_system)
 
     action = "less than"
-    threshval = 0. #-9999.
+    threshval = 0.0
     columns = [6, 14]
     print("\n Proc action: " + action)
     print(" columns: ", columns)
@@ -202,7 +202,7 @@ for filename in dat_files:
     D, nanindex = prep.insert_flag(D, action, threshval, columns,
                                    System=AEM_system)
     action = "greater than"
-    threshval = 90.0
+    threshval = 120.0
     columns = [4, 4]
     print("\n Proc action: " + action)
     print(" columns: ", columns)
