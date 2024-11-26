@@ -75,7 +75,7 @@ def calc_fwdmodel(fwdcall=None,
 #                    d_trn=0, d_act=numpy.array([]), d_state=0,
 #                    model=numpy.array([]), m_delta=numpy.array([]),
 #                    m_act=numpy.array([]), m_trn=1, m_state=0,
-#                    dfit=[999999.9,999999.9], numdiv = 5,
+#                    dfit=999999.9, numdiv = 5,
 #                    maxlevel=3, mdfit="rms", out=True):
 #     """
 #     Run simple line search with 0.>alpha<1.
@@ -177,7 +177,7 @@ def run_linesearch(fwdcall, alt,
                    d_trn=0, d_act=numpy.array([]), d_state=0,
                    model=numpy.array([]), m_delta=numpy.array([]),
                    m_act=numpy.array([]), m_trn=1, m_state=0,
-                   dfit=[999999.9,999999.9],
+                   dfit=999999.9,
                    facreduce=0.6666, maxreduce=6, mdfit="rms",
                    out=True):
     """
