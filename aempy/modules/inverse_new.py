@@ -2508,7 +2508,7 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     U = U[:, :k]
 
     """
-    check  how much of Jacd is explained by k
+    check  how much of Jacobian is explained by k
     """
     D = U@scipy.sparse.diags(S[:])@Vt - Jacd
     x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
@@ -2637,7 +2637,7 @@ def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
     if randsvd:
         U, S, Vt = rsvd(
-            Jacd.T, rank=k, n_oversamples=0, n_subspace_iters=2)
+            Jacd.T, rank=k, n_oversamples=2, n_subspace_iters=2)
     else:
         U, S, Vt = scipy.linsvd(Jacd.T, full_matrices=False)
 
