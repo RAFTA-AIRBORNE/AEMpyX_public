@@ -222,12 +222,9 @@ def run_linesearch(fwdcall, alt,
 
     liniter = 0
 
-    if "rms" in mdfit:
-        linfit = dfit[0]
-        linfit_old = dfit[0]
-    if "smp" in mdfit:
-        linfit = dfit[1]
-        linfit_old = dfit[1]
+
+    linfit = dfit
+    linfit_old = dfit
 
     fact = facreduce
     mbase = model.copy()

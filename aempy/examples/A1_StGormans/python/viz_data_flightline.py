@@ -115,7 +115,7 @@ FileList = "search"
 
 
 # processed data
-InDatDir =  AEMPYX_DATA + "/lines/"
+InDatDir =  AEMPYX_DATA + "/rect/"
 PlotDir =  InDatDir + "/plots/"
 SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
 #SearchStrng = "*FL*.npz" # else

@@ -838,7 +838,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
             dnorm_iter = numpy.array([calc_dnorm(data_obs=d_obs, data_cal=d_cal,
                                                          data_err=d_err, data_act=d_act)])
             # print(model)
-            mnorm_iter = numpy.array([scipy.linnorm(model)])
+            mnorm_iter = numpy.array([scipy.linalg.norm(model)])
             rvals_iter = numpy.array([0., 0.])
             dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
@@ -858,7 +858,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                     print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
 
                 dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
-                modl_change = scipy.linnorm((model - model_old)/model_old)
+                modl_change = scipy.linalg.norm((model - model_old)/model_old)
 
                 if (dfit_iter < thresh[0]):
                     conv_status = 1
@@ -939,7 +939,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 A = JJ + Cmi0 + Cmi1
                 r = Jac.T@Cdi@(cal - obs).T+Cmi0@diff_m.T+Cmi1@diff_m.T
 
-                m_delta = scipy.linsolve(A, r)
+                m_delta = scipy.linalg.solve(A, r)
                 m_test[itest] = m_iter - m_delta
                 model_test = insert_mod(M=model_test, m=m_test[itest],
                                                 m_act=m_act)
@@ -949,13 +949,13 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
                 r_test = Wd@(obs - cali[d_act != 0]).T
 
-                dnorm[itest] = scipy.linnorm(r_test)
-                mnorm[itest] = scipy.linnorm(m_test[itest])
+                dnorm[itest] = scipy.linalg.norm(r_test)
+                mnorm[itest] = scipy.linalg.norm(m_test[itest])
 
                 """
                  Cov a posteriori & Generalized Inverse
                 """
-                C = scipy.lininv(A)
+                C = scipy.linalg.inv(A)
                 m_err[itest] = numpy.sqrt(C.diagonal())
                 G = C@Jd.T
 
@@ -1024,8 +1024,8 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                           data_cal=d_cal,
                                                           data_err=d_err,
                                                           data_act=d_act)
-            dnorm_ii= scipy.linnorm(Wd@(obs - d_cal[d_act != 0]).T)
-            mnorm_ii = scipy.linnorm(model)
+            dnorm_ii= scipy.linalg.norm(Wd@(obs - d_cal[d_act != 0]).T)
+            mnorm_ii = scipy.linalg.norm(model)
 
 
         else:
@@ -1065,7 +1065,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     if uncert:
         A = JJ + Cm0.multiply(reg[0]) + Cm1.multiply(reg[1])
         # Cov a posteriori & Generalized Inverse
-        C = scipy.lininv(A)
+        C = scipy.linalg.inv(A)
         E = numpy.sqrt(C.diagonal())
 
         G = C@Jd.T
@@ -1073,11 +1073,11 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         # Resolution martices & spread
         Rm = G@Jd
         Nm = numpy.sum(Rm.diagonal())
-        Sm = scipy.linnorm(numpy.identity(numpy.shape(Rm)[0])-Rm)
+        Sm = scipy.linalg.norm(numpy.identity(numpy.shape(Rm)[0])-Rm)
 
         Rd = Jd@G
         Nd = numpy.sum(Rd.diagonal())
-        Sd = scipy.linnorm(numpy.identity(numpy.shape(Rd)[0])-Rd)
+        Sd = scipy.linalg.norm(numpy.identity(numpy.shape(Rd)[0])-Rd)
 
         uncpars =\
             dict([
@@ -1244,7 +1244,7 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
             model_old = model.copy()
             dnorm_iter = numpy.array([calc_dnorm(data_obs=d_obs, data_cal=d_cal,
                                                          data_err=d_err, data_act=d_act)])
-            mnorm_iter = numpy.array([scipy.linnorm(model)])
+            mnorm_iter = numpy.array([scipy.linalg.norm(model)])
             rvals_iter = numpy.array([0., 0.])
             dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
@@ -1264,7 +1264,7 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
                     print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
 
                 dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
-                modl_change = scipy.linnorm((model - model_old)/model_old)
+                modl_change = scipy.linalg.norm((model - model_old)/model_old)
 
                 if (dfit_iter < thresh[0]):
                     conv_status = 1
@@ -1338,7 +1338,7 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
         A = JJ + Cmi1
         r = Jac.T@Cdi@(obs - cal).T+Cmi1@diff_m.T
 
-        m_delta = scipy.linsolve(A, r)
+        m_delta = scipy.linalg.solve(A, r)
         m_test = m_iter - m_delta
         model_test = insert_mod(M=model_test, m=m_test,
                                         m_act=m_act)
@@ -1348,8 +1348,8 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         r_test = Wd@(obs - cali).T
 
-        dnorm = scipy.linnorm(r_test)
-        mnorm = scipy.linnorm(m_test)
+        dnorm = scipy.linalg.norm(r_test)
+        mnorm = scipy.linalg.norm(m_test)
 
     reg = [tau_iter]
     mdl = m_test
@@ -1400,18 +1400,18 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
         A = JJ + Cm1.multiply(tau_iter)
         # Cov a posteriori & Generalized Inverse
-        C = scipy.lininv(A)
+        C = scipy.linalg.inv(A)
         E = numpy.sqrt(C.diagonal())
         G = C@Jd.T
 
         # Resolution martices & spread
         Rm = G@Jd
         Nm = numpy.sum(Rm.diagonal())
-        Sm = scipy.linnorm(numpy.identity(numpy.shape(Rm)[0])-Rm)
+        Sm = scipy.linalg.norm(numpy.identity(numpy.shape(Rm)[0])-Rm)
 
         Rd = Jd@G
         Nd = numpy.sum(Rd.diagonal())
-        Sd = scipy.linnorm(numpy.identity(numpy.shape(Rd)[0])-Rd)
+        Sd = scipy.linalg.norm(numpy.identity(numpy.shape(Rd)[0])-Rd)
 
         uncpars =\
             dict([
@@ -1599,7 +1599,7 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
             model_old = model.copy()
             dnorm_iter = numpy.array([calc_dnorm(data_obs=d_obs, data_cal=d_cal,
                                                          data_err=d_err, data_act=d_act)])
-            mnorm_iter = numpy.array([scipy.linnorm(model)])
+            mnorm_iter = numpy.array([scipy.linalg.norm(model)])
             rvals_iter = numpy.array([0., 0.])
             dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
@@ -1619,7 +1619,7 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                     print("Iteration %6i NRMSE =  %7.3f" % (niter, dfit_iter))
 
                 dfit_change = numpy.abs((dfit_iter - dfit_old)/dfit_old)
-                modl_change = scipy.linnorm((model - model_old)/model_old)
+                modl_change = scipy.linalg.norm((model - model_old)/model_old)
 
                 if (dfit_iter < thresh[0]):
                     conv_status = 1
@@ -1692,17 +1692,17 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 JJ = Jac.T@Cdi@Jac
                 A = JJ + tt*Cmi.todense()
                 r = Jac.T@Cdi@((obs - cal).T+Jac@diff_m.T)
-                m_delta = scipy.linsolve(A, r)
+                m_delta = scipy.linalg.solve(A, r)
                 # cov a posteriori
-                C = scipy.lininv(A)
+                C = scipy.linalg.inv(A)
             else:
                 Ctmp = tt*Cm
                 JJ = Jac@Ctmp@Jac.T
                 A = JJ + Cd
                 r = (obs - cal).T+Jac@diff_m.T
-                m_delta = Ctmp*Jac.T@scipy.linsolve(A, r)
+                m_delta = Ctmp*Jac.T@scipy.linalg.solve(A, r)
                 # cov a posteriori
-                C = Ctmp + Ctmp*Jac.T@scipy.lininv(A)@Jac*Ctmp
+                C = Ctmp + Ctmp*Jac.T@scipy.linalg.inv(A)@Jac*Ctmp
 
             m_test[itest] = m_apri + m_delta
             model_test = insert_mod(M=model_test, m=m_test[itest],
@@ -1716,8 +1716,8 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
             r_test = Sdi@(obs - cali).T
 
-            dnorm[itest] = scipy.linnorm(r_test)
-            mnorm[itest] = scipy.linnorm(m_test[itest])
+            dnorm[itest] = scipy.linalg.norm(r_test)
+            mnorm[itest] = scipy.linalg.norm(m_test[itest])
 
             # print(numpy.shape(C))
             m_err[itest] = numpy.sqrt(C.diagonal())
@@ -1813,13 +1813,13 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         if "par" in invspace.lower():
             JJ = Jac.T@Cdi@Jac
             A = JJ + tau[g_index]*Cmi
-            C = scipy.lininv(A)
+            C = scipy.linalg.inv(A)
 
         else:
             Ctmp = tau[g_index]*Cm
             JJ = Jac@Ctmp@Jac.T
             A = JJ + Cd
-            C = Ctmp + Ctmp*Jac.T@scipy.lininv(A)@Jac*Ctmp
+            C = Ctmp + Ctmp*Jac.T@scipy.linalg.inv(A)@Jac*Ctmp
 
         E = numpy.sqrt(C.diagonal())
         G = C@Jd.T
@@ -1828,12 +1828,12 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
         Rm = G@Jd
         print(numpy.shape(Rm))
         Nm = numpy.sum(Rm.diagonal())
-        Sm = scipy.linnorm(numpy.identity(numpy.shape(Rm)[0])-Rm)
+        Sm = scipy.linalg.norm(numpy.identity(numpy.shape(Rm)[0])-Rm)
 
         Rd = Jd@G
         print(numpy.shape(Rd))
         Nd = numpy.sum(Rd.diagonal())
-        Sd = scipy.linnorm(numpy.identity(numpy.shape(Rd)[0])-Rd)
+        Sd = scipy.linalg.norm(numpy.identity(numpy.shape(Rd)[0])-Rd)
 
         print("Nm =", str(Nm), "Nd =", str(Nd),)
 
@@ -2335,7 +2335,7 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
             p = sqalph*Cd @ rng.standard_normal(numpy.shape(d_err))
             rhs = d_obs - d_cal[isample, :] + p
-            sol = numpy.linsolve(Gyy + alpha*Cd, rhs)
+            sol = numpy.linalg.solve(Gyy + alpha*Cd, rhs)
             # print("pert  ",numpy.shape(p),numpy.shape(pert))
             # print("rhs  ",numpy.shape(rhs))
             # print(numpy.shape(Gxy))
@@ -2496,7 +2496,7 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
         U, S, Vt = rsvd(
             Jacd, rank=k, n_oversamples=0, n_subspace_iters=2)
     else:
-        U, S, Vt = scipy.linsvd(Jacd, full_matrices=False)
+        U, S, Vt = scipy.linalg.svd(Jacd, full_matrices=False)
 
     """
     truncation
@@ -2512,8 +2512,8 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
     D = U@scipy.sparse.diags(S[:])@Vt - Jacd
     x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
-    n_op = numpy.linnorm(D@x_op)/numpy.linnorm(x_op)
-    j_op = numpy.linnorm(Jacd@x_op)/numpy.linnorm(x_op)
+    n_op = numpy.linalg.norm(D@x_op)/numpy.linalg.norm(x_op)
+    j_op = numpy.linalg.norm(Jacd@x_op)/numpy.linalg.norm(x_op)
     if OutInfo:
         print(" Op-norm J_k = "+str(n_op)+", explains "
               + str(100. - n_op*100./j_op)+"% of variations")
@@ -2655,8 +2655,8 @@ def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
     D = U@scipy.sparse.diags(S[:])@Vt - Jacd.T
     x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
-    n_op = numpy.linnorm(D@x_op)/numpy.linnorm(x_op)
-    j_op = numpy.linnorm(Jacd.T@x_op)/numpy.linnorm(x_op)
+    n_op = numpy.linalg.norm(D@x_op)/numpy.linalg.norm(x_op)
+    j_op = numpy.linalg.norm(Jacd.T@x_op)/numpy.linalg.norm(x_op)
     if OutInfo:
         print(" Op-norm J_k = "+str(n_op)+", explains "
               + str(100. - n_op*100./j_op)+"% of variations")
@@ -2967,7 +2967,7 @@ def perturb_random(vbase=numpy.array([]),
              l = msqrt_sparse(covar)
          else:
              l = msqrt(covar)
-        # l = scipy.lincholesky(icovar)
+        # l = scipy.linalg.cholesky(icovar)
 
 
     nd = numpy.shape(vbase)
@@ -3039,7 +3039,7 @@ def generate_data_ensemble(dref=numpy.array([]),
                 l = msqrt_sparse(incovar)
             else:
                 l = msqrt(incovar)
-           # l = scipy.lincholesky(incovar)
+           # l = scipy.linalg.cholesky(incovar)
         else:
             l = inchol
 
@@ -3122,7 +3122,7 @@ def generate_param_ensemble(mref=numpy.array([]),
                 l = msqrt_sparse(covm)
             else:
                 l = msqrt(covm)
-               # l = scipy.lincholesky(covm)
+               # l = scipy.linalg.cholesky(covm)
 
             # print(inchol.size)
             # print(" mwrk", mwrk[0:7])
@@ -3249,7 +3249,7 @@ def calc_keg_update(m=numpy.array([]), r=numpy.array([]),
     else:
         C = C = numpy.eye(mr[1])/Cd
 
-    Ci = scipy.lininv(Cyy+C)
+    Ci = scipy.linalg.inv(Cyy+C)
     K = Cxy@Ci
 
     m_update = m.copy()
@@ -3301,7 +3301,7 @@ def calc_eki_update(m=numpy.array([]), r=numpy.array([]),
     else:
         C = numpy.eye(mr[1])/Cd
 
-    Ci = scipy.lininv(Cyy+C)
+    Ci = scipy.linalg.inv(Cyy+C)
     K = Cxy@Ci
 
     m_update = m.copy()
@@ -3404,7 +3404,7 @@ def calc_jac(
                     data2, _ = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
                                              m_vec=m_current, m_trn=m_trn, m_state=m_state,
                                              d_trn=d_trn)
-                    deljacb = numpy.linnorm(
+                    deljacb = numpy.linalg.norm(
                         ((data1-data0) - (data0-data2))/deliter)
                     # print(deljacb, ipert, deliter)
                     jacobian[:, ipert] = 0.5*(data1 - data2) / (deliter)
@@ -3821,7 +3821,7 @@ def calc_model_resolution(J=numpy.array([]), G=numpy.array([]),
 
         if "men" in stype.lower() or "fro" in stype.lower():
             R = Rm - numpy.eye(N)
-            S = numpy.linnorm(R)
+            S = numpy.linalg.norm(R)
 
         W = numpy.zeros((N, N))
         if "too" in stype.lower() or "back" in stype.lower():
@@ -3860,7 +3860,7 @@ def calc_model_resolution(J=numpy.array([]), G=numpy.array([]),
 
                 R = Rm[i1, :]
                 D = d[:]
-                f = 1./scipy.linnorm(R+smallval)
+                f = 1./scipy.linalg.norm(R+smallval)
                 S[i1] = numpy.log(f*numpy.sum(numpy.power((f*R), 2)*D))
 
         return Rm, S
@@ -4247,7 +4247,7 @@ def generate_random_vec(m0, m_act, covar, seed=None):
 
     m_gauss = rng.standard_normal(sizepar[0])
 
-    l = scipy.lincholesky(covar)
+    l = scipy.linalg.cholesky(covar)
 
     m = m0 + m_act * m_gauss * l
 
@@ -4439,9 +4439,9 @@ def full_cov(C=[numpy.array([])]):
 
     if len(C) == 1:
         tmp = [C[0] for ii in numpy.arange(7)]
-        block_cov = scipy.linblock_diag(*tmp)
+        block_cov = scipy.linalg.block_diag(*tmp)
     else:
-        block_cov = scipy.linblock_diag(*C)
+        block_cov = scipy.linalg.block_diag(*C)
 
     return block_cov
 
@@ -4809,7 +4809,7 @@ def covar(dx, dy, dz,
 
         # enforce positive definiteness
         threshpd = 1.0e2 * numpy.finfo(float).eps
-        eigval, eigvec = numpy.lineig(Cov)
+        eigval, eigvec = numpy.linalg.eig(Cov)
         q = numpy.matrix(eigvec)
         xdiag = numpy.matrix(numpy.diag(numpy.maximum(eigval, threshpd)))
         Cov = q * xdiag * q.T
@@ -4870,7 +4870,7 @@ def covar(dx, dy, dz,
         Cov = numpy.dot(Cov, numpy.diag(var))
 
     if inverse:
-        C = scipy.lininv(Cov)
+        C = scipy.linalg.inv(Cov)
         SqrtC = msqrt(C, "cholesky")
     else:
         C = Cov
@@ -4916,7 +4916,7 @@ def msreg(dz=None, m=None,
         L2 = Lm@Lm
         W = 1./(L2 + seps*seps)
 
-#    W = scipy.lininv(M)
+#    W = scipy.linalg.inv(M)
 
     if mtype == "dense":
         W = W.todense()
@@ -4958,17 +4958,17 @@ def calc_regstart(D=numpy.array([]), M=numpy.array([]), Fac=1., out=True):
 
     if numpy.size(D) > 1:
         if scipy.sparse.issparse(D):
-            D0 = scipy.sparse.linnorm(D)
+            D0 = scipy.sparse.linalg.norm(D)
         else:
-            D0 = scipy.linnorm(D)
+            D0 = scipy.linalg.norm(D)
     else:
         D0 = D
 
     if numpy.size(M) > 1:
         if scipy.sparse.issparse(M):
-            M0 = scipy.sparse.linnorm(M)
+            M0 = scipy.sparse.linalg.norm(M)
         else:
-            M0 = scipy.linnorm(M)
+            M0 = scipy.linalg.norm(M)
     else:
         M0 = M
 
@@ -5008,9 +5008,9 @@ def calc_regstart_base(J=numpy.array([]), W=numpy.array([]), Fac=1., out=True):
     taustart = numpy.nan
 
     # S1 = Jacd.T@Jacd
-    t1 = numpy.amax(scipy.linsvd(J.T@J, compute_uv=False))
+    t1 = numpy.amax(scipy.linalg.svd(J.T@J, compute_uv=False))
     # S2 = W.T@W
-    t2 = numpy.amax(scipy.linsvd(W.T@W, compute_uv=False))
+    t2 = numpy.amax(scipy.linalg.svd(W.T@W, compute_uv=False))
 
     taustart = Fac*t1/t2
 
@@ -5060,7 +5060,7 @@ def msqrt_sparse(M=numpy.array([]), smallval=1.e-12):
     n =M.shape[0]
     MM = M.copy() + numpy.identity(n)*smallval
 
-    LU = scipy.sparse.linsplu(
+    LU = scipy.sparse.linalg.splu(
         MM, diag_pivot_thresh=0)  # sparse LU decomposition
 
     # check the matrix A is positive definite.
@@ -5112,13 +5112,13 @@ def msqrt(M=numpy.array([]), method="cho", smallval=1.e-12):
 
     if "eig" in method.lower():
         # compute eigenvalues and eigenvectors
-        Mevals, Mevecs = scipy.lineigh(MM)
+        Mevals, Mevecs = scipy.linalg.eigh(MM)
         Mevals = Mevals.clip(min=0.0)
         SqrtM = Mevecs * numpy.sqrt(Mevals)
         return SqrtM, Mevals, Mevecs
 
     if "cho" in method.lower():
-        SqrtM = scipy.lincholesky(MM)
+        SqrtM = scipy.linalg.cholesky(MM)
 
 
     return SqrtM
@@ -5133,7 +5133,7 @@ def isspd(A):
     else:
         print("A is NOT symmetric.")
 
-    spd = numpy.all(numpy.lineigvals(A) > 1.e-12)
+    spd = numpy.all(numpy.linalg.eigvals(A) > 1.e-12)
 
 
     return spd
@@ -5174,7 +5174,7 @@ def rsvd(A, rank=300,
     B = Q.T @ A
     # print(numpy.shape(B))
     # print(' stage B before linalg')
-    U_tilde, S, Vt = numpy.linsvd(B)
+    U_tilde, S, Vt = numpy.linalg.svd(B)
     # print(' stage B after linalg')
     U = Q @ U_tilde
 
@@ -5249,7 +5249,7 @@ def ortho_basis(M):
     :return:  An orthonormal basis for M.
     """
     # print('herere we are in ortho')
-    Q, _ = numpy.linqr(M)
+    Q, _ = numpy.linalg.qr(M)
     return Q
 
 
@@ -5328,7 +5328,7 @@ def calc_upr(dnorm=numpy.array([]), M=numpy.array([]), err=numpy.array([])):
 
     nd = numpy.size(err)
     traceM = numpy.trace(M)
-    sqerr = numpy.linnorm(err, 2)
+    sqerr = numpy.linalg.alg.norm(err, 2)
     upr_val = numpy.power(dnorm, 2)/nd + (2.*sqerr/nd)*traceM - sqerr
 
     return upr_val
@@ -5590,7 +5590,7 @@ def calc_dnorm(data_obs=numpy.array([]),
 
     resid = w * (dat_obs - dat_cal)
 
-    rnorm = numpy.linnorm(resid, p)
+    rnorm = numpy.linalg.alg.norm(resid, p)
 
     if calc_res:
         return rnorm, resid
@@ -5794,9 +5794,9 @@ def get_taustart(Jacd=None, W=None, out=True):
     vr feb 20, 2023
     """
     S1 = Jacd.T@Jacd
-    t1 = numpy.amax(scipy.linsvd(S1, compute_uv=False))
+    t1 = numpy.amax(scipy.linalg.svd(S1, compute_uv=False))
     S2 = W.T@W
-    t2 = numpy.amax(scipy.linsvd(S2, compute_uv=False))
+    t2 = numpy.amax(scipy.linalg.svd(S2, compute_uv=False))
 
     taustart = t1/t2
 
@@ -5818,15 +5818,15 @@ def impute_matrix_isvd(Y, k=None, tol=1E-3, maxiter=10):
     -----------
     Y_hat:      (nobs, ndim) reconstructed data matrix
     mu_hat:     (ndim,) estimated column means for reconstructed data
-    U, s, Vt:   singular values and vectors (see numpy.linsvd and
-                scipy.sparse.linsvds for details)
+    U, s, Vt:   singular values and vectors (see numpy.linalg.svd and
+                scipy.sparse.linalg.svds for details)
 
 
     vr oct 29, 2022
     """
 
     if k is None:
-        svdmethod = functools.partial(numpy.linsvd, full_matrices=False)
+        svdmethod = functools.partial(numpy.linalg.svd, full_matrices=False)
     else:
         svdmethod = functools.partial(scipy.sparse.linsvds, k=k)
 
@@ -6115,7 +6115,7 @@ def init_layers(nlyr=26, start=1., end=10.,
     if logspace:
         dz = numpy.logspace(numpy.log10(start), numpy.log10(end), nlyr)
     else:
-        dz = numpy.linspace(start, end, nlyr)
+        dz = numpy.linalg.space(start, end, nlyr)
 
     z_node = numpy.append(0.0, numpy.cumsum(dz))
 
