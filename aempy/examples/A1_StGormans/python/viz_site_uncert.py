@@ -55,7 +55,7 @@ from version import versionstrg
 
 import util
 import aesys
-import inverse
+import inverse_new as inverse
 import viz
 
 warnings.simplefilter(action="ignore", category=FutureWarning)

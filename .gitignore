@@ -59,6 +59,12 @@ cover/
 *.mo
 *.pot
 
+# OTHER
+**.xyz
+**.XYZ
+
+
+
 # Django stuff:
 *.log
 local_settings.py
@@ -163,6 +169,4 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# OTHER
-.xyz
-.XYZ
+

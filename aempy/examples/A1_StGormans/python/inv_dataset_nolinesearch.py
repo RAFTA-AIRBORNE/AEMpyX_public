@@ -253,7 +253,8 @@ if "tikhopt" in  RunType.lower():
     Maxiter = 10
     Maxreduce = 10
     Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
+    # LinPars = [Maxreduce, Rfact]
+    LinPars = []
 
     ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
@@ -478,7 +479,7 @@ outstrng = "_nlyr"+str(Nlyr)\
             +"_"+RunType.lower()\
             +"_"+RegFun.lower()\
             +"_prior"+str(int(Guess_r))\
-            +"_err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
+            +"_err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))+"_nolinesearch"
 print("ID string: input file + %s " % outstrng)
 
 # jobstart = process_time()

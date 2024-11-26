@@ -38,7 +38,7 @@ for pth in mypath:
         sys.path.insert(0,pth)
 
 from version import versionstrg
-import inverse
+import inverse_new as inverse
 import util
 import prep
 import aesys

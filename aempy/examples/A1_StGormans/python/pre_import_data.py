@@ -152,7 +152,7 @@ AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 # # RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
 # RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
 
-LineList = [11379.0, 11380.0, 11381.0]
+LineList = [11379.0, 11380.0, 11381.0, 11382.0, 11383.0]
 DataSelect = "Lines"   # "Polygon", "Intersection", "Union", "Lines"
 InDatDir = AEMPYX_DATA+"/orig/"
 OutDatDir = AEMPYX_DATA+"/lines/"

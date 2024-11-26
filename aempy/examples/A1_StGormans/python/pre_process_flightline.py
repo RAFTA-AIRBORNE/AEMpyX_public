@@ -74,7 +74,7 @@ if "genes" in AEM_system.lower():
 
 # +
 OutInfo = True
-OutNaN = False
+OutNaN = True
 OutRes = False
 
 SingValMax = 5
@@ -103,7 +103,7 @@ Filelist = "search" # "set", "read"
 # lines case
 InputDataDir =  AEMPYX_DATA + "/lines/"
 OutputDataDir =  AEMPYX_DATA + "/lines/"
-SearchStrng = "*FL*data.npz"
+SearchStrng = "*FL*0_data.npz"
 
 print("\n\n")
 print("Data read from dir:  %s" % InputDataDir)
@@ -180,7 +180,7 @@ for filename in dat_files:
     print(" data block now has shape: ", numpy.shape(D))
 
     action = "plm threshold "
-    plmthresh = 0.25
+    plmthresh = 0.2
     threshval = plmthresh
     columns = [14, 14]
     print("\n Proc action: " + action)
@@ -192,7 +192,7 @@ for filename in dat_files:
                                     System=AEM_system)
 
     action = "less than"
-    threshval = 0.0
+    threshval = 0. #-9999.
     columns = [6, 14]
     print("\n Proc action: " + action)
     print(" columns: ", columns)
@@ -202,7 +202,7 @@ for filename in dat_files:
     D, nanindex = prep.insert_flag(D, action, threshval, columns,
                                    System=AEM_system)
     action = "greater than"
-    threshval = 120.0
+    threshval = 90.0
     columns = [4, 4]
     print("\n Proc action: " + action)
     print(" columns: ", columns)

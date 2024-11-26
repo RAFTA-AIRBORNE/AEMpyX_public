@@ -39,8 +39,8 @@ from version import versionstrg
 
 import aesys
 import util
-import inverse
-import alg
+import inverse_new as inverse
+AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
@@ -372,7 +372,7 @@ for file in dat_files:
         """
         Call inversion algorithms
         """
-        Results = alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+        Results = inverse.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
 

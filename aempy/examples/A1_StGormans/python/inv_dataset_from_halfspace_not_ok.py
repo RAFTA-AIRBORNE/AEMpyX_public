@@ -45,8 +45,8 @@ from version import versionstrg
 
 import aesys
 import util
-import inverse
-import alg
+import inverse_new as inverse
+AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 import post
 # -
 
@@ -406,7 +406,7 @@ for ifile in numpy.arange(len(dat_files)):
             ])
 
         Results =\
-                alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
 #         Now store inversion results for this site:

@@ -273,7 +273,8 @@ if "tikhopt" in  RunType.lower():
     Maxiter = 20
     Maxreduce = 10
     Rfact = 0.66
-    LinPars = [Maxreduce, Rfact]
+    # LinPars = [Maxreduce, Rfact]
+    LinPars = []
 
     ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
@@ -308,7 +309,7 @@ outstrng =  "_"+RunType.lower()+\
             "_"+RegFun.lower()+\
             "_a"+str(round(DatErr_add,0))+\
             "_m"+str(round(DatErr_mult*100,0))+\
-            "_parallel"
+            "_parallel_nolinesearch"
 print("ID string: input file + %s " % outstrng)
 
 
