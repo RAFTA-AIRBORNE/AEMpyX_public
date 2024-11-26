@@ -74,7 +74,7 @@ if "genes" in AEM_system.lower():
 
 # +
 OutInfo = True
-OutNaN = True
+OutNaN = False
 OutRes = False
 
 SingValMax = 5

@@ -68,12 +68,13 @@ OutInfo = True
 input formats are "npz","nc4","asc"
 """
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-InModDir = AEMPYX_DATA+"/results_parallel/"
+#InModDir = AEMPYX_DATA+"/results_lines/"
+InModDir = AEMPYX_DATA+"/results_sequential/"
 
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng ="*results.npz"
+SearchStrng ="*gcv*nolinesearch_results.npz"
 if "search" in FileList.lower():
     print("Search flightline ID string: %s " % SearchStrng)
     data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir)

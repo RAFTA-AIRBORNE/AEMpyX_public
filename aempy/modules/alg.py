@@ -1014,7 +1014,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                       d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act=d_act, d_state=d_state,
                                                       model=model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
                                                       dfit=dfit_iter, mdfit=thresh[3],
-                                                      facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+                                                      facreduce=facreduce, maxreduce=maxreduce, out=True) #OutInfo)
             d_cal, _ = inverse.calc_fwdmodel(fwdcall=fwdcall, alt=alt, m_vec=model,
                                                       m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
 

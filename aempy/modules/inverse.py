@@ -70,14 +70,13 @@ def calc_fwdmodel(fwdcall=None,
     return d_vec, d_state
 
 
-def run_linesearch(fwdcall, alt,
+def run_linesearch_nested(fwdcall, alt,
                    d_obs=numpy.array([]), d_err=numpy.array([]),
                    d_trn=0, d_act=numpy.array([]), d_state=0,
                    model=numpy.array([]), m_delta=numpy.array([]),
                    m_act=numpy.array([]), m_trn=1, m_state=0,
-                   dfit=[999999.9,999999.9],
-                   facreduce=0.6666, maxreduce=6, mdfit="rms",
-                   out=True):
+                   dfit=[999999.9,999999.9], numdiv = 5,
+                   maxreduce=3, mdfit="rms", out=True):
     """
     Run simple line search with 0.>alpha<1.
 
@@ -122,26 +121,38 @@ def run_linesearch(fwdcall, alt,
     linfit = dfit
     linfit_old = dfit
 
-    fact = facreduce
     mbase = model.copy()
     model_old =  model.copy()
     mact = extract_mod(M=mbase, m_act=m_act)
+
+    test_points = numpy.linspace(0.05, 0.95, numdiv )
     while (liniter < maxreduce) and (linfit <= dfit):
         liniter = liniter + 1
         mfull = mbase.copy()
-        mtest = mact - fact*m_delta.reshape(numpy.size(mact))
-        m = insert_mod(M=mfull, m=mtest, m_act=m_act)
-        d_calc, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
-                                        m_vec=m, m_trn=m_trn, m_state=m_state,
-                                        d_trn=d_trn, d_state=d_state)
-        linrms_iter, linsmp_iter = calc_datafit(data_cal=d_calc,
-                                             data_obs=d_obs,
-                                             data_err=d_err,
-                                             data_act=d_act)
-        if "rms" in mdfit: linfit_iter =  linrms_iter
-        if "smp" in mdfit: linfit_iter =  linsmp_iter
-        if out:
-            print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
+        linfit_iter = []
+        for ptest in test_points:
+            mtest = mact - ptest*m_delta.reshape(numpy.size(mact))
+            m = insert_mod(M=mfull, m=mtest, m_act=m_act)
+            d_calc, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
+                                            m_vec=m, m_trn=m_trn, m_state=m_state,
+                                            d_trn=d_trn, d_state=d_state)
+            linrms_iter, linsmp_iter = calc_datafit(data_cal=d_calc,
+                                                 data_obs=d_obs,
+                                                 data_err=d_err,
+                                                 data_act=d_act)
+            if "rms" in mdfit: linfit_iter.append(linrms_iter)
+            if "smp" in mdfit: linfit_iter.append(linsmp_iter)
+
+        valfit_min = min(linfit_iter)
+        indfit_min = linfit_iter.index(valfit_min)
+
+
+
+        newmin = max(indfit_min-1, 0)
+        newmax = min(indfit_min+1, numdiv)
+        test_points =numpy.linspace(test_points[newmin], test_points[newmax], numdiv)
+
+
 
         if linfit_iter < linfit:
             fact = fact * facreduce
@@ -155,10 +166,102 @@ def run_linesearch(fwdcall, alt,
             linfit = linfit_old
             model = model_old
             break
+
         if out:
-            print("Linesearch: "+str(linfit)+"  /  "+str(linfit_iter))
+            print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
 
     return model, linfit
+
+# def run_linesearch(fwdcall, alt,
+#                    d_obs=numpy.array([]), d_err=numpy.array([]),
+#                    d_trn=0, d_act=numpy.array([]), d_state=0,
+#                    model=numpy.array([]), m_delta=numpy.array([]),
+#                    m_act=numpy.array([]), m_trn=1, m_state=0,
+#                    dfit=[999999.9,999999.9],
+#                    facreduce=0.6666, maxreduce=6, mdfit="rms",
+#                    out=True):
+#     """
+#     Run simple line search with 0.>alpha<1.
+
+#     Parameters
+#     ----------
+#     fwdcall : str
+#         Forward call.
+#     alt : TYPE
+#         Altitude.
+#     d_obs, d_cal, d_err : float
+#         Date (obs, cal) and errors.
+#     d_trn , d_act : integer
+#         Data transformation.
+#     model : float nd arrray.
+#         Base model (full). The default is numpy.array([]).
+#     m_delta : TYPE, optional
+#         Model update.
+#     m_act, m_trn : integer.
+#           Model transform.
+#     mdfit : string
+#         Controls which metric is usedL "rms" or "smp"
+#     dfit : float
+#         Initial dfit.
+#     facreduce : float, optional
+#         Reduction factor. The default is 0.6666.
+#     maxreduce : integer, optional
+#         maximal number of reduction steps. The default is 6.
+#     out : logical, optional
+#         Extended output. The default is False.
+
+#     Returns
+#     -------
+#     model: float
+#     linfit: float
+#     linrms: float
+#     linsmp: float
+#     """
+
+#     # print(dfit)
+
+#     liniter = 0
+#     linfit = dfit
+#     linfit_old = dfit
+
+#     fact = facreduce
+#     mbase = model.copy()
+#     model_old =  model.copy()
+#     mact = extract_mod(M=mbase, m_act=m_act)
+#     while (liniter < maxreduce) and (linfit <= dfit):
+#         liniter = liniter + 1
+#         mfull = mbase.copy()
+#         mtest = mact - fact*m_delta.reshape(numpy.size(mact))
+#         m = insert_mod(M=mfull, m=mtest, m_act=m_act)
+#         d_calc, d_state = calc_fwdmodel(fwdcall=fwdcall, alt=alt,
+#                                         m_vec=m, m_trn=m_trn, m_state=m_state,
+#                                         d_trn=d_trn, d_state=d_state)
+#         linrms_iter, linsmp_iter = calc_datafit(data_cal=d_calc,
+#                                              data_obs=d_obs,
+#                                              data_err=d_err,
+#                                              data_act=d_act)
+#         if "rms" in mdfit: linfit_iter =  linrms_iter
+#         if "smp" in mdfit: linfit_iter =  linsmp_iter
+#         # if out:
+#         #     print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
+
+#         if linfit_iter < linfit:
+#             fact = fact * facreduce
+#             linfit = linfit_iter
+#             linfit_old = linfit_iter
+#             model = m
+#             model_old = m
+
+
+#         else:
+#             linfit = linfit_old
+#             model = model_old
+#             break
+
+#         if out:
+#             print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
+
+#     return model, linfit
 
 
 def perturb_random(vbase=numpy.array([]),

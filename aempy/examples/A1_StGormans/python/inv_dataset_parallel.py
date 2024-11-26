@@ -62,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 10
+    Njobs = -10
     # Njobs = -1
 
     if Njobs<0:
@@ -120,7 +120,8 @@ if "genes" in AEM_system.lower():
 # StGormans
 ##############################################################################
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-InDatDir =  AEMPYX_DATA + "/proc/"
+# InDatDir =  AEMPYX_DATA + "/proc/"
+InDatDir =  AEMPYX_DATA + "/lines/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
@@ -131,7 +132,8 @@ print("Data read from dir: %s " % InDatDir)
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/results_parallel/"
+# OutResDir =   AEMPYX_DATA + "/results_parallel/"
+OutResDir =   AEMPYX_DATA + "/results_lines/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -139,7 +141,7 @@ if not os.path.isdir(OutResDir):
     os.mkdir(OutResDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k3*data.npz"
+SearchStrng = "*FL*k1*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -173,7 +175,7 @@ Direction = "normal"
 SetPrior = "set"
 ParaTrans = 1
 
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
 RegVal0 = 1.e-6
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -268,7 +270,7 @@ if "tikhopt" in  RunType.lower():
     Cm1 = L1.T@L1
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
-    Maxiter = 10
+    Maxiter = 20
     Maxreduce = 10
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
@@ -276,7 +278,7 @@ if "tikhopt" in  RunType.lower():
     ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
-    RegShift = 0
+    RegShift = -1 # GCV
 
 
     ctrl_dict ={
