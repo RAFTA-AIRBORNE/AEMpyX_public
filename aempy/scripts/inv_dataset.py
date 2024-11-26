@@ -30,7 +30,7 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-import alg
+AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 
 # warnings.simplefilter(action="ignore", category=FutureWarning)
 
@@ -97,7 +97,7 @@ if "genes" in AEM_system.lower():
 # StGormans
 ##############################################################################
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-InDatDir =  AEMPYX_DATA + "/proc/"
+InDatDir =  AEMPYX_DATA + "/lines/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 
@@ -106,14 +106,14 @@ print("Data read from dir: %s " % InDatDir)
 FileList = "search"  # "search", "read"
 # FileList = "set"  # "search", "read"
 # SearchStrng = "*PLM3s_k3.npz"
-SearchStrng = "*FL*k3*data.npz"
+SearchStrng = "*FL*k1*data.npz"
 
 
 """
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/results_sequential/"
+OutResDir =   AEMPYX_DATA + "/results_lines/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -202,7 +202,7 @@ mod_act[0*Nlyr:1*Nlyr] = 1
 sizepar = numpy.shape(mod_act)
 mpara = sizepar[0]
 
-Guess_r = 100.0  # initial guess for resistivity in mod_apr
+Guess_r = 300.0  # initial guess for resistivity in mod_apr
 Guess_s = 0.3   # mod_std defines standard deviation of mod_apr
 mod_apr[0*Nlyr:1*Nlyr] = Guess_r
 mod_var[0*Nlyr:1*Nlyr] = numpy.power(Guess_s,2)
@@ -258,7 +258,7 @@ if "tikhopt" in  RunType.lower():
     ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
-    RegShift = 0
+    RegShift = -1 # GCV
 
 
     Ctrl ={
@@ -475,10 +475,10 @@ if OutInfo:
 
 
 outstrng = "_nlyr"+str(Nlyr)\
-            +"_"+RunType\
-            +"_"+RegFun\
-            +"_Prior"+str(int(Guess_r))\
-            +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
+            +"_"+RunType.lower()\
+            +"_"+RegFun.lower()\
+            +"_prior"+str(int(Guess_r))\
+            +"_err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
 print("ID string: input file + %s " % outstrng)
 
 # jobstart = process_time()
@@ -591,38 +591,38 @@ for file in dat_files:
         """
         if "opt" in RunType.lower():
             Results =\
-                alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "occ" in RunType.lower():
             Results =\
-                alg.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "map" in RunType.lower():
             Results =\
-                alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "rto" in RunType.lower():
 
             Results =\
-                alg.run_rto(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_rto(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "eki" in RunType.lower():
             Results =\
-                alg.run_eki(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_eki(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "jac" in RunType.lower():
             Results =\
-                alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if "nul" in RunType.lower():
             Results =\
-                alg.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_jac(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
 

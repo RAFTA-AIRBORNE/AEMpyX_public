@@ -52,7 +52,7 @@ from version import versionstrg
 import util
 import aesys
 import viz
-import inverse_new as inverse
+import inverse
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 cm = 1/2.54

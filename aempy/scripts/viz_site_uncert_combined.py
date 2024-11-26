@@ -186,16 +186,18 @@ input format is "npz"
 # PDFCName = "GENESIS_FL901_Uncert-Catalog.pdf"
 # AEM05
 # InModDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/results_diffop/"
-InModDir =  "/home/vrath/DuyguPoster/FD_uncert/"
+# InModDir =  "/home/vrath/DuyguPoster/FD_uncert/"
+# SearchStrng ="A1*30*results.npz"
+
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+InModDir =  AEMPYX_DATA+"/results_parallel/"
+FileList ="search"
 SearchStrng ="A1*30*results.npz"
-
-
 
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Models read from dir: %s " % InModDir)
 # FileList = "set" #"search"
 
-FileList ="search"
 if "search" in FileList.lower():
     how = ["search", SearchStrng, InModDir]
     # how = ["read", FileList, InModDir]
@@ -226,7 +228,7 @@ format matplotlib allows.
 PlotFormat = [".pdf", ".png"] #".png", ".pdf",]
 # PlotDir = AEMPYX_DATA+"/ClaraUncert/plots/"
 # PlotDir = InModDir+"/Lvar1/"
-PlotDir = InModDir
+PlotDir = InModDir+"/plots/"
 print("Plots written to dir: %s " % PlotDir)
 
 if not os.path.isdir(PlotDir):

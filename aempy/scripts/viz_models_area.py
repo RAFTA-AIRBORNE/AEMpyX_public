@@ -89,16 +89,16 @@ if "genes" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
 
-
-InModDir = AEMPYX_DATA+"/Blocks/A9/results/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+InModDir = AEMPYX_DATA+"/results/"
 
 # FileList = "search"
 # SearchStrng = "A9*k3*.npz"
 # print("Searchstring: %s \n" % SearchStrng)
 
-FileList = "set"
+FileList = "search"
 ListName = ""
-SearchStrng = ""
+SearchStrng = "A1*k3*results.npz"
 
 if "set" in FileList.lower():
     mod_files = [InModDir+"MUN_k3_data_merged.npz"]

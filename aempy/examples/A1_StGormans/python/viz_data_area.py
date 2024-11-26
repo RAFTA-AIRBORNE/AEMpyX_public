@@ -51,7 +51,7 @@ from version import versionstrg
 import util
 import aesys
 import viz
-import inverse_new as inverse
+import inverse
 
 # +
 OutInfo = True

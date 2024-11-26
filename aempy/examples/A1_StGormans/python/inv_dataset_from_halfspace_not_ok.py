@@ -45,7 +45,7 @@ from version import versionstrg
 
 import aesys
 import util
-import inverse_new as inverse
+import inverse
 AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 import post
 # -

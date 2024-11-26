@@ -46,7 +46,7 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-import alg
+AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -62,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 10
+    Njobs = -10
     # Njobs = -1
 
     if Njobs<0:
@@ -120,7 +120,8 @@ if "genes" in AEM_system.lower():
 # StGormans
 ##############################################################################
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-InDatDir =  AEMPYX_DATA + "/proc/"
+# InDatDir =  AEMPYX_DATA + "/proc/"
+InDatDir =  AEMPYX_DATA + "/lines/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
@@ -131,7 +132,8 @@ print("Data read from dir: %s " % InDatDir)
 Output format is ".npz"
 """
 OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/results_parallel/"
+# OutResDir =   AEMPYX_DATA + "/results_parallel/"
+OutResDir =   AEMPYX_DATA + "/results_lines/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -139,7 +141,7 @@ if not os.path.isdir(OutResDir):
     os.mkdir(OutResDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k3*data.npz"
+SearchStrng = "*FL*k1*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -217,7 +219,7 @@ mod_act[0*Nlyr:1*Nlyr] = 1
 sizepar = numpy.shape(mod_act)
 mpara = sizepar[0]
 
-Guess_r = 100.0  # initial guess for resistivity in mod_apr
+Guess_r = 300.0  # initial guess for resistivity in mod_apr
 # Guess_r = 10.0    # low value for DoI estimate
 # Guess_r = 1000.0  # high value for DoI estimate
 Guess_s = 0.3   # mod_std (logscale) defines standard deviation of mod_apr
@@ -268,7 +270,7 @@ if "tikhopt" in  RunType.lower():
     Cm1 = L1.T@L1
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
-    Maxiter = 10
+    Maxiter = 20
     Maxreduce = 10
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
@@ -276,7 +278,7 @@ if "tikhopt" in  RunType.lower():
     ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
-    RegShift = 0
+    RegShift = -1 # GCV
 
 
     ctrl_dict ={
@@ -317,14 +319,14 @@ if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
-        joblib.delayed(alg.run_tikh_flightline)(ctrl=ctrl_dict,
+        joblib.delayed(inverse.run_tikh_flightline)(ctrl=ctrl_dict,
                                                      data_dir=InDatDir,
                                                      data_file=filin,
                                                      result_dir=OutResDir,
                                                      result_strng=outstrng) for filin in dat_files)
 else:
     for filin in dat_files:
-        _ = alg.run_tikh_flightline(ctrl=ctrl_dict,
+        _ = inverse.run_tikh_flightline(ctrl=ctrl_dict,
                                          data_dir=InDatDir,
                                          data_file=filin,
                                          result_dir=OutResDir,

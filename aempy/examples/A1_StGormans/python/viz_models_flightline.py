@@ -47,7 +47,7 @@ from version import versionstrg
 
 import util
 import viz
-import inverse_new as inverse
+import inverse
 
 
 warnings.simplefilter(action="ignore", category=FutureWarning)

@@ -115,9 +115,9 @@ FileList = "search"
 
 
 # processed data
-InDatDir =  AEMPYX_DATA + "/proc/"
+InDatDir =  AEMPYX_DATA + "/rect/"
 PlotDir =  InDatDir + "/plots/"
-SearchStrng = "*FL*k2*.npz" # if no interpolation was chosen
+SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
 #SearchStrng = "*FL*.npz" # else
 PlotStrng = " - proc"
 
@@ -264,8 +264,8 @@ for file in dat_files:
     print("flightline "+name+"  #"
           +str(ifl)+" of "
           +str(numpy.size(dat_files)) +" has shape: "+str(sD))
-
-    if numpy.size(Data)<=nD:
+    print(sD, nD )
+    if numpy.shape(Data)[0]<=nD:
         print("Not enough data! Not plotted")
         continue
 
@@ -274,9 +274,9 @@ for file in dat_files:
     for ii in anynan:
         Data[ii[0],3:] = numpy.nan
 
-    if numpy.shape(Data)[0]-nnans < PlotThresh:
-        print("Not enough data! Not plotted")
-        continue
+    # if numpy.shape(Data)[0]-nnans < PlotThresh:
+    #     print("Not enough data! Not plotted")
+    #     continue
 
 
     if PDFCatalog:
