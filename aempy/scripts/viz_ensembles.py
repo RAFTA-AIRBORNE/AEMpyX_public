@@ -62,7 +62,7 @@ from version import versionstrg
 import aesys
 import util
 import viz
-import eviz
+import viz
 import inverse
 
 
@@ -308,7 +308,7 @@ for file in data_files:
         fig.suptitle(PlotTitle+" ("+method+")", fontsize=Fontsizes[2])
 
 
-        ax[0] = eviz.plot_model_ensemble(
+        ax[0] = viz.plot_model_ensemble(
                 ThisAxis = ax[0],
                 PlotType = "percentiles", # lines, percentiles. iso
                 System  = AEM_system,
@@ -331,7 +331,7 @@ for file in data_files:
         if PlotTrue:
             # print(m_true)
             # print(z_true)
-            ax[0] = eviz.plot_model(
+            ax[0] = viz.plot_model(
                     ThisAxis = ax[0],
                     System  = AEM_system,
                     Model = m_true,
@@ -348,7 +348,7 @@ for file in data_files:
                     Legend=True)
 
 
-        ax[1] = eviz.plot_data_ensemble(
+        ax[1] = viz.plot_data_ensemble(
                 ThisAxis = ax[1],
                 PlotType = "percentiles", # lines, percentiles. iso
                 System  = AEM_system,
