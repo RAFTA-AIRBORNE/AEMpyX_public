@@ -1,6 +1,6 @@
       PROGRAM beodriver_tempest
 !----------------------------------------------------------------------
-!  Uses AEM1D_FD to compute  the frequency-domain layered earth
+!  Uses AEM1D_TD to compute  the frequency-domain layered earth
 !  H field for a dipole of unit moment and current.
 !.
 !                             INPUT

@@ -4,7 +4,7 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
 !f2py intent (out) calc_data
 !f2py threadsafe
 !----------------------------------------------------------------------
-!  Uses AEM1D_FD to compute  the frequency-domain layered earth
+!  Uses AEM1D_TD to compute  the frequency-domain layered earth
 !  H field for a dipole of unit moment and current.
 !.
 !                             INPUT
@@ -39,7 +39,7 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
     INTEGER, INTENT(in) :: nlyr
 ! 4 1 1 3 15 1 0           ! ISW, NSX, STEP, UNITS, NCHNL, KRXW, OFFTIME
 ! 25 1                     ! FREQ, TXAMPL
-! 6 13 0 1                  ! TXCLN, CMP, KPPM, NRX
+! 6 13 0 1                 ! TXCLN, CMP, KPPM, NRX
 ! 45 106 0                 ! ZRX, XRX, YRX(1)
     INTEGER, PARAMETER :: isw=4, iunits=3, step=1, nsx=1, npuls=1,   &
     &                     nppf=3, nchnl=15, nrx=1, kppm=0, cmp= 2,   &
@@ -100,7 +100,7 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
 8.007 12.393
 12.407 19.993
  /),                                     &
-    &  tcls =  (/     0.007 0.02
+    &  tcls =  (/0.007 0.02
 0.033 0.047
 0.06 0.073
 0.087 0.127
@@ -145,7 +145,7 @@ SUBROUTINE aemfwd1d_tempest(nlyr,mvec,alt, calc_data)
 
 !  Set system-specific parameters for CGG tempest system
 !  only called once: current
-!  Sets up interpolation times for FD -> TD tjsransform which use the
+!  Sets up interpolation times for FD -> TD transform which use the
 !  exact 6 points per decade frequency-domain data plus 6 per decade
 !  interpolated values.  These are based on a 12 point per decade
 !  cosine filter derived from the Niels Christensen routine FILCOA

@@ -139,7 +139,7 @@ if ".pdf" in PlotFmt:
     pass
 else:
     print(" No pdf files generated. No catalog possible!")
-    PdfCatalog = False
+    PDFCatalog = False
 
 
 ImageType = "image"
@@ -511,7 +511,7 @@ for filein in mod_files:
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
 
-if PdfCatalog:
+if PDFCatalog:
     print(pdf_list)
     # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
     d = catalog.infodict()
