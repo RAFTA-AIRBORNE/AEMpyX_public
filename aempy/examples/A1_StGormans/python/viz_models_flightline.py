@@ -67,14 +67,14 @@ OutInfo = True
 """
 input formats are "npz","nc4","asc"
 """
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/test/"
 #InModDir = AEMPYX_DATA+"/results_lines/"
-InModDir = AEMPYX_DATA+"/results_sequential/"
+InModDir = AEMPYX_DATA+"/results_diffop/"
 
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng ="*gcv*nolinesearch_results.npz"
+SearchStrng ="*fix_l39*results.npz"
 if "search" in FileList.lower():
     print("Search flightline ID string: %s " % SearchStrng)
     data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir)
@@ -93,7 +93,7 @@ if not os.path.isdir(PlotDir):
 FilesOnly = False
 PlotFmt = [".pdf"]
 
-PDFCatName = PlotDir+"StGormans_mods.pdf"
+PDFCatName = PlotDir+"test_mods.pdf"
 PDFCatalog = True
 if ".pdf" in PlotFmt:
     pass
@@ -136,14 +136,14 @@ smp_limits = [0., 20.]
 Parameter for model plot
 """
 min_lrho =  1.
-max_lrho =  3.
+max_lrho =  4.
 cl = [min_lrho, max_lrho]
 cb_ticks = [-1, 0, 1, 2, 3, 4]
 
 
 blank = 10
 
-low_sens = True
+low_sens = False
 if low_sens:
     lowsens = -2.
     alpha_sens = 0.2
@@ -169,7 +169,7 @@ if high_err:
 
 max_doi = False
 if max_doi:
-    maxdoi = 100.
+    maxdoi = 125.
     alpha_doi = 0.3
 
 
@@ -178,7 +178,7 @@ if plot_adapt:
    if not max_doi:
        maxdoi = 150.
 else:
-    plot_min = -50.
+    plot_min = -125.
     plot_max = 100.0
 
 topo_use_average = False #

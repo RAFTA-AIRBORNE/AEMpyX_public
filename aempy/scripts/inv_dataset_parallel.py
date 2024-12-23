@@ -62,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = -10
+    Njobs = 6
     # Njobs = -1
 
     if Njobs<0:
@@ -97,10 +97,11 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  50.
+    DatErr_add = 75. #50.
     DatErr_mult = 0.0
     data_active = numpy.ones(NN[2], dtype="int8")
-    # data_active[0] = 0   # real at 900Hz
+    data_active[0] = 0   # real at 900Hz
+    data_active[4] = 0   # imag at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
@@ -119,9 +120,9 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/test/"
 # InDatDir =  AEMPYX_DATA + "/proc/"
-InDatDir =  AEMPYX_DATA + "/lines/"
+InDatDir =  AEMPYX_DATA + "/data/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
@@ -133,15 +134,16 @@ Output format is ".npz"
 """
 OutFileFmt = ".npz"
 # OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results_lines/"
+OutResDir =   AEMPYX_DATA + "/results_diffop/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
     print("File: %s does not exist, but will be created" % OutResDir)
     os.mkdir(OutResDir)
 
+# FileList = "set"
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k1*data.npz"
+SearchStrng = "*FL*k*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -172,10 +174,21 @@ RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "
 Uncert = True
 Direction = "normal"
 
-SetPrior = "set"
+SetPrior = "update"
 ParaTrans = 1
 
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+LVariant = 3
+
+# RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+# RegShift = +3
+
+# RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+# RegShift = -2 # (-2)
+
+RegFun = "fix" # "fix", "lcc", "gcv", "mle"
+RegShift = 0 # (-2)
+
+
 RegVal0 = 1.e-6
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
@@ -184,12 +197,12 @@ Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
     RegVal1Min = 0.1
-    RegVal1Max = 1000.
+    RegVal1Max = 3000.
     NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
 else:
-    RegVal1 =0.00001
+    RegVal1 =100.
     NTau1 =1
     Tau1min = numpy.log10(RegVal1)
     Tau1max = numpy.log10(RegVal1)
@@ -204,9 +217,9 @@ Model definition
 
 
 
-Nlyr = 23
-dzstart = 2.
-dzend = 10.
+Nlyr = 39
+dzstart = 1.
+dzend = 5.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 # print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
@@ -264,21 +277,21 @@ if "tikhopt" in  RunType.lower():
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=LVariant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
     Maxiter = 20
-    Maxreduce = 10
+    Maxreduce = 5
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
+    # LinPars = []
 
     ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
-    RegShift = -1 # GCV
 
 
     ctrl_dict ={
@@ -306,9 +319,11 @@ if OutInfo:
 
 outstrng =  "_"+RunType.lower()+\
             "_"+RegFun.lower()+\
+            "_l"+str(Nlyr)+\
             "_a"+str(round(DatErr_add,0))+\
             "_m"+str(round(DatErr_mult*100,0))+\
-            "_parallel"
+            "_p"+str(int(Guess_r))+\
+            "_d"+str(LVariant)+"_parallel"
 print("ID string: input file + %s " % outstrng)
 
 

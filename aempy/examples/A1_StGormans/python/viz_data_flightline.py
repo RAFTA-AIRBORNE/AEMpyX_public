@@ -100,7 +100,7 @@ if "genes" in AEM_system.lower():
 
 # +
 InFileFmt = ".npz"
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/test/"
 FileList = "search"
 
 
@@ -115,7 +115,7 @@ FileList = "search"
 
 
 # processed data
-InDatDir =  AEMPYX_DATA + "/rect/"
+InDatDir =  AEMPYX_DATA + "/data/"
 PlotDir =  InDatDir + "/plots/"
 SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
 #SearchStrng = "*FL*.npz" # else

@@ -2170,7 +2170,7 @@ def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
 
 # @ray.remote
-def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
+def run_EnKI(Ctrl=None, Model=None, Data=None, OutInfo=True):
     """
     Ensemble Kalman inversion
     M. A. Iglesias, K. J. H. Law, and A. M. Stuart,
@@ -2184,7 +2184,7 @@ def run_EnK(Ctrl=None, Model=None, Data=None, OutInfo=True):
         Geophysical Journal International, 225, 2021
         doi: 10.1093/gji/ggab013.
 
-    M. Iglesias, D. M. McGrath, M. V. Tretyakov, and Susan T Francis,
+    M. Iglesias, D. M. McGrath, M. V. Tretyakov, and Susan T Francis,xxx
         “Ensemble Kalman inversion for magnetic resonance elastography” ,
         Phys. Med. Biol., vol. 67, p. 235003, 2022, doi: 10.1088/1361-6560/ac9fa1.
 
@@ -4568,7 +4568,7 @@ def load_prior(prior_file=None,
 
 
 def diffops(dz=None, der=False,
-            otype="L0", variant=0, mtype="sparse", mform="csr", flip=False):
+            otype="L0", variant=3, mtype="sparse", mform="csr", flip=False):
     """
     Generate differential operators L0-L2 potentially based on dz.
 
@@ -5590,7 +5590,7 @@ def calc_dnorm(data_obs=numpy.array([]),
 
     resid = w * (dat_obs - dat_cal)
 
-    rnorm = numpy.linalg.alg.norm(resid, p)
+    rnorm = numpy.linalg.norm(resid, p)
 
     if calc_res:
         return rnorm, resid
