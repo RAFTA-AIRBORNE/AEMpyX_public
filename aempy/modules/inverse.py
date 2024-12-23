@@ -361,7 +361,7 @@ def run_tikh_flightline(data_dir= None,
         print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
         print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
 
-    # joblib.memory.clear()
+
     if results_out:
         numpy.savez_compressed(result_file, **results_dict)
         print("\n\nResults stored to "+result_file)
@@ -369,6 +369,7 @@ def run_tikh_flightline(data_dir= None,
 
         return results_dict
 
+    # joblib.memory.clear()
 
 # def run_tikh_ensemble(data_file=None,
 #             prior_file=None,
@@ -950,6 +951,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                       m_trn=m_trn, m_state=m_state, d_trn=d_trn, d_act=d_act)
 
                 r_test = Wd@(obs - cali[d_act != 0]).T
+
 
                 dnorm[itest] = scipy.linalg.norm(r_test)
                 mnorm[itest] = scipy.linalg.norm(m_test[itest])
