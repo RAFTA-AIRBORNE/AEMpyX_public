@@ -145,7 +145,6 @@ def run_tikh_flightline(data_dir= None,
     Setup data-related parameter dict
     """
 
-
     data_act = ctrl["data"][1]
     data_err_add = ctrl["data"][2]
     data_err_mult = ctrl["data"][3]
@@ -362,6 +361,7 @@ def run_tikh_flightline(data_dir= None,
         print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
         print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
 
+    # joblib.memory.clear()
     if results_out:
         numpy.savez_compressed(result_file, **results_dict)
         print("\n\nResults stored to "+result_file)
