@@ -137,12 +137,14 @@ def run_tikh_flightline(data_dir= None,
     site_dem = DataObs[:, 5]
     dat_obs =  DataObs[:, 6:6+NN[2]]
 
+    [nsite,ndata] = numpy.shape(dat_obs)
+    sites = numpy.arange(nsite)
+
 
     """
     Setup data-related parameter dict
     """
-    [nsite,ndata] = numpy.shape(dat_obs)
-    sites = numpy.arange(nsite)
+
 
     data_act = ctrl["data"][1]
     data_err_add = ctrl["data"][2]

@@ -62,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 6
+    Njobs = 7
     # Njobs = -1
 
     if Njobs<0:
@@ -120,9 +120,9 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/test/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 # InDatDir =  AEMPYX_DATA + "/proc/"
-InDatDir =  AEMPYX_DATA + "/data/"
+InDatDir =  AEMPYX_DATA + "/lines/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
@@ -134,7 +134,7 @@ Output format is ".npz"
 """
 OutFileFmt = ".npz"
 # OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results_diffop/"
+OutResDir =   AEMPYX_DATA + "/results_lines/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -143,7 +143,7 @@ if not os.path.isdir(OutResDir):
 
 # FileList = "set"
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k*data.npz"
+SearchStrng = "*FL*81*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -333,6 +333,7 @@ print("ID string: input file + %s " % outstrng)
 if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
+    # print(InDatDir, filin)
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
         joblib.delayed(inverse.run_tikh_flightline)(ctrl=ctrl_dict,
                                                      data_dir=InDatDir,

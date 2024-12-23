@@ -36,16 +36,16 @@ import shapely
 
 
 def to_ospath(inpath=None, opsys=None):
-    
+
     if opsys is None:
         opsys = os.name
-    
+
     if "/" in inpath and opsys=="nt":
-        outpath = "\\".join(inpath.split("/"))  
-        
+        outpath = "\\".join(inpath.split("/"))
+
     elif "\\" in inpath and opsys=="posix":
-        outpath = "/".join (inpath.split("\\")) 
-        
+        outpath = "/".join (inpath.split("\\"))
+
 
     return outpath
 
@@ -63,7 +63,7 @@ def check_env(envar="CONDA_PREFIX", action="error"):
     None.
 
     """
-    act_env = os.environ[envar]    
+    act_env = os.environ[envar]
     if len(act_env)>0:
         print("\n\n")
         print("Active conda Environment  is:  " + act_env)
@@ -71,14 +71,14 @@ def check_env(envar="CONDA_PREFIX", action="error"):
     else:
         if "err" in action.lower():
             error("Environment "+ act_env+"is not activated! Exit.")
-            
-def sample_list(in_list= [], method = ["sample", 10], out= True): 
+
+def sample_list(in_list= [], method = ["sample", 10], out= True):
     """
-   
+
 
     Parameters
     ----------
-    inlist : list of items 
+    inlist : list of items
         The default is [].
     method : list
         Determines samples . The default is ["sample", Nsample].
@@ -88,26 +88,26 @@ def sample_list(in_list= [], method = ["sample", 10], out= True):
     Returns
     -------
     outlist : list of items
-    
+
     Created  Dec 2023
     @author: vrath
 
-    """     
+    """
     if len(in_list)==0:
         error("sample_list: list empty! Exit.")
 
     if "pass" in method[0].lower() or method[0].lower()=="":
         out_list = in_list
         if out:
-           print("sample_list: return original list")       
-    
+           print("sample_list: return original list")
+
     if "rand" in method[0].lower():
         nsamples = method[1]
         out_list = random.sample(range(len(in_list)), nsamples)
         out_list = sorted(out_list)
         if out:
             print("sample_list: random samples = ", nsamples)
-    
+
     if "step" in method[0].lower():
 
         start, stop, step = method[1:]
@@ -115,7 +115,7 @@ def sample_list(in_list= [], method = ["sample", 10], out= True):
         if out:
             print("sample_list: reduced list with start/stop/step = ", start,stop,step)
         print(out_list)
-    return out_list 
+    return out_list
 
 
 def get_data_list(how=["search", ".npz", "./"],
@@ -186,9 +186,9 @@ def get_data_list(how=["search", ".npz", "./"],
 def get_filebase(file=""):
     if len(file)==0:
         error("get_filebase: No file!. Exit")
-        
+
         name, ext =os.path.splitext(os.path.basename(file))
-        
+
         return  name, ext
 
 
@@ -215,12 +215,34 @@ def get_filelist(searchstr=["*"], searchpath="./", sortedlist =True, fullpath=Fa
 
     if fullpath:
        filelist = [os.path.join(searchpath,filelist[ii]) for ii in range(len(filelist))]
-      
+
 
     return filelist
 
 
+def check_finite(arr_in=None, out=True):
+    """
+    check for  NaNs
+    """
+    import inspect
+    f_name = inspect.currentframe().f_code.co_name
 
+    d0 = numpy.shape(arr_in)[0]
+    print(f_name, "shape of array before check is ", numpy.shape(arr_in))
+
+    ll = numpy.arange(d0)
+
+    checked = []
+    for ii in ll:
+        if all(numpy.isfinite(arr_in[ii,:])):
+            checked.append(arr_in[ii,:])
+        else:
+            continue
+
+    arr_out = numpy.asarray(checked)
+    print(f_name, "shape of array after check is ", numpy.shape(arr_out))
+
+    return arr_out
 
 def get_nearest_point(point=None,line=None, tol = 1.e-3):
     """
@@ -371,7 +393,7 @@ def project_gk_to_latlon(gk_x, gk_y, gk_zone=5684):
 #         north_lat_degree=latitude, ), )
 
 #     return utm_list
- 
+
 def get_utm_zone(latitude=None, longitude=None):
     """
     Find EPSG from position, using pyproj
@@ -414,14 +436,14 @@ def project_utm_to_latlon(utm_e, utm_n, utm_zone=32629):
     """
     transform latlon to utm , using pyproj
     Look for other EPSG at https://epsg.io/
-    
+
     VR 08/23
-    """    
+    """
     prj_wgs = CRS("epsg:4326")
     prj_utm = CRS("epsg:" + str(utm_zone))
     transformer = Transformer.from_crs(prj_utm, prj_wgs)
     latitude, longitude = transformer.transform(utm_e, utm_n)
-    
+
     return latitude, longitude
 
 
@@ -463,10 +485,10 @@ def project_itm_to_utm(itm_x, itm_y, utm_zone=32629):
     VR 08/23
     """
     prj_utm = CRS("epsg:" + str(utm_zone))
-    prj_itm = CRS("epsg:2157") 
+    prj_itm = CRS("epsg:2157")
     transformer = Transformer.from_crs(prj_itm, prj_utm)
     utm_e, utm_n = transformer.transform(itm_x, itm_y)
-    
+
     return utm_e, utm_n
 
 
@@ -479,10 +501,10 @@ def project_utm_to_itm(utm_e, utm_n, utm_zone=32629):
     """
     prj_utm = CRS("epsg:" + str(utm_zone))
     prj_itm = CRS("epsg:2157")
-    
+
     transformer = Transformer.from_crs(prj_utm, prj_itm)
     itm_e, itm_n = transformer.transform(utm_e, utm_n)
-    
+
     return itm_e, itm_n
 
 
@@ -496,13 +518,13 @@ def project_utm_to_utm(utm_e_in, utm_n_in, utm_zone_in=32629, utm_zone_out=32629
     """
     if utm_zone_in==utm_zone_out:
         return  utm_e_in, utm_n_in
-        
+
     prj_utm_in = CRS("epsg:" + str(utm_zone_in))
     prj_utm_out = CRS("epsg:" + str(utm_zone_out))
-    
+
     transformer = Transformer.from_crs(prj_utm_in, prj_utm_out)
     utm_e, utm_n = transformer.transform(utm_e_in, utm_n_in)
-    
+
     return utm_e, utm_n
 
 
@@ -677,7 +699,7 @@ def extract_data_rect(Data=None, Corners=None, Out=True):
         print("data matrix input: " + str(Ddims))
     Rect = []
 
-    
+
 
     if Out:
         Emin = numpy.amin(Data[:, 1])
@@ -686,24 +708,24 @@ def extract_data_rect(Data=None, Corners=None, Out=True):
         Nmax = numpy.amax(Data[:, 2])
         print("Easting:  "+str(Emin)+"-"+str(Emax))
         print("Northing: "+str(Nmin)+"-"+str(Nmax))
-        
+
     X = [Corners[0], Corners[2]]
     Y = [Corners[1], Corners[3]]
     Xll = numpy.amin(X)
     Xur = numpy.amax(X)
     Yll = numpy.amin(Y)
     Yur = numpy.amax(Y)
-    
+
     if Out:
         print("Rect lower left : "+str(Xll)+", "+str(Yll))
         print("Rect upper right: "+str(Xur)+", "+str(Yur))
-    
+
 
     for row in numpy.arange(Ddims[0] - 1):
         if (Data[row, 1] > Xll and Data[row, 1] < Xur and
             Data[row, 2] > Yll and Data[row, 2] < Yur):
             Rect.append(Data[row, :])
-            
+
     Rect = numpy.asarray(Rect, dtype=float)
     if Out:
         Ddims = numpy.shape(Rect)
@@ -1010,9 +1032,9 @@ def gen_grid_utm(XLimits=None, nX=None, YLimits=None, nY=None, out=True):
 
 def export_to_vtk(points=None, scale=[1., 1., -1.],
                   modmesh=None,  methmesh=None,
-                  exportfile="./tmp.vtk"): 
+                  exportfile="./tmp.vtk"):
     """
-    write 3D model to vtk 
+    write 3D model to vtk
     Expects rho in physical units
 
     author: vrath
@@ -1020,39 +1042,39 @@ def export_to_vtk(points=None, scale=[1., 1., -1.],
 
     """
     from evtk.hl import gridToVTK
-    
+
     if points is None:
         error("export_to_vtk: No points given! Exit.")
-        
+
     if modmesh is None:
         mesh = False
         print("export_to_vtk: No mesh given! Points will be exported.")
     else:
         mesh = True
         print("export_to_vtk: Mesh given! Grid wil will be exported.")
-        
+
     print("model-like parameter written to %s" % (exportfile))
-        
+
     east = points[:, 0]
-    nrth = points[:, 1] 
+    nrth = points[:, 1]
     elev = points[:, 2]
     vals = points[:, 3:]
-    
+
     # to mesh
-    
-    
+
+
     gridToVTK(exportfile, nrth, east, elev, cellData={'resistivity (in Ohm)': vals[:,0]})
 
     if mesh:
         gridToVTK(exportfile, nrth, east, elev, cellData={'resistivity (in Ohm)': vals[:,0]})
     else:
         gridToVTK(exportfile, nrth, east, elev, cellData={'resistivity (in Ohm)': vals[:,0]})
-        
+
 # def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None,
 #                     reference=None, scale=[1., 1., -1.], trans="LINEAR",
 #                     out=True):
 #     """
-#     write 3D model to vtk 
+#     write 3D model to vtk
 #     Expects rho in physical units
 
 #     author: vrath
@@ -1069,8 +1091,8 @@ def export_to_vtk(points=None, scale=[1., 1., -1.],
 #     print("model-like parameter written to %s" % (ModFile))
 
 
-    
-    
+
+
 def fractrans(m=None, x=None , a=0.5):
     """
     Caklculate fractional derivative of m.
