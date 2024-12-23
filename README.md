@@ -147,7 +147,7 @@ Fig 2:Typical workflow for AEM interpretation with AEMpyX.
 </p>
 
 
-From the inversion output several graphical representation of parameters can be produced using the _viz_ scripts. As numbers of sites can be very large, some characteerisstical sites should be chosen. 
+From the inversion output several graphical representation of parameters can be produced using the _viz_ scripts. As numbers of sites can be very large, some characteristical sites should be chosen. 
 
 <p align="center">
    <img src="img/Uncert_FL11379-0_site1497.0m.png" alt="Synthetics inversion results" width="700"/>
