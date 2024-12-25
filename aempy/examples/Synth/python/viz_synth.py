@@ -46,7 +46,6 @@ from version import versionstrg
 import aesys
 import util
 import viz
-import viz
 import inverse
 
 

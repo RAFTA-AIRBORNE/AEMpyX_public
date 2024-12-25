@@ -62,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 7
+    Njobs = 8
     # Njobs = -1
 
     if Njobs<0:
@@ -122,7 +122,7 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 # InDatDir =  AEMPYX_DATA + "/proc/"
-InDatDir =  AEMPYX_DATA + "/lines/"
+InDatDir =  AEMPYX_DATA + "/rect/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
@@ -134,7 +134,7 @@ Output format is ".npz"
 """
 OutFileFmt = ".npz"
 # OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results_lines1/"
+OutResDir =   AEMPYX_DATA + "/results_rect/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -143,7 +143,7 @@ if not os.path.isdir(OutResDir):
 
 # FileList = "set"
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*data.npz"
+SearchStrng = "*FL*delete*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -172,8 +172,8 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-Direction = "normal"
-
+# Direction = "normal"
+Direction = "reverse"
 SetPrior = "update"
 ParaTrans = 1
 
@@ -196,8 +196,8 @@ Tau0max = numpy.log10(RegVal0)
 Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
-    RegVal1Min = 0.1
-    RegVal1Max = 1000.
+    RegVal1Min = 1.
+    RegVal1Max = 5000.
     NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
@@ -323,7 +323,8 @@ outstrng =  "_"+RunType.lower()+\
             "_a"+str(round(DatErr_add,0))+\
             "_m"+str(round(DatErr_mult*100,0))+\
             "_p"+str(int(Guess_r))+\
-            "_d"+str(LVariant)+"_parallel"
+            "_d"+str(LVariant)+\
+            "_"+Direction+"_parallel"
 print("ID string: input file + %s " % outstrng)
 
 

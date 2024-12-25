@@ -198,7 +198,7 @@ def run_tikh_flightline(data_dir= None,
     """
     Loop over sites
     """
-    sequence = range(nsite)
+    sequence = numpy.arange(nsite)
     if "rev" in direction.lower():
         sites = sequence[::-1]
     else:
@@ -207,8 +207,10 @@ def run_tikh_flightline(data_dir= None,
     # logsize = (2 + 7*maxiter)
     # site_log = numpy.full((len(sites),logsize), numpy.nan)
     mtmp = numpy.array([])
+    icnt = -1
     for ii in sites:
     # for ii in [0, 1, 2]:
+        icnt =icnt + 1
         print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
 
         """
@@ -231,7 +233,7 @@ def run_tikh_flightline(data_dir= None,
 
         elif "upd" in setprior:
 
-            if ii == 0:
+            if icnt == 0:
                 mod_ini = site_prior[ii,:]
                 mod_apr = mod_ini.copy()
             else:
@@ -276,7 +278,7 @@ def run_tikh_flightline(data_dir= None,
         ctmp = site_dict["log"]
 
         # print(mtmp[0].shape)
-        if ii==0:
+        if icnt==0:
             site_num  = numpy.array([ii])
             site_conv = ctmp[1]
             site_nrms = ctmp[2]
