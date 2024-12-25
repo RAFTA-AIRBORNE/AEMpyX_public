@@ -350,6 +350,65 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
 
     invalid_strng = str(Invalid)
 
+    if "fm" in Survey.lower():
+
+        """
+        ===================================================================================================================
+        Surveys FM Finnmark 2009:
+
+        Column Description
+        1      0      X               Easting (WGS84 / UTM 35N)
+        2      1      Y               Northing (WGS84 / UTM 35N)
+        3      2      Z               GPS height
+               3      PITCH           Aircraft pitch angle (degrees)
+               4      ROLL            Aircraft roll angle (degrees)
+               5      HEADING         Aircraft heading (degrees)
+        0      6      FLIGHT          Flight number
+               7      DAY             Julian day
+               8     TIME             Time (hhmmss.ss)
+               9     DIR              Flight line direction
+        4     10     RALT             Radar altitude (m)
+              11     LALT             Laser altitude (m)
+        5     12     DTM              Digital terrain model (m, above WGS84 ellipsoid)
+       14     13     PLM              Power line monitor
+        6     14     RE09             912 Hz in-phase
+       10     15     IM09             912 Hz quadrature
+        7     16     RE3              3005 Hz in-phase
+       11     17     IM3              3005 Hz quadrature
+        8      18     RE12             11962 Hz in-phase
+       12     19     IM12             11962 Hz quadrature
+        9      20     RE25             24510 Hz in-phase
+       13     21     IM25             24510 Hz quadrature
+
+
+        """
+
+        ncol =  [6,  0, 1,    2, 4, 12,     14, 16, 18, 20,  15, 17, 19, 21, 13,]        #
+
+        Data = []
+        iline = 0
+        with open(DatFile) as fd:
+            for line in fd:
+                iline = iline + 1
+                if (line[0].lower().startswith("#")
+                    or line[0].lower().startswith("/")
+                    or "line" in line[:24].lower()
+                    or "tie" in line[:24].lower()):
+                    continue
+
+                t = line.split()
+
+                t = [w.replace("*", invalid_strng) for w in t]
+                # print(t[:22])
+                tmp = [t[ii] for ii in ncol]
+                Data.append(tmp)
+
+        Data = numpy.asarray(Data, dtype=float)
+        Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
+        Data = numpy.column_stack((Data,numpy.zeros_like(Data[:,0])))
+
+
+
     if any(s in Survey.lower() for s in ["a1", "a2", "a3", "a4", "wf", "tb", ]):
 
         """
