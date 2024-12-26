@@ -1366,10 +1366,10 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     if do_linesearch:
         model, dfit_iter = run_linesearch(fwdcall, alt,
-                                                                          d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act=d_act, d_state=d_state,
-                                                                          model=model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
-                                                                          dfit=dfit_iter, mdfit=thresh[3],
-                                                                          facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
+                                        d_obs=d_obs, d_err=d_err, d_trn=d_trn, d_act=d_act, d_state=d_state,
+                                        model=model, m_delta=m_delta, m_act=m_act, m_trn=m_trn, m_state=m_state,
+                                        dfit=dfit_iter, mdfit=thresh[3],
+                                        facreduce=facreduce, maxreduce=maxreduce, out=OutInfo)
         nrmse_iter, smape_iter = calc_datafit(data_obs=d_obs,
                                                       data_cal=d_cal,
                                                       data_err=d_err,

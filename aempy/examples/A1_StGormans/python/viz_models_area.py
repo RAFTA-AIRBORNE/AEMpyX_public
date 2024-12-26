@@ -274,7 +274,7 @@ if not os.path.isdir(PlotDir):
 
 
 if MergeModels:
-    Models = util.merge_model_sets(infile_list=mod_files,
+    Models = inverse.merge_model_sets(infile_list=mod_files,
                                    outfile_name=ModelMergeFile,
                                    dictout= True, out=False)
     mod_files = [ModelMergeFile]
