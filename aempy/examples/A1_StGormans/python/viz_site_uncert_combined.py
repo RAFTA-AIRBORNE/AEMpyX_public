@@ -194,7 +194,7 @@ input format is "npz"
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 InModDir =  AEMPYX_DATA+"/results_rect/"
 FileList ="search"
-SearchStrng ="A1*11379*results.npz"
+SearchStrng ="A1*11379*normal*results.npz"
 
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Models read from dir: %s " % InModDir)
@@ -468,7 +468,7 @@ for filein in mod_files:
             viz.plot_depth_prof(
                     ThisAxis=ax[0,0],
                     XScale = "log",
-                    # Plotsens_type = "steps filled",
+                    PlotType = "steps filled",
                     Depth = [zn],
                     Params = [model],
                     Partyp = "model",
@@ -497,7 +497,7 @@ for filein in mod_files:
                     PLabel = "sensitivity (-)",
                     Legend = ["coverage", "euclidean","cumulative"],    #  "cummulative"
                     XScale = "log",
-                    # Plotsens_type = "steps",
+                    PlotType = "steps",
                     Linecolor=Senscolor,
                     Linetypes=Senslines,
                     Linewidth=Senswidth,

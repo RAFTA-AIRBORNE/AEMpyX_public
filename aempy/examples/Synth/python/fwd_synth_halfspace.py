@@ -123,7 +123,7 @@ Model_base[6*nlyr:7*nlyr-1] =[]          #layers
 # -
 
 # rho for layer 1 (starting from 0!)
-FWDBaseName = "AEM05_RhoDepend"
+FWDBaseName = "AEM05_RhoDepend_30m"
 VarPar = [ 1., 3.,  10., 30., 100.,300., 1000.,3000., 10000.]
 VarInd = 0
 
@@ -140,7 +140,7 @@ VarInd = 0
 # VarInd = 3*nlyr+1
 
 #Alt = [60., 120.]
-Alt = [60]
+Alt = [30]
 # -
 
 # Now generate the response data:
@@ -185,7 +185,7 @@ for par in numpy.arange(len(VarPar)):
 
 
 
-PlotTitle = "AEM05: Halfspaces"
+PlotTitle = "AEM05: Halfspaces at "+str(int(alt))+" m"
 PlotSize = [8., 8.]
 FilesOnly = False
 PlotFormat = [".pdf", ".png"]
