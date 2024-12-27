@@ -46,7 +46,6 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -62,7 +61,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 6
+    Njobs = 5
     # Njobs = -1
 
     if Njobs<0:
@@ -134,7 +133,7 @@ Output format is ".npz"
 """
 OutFileFmt = ".npz"
 # OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results_diffop/"
+OutResDir =   AEMPYX_DATA + "/results/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -143,7 +142,7 @@ if not os.path.isdir(OutResDir):
 
 # FileList = "set"
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*81*k*data.npz"
+SearchStrng = "*FL*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -182,11 +181,11 @@ LVariant = 3
 # RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 # RegShift = +3
 
-# RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
-# RegShift = -2 # (-2)
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegShift = -2 # (-2)
 
-RegFun = "fix" # "fix", "lcc", "gcv", "mle"
-RegShift = 0 # (-2)
+#RegFun = "fix" # "fix", "lcc", "gcv", "mle"
+#RegShift = 0 # (-2)
 
 
 RegVal0 = 1.e-6
