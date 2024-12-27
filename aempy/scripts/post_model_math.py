@@ -85,7 +85,7 @@ Input
 ##############################################################################
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 # InResDir =  AEMPYX_DATA + "/proc/"
-InResDir =  AEMPYX_DATA + "/results_test/"
+InResDir =  AEMPYX_DATA + "/results_rect/"
 if not InResDir.endswith("/"): InResDir=InResDir+"/"
 print("Data read from dir: %s " % InResDir)
 # +
@@ -97,7 +97,7 @@ Output"
 FileList = "search"  # "search", "read"
 SearchStrng = "*FL*_normal*results.npz"
 # OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results_test_out/"
+OutResDir =   AEMPYX_DATA + "/results_rect/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):

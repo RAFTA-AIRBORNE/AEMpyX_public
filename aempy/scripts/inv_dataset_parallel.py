@@ -62,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 6
+    Njobs = 8
     # Njobs = -1
 
     if Njobs<0:
@@ -100,8 +100,8 @@ if "aem05" in AEM_system.lower():
     DatErr_add = 75. #50.
     DatErr_mult = 0.0
     data_active = numpy.ones(NN[2], dtype="int8")
-    data_active[0] = 0   # real at 900Hz
-    data_active[4] = 0   # imag at 900Hz
+    # data_active[0] = 0   # real at 900Hz
+    # data_active[4] = 0   # imag at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
@@ -120,9 +120,9 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/test/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
 # InDatDir =  AEMPYX_DATA + "/proc/"
-InDatDir =  AEMPYX_DATA + "/data/"
+InDatDir =  AEMPYX_DATA + "/rect/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
@@ -134,7 +134,7 @@ Output format is ".npz"
 """
 OutFileFmt = ".npz"
 # OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results_diffop/"
+OutResDir =   AEMPYX_DATA + "/results_rect/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -143,7 +143,7 @@ if not os.path.isdir(OutResDir):
 
 # FileList = "set"
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*k*data.npz"
+SearchStrng = "*FL*delete*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -173,20 +173,20 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 Direction = "normal"
-
+# Direction = "reverse"
 SetPrior = "update"
 ParaTrans = 1
 
-LVariant = 3
+LVariant = 0
 
 # RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 # RegShift = +3
 
-# RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
-# RegShift = -2 # (-2)
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegShift = -2 # (-2)
 
-RegFun = "fix" # "fix", "lcc", "gcv", "mle"
-RegShift = 0 # (-2)
+# RegFun = "fix" # "fix", "lcc", "gcv", "mle"
+# RegShift = 0 # (-2)
 
 
 RegVal0 = 1.e-6
@@ -196,8 +196,8 @@ Tau0max = numpy.log10(RegVal0)
 Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
-    RegVal1Min = 0.1
-    RegVal1Max = 3000.
+    RegVal1Min = 1.
+    RegVal1Max = 5000.
     NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
@@ -284,12 +284,12 @@ if "tikhopt" in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
     Maxiter = 20
-    Maxreduce = 5
+    Maxreduce = 8
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
     # LinPars = []
 
-    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
+    ThreshFit = [0.5, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
 
@@ -323,7 +323,8 @@ outstrng =  "_"+RunType.lower()+\
             "_a"+str(round(DatErr_add,0))+\
             "_m"+str(round(DatErr_mult*100,0))+\
             "_p"+str(int(Guess_r))+\
-            "_d"+str(LVariant)+"_parallel"
+            "_d"+str(LVariant)+\
+            "_"+Direction+"_parallel"
 print("ID string: input file + %s " % outstrng)
 
 
@@ -333,6 +334,7 @@ print("ID string: input file + %s " % outstrng)
 if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
+    # print(InDatDir, filin)
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
         joblib.delayed(inverse.run_tikh_flightline)(ctrl=ctrl_dict,
                                                      data_dir=InDatDir,

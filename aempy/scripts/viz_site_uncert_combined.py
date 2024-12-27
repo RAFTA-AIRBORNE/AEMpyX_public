@@ -86,13 +86,15 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add =  50.
-    DatErr_mult = 0.03
+    DatErr_add = 75.
+    DatErr_mult = 0.00
     data_active = numpy.ones(NN[2], dtype="int8")
     CompDict = Pars[3]
     CompLabl = list(CompDict.keys())
     print(CompLabl)
     # Pars[0] = numpy.round(Pars[0],1)/1000.
+    # data_active[0] = 0   # real at 900Hz
+    # data_active[4] = 0   # imag at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, Pars, = aesys.get_system_params(System=AEM_system)
@@ -168,7 +170,7 @@ if "jac" in Plotlist:
 # Sample = "distance list"
 Sample = "distance list"
 if "rand" in Sample:
-    NSamples = 1
+    NSamples = 3
 
 elif "list" in Sample:
     if "pos" in Sample:
@@ -190,9 +192,9 @@ input format is "npz"
 # SearchStrng ="A1*30*results.npz"
 
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-InModDir =  AEMPYX_DATA+"/results_parallel/"
+InModDir =  AEMPYX_DATA+"/results_rect/"
 FileList ="search"
-SearchStrng ="A1*30*results.npz"
+SearchStrng ="A1*11379*results.npz"
 
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Models read from dir: %s " % InModDir)
@@ -332,9 +334,9 @@ for filein in mod_files:
 
     zn = inverse.set_znodes(dz)
     zm = inverse.set_zcenters(dz)
-    DepthN = zn
-    DepthC = numpy.append(zm, 999.9)
-    LayThk = numpy.append(dz, 9999.)
+    depthn = zn
+    depthc = numpy.append(zm, 999.9)
+    laythk = numpy.append(dz, 9999.)
 
     """
     construct site_list
@@ -380,32 +382,33 @@ for filein in mod_files:
         # sensitivities
         sens = []
 
-        sens0 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "raw") #[:-1]
-        sens0 = inverse.transform_sensitivity(S=sens0, V=LayThk,
-                                              Transform=[" val","max"])
-                                              # Transform=[" val","max", "sqr"])
-        sens.append(numpy.abs(sens0))
+        sens0 = inverse.calc_sensitivity(Jac=jac, use_sigma=True, sens_type="raw") #[:-1]
+        sens0, _ = inverse.transform_sensitivity(S=sens0, vol=laythk,
+                                              transform=[" val","max"])
+                                              # transform=[" val","max", "sqr"])
+        if NoHalfspace:
+            sens1 = sens0[:-1]
+        sens.append(sens0)
 
-        sens1 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "cov") #[:-1]
-        sens1 = inverse.transform_sensitivity(S=sens1, V=LayThk,
-                                              Transform=["max"])
-                                              # Transform=[" val","max", "sqr"])
+        sens1 = inverse.calc_sensitivity(Jac=jac, use_sigma=True, sens_type="cov") #[:-1]
+        sens1, _ = inverse.transform_sensitivity(S=sens1, vol=laythk,
+                                              transform=["max"])
+                                              # transform=[" val","max", "sqr"])
         if NoHalfspace:
             sens1 = sens1[:-1]
         sens.append(numpy.abs(sens1))
 
-        sens2 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "euc") #[:-1]
-        sens2 = inverse.transform_sensitivity(S=sens2, V=LayThk,
-                                              Transform=[" max", "sqr"])
-                                              # Transform=[" val","max", "sqr"])
-        if NoHalfspace:
-            sens2 = sens2[:-1]
+        sens2 = inverse.calc_sensitivity(Jac=jac, use_sigma=True, sens_type="euc") #[:-1]
+        sens2, _ = inverse.transform_sensitivity(S=sens2, vol=laythk,
+                                              transform=[" max", "sqr"])
+                                              # transform=[" val","max", "sqr"])
+
         sens.append(numpy.abs(sens2))
 
-        sens3 = inverse.calc_sensitivity(Jac=scal@jac, UseSigma=True, Type = "cum")
-        sens3 = inverse.transform_sensitivity(S=sens3, V=LayThk,
-                                             Transform=["max"])
-                                             # Transform=[" val","max", "sqr"])
+        sens3 = inverse.calc_sensitivity(Jac=scal@jac, use_sigma=True, sens_type = "cum")
+        sens3, _ = inverse.transform_sensitivity(S=sens3, vol=laythk,
+                                             transform=["max"])
+                                             # transform=[" val","max", "sqr"])
         if NoHalfspace:
             sens3 = sens3[:-1]
         sens.append(numpy.abs(sens3))
@@ -458,11 +461,14 @@ for filein in mod_files:
             errm = numpy.exp(val-error)
             errp = numpy.exp(val+error)
             model = [model, errm, errp]
+            if NoHalfspace:
+                model = model[:-1]
+
 
             viz.plot_depth_prof(
                     ThisAxis=ax[0,0],
                     XScale = "log",
-                    PlotType = "steps filled",
+                    # Plotsens_type = "steps filled",
                     Depth = [zn],
                     Params = [model],
                     Partyp = "model",
@@ -491,7 +497,7 @@ for filein in mod_files:
                     PLabel = "sensitivity (-)",
                     Legend = ["coverage", "euclidean","cumulative"],    #  "cummulative"
                     XScale = "log",
-                    PlotType = "steps",
+                    # Plotsens_type = "steps",
                     Linecolor=Senscolor,
                     Linetypes=Senslines,
                     Linewidth=Senswidth,
@@ -514,7 +520,7 @@ for filein in mod_files:
             xticklabels = xticks.astype(str)
             yticks = xticks
             if PhysAxes:
-                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
+                yticklabels = numpy.rint(depthc[yticks]).astype(int).astype(str)
                 AxLabels = [" layer #"," depth (m)"]
             else:
                 yticklabels = yticks.astype(str)
@@ -548,7 +554,7 @@ for filein in mod_files:
             xticklabels = xticks.astype(str)
             yticks = xticks
             if PhysAxes:
-                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
+                yticklabels = numpy.rint(depthc[yticks]).astype(int).astype(str)
                 AxLabels = [" layer #"," depth (m)"]
             else:
                 yticklabels = yticks.astype(str)
@@ -589,7 +595,7 @@ for filein in mod_files:
             xticklabels = xticks.astype(str)
             yticks = xticks
             if PhysAxes:
-                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
+                yticklabels = numpy.rint(depthc[yticks]).astype(int).astype(str)
                 AxLabels = [" layer #"," depth (m)"]
             else:
                 yticklabels = yticks.astype(str)
@@ -686,7 +692,7 @@ for filein in mod_files:
             yticks = numpy.arange(nlyr)[0:-1:5]
 
             if PhysAxes:
-                yticklabels = numpy.rint(DepthC[yticks]).astype(int).astype(str)
+                yticklabels = numpy.rint(depthc[yticks]).astype(int).astype(str)
                 ylabel = "depth (m)"
             else:
                 yticklabels = yticks.astype(str)

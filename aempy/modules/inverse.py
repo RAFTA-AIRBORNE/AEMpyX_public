@@ -4574,7 +4574,7 @@ def load_prior(prior_file=None,
 
 
 def diffops(dz=None, der=False,
-            otype="L0", variant=3, mtype="sparse", mform="csr", flip=False):
+            otype="L0", variant=0, mtype="sparse", mform="csr", flip=False, out=True):
     """
     Generate differential operators L0-L2 potentially based on dz.
 
@@ -4638,7 +4638,7 @@ def diffops(dz=None, der=False,
                     d, [0, -1], nlyr, nlyr-1, format=mform).transpose()
                 # if der:
                 #     L = scipy.sparse.spdiags(h, [0], nlyr-1, nlyr-1, format=mform)*L
-                print("L1 matrix is "+str(numpy.shape(L)))
+                if out: print("L1 matrix variant 0 is "+str(numpy.shape(L)))
 
             elif variant == 1:
                 alpha = 1.
@@ -4652,7 +4652,7 @@ def diffops(dz=None, der=False,
                 L = scipy.sparse.spdiags(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
-                print("L1 matrix is "+str(numpy.shape(L)))
+                if out: print("L1 matrix variant 1 is "+str(numpy.shape(L)))
 
             elif variant == 2:
                 alpha = 1.e-6
@@ -4666,7 +4666,7 @@ def diffops(dz=None, der=False,
                 L = scipy.sparse.spdiags(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
-                print("L1 matrix is "+str(numpy.shape(L)))
+                if out: print("L1 matrix variant 2 is "+str(numpy.shape(L)))
 
             elif variant == 3:
                 alpha = 1.e-6
@@ -4681,7 +4681,7 @@ def diffops(dz=None, der=False,
                 L = scipy.sparse.spdiags(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
-                print("L1 matrix is "+str(numpy.shape(L)))
+                if out: print("L1 matrix variant 3 is "+str(numpy.shape(L)))
 
             elif variant == -1:
                 alpha = 1.
@@ -4695,7 +4695,7 @@ def diffops(dz=None, der=False,
                 L = scipy.sparse.spdiags(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
-                print("L1 matrix is "+str(numpy.shape(L)))
+                if out: print("L1 matrix variant -1 is "+str(numpy.shape(L)))
 
             elif variant == -2:
                 alpha = 1.e-6
@@ -4708,6 +4708,8 @@ def diffops(dz=None, der=False,
 
                 L = scipy.sparse.spdiags(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
+
+                if out: print("L1 matrix variant -3 is "+str(numpy.shape(L)))
 
             else:
                 error("DiffOperator variant " + variant + " not implemeted ! Exit.")

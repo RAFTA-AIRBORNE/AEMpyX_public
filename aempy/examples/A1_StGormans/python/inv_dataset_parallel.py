@@ -100,8 +100,8 @@ if "aem05" in AEM_system.lower():
     DatErr_add = 75. #50.
     DatErr_mult = 0.0
     data_active = numpy.ones(NN[2], dtype="int8")
-    data_active[0] = 0   # real at 900Hz
-    data_active[4] = 0   # imag at 900Hz
+    # data_active[0] = 0   # real at 900Hz
+    # data_active[4] = 0   # imag at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
@@ -172,12 +172,12 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
-# Direction = "normal"
-Direction = "reverse"
+Direction = "normal"
+# Direction = "reverse"
 SetPrior = "update"
 ParaTrans = 1
 
-LVariant = 3
+LVariant = 0
 
 # RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 # RegShift = +3

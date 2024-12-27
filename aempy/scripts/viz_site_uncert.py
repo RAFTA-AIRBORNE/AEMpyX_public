@@ -378,6 +378,8 @@ for filein in mod_files:
         sens0 = inverse.transform_sensitivity(S=sens0, V=LayThk,
                                               Transform=[" val","max"])
                                               # Transform=[" val","max", "sqr"])
+        if NoHalfspace:
+            sens1 = sens0[:-1]
         sens.append(numpy.abs(sens0))
 
         sens1 = inverse.calc_sensitivity(Jac=jac, UseSigma=True, Type = "cov") #[:-1]

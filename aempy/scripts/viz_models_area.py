@@ -139,7 +139,7 @@ if ".pdf" in PlotFmt:
     pass
 else:
     print(" No pdf files generated. No catalog possible!")
-    PDFCatalog = False
+    PdfCatalog = False
 
 
 ImageType = "image"
@@ -274,7 +274,7 @@ if not os.path.isdir(PlotDir):
 
 
 if MergeModels:
-    Models = util.merge_model_sets(infile_list=mod_files,
+    Models = inverse.merge_model_sets(infile_list=mod_files,
                                    outfile_name=ModelMergeFile,
                                    dictout= True, out=False)
     mod_files = [ModelMergeFile]
@@ -511,7 +511,7 @@ for filein in mod_files:
         matplotlib.pyplot.show()
         matplotlib.pyplot.clf()
 
-if PDFCatalog:
+if PdfCatalog:
     print(pdf_list)
     # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
     d = catalog.infodict()
