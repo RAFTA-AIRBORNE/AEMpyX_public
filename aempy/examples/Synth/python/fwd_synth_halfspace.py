@@ -272,7 +272,7 @@ for var in numpy.arange(nens[0]):
                 label=str(VarPar[var]))
 
 ax[0].set_xscale("log")
-ax[0].set_xlabel("freqency (kHz)",fontsize=Fontsizes[0])
+ax[0].set_xlabel("frequency (kHz)",fontsize=Fontsizes[0])
 ax[0].set_ylabel("quadrature (ppm)",fontsize=Fontsizes[0])
 
 ax[0].xaxis.set_label_position("bottom")
@@ -288,7 +288,7 @@ for  var in numpy.arange(nens[0]):
                     linewidth=Linewidth[0], marker=Markers[0], markersize=Markersize[0],
                 label=str(VarPar[var]))
 ax[1].set_xscale("log")
-ax[1].set_xlabel("freqency (kHz)",fontsize=Fontsizes[0])
+ax[1].set_xlabel("frequency (kHz)",fontsize=Fontsizes[0])
 ax[1].set_ylabel("in-phase (ppm)",fontsize=Fontsizes[0])
 
 ax[1].xaxis.set_label_position("bottom")
@@ -297,6 +297,6 @@ ax[1].tick_params(labelsize=Fontsizes[1])
 ax[1].grid(True)
 ax[1].grid("major", "both", linestyle=":", lw=0.3)
 ax[1].legend(fontsize=Fontsizes[0]-2, loc="best", title="Ohm.m", title_fontsize=Fontsizes[0]-2)
-fig.tight_layout()
+# fig.tight_layout()
 for F in PlotFormat:
     matplotlib.pyplot.savefig(PlotDir+FWDBaseName+F)

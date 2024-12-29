@@ -915,7 +915,7 @@ def plot_depth_prof(
 
         if "sens" in Partyp.lower():
             if "steps" in PlotType.lower():
-                d = D[:-1]
+                d = D
                 for pp in numpy.arange(np):
                     p = P[pp]
                     print(numpy.shape(d),numpy.shape(p))
@@ -935,6 +935,7 @@ def plot_depth_prof(
         if "model" in Partyp.lower():
 
             d = numpy.append(D, df)
+            # d = D
 
             if np==3:
 
@@ -942,6 +943,10 @@ def plot_depth_prof(
                 p = numpy.append(P[0],P[0][-1])
                 ep = numpy.append(P[1],P[1][-1])
                 em = numpy.append(P[2],P[2][-1])
+                # p = P[0]
+                # ep = P[1]
+                # em = P[2]
+                print(numpy.shape(d),numpy.shape(em),numpy.shape(ep))
 
                 if "fill" in PlotType.lower():
                     ax.fill_betweenx(d, em, ep,

@@ -69,12 +69,12 @@ input formats are "npz","nc4","asc"
 """
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/SmallTest/"
 #InModDir = AEMPYX_DATA+"/results_lines/"
-InModDir = AEMPYX_DATA+"/results_diffop/"
+InModDir = AEMPYX_DATA+"/results/"
 
 print("Data/models read from dir:  %s" % InModDir)
 
 FileList = "search"  # "search", "read"
-SearchStrng ="*fix_l39*results.npz"
+SearchStrng ="*lcc*results.npz"
 if "search" in FileList.lower():
     print("Search flightline ID string: %s " % SearchStrng)
     data_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir)
@@ -93,7 +93,7 @@ if not os.path.isdir(PlotDir):
 FilesOnly = False
 PlotFmt = [".pdf"]
 
-PDFCatName = PlotDir+"test_mods.pdf"
+PDFCatName = PlotDir+"lcc_mods.pdf"
 PDFCatalog = True
 if ".pdf" in PlotFmt:
     pass

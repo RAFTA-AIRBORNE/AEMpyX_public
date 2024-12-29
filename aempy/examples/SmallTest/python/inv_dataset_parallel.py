@@ -46,6 +46,7 @@ from version import versionstrg
 import aesys
 import util
 import inverse
+AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 # -
 
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -61,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 5
+    Njobs = 6
     # Njobs = -1
 
     if Njobs<0:
@@ -99,8 +100,8 @@ if "aem05" in AEM_system.lower():
     DatErr_add = 75. #50.
     DatErr_mult = 0.0
     data_active = numpy.ones(NN[2], dtype="int8")
-    data_active[0] = 0   # real at 900Hz
-    data_active[4] = 0   # imag at 900Hz
+    # data_active[0] = 0   # real at 900Hz
+    # data_active[4] = 0   # imag at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
@@ -142,7 +143,7 @@ if not os.path.isdir(OutResDir):
 
 # FileList = "set"
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*data.npz"
+SearchStrng = "*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -178,14 +179,15 @@ ParaTrans = 1
 
 LVariant = 3
 
-# RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
-# RegShift = +3
 
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
-RegShift = -2 # (-2)
+RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+RegShift = +3
 
-#RegFun = "fix" # "fix", "lcc", "gcv", "mle"
-#RegShift = 0 # (-2)
+# RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+# RegShift = -2 # (-2)
+
+# RegFun = "fix" # "fix", "lcc", "gcv", "mle"
+# RegShift = 0 # (-2)
 
 
 RegVal0 = 1.e-6

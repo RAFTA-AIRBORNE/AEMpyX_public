@@ -59,6 +59,7 @@ import viz
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 cm = 1/2.54
+nan = numpy.nan
 
 OutInfo = True
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
@@ -120,9 +121,11 @@ Plotlist = [item.lower() for item in Plotlist]
 
 if "model" in Plotlist:
     print("Model will be plotted")
+
     err = "lsq"
     err = "msq"
     err = "jsq"
+    NoHalfspace = True
     Modelcolor = ["b", "r", "r", ]
     Modellines = ["-", ":", ":" ]
     Modelwidth = [ 1,  1,  1,]
@@ -131,9 +134,10 @@ if "model" in Plotlist:
 
 if "sens" in Plotlist:
     print("Sensitivities will be plotted")
-    whichsens = ["raw","cov", "euc" , "cum"]
+    whichsens = ["cov", "euc" ,"cum"]
     print("   Sensitivity type is ", str(whichsens))
 
+    NoHalfspace = True
     Senscolor = ["b", "g", "r", "m", "y"]
     Senslines =  ["-", "-", "-", "-", "-"]
     Senswidth = [ 1, 1,  1, 1, 1.]
@@ -259,7 +263,7 @@ matplotlib.rcParams["savefig.transparent"] = True
 matplotlib.rcParams["savefig.bbox"] = "tight"
 Fontsize = 6
 Labelsize = Fontsize
-Titlesize = 6
+Titlesize = 8
 Fontsizes = [Fontsize, Labelsize, Titlesize]
 
 
@@ -304,7 +308,7 @@ for filein in mod_files:
     control = numpy.load(ctrfile, allow_pickle=True)
     Runtyp = control["inversion"][0]
     Regfun = control["inversion"][1]
-    OptStrng = "Opts: "+Runtyp+"|"+Regfun
+    OptStrng = "  -  Opts: "+Runtyp+"|"+Regfun
 
     fline = results["fl_name"]
     site_x = results["site_x"]
@@ -386,16 +390,14 @@ for filein in mod_files:
         sens0, _ = inverse.transform_sensitivity(S=sens0, vol=laythk,
                                               transform=[" val","max"])
                                               # transform=[" val","max", "sqr"])
-        if NoHalfspace:
-            sens1 = sens0[:-1]
+
         sens.append(sens0)
 
         sens1 = inverse.calc_sensitivity(Jac=jac, use_sigma=True, sens_type="cov") #[:-1]
         sens1, _ = inverse.transform_sensitivity(S=sens1, vol=laythk,
                                               transform=["max"])
                                               # transform=[" val","max", "sqr"])
-        if NoHalfspace:
-            sens1 = sens1[:-1]
+
         sens.append(numpy.abs(sens1))
 
         sens2 = inverse.calc_sensitivity(Jac=jac, use_sigma=True, sens_type="euc") #[:-1]
@@ -409,11 +411,14 @@ for filein in mod_files:
         sens3, _ = inverse.transform_sensitivity(S=sens3, vol=laythk,
                                              transform=["max"])
                                              # transform=[" val","max", "sqr"])
-        if NoHalfspace:
-            sens3 = sens3[:-1]
+
         sens.append(numpy.abs(sens3))
         sens.pop(0)
 
+
+        if NoHalfspace:
+            for s in sens:
+                s[-1] = nan
 
         # parameter resolution matrix & spread(s)
 
@@ -421,6 +426,7 @@ for filein in mod_files:
 
         rm = gi@jac
         nm = numpy.sum(rm.diagonal())
+        print(nm)
 
         _, mspread0 = inverse.calc_model_resolution(J=jac, G=gi,
                                                     Spread=["frob"])

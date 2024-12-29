@@ -966,7 +966,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 G = C@Jd.T
 
                 """
-                Calc target function for tau optimization
+                Calc target paramter for tau optimization
                 """
 
                 if "ufc" in regfun.lower():
@@ -1051,8 +1051,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
           % (profname, niter, nrmse_iter, smape_iter, regfun.lower(),  tau[g_index, 0],  tau[g_index, 1]))
     # print(numpy.shape(sensi))
     sens = sensi  # insert_mod(M=sens, m=sensi,m_act=m_act)
-    modl, m_state = transform_parameter(
-        m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
+    modl, m_state = transform_parameter(m_vec=model, m_trn=m_trn, m_state=m_state,  mode="b")
     modl = extract_mod(modl, m_act)
     merr = m_err[g_index, :].flat
     # insert_mod(M=merr, m=tmp, m_act=m_act)
@@ -2863,7 +2862,7 @@ def run_linesearch(fwdcall, alt,
                    m_act=numpy.array([]), m_trn=1, m_state=0,
                    dfit=999999.9,
                    facreduce=0.6666, maxreduce=6, mdfit="rms",
-                   out=True):
+                   out=False):
     """
     Run simple line search with 0.>alpha<1.
 
@@ -4172,11 +4171,11 @@ def impose_bounds(m=None, bounds=None, mode="fwd",
 
 
     elif "sig" in method.lower():
-
+        fac = bounds[:,0] +(bounds[:,1]-bounds[:,0])
         if mode[0:1] == "f":
-            m_trans = scipy.special.expit(m)
+            m_trans = fac*scipy.special.expit(m)
         elif mode[0:1] == "b":
-            m_trans = scipy.special.logit(m)
+            m_trans = scipy.special.logit(m)/fac
 
     return m_trans
 
