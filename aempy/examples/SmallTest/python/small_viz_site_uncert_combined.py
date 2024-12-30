@@ -119,6 +119,8 @@ Plotlist = ["model", "sens", "cov", "cor", "respar", "resdat"]
 Plotlist = [item.lower() for item in Plotlist]
 NoHalfspace = False
 
+OptStrng = ""
+
 if "model" in Plotlist:
     print("Model will be plotted")
 
@@ -197,7 +199,7 @@ input format is "npz"
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/SmallTest/"
 InModDir =  AEMPYX_DATA+"/results/"
 FileList ="search"
-SearchStrng ="A1*11379*fix*results.npz"
+SearchStrng ="A1*11379*l49*results.npz"
 
 if not InModDir.endswith("/"): InModDir=InModDir+"/"
 print("Models read from dir: %s " % InModDir)
@@ -290,7 +292,7 @@ if FilesOnly:
 
 if PDFCatalog:
     pdf_list = []
-    catalog =matplotlib.backends.backend_pdf.PdfPages(PDFCatName)
+    catalog =matplotlib.backends.backend_pdf.PdfPages(PlotDir+PDFCatName)
 
 
 for filein in mod_files:
@@ -307,7 +309,7 @@ for filein in mod_files:
     control = numpy.load(ctrfile, allow_pickle=True)
     Runtyp = control["inversion"][0]
     Regfun = control["inversion"][1]
-    OptStrng = "  -  Opts: "+Runtyp+"|"+Regfun
+
 
     fline = results["fl_name"]
     site_x = results["site_x"]
@@ -443,10 +445,10 @@ for filein in mod_files:
         fl = str(numpy.around(fline,2)).replace(".","-")
         if "dist" in Sample:
             PlotFile = fnam+"_uncert_site"+str(numpy.rint(site_r[isite]))+"m"
-            PlotTitle= "uncert, fl"+fl+" site = "+str(numpy.rint(site_r[isite]))+" m"+"\n"+fnam
+            PlotTitle= "site = "+str(numpy.rint(site_r[isite]))+" m"+OptStrng+"\n"+fnam
         else:
             PlotFile = fnam +"_uncert_site"++str(isite)
-            PlotTitle= "uncert, fl"+fl+" site = "+str(isite)+"\n"+fnam
+            PlotTitle= "site = "+str(isite)+OptStrng+"\n"+fnam
 
         fig, ax = matplotlib.pyplot.subplots(nvert,nhorz,
                                       figsize=(nhorz*PlotSize[0], nvert*PlotSize[1]),

@@ -62,7 +62,7 @@ OutInfo = False
 Parallel = True
 if Parallel:
 
-    Njobs = 8
+    Njobs = 6
     # Njobs = -1
 
     if Njobs<0:
@@ -120,9 +120,9 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/SmallTest/"
 # InDatDir =  AEMPYX_DATA + "/proc/"
-InDatDir =  AEMPYX_DATA + "/rect/"
+InDatDir =  AEMPYX_DATA + "/data/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +
@@ -134,7 +134,7 @@ Output format is ".npz"
 """
 OutFileFmt = ".npz"
 # OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results_rect/"
+OutResDir =   AEMPYX_DATA + "/results/"
 if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
 print("Models written to dir: %s " % OutResDir)
 if not os.path.isdir(OutResDir):
@@ -143,7 +143,7 @@ if not os.path.isdir(OutResDir):
 
 # FileList = "set"
 FileList = "search"  # "search", "read"
-SearchStrng = "*FL*delete*data.npz"
+SearchStrng = "*data.npz"
 
 if "set" in FileList.lower():
     print("Data files read from dir:  %s" % InDatDir)
@@ -173,11 +173,12 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 Direction = "normal"
-# Direction = "reverse"
+
 SetPrior = "update"
 ParaTrans = 1
 
 LVariant = 0
+
 
 # RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
 # RegShift = +3
@@ -196,8 +197,8 @@ Tau0max = numpy.log10(RegVal0)
 Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
 if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
-    RegVal1Min = 1.
-    RegVal1Max = 5000.
+    RegVal1Min = 0.1
+    RegVal1Max = 3000.
     NTau1 =64
     Tau1min = numpy.log10(RegVal1Min)
     Tau1max = numpy.log10(RegVal1Max)
@@ -217,7 +218,7 @@ Model definition
 
 
 
-Nlyr = 39
+Nlyr = 49
 dzstart = 1.
 dzend = 5.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
@@ -284,12 +285,12 @@ if "tikhopt" in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
     Maxiter = 20
-    Maxreduce = 8
+    Maxreduce = 5
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
     # LinPars = []
 
-    ThreshFit = [0.5, 1.0e-2, 1.0e-2, "rms"]
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
     # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
     Delta = [1.e-5]
 
@@ -323,8 +324,7 @@ outstrng =  "_"+RunType.lower()+\
             "_a"+str(round(DatErr_add,0))+\
             "_m"+str(round(DatErr_mult*100,0))+\
             "_p"+str(int(Guess_r))+\
-            "_d"+str(LVariant)+\
-            "_"+Direction+"_parallel"
+            "_d"+str(LVariant)+"_parallel"
 print("ID string: input file + %s " % outstrng)
 
 
@@ -334,7 +334,6 @@ print("ID string: input file + %s " % outstrng)
 if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
-    # print(InDatDir, filin)
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
         joblib.delayed(inverse.run_tikh_flightline)(ctrl=ctrl_dict,
                                                      data_dir=InDatDir,

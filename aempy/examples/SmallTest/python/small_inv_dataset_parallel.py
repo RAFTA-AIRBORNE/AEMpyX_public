@@ -177,14 +177,14 @@ Direction = "normal"
 SetPrior = "update"
 ParaTrans = 1
 
-LVariant = 3
+LVariant = 0
 
 
-RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
-RegShift = +3
+# RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+# RegShift = +3
 
-# RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
-# RegShift = -2 # (-2)
+RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegShift = -2 # (-2)
 
 # RegFun = "fix" # "fix", "lcc", "gcv", "mle"
 # RegShift = 0 # (-2)
@@ -218,7 +218,7 @@ Model definition
 
 
 
-Nlyr = 39
+Nlyr = 49
 dzstart = 1.
 dzend = 5.
 dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
