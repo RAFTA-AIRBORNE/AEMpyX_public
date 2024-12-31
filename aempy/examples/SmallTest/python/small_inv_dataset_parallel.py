@@ -97,11 +97,11 @@ if "aem05" in AEM_system.lower():
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
-    DatErr_add = 75. #50.
-    DatErr_mult = 0.0
+    DatErr_add = 50. #50.
+    DatErr_mult = 0.01
     data_active = numpy.ones(NN[2], dtype="int8")
-    # data_active[0] = 0   # real at 900Hz
-    # data_active[4] = 0   # imag at 900Hz
+    data_active[0] = 0   # real at 900Hz
+    data_active[4] = 0   # imag at 900Hz
 
 if "genes" in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
@@ -173,7 +173,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 Direction = "normal"
-
+Direction = "reverse"
 SetPrior = "update"
 ParaTrans = 1
 
@@ -215,7 +215,12 @@ nreg = NTau0 * NTau1
 """
 Model definition
 """
-
+# Nlyr = 30
+# dzstart = 2.
+# dzend = 8.
+# dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+# # print(dz)
+# z = numpy.append(0.0, numpy.cumsum(dz))
 
 
 Nlyr = 49
@@ -324,7 +329,7 @@ outstrng =  "_"+RunType.lower()+\
             "_a"+str(round(DatErr_add,0))+\
             "_m"+str(round(DatErr_mult*100,0))+\
             "_p"+str(int(Guess_r))+\
-            "_d"+str(LVariant)+"_parallel"
+            "_d"+str(LVariant)+"_"+Direction
 print("ID string: input file + %s " % outstrng)
 
 

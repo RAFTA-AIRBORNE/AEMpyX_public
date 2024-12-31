@@ -145,11 +145,13 @@ if  "two" in Method.lower():
         m_revers = m.copy()
 
         m = 0.5*(m_normal + m_revers)
+        d = numpy.abs(m_normal + m_revers)
         if ParaTrans==1:
            m = numpy.exp(m)
 
         d = dict(f1)
         d["site_modl"] = m
+        d["site_diff"] = d
         d["header"] = "Averaged model set:"+"".join("Date " + datetime.now().strftime(dateform))
         fileout = filein_normal.replace("_normal", "_average")
         print("Averaged models saved to: %s" % OutResDir+fileout)

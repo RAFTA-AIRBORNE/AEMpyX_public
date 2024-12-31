@@ -6141,6 +6141,32 @@ def init_layers(nlyr=26, start=1., end=10.,
 
     return dz, z_node, z_cent
 
+def set_prior(pval=numpy.array([]), flightline=None):
+    """
+    set prior according to different methods
+
+    """
+    if flightline is None:
+        error ("set_prior: no flightine given! Exit.")
+
+
+    dims =numpy.shape(flightline)
+    prior = numpy.zeros(dims)
+    dims =numpy.shape(flightline)
+
+    if numpy.size()==1:
+        prior = prior + pval[0]
+
+    if numpy.shape(pval)==numpy.shape(flightline):
+        prior = pval
+    elif numpy.shape(pval)==numpy.shape(flightline[:, 0]):
+        for ii in numpy.arange(dims[1]):
+            prior[:, ii] = pval
+    else:
+        for ii in numpy.arange(dims[1]):
+            prior[:, ii] = pval
+
+    return prior
 
 def merge_data_sets(infile_list=None, outfile_name="./dat_tmp.npz",
                     aem_system="aem05", dictout=False, out=False):
