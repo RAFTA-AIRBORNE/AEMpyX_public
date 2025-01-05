@@ -1043,7 +1043,8 @@ def plot_matrix(
         PlotStrng="",
         StrngPos=[0.05,0.05],
         Aspect = "auto",
-        Invalid=1.e30):
+        Invalid=1.e30,
+        Transpose=False):
     """
     Plots jacobians, covariance and resolution matrices.
 
@@ -1067,8 +1068,10 @@ def plot_matrix(
     @author: vrath
 
     """
-    cm = 1/2.54  # centimeters in inches
     nn = numpy.shape(Matrix)
+    if Transpose:
+        Matrix = Matrix.T
+
     np = nn[0]
     if Matrix.ndim==1:
         np =math.isqrt(nn[0])

@@ -16,7 +16,6 @@
 # ---
 
 # +
-#!/usr/bin/env python3
 # -
 
 
@@ -117,8 +116,8 @@ FileList = "search"
 # processed data
 InDatDir =  AEMPYX_DATA + "/data/"
 PlotDir =  InDatDir + "/plots/"
-SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen
-#SearchStrng = "*FL*.npz" # else
+SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen ("delete")
+# SearchStrng = "*FL*.npz" # else
 PlotStrng = " - proc"
 
 

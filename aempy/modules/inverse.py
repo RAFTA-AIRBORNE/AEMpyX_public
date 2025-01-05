@@ -43,7 +43,7 @@ nan = numpy.nan  # float("NaN")
 
 
 
-def run_tikh_flightline(data_dir= None,
+def run_inv_flightline(data_dir= None,
                         data_file=None,
                         ctrl=None,
                         prior_file=None,
@@ -261,9 +261,25 @@ def run_tikh_flightline(data_dir= None,
 
         # print(ii, mod_apr)
 
-        site_dict = \
-            run_tikh_opt(Ctrl=ctrl, Model=model_dict, Data=data_dict,
-                                      OutInfo=out)
+
+        if ("tikh" in runtype) and ("opt" in runtype):
+            site_dict = \
+                run_tikh_opt(Ctrl=ctrl, Model=model_dict, Data=data_dict,
+                                          OutInfo=out)
+
+        if ("tikh" in runtype) and ("occ" in runtype):
+            site_dict = \
+                run_tikh_occ(Ctrl=ctrl, Model=model_dict, Data=data_dict,
+                                          OutInfo=out)
+
+        if ("map" in runtype):
+            site_dict = \
+                run_map(Ctrl=ctrl, Model=model_dict, Data=data_dict,
+                                          OutInfo=out)
+
+
+        else:
+            error("run_inv_flightline: runtype "+runtype+" not implementd! Exit.")
 
 #         Now store inversion results for this site:
 

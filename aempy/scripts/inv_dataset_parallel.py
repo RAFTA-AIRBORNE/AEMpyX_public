@@ -335,14 +335,14 @@ if Parallel:
     import joblib
     # from joblib import Parallel, delayed, parallel_config
     joblib.Parallel(n_jobs=Njobs, verbose=100)(
-        joblib.delayed(inverse.run_tikh_flightline)(ctrl=ctrl_dict,
+        joblib.delayed(inverse.run_inv_flightline)(ctrl=ctrl_dict,
                                                      data_dir=InDatDir,
                                                      data_file=filin,
                                                      result_dir=OutResDir,
                                                      result_strng=outstrng) for filin in dat_files)
 else:
     for filin in dat_files:
-        _ = inverse.run_tikh_flightline(ctrl=ctrl_dict,
+        _ = inverse.run_inv_flightline(ctrl=ctrl_dict,
                                          data_dir=InDatDir,
                                          data_file=filin,
                                          result_dir=OutResDir,
