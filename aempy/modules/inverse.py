@@ -1023,14 +1023,15 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
             g_index = numpy.amax([g_index, 0])
             g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
         elif any(s in regfun.lower() for s in ["gcv", "upr", "ufc", "mle"]):
-
-            g_index = numpy.argmin(reg_choice, axis=0)+gshift
+            # print(reg_choice, numpy.argmin(reg_choice))
+            g_index = numpy.argmin(reg_choice)+gshift
             g_index = g_index.item()
             g_index = numpy.amax([g_index, 0])
             g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
 
         else:
             error(regfun.lower() + " not implemented!")
+        # print(reg_choice)
 
 
 
