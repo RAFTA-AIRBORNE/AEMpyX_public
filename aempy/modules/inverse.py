@@ -864,7 +864,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                                                          data_err=d_err, data_act=d_act)])
             # print(model)
             mnorm_iter = numpy.array([scipy.linalg.norm(model)])
-            rvals_iter = numpy.array([0., 0.])
+            rvals_iter = numpy.array([0., 0]).reshape([1,2])
             dfits_iter = numpy.array([nrmse_iter, smape_iter])
 
             if OutInfo:
@@ -1001,10 +1001,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
                 elif "gcv" in regfun.lower():
                     M = Jd@G
-                    if iter==0:
-                        reg_choice[itest] = calc_gcv(dnorm[itest], M)
-                    else:
-                        reg_choice[itest] = numpy.amin(0.5*rvals_iter[iter-1], calc_gcv(dnorm[itest], M))
+                    reg_choice[itest] = calc_gcv(dnorm[itest], M)
 
                 elif "mle" in regfun.lower():
                     M = Jd@G
@@ -1038,7 +1035,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
 
         reg_iter = [tau[g_index, 0].item(), tau[g_index, 1].item()]
-
+        fit_iter = [nrmse_iter, smape_iter]
 
         mdl = m_test[g_index, :]
         model = insert_mod(M=model, m=mdl, m_act=m_act)
@@ -1070,8 +1067,9 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         if niter > 0:
             dnorm_iter = numpy.append(dnorm_iter, dnorm_ii)
             mnorm_iter = numpy.append(mnorm_iter, mnorm_ii)
-            rvals_iter = numpy.append(rvals_iter, reg_iter)
-            dfits_iter = numpy.append(dfits_iter, [nrmse_iter, smape_iter])
+            rvals_iter = numpy.vstack((rvals_iter, reg_iter))
+            dfits_iter = numpy.vstack((dfits_iter, fit_iter))
+            # print (numpy.shape(dfits_iter),numpy.shape(rvals_iter))
 
 
     # if OutInfo==True:
@@ -1098,7 +1096,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     # print(type(dnorm_iter))
 
     if uncert:
-        A = JJ + Cm0.multiply(reg[0]) + Cm1.multiply(reg[1])
+        A = JJ + Cm0.multiply(reg_iter[0]) + Cm1.multiply(reg_iter[1])
         # Cov a posteriori & Generalized Inverse
         C = scipy.linalg.inv(A)
         E = numpy.sqrt(C.diagonal())
@@ -1386,7 +1384,8 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
         dnorm = scipy.linalg.norm(r_test)
         mnorm = scipy.linalg.norm(m_test)
 
-    reg = [tau_iter]
+    reg_iter = [tau_iter]
+    fit_iter = [nrmse_iter, smape_iter]
     mdl = m_test
     model = insert_mod(M=model, m=mdl, m_act=m_act)
 
@@ -1406,8 +1405,8 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     if niter > 0:
         dnorm_iter = numpy.append(dnorm_iter, dnorm)
         mnorm_iter = numpy.append(mnorm_iter, mnorm)
-        rvals_iter = numpy.append(rvals_iter, reg)
-        dfits_iter = numpy.append(dfits_iter, [nrmse_iter, smape_iter])
+        rvals_iter = numpy.vstack((rvals_iter, reg_iter))
+        dfits_iter = numpy.vstack((dfits_iter, fit_iter))
 
     # if OutInfo==True:
     print(" %s initial model: dfit =  %7.3f"
@@ -2955,8 +2954,9 @@ def run_linesearch(fwdcall, alt,
                                              data_act=d_act)
         if "rms" in mdfit: linfit_iter =  linrms_iter
         if "smp" in mdfit: linfit_iter =  linsmp_iter
-        # if out:
-        #     print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
+
+        if out:
+            print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
 
         if linfit_iter < linfit:
             fact = fact * facreduce
@@ -2971,8 +2971,8 @@ def run_linesearch(fwdcall, alt,
             model = model_old
             break
 
-        if out:
-            print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
+        # if out:
+        #     print("Linesearch: ", liniter,"/",linfit, "/",linfit_iter)
 
     return model, linfit
 
