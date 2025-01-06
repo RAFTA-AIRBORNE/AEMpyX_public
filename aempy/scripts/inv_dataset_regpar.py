@@ -176,14 +176,12 @@ LVariant = 0
 RegFun = "fix" # "fix", "lcc", "gcv", "mle"
 RegShift = 0 # (-2)
 TestFix = [1., 3., 10., 30., 100., 300., 1000.]
-# print(TestFix)
-TestFix = [[reg] for reg in TestFix]
-# print(TestFix)
-TestFix = numpy.array(TestFix)
-# print(TestFix)
+TestFix = numpy.array([[reg] for reg in TestFix])
 
-if Njobs<=0:
-    Njobs= min(Njobs, numpy.size(TestFix))
+
+
+if Njobs!=0:
+    Njobs= min(Njobs, numpy.size(TestFix)+1)
 
 RegVal0 = 1.e-6
 NTau0 = 1
@@ -212,21 +210,26 @@ nreg = NTau0 * NTau1
 """
 Model definition
 """
-# Nlyr = 30
+Nlyr = 30
+dzstart = 2.
+dzend = 8.
+dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+z = numpy.append(0.0, numpy.cumsum(dz))
+
+# Nlyr = 37
 # dzstart = 2.
-# dzend = 8.
+# dzend = 5.
+# dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+# z = numpy.append(0.0, numpy.cumsum(dz))
+
+# Nlyr = 49
+# dzstart = 1.
+# dzend = 5.
 # dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 # # print(dz)
 # z = numpy.append(0.0, numpy.cumsum(dz))
 
-
-Nlyr = 49
-dzstart = 1.
-dzend = 5.
-dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
-# print(dz)
-z = numpy.append(0.0, numpy.cumsum(dz))
-# print(z)
+print(z)
 
 
 mod_act, mod_apr, mod_var, mod_bnd, m_state = inverse.init_1dmod(Nlyr)
@@ -355,15 +358,15 @@ if Parallel:
                     data_file=filin,
                     result_dir=OutResDir,
                     result_strng=outstrng+"_t"+str(ctrl_tmp[ii]["inversion"][3][0])) for ii in numpy.arange(len(ctrl_tmp)))
-    else:
-        for filin in dat_files:
-            for reg in TestFix:
-                ctrl_dict["inversion"][3] = reg
-            _ = inverse.run_inv_flightline(ctrl=ctrl_dict,
-                                             data_dir=InDatDir,
-                                             data_file=filin,
-                                             result_dir=OutResDir,
-                                             result_strng=outstrng+"_t"+str(ctrl_tmp["inversion"][3][0]))
+else:
+    for filin in dat_files:
+        for reg in TestFix:
+            ctrl_dict["inversion"][3] = reg
+        _ = inverse.run_inv_flightline(ctrl=ctrl_dict,
+                                         data_dir=InDatDir,
+                                         data_file=filin,
+                                         result_dir=OutResDir,
+                                         result_strng=outstrng+"_t"+str(ctrl_tmp["inversion"][3][0]))
 
 print("\n\nAll done!")
 # jobelapsed = (process_time() - jobstart)

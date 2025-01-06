@@ -49,8 +49,8 @@ if not os.path.isdir(OutputDir):
     print(" File: %s does not exist, but will be created" % OutputDir)
     os.mkdir(OutputDir)
 
-TellusAng = 345.
-AngLimits = [TellusAng-15., TellusAng+15. ]
+FlightlineAngle = 345.
+AngLimits = [FlightlineAngle-15., FlightlineAngle+15. ]
 
 
 Profiles = "Clara_elec.csv"

@@ -114,7 +114,7 @@ if SetProj:
     ProjInp = ""
     ProjOut = ""
 
-TellusAng = 345.
+FlightlineAngle = 345.
 Spread = 5.
 CorrectDirection = True
 
@@ -331,12 +331,12 @@ if LinesOut:
 
 
         if CorrectDirection:
-            AngLimits = [TellusAng-5., TellusAng+5. ]
+            AngLimits = [FlightlineAngle-5., FlightlineAngle+5. ]
             nd =numpy.shape(tmp)[0]
             spoint = [tmp[round(nd*0.3),1], tmp[round(nd*0.3),2]]
             epoint = [tmp[round(nd*0.6),1], tmp[round(nd*0.6),2]]
             ang, _ = util.get_direction_angle(spoint, epoint)
-            if (ang < TellusAng-Spread) or (ang > TellusAng+Spread):
+            if (ang < FlightlineAngle-Spread) or (ang > FlightlineAngle+Spread):
                 tmp = numpy.flipud(tmp)
                 print(" Angle = "+str(round(ang,1))
                     +" not in interval "
@@ -345,7 +345,7 @@ if LinesOut:
                 print("Flightline direction has been reversed.")
                 chdir = ", direction has been reversed"
             else:
-                print("Flightline direction is approx. "+str(TellusAng)+" degrees")
+                print("Flightline direction is approx. "+str(FlightlineAngle)+" degrees")
                 chdir = ""
 
         head = aesys.grow_header(Header, "Flightline " + str(s))

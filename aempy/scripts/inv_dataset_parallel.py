@@ -120,7 +120,7 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/SmallTest/"
+AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examplesFlightlineAngle"
 # InDatDir =  AEMPYX_DATA + "/proc/"
 InDatDir =  AEMPYX_DATA + "/data/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"

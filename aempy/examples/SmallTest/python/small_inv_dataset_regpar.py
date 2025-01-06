@@ -181,7 +181,7 @@ TestFix = numpy.array([[reg] for reg in TestFix])
 
 
 if Njobs!=0:
-    Njobs= min(Njobs, numpy.size(TestFix))
+    Njobs= min(Njobs, numpy.size(TestFix)+1)
 
 RegVal0 = 1.e-6
 NTau0 = 1
@@ -210,12 +210,11 @@ nreg = NTau0 * NTau1
 """
 Model definition
 """
-# Nlyr = 30
-# dzstart = 2.
-# dzend = 8.
-# dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
-# # print(dz)
-# z = numpy.append(0.0, numpy.cumsum(dz))
+Nlyr = 30
+dzstart = 2.
+dzend = 8.
+dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+z = numpy.append(0.0, numpy.cumsum(dz))
 
 # Nlyr = 37
 # dzstart = 2.
@@ -223,12 +222,12 @@ Model definition
 # dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
 # z = numpy.append(0.0, numpy.cumsum(dz))
 
-Nlyr = 49
-dzstart = 1.
-dzend = 5.
-dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
-# print(dz)
-z = numpy.append(0.0, numpy.cumsum(dz))
+# Nlyr = 49
+# dzstart = 1.
+# dzend = 5.
+# dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+# # print(dz)
+# z = numpy.append(0.0, numpy.cumsum(dz))
 
 print(z)
 
