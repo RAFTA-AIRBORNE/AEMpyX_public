@@ -170,6 +170,8 @@ def run_inv_flightline(data_dir= None,
     setprior = ctrl["inversion"][7].lower()
     maxiter =  ctrl["inversion"][4]
 
+    print("XXXXXXXXX", runtype)
+
     mod_act = ctrl["model"][1].copy()
     mod_apr = ctrl["model"][2].copy()
     mod_var = ctrl["model"][3].copy()
@@ -261,18 +263,20 @@ def run_inv_flightline(data_dir= None,
 
         # print(ii, mod_apr)
 
+        print("run_inv_flightline: runtype "+runtype+" started.")
+
 
         if ("tikh" in runtype) and ("opt" in runtype):
             site_dict = \
                 run_tikh_opt(Ctrl=ctrl, Model=model_dict, Data=data_dict,
                                           OutInfo=out)
 
-        if ("tikh" in runtype) and ("occ" in runtype):
+        elif ("tikh" in runtype) and ("occ" in runtype):
             site_dict = \
                 run_tikh_occ(Ctrl=ctrl, Model=model_dict, Data=data_dict,
                                           OutInfo=out)
 
-        if ("map" in runtype):
+        elif ("map" in runtype):
             site_dict = \
                 run_map(Ctrl=ctrl, Model=model_dict, Data=data_dict,
                                           OutInfo=out)
