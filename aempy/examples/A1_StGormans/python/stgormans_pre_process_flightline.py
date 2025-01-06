@@ -74,7 +74,7 @@ if "genes" in AEM_system.lower():
 
 # +
 OutInfo = True
-OutNaN = False
+OutNaN = True
 OutRes = False
 
 SingValMax = 5
@@ -90,20 +90,20 @@ OutFileFmt = ".npz"
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
+AEMPYX_DATA = AEMPYX_ROOT +"/aempy/examples/A1_StGormans/"
 
 Filelist = "search" # "set", "read"
 
 
 # rectangle case
-# InputDataDir =  AEMPYX_DATA + "/raw/"
-# OutputDataDir =  AEMPYX_DATA + "/proc/"
-# SearchStrng = "*FL*data.npz"
-
-# lines case
-InputDataDir =  AEMPYX_DATA + "/lines/"
-OutputDataDir =  AEMPYX_DATA + "/lines/"
+InputDataDir =  AEMPYX_DATA + "/raw/"
+OutputDataDir =  AEMPYX_DATA + "/proc/"
 SearchStrng = "*FL*data.npz"
+
+# # lines case
+# InputDataDir =  AEMPYX_DATA + "/lines/"
+# OutputDataDir =  AEMPYX_DATA + "/lines/"
+# SearchStrng = "*FL*data.npz"
 
 print("\n\n")
 print("Data read from dir:  %s" % InputDataDir)

@@ -944,6 +944,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         m_test = numpy.zeros((nreg, mpara))
         m_err = numpy.zeros((nreg, mpara))
 
+
         reg_choice = numpy.zeros((nreg, 1))
 
         dnorm = numpy.zeros((nreg, 1))
@@ -1000,11 +1001,14 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
                 elif "gcv" in regfun.lower():
                     M = Jd@G
-                    reg_choice[itest] = calc_gcv(dnorm[itest], M)
+                    if iter==0:
+                        reg_choice[itest] = calc_gcv(dnorm[itest], M)
+                    else:
+                        reg_choice[itest] = numpy.amin(0.5*rvals_iter[iter-1], calc_gcv(dnorm[itest], M))
 
                 elif "mle" in regfun.lower():
                     M = Jd@G
-                    reg_choice[itest] = calc_gcv(dnorm[itest], M)
+                    reg_choice[itest] = calc_mle(dnorm[itest], M)
 
                 elif "fix" in regfun.lower() or "lcc" in regfun.lower():
                     pass
@@ -1022,6 +1026,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
             g_index = numpy.amax([g_index, 0])
             g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
         elif any(s in regfun.lower() for s in ["gcv", "upr", "ufc", "mle"]):
+
             g_index = numpy.argmin(reg_choice, axis=0)+gshift
             g_index = g_index.item()
             g_index = numpy.amax([g_index, 0])
@@ -1030,7 +1035,11 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         else:
             error(regfun.lower() + " not implemented!")
 
-        reg = [tau[g_index, 0].item(), tau[g_index, 1].item()]
+
+
+        reg_iter = [tau[g_index, 0].item(), tau[g_index, 1].item()]
+
+
         mdl = m_test[g_index, :]
         model = insert_mod(M=model, m=mdl, m_act=m_act)
 
@@ -1061,8 +1070,9 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
         if niter > 0:
             dnorm_iter = numpy.append(dnorm_iter, dnorm_ii)
             mnorm_iter = numpy.append(mnorm_iter, mnorm_ii)
-            rvals_iter = numpy.append(rvals_iter, reg)
+            rvals_iter = numpy.append(rvals_iter, reg_iter)
             dfits_iter = numpy.append(dfits_iter, [nrmse_iter, smape_iter])
+
 
     # if OutInfo==True:
     print(" %s initial model: dfit =  %7.3f"
@@ -1757,7 +1767,7 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
 
             elif "mle" in regfun.lower():
                 M = Jd@C@Jd.T
-                reg_choice[itest] = calc_gcv(dnorm[itest], M)
+                reg_choice[itest] = calc_mle(dnorm[itest], M)
 
             elif "fix" in regfun.lower() or "lcc" in regfun.lower():
                 pass

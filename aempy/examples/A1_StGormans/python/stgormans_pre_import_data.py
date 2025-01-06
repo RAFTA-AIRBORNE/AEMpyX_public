@@ -139,27 +139,24 @@ AEM_system = "aem05"
 _, NN, _, _, _, = aesys.get_system_params(AEM_system)
 nD = NN[0]
 
-AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
 ##############################################################################
 # StGormans
 ###############################################################################
-
-# DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union", "Lines"
-# InDatDir = AEMPYX_DATA+"/orig/"
-# OutDatDir = AEMPYX_DATA+"/raw/"
-# InSurvey = "A1"
-# OutStrng = InSurvey+"_rect_stgormans"
-# # RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
-# RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
-
-LineList = [11379.0, 11380.0, 11381.0]
-DataSelect = "Lines"   # "Polygon", "Intersection", "Union", "Lines"
+AEMPYX_DATA = AEMPYX_ROOT +"/aempy/examples/A1_StGormans/"
+DataSelect = "Rectangle"   # "Polygon", "Intersection", "Union", "Lines"
 InDatDir = AEMPYX_DATA+"/orig/"
-OutDatDir = AEMPYX_DATA+"/lines/"
+OutDatDir = AEMPYX_DATA+"/raw/"
 InSurvey = "A1"
-OutStrng = InSurvey+"_lines_stgormans"
+OutStrng = InSurvey+"_rect_stgormans"
 # RectCorners = [638968.67, 5922331.93,  641519.17, 5924940.46]  # StGormans
-# RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
+RectCorners = [638000., 5922000.,  642500., 5925000.]  # StGormans
+
+# LineList = [11379.0, 11380.0, 11381.0]
+# DataSelect = "Lines"   # "Polygon", "Intersection", "Union", "Lines"
+# InDatDir = AEMPYX_DATA+"/orig/"
+# OutDatDir = AEMPYX_DATA+"/lines/"
+# InSurvey = "A1"
+# OutStrng = InSurvey+"_lines_stgormans"
 # After this, generally no code changes are necessary.
 
 # +
