@@ -2,6 +2,7 @@
 
 This is the public repository for the  Airborne Electromagnetic Inversion toolbox "AEMpyX", which was originally developed at DIAS starting with the project "Spatially constrained Bayesian inversion of frequency- and time-domain electromagnetic data from the Tellus projects" (2015-sc-004), followed by "RAFTA: Resolution Analyses for Frequency- and Time-Domain Airborne Electromagnetic Data of the Irish Tellus Programme" (2020-sc-049), both funded by the Geological Survey of Ireland GSI. It is distributed under the GNU GENERAL PUBLIC LICENSE Version 3. Currently it is expanded to include more algorithms (in particular for uncertainty quantification, UQ), platforms, and a branch for making it useful for magnetotelluric (MT) modelling and inversion. 
 
+**Getting started**
 
 <p align="center">
    <img src="img/3Layer_conductor.png" alt="Synthetics inversion results" width="700"/>
@@ -110,11 +111,13 @@ respectively. If this is succesful, a dynamical library, _core1d.xxx.so_ (_core1
 
 (6) For running aempy scripts, we have defined two environmental variable, _AEMPYX_ROOT_ and _AEMPYX_DATA_. These point to the place where AEMpyX is installed, and where you keep your AEM data, respectively. In particular, it allows to keep the scripts adapted for a certain data set in the corresponding directory, without interfering with the AEMpyX repository. Never change the scripts directly within the repository tree! Keeping to this scheme makes life much easier if working on more than one data set.
 
-In linux you can set them in your _.bashrc_ file. Example: 
+In linux you can set them in your _.bashrc_ file. Example:
 
 _export AEMPYX_ROOT='${HOME}/AEMpyX/'_	
 
 _export AEMPYX_DATA='${HOME}/AEM_Data/Tellus/data/'_
+
+If _$HOME_ is not set on the sytem, _${HOME}_ should be replaced by the full path to your home directory. _AEMPYX_ROOT_ is essential, while _AEMPYX_DATA_ is optional, though used in many of the example scripts.
 
 Under windows, you should use the system settings dialogue to do so (Settings => System => Advanced sytem settings => Environment Variables). Note that when working under windows, the python path will be set correctly using the windows delimiter, but with respect to the paths within the scripts you are on your own. In python, the correct windows path delimiter is _"\\\\"_, not _"\\"_! 
 
@@ -147,6 +150,9 @@ Fig 2:Typical workflow for AEM interpretation with AEMpyX.
 </p>
 
 
+#Some remarks on the typical workflow#
+
+-
 From the inversion output several graphical representation of parameters can be produced using the _viz_ scripts. As numbers of sites can be very large, some characteristical sites should be chosen. 
 
 <p align="center">
