@@ -171,9 +171,9 @@ if PerturbPrior:
     PertShift = 0.
 
 Nlyr = 25
-dzstart = 3.
-dzend = 10.
-dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+DzStart = 3.
+DzEnd = 10.
+dz = numpy.logspace(numpy.log10(DzStart), numpy.log10(DzEnd), Nlyr)
 z = numpy.append(0.0, numpy.cumsum(dz))
 
 zerolayer = numpy.zeros(Nlyr)

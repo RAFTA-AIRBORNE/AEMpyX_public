@@ -173,7 +173,7 @@ Define inversion type  optional additional parameters (e.g., Waveforms )
 RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
 Uncert = True
 Direction = "normal"
-Direction = "reverse"
+# Direction = "reverse"
 SetPrior = "update"
 ParaTrans = 1
 
@@ -216,17 +216,17 @@ nreg = NTau0 * NTau1
 Model definition
 """
 # Nlyr = 30
-# dzstart = 2.
-# dzend = 8.
-# dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+# DzStart = 2.
+# DzEnd = 8.
+# dz = numpy.logspace(numpy.log10(DzStart), numpy.log10(DzEnd), Nlyr)
 # # print(dz)
 # z = numpy.append(0.0, numpy.cumsum(dz))
 
 
 Nlyr = 49
-dzstart = 1.
-dzend = 5.
-dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+DzStart = 1.
+DzEnd = 5.
+dz = numpy.logspace(numpy.log10(DzStart), numpy.log10(DzEnd), Nlyr)
 # print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
 # print(z)

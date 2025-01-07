@@ -220,9 +220,9 @@ Model definition
 
 
 Nlyr = 39
-dzstart = 1.
-dzend = 5.
-dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), Nlyr)
+DzStart = 1.
+DzEnd = 5.
+dz = numpy.logspace(numpy.log10(DzStart), numpy.log10(DzEnd), Nlyr)
 # print(dz)
 z = numpy.append(0.0, numpy.cumsum(dz))
 # print(z)

@@ -167,10 +167,10 @@ nlyr = 12
 
 m_active, prior_avg, prior_std, m_bounds, m_state = inverse.init_1dmod(nlyr)
 
-dzstart = 8.    #5.
-dzend = 16.
+DzStart = 8.    #5.
+DzEnd = 16.
 
-dz = numpy.logspace(numpy.log10(dzstart), numpy.log10(dzend), nlyr) + 0.5 * numpy.random.randn(nlyr)
+dz = numpy.logspace(numpy.log10(DzStart), numpy.log10(DzEnd), nlyr) + 0.5 * numpy.random.randn(nlyr)
 zc = inverse.set_zcenters(dz)
 zn = inverse.set_znodes(dz)
 

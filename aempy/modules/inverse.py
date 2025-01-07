@@ -987,7 +987,7 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 G = C@Jd.T
 
                 """
-                Calc target paramter for tau optimization
+                Calc target parameter for tau optimization
                 """
 
                 if "ufc" in regfun.lower():
@@ -1021,13 +1021,13 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
             g_index = calc_lc_corner(dnorm, mnorm)+gshift
             g_index = g_index.item()
             g_index = numpy.amax([g_index, 0])
-            g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
+            g_index = numpy.amin([g_index, numpy.size(tau)-1])
         elif any(s in regfun.lower() for s in ["gcv", "upr", "ufc", "mle"]):
             # print(reg_choice, numpy.argmin(reg_choice))
             g_index = numpy.argmin(reg_choice)+gshift
             g_index = g_index.item()
             g_index = numpy.amax([g_index, 0])
-            g_index = numpy.amin([g_index, numpy.shape(tau)[0]-1])
+            g_index = numpy.amin([g_index, numpy.size(tau)-1])
 
         else:
             error(regfun.lower() + " not implemented!")
