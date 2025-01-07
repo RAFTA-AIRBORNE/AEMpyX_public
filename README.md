@@ -2,8 +2,6 @@
 
 This is the public repository for the  Airborne Electromagnetic Inversion toolbox "AEMpyX", which was originally developed at DIAS starting with the project "Spatially constrained Bayesian inversion of frequency- and time-domain electromagnetic data from the Tellus projects" (2015-sc-004), followed by "RAFTA: Resolution Analyses for Frequency- and Time-Domain Airborne Electromagnetic Data of the Irish Tellus Programme" (2020-sc-049), both funded by the Geological Survey of Ireland GSI. It is distributed under the GNU GENERAL PUBLIC LICENSE Version 3. Currently it is expanded to include more algorithms (in particular for uncertainty quantification, UQ), platforms, and a branch for making it useful for magnetotelluric (MT) modelling and inversion. 
 
-**Getting started**
-
 <p align="center">
    <img src="img/3Layer_conductor.png" alt="Synthetics inversion results" width="700"/>
 </p>
@@ -11,6 +9,10 @@ This is the public repository for the  Airborne Electromagnetic Inversion toolbo
 <p align="center">   
    Fig 1: Inversion results for synthetic ensemble of perturbed 3-layers for AEM05 FD data. A first-order regularization operator was used, with the  weighting parameter chosen by the L-curve method. 
 </p>
+
+
+## Getting started ##
+
 
 AEMpyX currently works fully under linux operating systems, but mostly also under  windows (here short for Windows 10). There are of course changes in the installation procedures, as mentioned below. 
 
@@ -140,7 +142,11 @@ If anywhere in an conda environment, use
 
 _conda run_ -n AEMpyX mypythonscript.py
 
-A typical work flow would be something like:
+
+## Some remarks on the practical workflow* ##
+
+- **Workflow**
+  A typical work flow could be something like:
 
 <p align="center">
    <img src="img/flowchart.png" alt="Typical AEMpyX work flow" width="700"/>
@@ -149,11 +155,8 @@ A typical work flow would be something like:
 Fig 2:Typical workflow for AEM interpretation with AEMpyX.
 </p>
 
-
-**Some remarks on the practicalcal workflow**
-
 - **Organization**
-  We suggest to set up a work directory for each project, with at least _myproject/python_ for the python scripys, and _mypoject/orig_  for the original data. Python scripts used in this projects should be copied into the _python_ subdirectory, and possibly (to prevent confusion at a later time) renamed with a prefix, e.g., _inv\_dataset_ to  -myproject\_inv\_dataset_. Each step within the workflow should have a directory of its own. Example: Import fome _orig_ to _raw_, preprocess from _raw_ to _proc_, invert from _proc_ to  _results_, visualize from _results_ to _plots_.
+  We suggest to set up a work directory for each project, with at least _myproject/python_ for the python scripys, and _mypoject/orig_  for the original data. Python scripts used in this projects should be copied into the _python_ subdirectory, and possibly (to prevent confusion at a later time) renamed with a prefix, e.g., _inv\_dataset_ to  _myproject\_inv\_dataset_. Each step within the workflow should have a directory of its own. Example: Import fome _orig_ to _raw_, preprocess from _raw_ to _proc_, invert from _proc_ to  _results_, visualize from _results_ to _plots_.
 
 - **Visualisation  of uncertainties**
   From the inversion output several graphical representation of parameters can be produced using the _viz_ scripts. As numbers of sites can be very large, some characteristical or interesting sites should be chosen. This can be done at random or from a predefined sites list.  
@@ -166,6 +169,7 @@ Fig 2:Typical workflow for AEM interpretation with AEMpyX.
    Fig 3: Uncertainty-related plots for a site from Tellus A1 block. Top left: model with error bars. Bottom left: sensitivities. Top center: Parameter covariance a posteriori. Bottom center: Parameter 
 correlation. Top right: Parameter resolution. Bottom right: Data resolution. 
 </p>
+
 
 
 Enjoy, read the docs, but please keep in mind that this is an experimental software, and will contain plenty of errors. Use at your own risk! However, we will frequently update the repository correcting bugs, and adding additional functionality.   
