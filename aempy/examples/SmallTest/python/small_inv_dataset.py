@@ -122,7 +122,7 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/SmallTest/"
 # InDatDir =  AEMPYX_DATA + "/proc/"
-InDatDir =  AEMPYX_DATA + "/data/"
+InDatDir =  AEMPYX_DATA + "/proc/"
 if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
 print("Data read from dir: %s " % InDatDir)
 # +

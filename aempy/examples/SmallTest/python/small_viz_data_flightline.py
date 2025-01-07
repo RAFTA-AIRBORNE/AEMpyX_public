@@ -105,20 +105,20 @@ FileList = "search"
 
 # un/comment according to which data  you want to plot
 # # raw data
-# InDatDir =  AEMPYX_DATA + "/raw/"
-# PlotDir =  InDatDir + "/plots/"
-# SearchStrng = "*FL*.npz"
-# PlotStrng = " - raw"
-# PDFCatName = PlotDir+"StGormans_raw.pdf"
+InDatDir =  AEMPYX_DATA + "/raw/"
+PlotDir =  InDatDir + "/plots/"
+SearchStrng = "*FL*.npz"
+PlotStrng = " - raw"
+PDFCatName = PlotDir+"StGormans_raw.pdf"
 # +
 
 
 # processed data
-InDatDir =  AEMPYX_DATA + "/data/"
-PlotDir =  InDatDir + "/plots/"
-SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen ("delete")
-# SearchStrng = "*FL*.npz" # else
-PlotStrng = " - proc"
+#InDatDir =  AEMPYX_DATA + "/proc/"
+#PlotDir =  InDatDir + "/plots/"
+#SearchStrng = "*FL*nan*.npz" # if no interpolation was chosen ("delete")
+## SearchStrng = "*FL*.npz" # else
+#PlotStrng = " - proc"
 
 
 
