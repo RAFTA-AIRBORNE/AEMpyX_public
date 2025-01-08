@@ -41,6 +41,8 @@ import matplotlib.pyplot
 import matplotlib
 import matplotlib.cm
 
+from cycler import cycler
+
 
 AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
 mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
@@ -98,9 +100,7 @@ ParaTrans = 0
 DataTrans = 0
 DatErr_add = 50.
 DatErr_mult = 0.00
-alt = 60.
 DataActive = numpy.ones((1,NN[2]))
-
 nD = NN[0]
 # -
 
@@ -123,8 +123,9 @@ Model_base[6*nlyr:7*nlyr-1] =[]          #layers
 # -
 
 # rho for layer 1 (starting from 0!)
+Alt = [30.]
 FWDBaseName = "AEM05_RhoDepend_30m"
-VarPar = [ 1., 3.,  10., 30., 100.,300., 1000.,3000., 10000.]
+VarPar = [ 0.1, 0.3, 1., 3.,  10., 30., 100.,300., 1000.,3000., 10000.]
 VarInd = 0
 
 # +
@@ -139,8 +140,6 @@ VarInd = 0
 # VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8]
 # VarInd = 3*nlyr+1
 
-#Alt = [60., 120.]
-Alt = [30]
 # -
 
 # Now generate the response data:
@@ -185,7 +184,7 @@ for par in numpy.arange(len(VarPar)):
 
 
 
-PlotTitle = "AEM05: Halfspaces at "+str(int(alt))+" m"
+PlotTitle = "AEM05: Halfspaces at "+str(int(Alt[0]))+" m"
 PlotSize = [8., 8.]
 FilesOnly = False
 PlotFormat = [".pdf", ".png"]
@@ -219,7 +218,11 @@ Markers = ["o"]
 Markersize = [3]
 
 
+
+# props = (cycler(color=['r', 'g', 'b', 'm']) +
+#                   cycler(linestyle=['-', '--', ':', '-.']))
 ncols = len(VarPar)+3
+colors = matplotlib.pyplot.cm.plasma(numpy.linspace(0., 1., ncols))
 
 Greys = [0.1, 0.2, 0.3, 0.4, 0.5,.6, 0.7, 0.8, 0.9]
 
@@ -265,6 +268,7 @@ iens =   pure[:,4:8]
 nens = numpy.shape(qens)
 
 
+ax[0].set_prop_cycle(color=colors)
 for var in numpy.arange(nens[0]):
 
     ax[0].plot(freqs, qens[var,:],
@@ -280,13 +284,14 @@ ax[0].xaxis.set_ticks_position("both")
 ax[0].tick_params(labelsize=Fontsizes[1])
 ax[0].grid(True)
 ax[0].grid("major", "both", linestyle=":", lw=0.3)
-ax[0].legend(fontsize=Fontsizes[0]-2, loc="best", title="Ohm.m", title_fontsize=Fontsizes[0]-2)
+ax[0].legend(fontsize=Fontsizes[0]-3, loc="best", title="Ohm.m", title_fontsize=Fontsizes[0]-2)
 
-
+ax[1].set_prop_cycle(color=colors)
 for  var in numpy.arange(nens[0]):
     ax[1].plot(freqs,iens[var,:],
                     linewidth=Linewidth[0], marker=Markers[0], markersize=Markersize[0],
                 label=str(VarPar[var]))
+
 ax[1].set_xscale("log")
 ax[1].set_xlabel("frequency (kHz)",fontsize=Fontsizes[0])
 ax[1].set_ylabel("in-phase (ppm)",fontsize=Fontsizes[0])
@@ -296,7 +301,7 @@ ax[1].xaxis.set_ticks_position("both")
 ax[1].tick_params(labelsize=Fontsizes[1])
 ax[1].grid(True)
 ax[1].grid("major", "both", linestyle=":", lw=0.3)
-ax[1].legend(fontsize=Fontsizes[0]-2, loc="best", title="Ohm.m", title_fontsize=Fontsizes[0]-2)
+ax[1].legend(fontsize=Fontsizes[0]-3, loc="best", title="Ohm.m", title_fontsize=Fontsizes[0]-2)
 # fig.tight_layout()
 for F in PlotFormat:
     matplotlib.pyplot.savefig(PlotDir+FWDBaseName+F)
