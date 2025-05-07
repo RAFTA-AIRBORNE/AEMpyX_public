@@ -5,9 +5,10 @@
 
 import sys
 import os
+import inspect
 from datetime import datetime
 
-sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(inspect.getfile(inspect.currentframe())))
 
 
 def versionstrg():

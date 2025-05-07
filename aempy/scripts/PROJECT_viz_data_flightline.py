@@ -32,6 +32,7 @@ from datetime import datetime
 
 import warnings
 import getpass
+import inspect
 
 from cycler import cycler
 
@@ -54,8 +55,7 @@ import viz
 # -
 
 version, _ = versionstrg()
-# script = "VIZ_data_flightline.py"
-script = __file__  # this only works in python, not jupyter notebook
+script = inspect.getfile(inspect.currentframe())
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng

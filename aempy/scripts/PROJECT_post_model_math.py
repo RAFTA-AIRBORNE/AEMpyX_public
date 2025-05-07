@@ -11,7 +11,7 @@ import sys
 from sys import exit as error
 from datetime import datetime
 from time import process_time, time
-# import inspect
+import inspect
 # import copy
 from datetime import datetime
 import warnings
@@ -43,7 +43,7 @@ nan = numpy.nan
 dateform="%m/%d/%Y, %H:%M:%S"
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 
 OutInfo = False

@@ -1,17 +1,5 @@
 #!/usr/bin/env python3
 
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: "1.5"
-#       jupytext_version: 1.11.4
-# ---
 
 """
 Show several 1d block models as (stitched) section.
@@ -23,6 +11,8 @@ import sys
 from datetime import datetime
 import warnings
 import getpass
+import inspect
+
 
 import numpy
 
@@ -59,7 +49,7 @@ nan = numpy.nan  # float("NaN")
 cm = 1/2.54  # centimeters in inches
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 
 OutInfo = True

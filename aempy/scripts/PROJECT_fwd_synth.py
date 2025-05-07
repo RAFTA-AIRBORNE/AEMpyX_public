@@ -31,6 +31,8 @@ import warnings
 from time import process_time
 from datetime import datetime
 import getpass
+import inspect
+
 
 import numpy
 
@@ -58,7 +60,7 @@ nan = numpy.nan
 
 version, _ = versionstrg()
 #script = "Tutorial0_FWD_synth.py"
-script = __file__  # this only works in python, not jupyter notebook
+script = inspect.getfile(inspect.currentframe())  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng

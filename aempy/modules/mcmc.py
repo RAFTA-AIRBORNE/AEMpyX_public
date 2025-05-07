@@ -5,6 +5,8 @@ Created on Tue Jul  4 18:42:34 2023
 
 @author: vrath
 """
+import inspect
+
 # import pymcmcstat 
 # from pymcmcstat.MCMC import MCMC
 # from pymcmcstat.ParallelMCMC import ParallelMCMC

@@ -8,6 +8,7 @@ Created on Sun Nov  1 17:08:06 2020
 import os
 import sys
 import ast
+import inspect
 import warnings
 from sys import exit as error
 import fnmatch

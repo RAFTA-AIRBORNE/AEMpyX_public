@@ -27,6 +27,8 @@ import sys
 from sys import exit as error
 import copy
 import getpass
+import inspect
+
 
 from time import process_time
 from datetime import datetime
@@ -52,7 +54,7 @@ AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 # -
 
 version, _ = versionstrg()
-script = __file__  # this only works in python, not jupyter notebook
+script = inspect.getfile(inspect.currentframe())  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng

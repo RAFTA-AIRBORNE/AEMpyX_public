@@ -30,6 +30,7 @@ import warnings
 import random
 import functools
 import getpass
+import inspect
 
 from cycler import cycler
 
@@ -65,7 +66,7 @@ OutInfo = True
 AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 
 now = datetime.now()

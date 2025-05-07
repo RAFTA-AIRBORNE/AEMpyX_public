@@ -20,7 +20,7 @@ from datetime import datetime
 # from random import randrange
 import time
 import warnings
-# import inspect
+import inspect
 import copy
 
 import numpy
@@ -50,7 +50,7 @@ rng = numpy.random.default_rng()
 nan = numpy.nan  # float("NaN")
 version, _ = versionstrg()
 
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 
 OutInfo = False

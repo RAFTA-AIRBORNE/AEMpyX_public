@@ -28,6 +28,7 @@ from time import process_time, time
 # import inspect
 import copy
 import getpass
+import inspect
 
 import numpy
 import scipy
@@ -54,7 +55,7 @@ rng = numpy.random.default_rng()
 nan = numpy.nan
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 
 OutInfo = False

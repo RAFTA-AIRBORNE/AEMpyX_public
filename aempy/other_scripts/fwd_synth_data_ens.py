@@ -63,7 +63,7 @@ print(" AEMpyX FDEM forward modeling ")
 rng = numpy.random.default_rng()
 nan = numpy.nan  # float("NaN")
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 
 OutInfo = False

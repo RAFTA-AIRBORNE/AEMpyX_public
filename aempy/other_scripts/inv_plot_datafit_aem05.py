@@ -55,7 +55,7 @@ nan = numpy.nan  # float("NaN")
 cm = 1/2.54  # centimeters in inches
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 # -
 

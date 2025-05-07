@@ -2038,6 +2038,22 @@ def run_jcn(Ctrl=None, Model=None, Data=None, OutInfo=False):
     return jcn_results
 
 
+def run_rambo(Ctrl=None, Model=None, Data=None, OutInfo=False):
+    """
+     Run the ranmBo algorithm:
+
+    see:
+    Eliana Vargas Huitzil, Matthias Morzfeld, Steven Constable
+    RamBO: Randomized blocky Occam, a practical algorithm for generating blocky models
+    and associated uncertainties
+    Geophysical Journal International, 2025
+    https://doi.org/10.1093/gji/ggaf055
+
+    """
+    ram_results = []
+    return ram_results
+
+
 def run_rto(Ctrl=None, Model=None, Data=None, OutInfo=False):
     """
     Run the randomize-then-optimize (RTO) algorithm:

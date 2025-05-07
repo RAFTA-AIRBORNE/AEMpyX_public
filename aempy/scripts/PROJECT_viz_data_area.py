@@ -29,6 +29,7 @@ from time import process_time
 from datetime import datetime
 import warnings
 import getpass
+import inspect
 
 import numpy
 import matplotlib
@@ -60,7 +61,7 @@ AEMPYX_DATA = os.environ["AEMPYX_DATA"]
 
 version, _ = versionstrg()
 # script = "Tutorial1_VIZ_data_area.py"
-script = __file__  # this only works in python, not jupyter notebook
+script = inspect.getfile(inspect.currentframe())  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
 print(titstrng+"\n\n")
 Header = titstrng

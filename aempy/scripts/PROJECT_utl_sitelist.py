@@ -25,6 +25,7 @@ coordinates and elevations, e. g., for WALDIM analysis.
 import os
 import sys
 import csv
+import inspect
 
 import numpy as np
 
@@ -45,7 +46,7 @@ from version import versionstrg
 PY4MT_DATA = os.environ["PY4MT_DATA"]
 
 version, _ = versionstrg()
-titstrng = util.print_title(version=version, fname=__file__, out=False)
+titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
 print(titstrng+"\n\n")
 
 
