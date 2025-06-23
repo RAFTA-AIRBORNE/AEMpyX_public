@@ -10,10 +10,12 @@ Created on Sun Nov  1 17:08:06 2020
 import os
 from sys import exit as error
 import inspect
+
 import numpy
 from datetime import datetime
 import util
 import netCDF4 as nc
+
 
 # from numba import njit
 
@@ -411,6 +413,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
 
 
     if any(s in Survey.lower() for s in ["a1", "a2", "a3", "a4", "wf", "tb", ]):
+        # print("HERE WE ARE!!!!")
 
         """
         ===================================================================================================================
@@ -495,6 +498,7 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
         with open(DatFile) as fd:
             for line in fd:
                 iline = iline + 1
+                # print(iline)
                 if (line[0].lower().startswith("#")
                     or line[0].lower().startswith("/")
                     or "line" in line[:24].lower()
@@ -504,8 +508,10 @@ def read_survey_data(DatFile=None, Survey="A5", OutInfo=False, Invalid=numpy.nan
                 t = line.split()
 
                 t = [w.replace("*", invalid_strng) for w in t]
-                # print(t[:22])
                 tmp = [t[ii] for ii in ncol]
+                # if iline <10:
+                #     print(t)
+                #     print(tmp)
                 Data.append(tmp)
 
         Data = numpy.asarray(Data, dtype=float)

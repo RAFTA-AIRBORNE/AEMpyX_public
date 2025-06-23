@@ -433,7 +433,7 @@ def project_latlon_to_utm(latitude, longitude, utm_zone=32629):
 
     return utm_x, utm_y
 
-def project_utm_to_latlon(utm_e, utm_n, utm_zone=32629):
+def project_utm_to_latlon(utm_e, utm_n, utm_zone=32629, lonlat=False):
     """
     transform latlon to utm , using pyproj
     Look for other EPSG at https://epsg.io/
@@ -444,8 +444,10 @@ def project_utm_to_latlon(utm_e, utm_n, utm_zone=32629):
     prj_utm = CRS("epsg:" + str(utm_zone))
     transformer = Transformer.from_crs(prj_utm, prj_wgs)
     latitude, longitude = transformer.transform(utm_e, utm_n)
-
-    return latitude, longitude
+    if lonlat:
+        return  longitude, latitude
+    else:
+        return latitude, longitude
 
 
 def project_latlon_to_itm(longitude, latitude):
