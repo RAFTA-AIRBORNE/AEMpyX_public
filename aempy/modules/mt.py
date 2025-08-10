@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from sys import exit as error
+
 import inspect
 
 import numpy
@@ -16,7 +16,7 @@ from scipy.ndimage import uniform_filter, gaussian_filter, median_filter
 import netCDF4 as nc
 # import h5netcdf as hc
 def decode_h2(strng):
-    """
+    '''
     Decode header2 string from ModEM Jacobian (old style).
 
     ----------
@@ -28,9 +28,9 @@ def decode_h2(strng):
     i1, i2, i3 : integer
         frequency, dattype, site numbers
 
-    """
+    '''
 
-    s = strng.replace(";","").split()
+    s = strng.replace(';','').split()
     i1 = int(s[3])
     i2 = int(s[5])
     i3 = int(s[7])
@@ -39,16 +39,16 @@ def decode_h2(strng):
     return ivals
 
 def read_jac(JacFile=None, OutInfo=False):
-    """
+    '''
     Read Jacobian from ModEM OutInfoput.
 
     author: vrath
     last changed: Feb 10, 2021
-    """
+    '''
     if OutInfo:
-        print("Opening and reading " + JacFile)
+        print('Opening and reading ' + JacFile)
 
-    fjac = FortranFile(JacFile, "r")
+    fjac = FortranFile(JacFile, 'r')
     tmp1 = []
     tmp2 = []
 
@@ -57,15 +57,15 @@ def read_jac(JacFile=None, OutInfo=False):
     # print(h1)
     _ = fjac.read_ints(numpy.int32)
     # nAll = fjac.read_ints(numpy.int32)
-    # print("nAll"+str(nAll))
+    # print('nAll'+str(nAll))
     nTx = fjac.read_ints(numpy.int32)
-    # print("ntx"+str(nTx))
+    # print('ntx'+str(nTx))
     for i1 in range(nTx[0]):
         nDt = fjac.read_ints(numpy.int32)
-        # print("nDt"+str(nDt))
+        # print('nDt'+str(nDt))
         for i2 in range(nDt[0]):
             nSite = fjac.read_ints(numpy.int32)
-            # print("nSite"+str(nSite))
+            # print('nSite'+str(nSite))
             for i3 in range(nSite[0]):
                 # header2
                 header2 = fjac.read_record(numpy.byte)
@@ -74,7 +74,7 @@ def read_jac(JacFile=None, OutInfo=False):
                 # print(h2)
                 # print(i1,i2,i3)
                 nSigma = fjac.read_ints(numpy.int32)
-                # print("nSigma"+str(nSigma))
+                # print('nSigma'+str(nSigma))
                 for i4 in range(nSigma[0]):
                     # paramType
                     _ = fjac.read_ints(numpy.byte)
@@ -91,7 +91,7 @@ def read_jac(JacFile=None, OutInfo=False):
                     _ = fjac.read_reals(numpy.float64)
                     # AirCond
                     _ = fjac.read_reals(numpy.float64)
-                    # ColJac = fjac.read_reals(numpy.float64).flatten(order="F")
+                    # ColJac = fjac.read_reals(numpy.float64).flatten(order='F')
                     ColJac = fjac.read_reals(numpy.float64).flatten()
                     # print(numpy.shape(CellSens))
                     # ColJac =  CellSens.flatten(order='F')
@@ -105,18 +105,18 @@ def read_jac(JacFile=None, OutInfo=False):
     fjac.close()
 
     if OutInfo:
-        print("...done reading " + JacFile)
+        print('...done reading ' + JacFile)
 
     return Jac, Inf  #, Site, Freq, Comp
 
 
 def read_data_jac(DatFile=None, OutInfo=True):
-    """
+    '''
     Read ModEM input data.
 
     author: vrath
     last changed: Feb 10, 2021
-    """
+    '''
     Data = []
     Site = []
     Comp = []
@@ -124,13 +124,13 @@ def read_data_jac(DatFile=None, OutInfo=True):
 
     with open(DatFile) as fd:
         for line in fd:
-            if line.startswith("#") or line.startswith(">"):
+            if line.startswith('#') or line.startswith('>'):
                 Head.append(line)
                 continue
 
             t = line.split()
 
-            if "PT" in t[7] or "RH" in t[7] or "PH" in t[7]:
+            if 'PT' in t[7] or 'RH' in t[7] or 'PH' in t[7]:
                 tmp1 = [
                     float(t[0]),
                     float(t[2]),
@@ -167,7 +167,7 @@ def read_data_jac(DatFile=None, OutInfo=True):
                     float(t[10]),
                 ]
                 Data.append(tmp2)
-                Comp.append([t[7] + "R", t[7] + "I"])
+                Comp.append([t[7] + 'R', t[7] + 'I'])
                 Site.append([t[1], t[1]])
 
     Site = [item for sublist in Site for item in sublist]
@@ -180,59 +180,59 @@ def read_data_jac(DatFile=None, OutInfo=True):
 
     nD = numpy.shape(Data)
     if OutInfo:
-        print("readDat: %i data read from %s" % (nD[0], DatFile))
+        print('readDat: %i data read from %s' % (nD[0], DatFile))
 
     return Data, Site, Freq, Comp, Head
 
 
 def write_jac_ncd(NCFile=None, Jac=None, Dat=None, Site=None, Comp=None,
                zlib_in=True, shuffle_in=True, OutInfo=True):
-    """
+    '''
     Write Jacobian from ModEM OutInfoput to NETCDF/HDF5 file.
 
     author: vrath
     last changed: July 25, 2020
-    """
+    '''
     JacDim = numpy.shape(Jac)
     DatDim = numpy.shape(Dat)
 
     if JacDim[0] != DatDim[0]:
         print(
-            "Error:  Jac dim="
+            'Error:  Jac dim='
             + str(JacDim[0])
-            + " does not match Dat dim="
+            + ' does not match Dat dim='
             + str(DatDim[0])
         )
         sys.exit(1)
 
-    ncOutInfo = nc.Dataset(NCFile, "w", format="NETCDF4")
-    ncOutInfo.createDimension("data", JacDim[0])
-    ncOutInfo.createDimension("param", JacDim[1])
+    ncOutInfo = nc.Dataset(NCFile, 'w', format='NETCDF4')
+    ncOutInfo.createDimension('data', JacDim[0])
+    ncOutInfo.createDimension('param', JacDim[1])
 
     S = ncOutInfo.createVariable(
-        "site", str, ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'site', str, ('data'), zlib=zlib_in, shuffle=shuffle_in)
     C = ncOutInfo.createVariable(
-        "comp", str, ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'comp', str, ('data'), zlib=zlib_in, shuffle=shuffle_in)
 
     Per = ncOutInfo.createVariable(
-        "Per", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'Per', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
     Lat = ncOutInfo.createVariable(
-        "Lat", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'Lat', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
     Lon = ncOutInfo.createVariable(
-        "Lon", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'Lon', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
     X = ncOutInfo.createVariable(
-        "X", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'X', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
     Y = ncOutInfo.createVariable(
-        "Y", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'Y', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
     Z = ncOutInfo.createVariable(
-        "Z", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'Z', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
     Val = ncOutInfo.createVariable(
-        "Val", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'Val', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
     Err = ncOutInfo.createVariable(
-        "Err", "float64", ("data"), zlib=zlib_in, shuffle=shuffle_in)
+        'Err', 'float64', ('data'), zlib=zlib_in, shuffle=shuffle_in)
 
     J = ncOutInfo.createVariable(
-        "Jac", "float64", ("data", "param"), zlib=zlib_in, shuffle=shuffle_in)
+        'Jac', 'float64', ('data', 'param'), zlib=zlib_in, shuffle=shuffle_in)
 
     S[:] = Site[
         :,
@@ -254,19 +254,19 @@ def write_jac_ncd(NCFile=None, Jac=None, Dat=None, Site=None, Comp=None,
 
     if OutInfo:
         print(
-            "writeJacNC: data written to %s in %s format" %
+            'writeJacNC: data written to %s in %s format' %
             (NCFile, ncOutInfo.data_model)
         )
 
 
 
 def read_data(DatFile=None, OutInfo=True):
-    """
+    '''
     Read ModEM input data.
 
     author: vrath
     last changed: Feb 10, 2021
-    """
+    '''
     Data = []
     Site = []
     Comp = []
@@ -274,14 +274,14 @@ def read_data(DatFile=None, OutInfo=True):
 
     with open(DatFile) as fd:
         for line in fd:
-            if line.startswith("#") or line.startswith(">"):
+            if line.startswith('#') or line.startswith('>'):
                 Head.append(line)
 
                 continue
 
             t = line.split()
 
-            if "PT" in t[7] or "RH" in t[7] or "PH" in t[7]:
+            if 'PT' in t[7] or 'RH' in t[7] or 'PH' in t[7]:
                 tmp = [
                     float(t[0]),
                     float(t[2]),
@@ -322,28 +322,28 @@ def read_data(DatFile=None, OutInfo=True):
 
     nD = numpy.shape(Data)
     if OutInfo:
-        print("readDat: %i data read from %s" % (nD[0], DatFile))
+        print('readDat: %i data read from %s' % (nD[0], DatFile))
 
     return Site, Comp, Data, Head
 
 
 def write_data(DatFile=None, Dat=None, Site=None, Comp=None, Head = None,
                OutInfo=True):
-    """
+    '''
     Write ModEM input data file.
 
     author: vrath
     last changed: Feb 10, 2021
-    """
+    '''
     datablock =numpy.column_stack((Dat[:,0], Site[:], Dat[:,1:6], Comp[:], Dat[:,6:10]))
     nD, _ = numpy.shape(datablock)
 
     hlin = 0
     nhead = len(Head)
     nblck = int(nhead/8)
-    print(str(nblck)+" blocks will be written.")
+    print(str(nblck)+' blocks will be written.')
 
-    with open(DatFile,"w") as fd:
+    with open(DatFile,'w') as fd:
 
         for ib in numpy.arange(nblck):
             blockheader = Head[hlin:hlin+8]
@@ -351,14 +351,14 @@ def write_data(DatFile=None, Dat=None, Site=None, Comp=None, Head = None,
             for ii in numpy.arange(8):
                 fd.write(blockheader[ii])
 
-            if "Impedance" in blockheader[2]:
+            if 'Impedance' in blockheader[2]:
 
-                fmt = "%14e %14s"+"%15.6f"*2+" %15.1f"*3+" %14s"+" %14e"*3
+                fmt = '%14e %14s'+'%15.6f'*2+' %15.1f'*3+' %14s'+' %14e'*3
 
                 indices = []
                 block = []
                 for ii in numpy.arange(len(Comp)):
-                    if ("ZX" in Comp[ii]) or ("ZY" in Comp[ii]):
+                    if ('ZX' in Comp[ii]) or ('ZY' in Comp[ii]):
                         indices.append(ii)
                         block.append(datablock[ii,:])
 
@@ -366,14 +366,14 @@ def write_data(DatFile=None, Dat=None, Site=None, Comp=None, Head = None,
                     print('Impedances')
                     print(numpy.shape(block))
 
-            elif "Vertical" in blockheader[2]:
+            elif 'Vertical' in blockheader[2]:
 
-                fmt = "%14e %14s"+"%15.6f"*2+" %15.1f"*3+" %14s"+" %14e"*3
+                fmt = '%14e %14s'+'%15.6f'*2+' %15.1f'*3+' %14s'+' %14e'*3
 
                 indices = []
                 block = []
                 for ii in numpy.arange(len(Comp)):
-                    if ("TX" == Comp[ii]) or ("TY" == Comp[ii]):
+                    if ('TX' == Comp[ii]) or ('TY' == Comp[ii]):
                         indices.append(ii)
                         block.append(datablock[ii,:])
 
@@ -381,14 +381,14 @@ def write_data(DatFile=None, Dat=None, Site=None, Comp=None, Head = None,
                     print('Tipper')
                     print(numpy.shape(block))
 
-            elif "Tensor" in blockheader[2]:
+            elif 'Tensor' in blockheader[2]:
 
-                fmt = "%14e %14s"+"%15.6f"*2+" %15.1f"*3+" %14s"+" %14e"*3
+                fmt = '%14e %14s'+'%15.6f'*2+' %15.1f'*3+' %14s'+' %14e'*3
 
                 indices = []
                 block = []
                 for ii in numpy.arange(len(Comp)):
-                    if ("PT" in Comp[ii]):
+                    if ('PT' in Comp[ii]):
                         indices.append(ii)
                         block.append(datablock[ii,:])
 
@@ -397,7 +397,7 @@ def write_data(DatFile=None, Dat=None, Site=None, Comp=None, Head = None,
                     print(numpy.shape(block))
 
             else:
-                error("Data type "+blockheader[3]+'not implemented! Exit.')
+                sys.exit('Data type '+blockheader[3]+'not implemented! Exit.')
 
             numpy.savetxt(fd,block, fmt = fmt)
 
@@ -406,12 +406,12 @@ def write_data_ncd(
         NCFile=None, Dat=None, Site=None, Comp=None,
         zlib_in=True, shuffle_in=True, OutInfo=True
         ):
-    """
+    '''
     Write Jacobian from ModEM OutInfoput to NETCDF file.
 
     author: vrath
     last changed: July 24, 2020
-    """
+    '''
     try:
         NCFile.close
     except BaseException:
@@ -419,37 +419,37 @@ def write_data_ncd(
 
     DatDim = numpy.shape(Dat)
 
-    ncOutInfo = nc.Dataset(NCFile, "w", format="NETCDF4")
-    ncOutInfo.createDimension("data", DatDim[0])
+    ncOutInfo = nc.Dataset(NCFile, 'w', format='NETCDF4')
+    ncOutInfo.createDimension('data', DatDim[0])
 
     S = ncOutInfo.createVariable(
-        "site", str, ("data",), zlib=zlib_in, shuffle=shuffle_in)
+        'site', str, ('data',), zlib=zlib_in, shuffle=shuffle_in)
     C = ncOutInfo.createVariable(
-        "comp", str, ("data",), zlib=zlib_in, shuffle=shuffle_in)
+        'comp', str, ('data',), zlib=zlib_in, shuffle=shuffle_in)
 
     Per = ncOutInfo.createVariable(
-        "Per", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'Per', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
     Lat = ncOutInfo.createVariable(
-        "Lat", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'Lat', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
     Lon = ncOutInfo.createVariable(
-        "Lon", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'Lon', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
     X = ncOutInfo.createVariable(
-        "X", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'X', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
     Y = ncOutInfo.createVariable(
-        "Y", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'Y', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
     Z = ncOutInfo.createVariable(
-        "Z", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'Z', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
     Val = ncOutInfo.createVariable(
-        "Val", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'Val', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
     Err = ncOutInfo.createVariable(
-        "Err", "float64", ("data",), zlib=zlib_in, shuffle=shuffle_in
+        'Err', 'float64', ('data',), zlib=zlib_in, shuffle=shuffle_in
     )
 
     S[:] = Site[
@@ -471,7 +471,7 @@ def write_data_ncd(
 
     if OutInfo:
         print(
-            "writeDatNC: data written to %s in %s format"
+            'writeDatNC: data written to %s in %s format'
             % (NCFile, ncOutInfo.data_model)
         )
 
@@ -484,68 +484,68 @@ def write_model_ncd(
     Mod=None,
     Sens=None,
     Ref=None,
-    trans="LINEAR",
+    trans='LINEAR',
     zlib_in=True,
     shuffle_in=True,
     OutInfo=True,
 ):
-    """
+    '''
     Write Model from ModEM OutInfoput to NETCDF/HDF5 file.
 
     author: vrath
     last changed: Jan 21, 2021
-    """
+    '''
     ModDim = numpy.shape(Mod)
 
-    ncOutInfo = nc.Dataset(NCFile, "w", format="NETCDF4")
+    ncOutInfo = nc.Dataset(NCFile, 'w', format='NETCDF4')
 
-    ncOutInfo.createDimension("msiz", ModDim)
-    ncOutInfo.createDimension("nx", ModDim[0])
-    ncOutInfo.createDimension("ny", ModDim[1])
-    ncOutInfo.createDimension("nz", ModDim[2])
+    ncOutInfo.createDimension('msiz', ModDim)
+    ncOutInfo.createDimension('nx', ModDim[0])
+    ncOutInfo.createDimension('ny', ModDim[1])
+    ncOutInfo.createDimension('nz', ModDim[2])
 
-    ncOutInfo.createDimension("ref", (3))
+    ncOutInfo.createDimension('ref', (3))
 
     X = ncOutInfo.createVariable(
-        "x", "float64", ("nx"), zlib=zlib_in, shuffle=shuffle_in)
+        'x', 'float64', ('nx'), zlib=zlib_in, shuffle=shuffle_in)
     Y = ncOutInfo.createVariable(
-        "y", "float64", ("ny"), zlib=zlib_in, shuffle=shuffle_in)
+        'y', 'float64', ('ny'), zlib=zlib_in, shuffle=shuffle_in)
     Z = ncOutInfo.createVariable(
-        "z", "float64", ("nz"), zlib=zlib_in, shuffle=shuffle_in)
+        'z', 'float64', ('nz'), zlib=zlib_in, shuffle=shuffle_in)
     X[:] = x[:]
     Y[:] = y[:]
     Z[:] = z[:]
 
     trans = trans.upper()
 
-    if trans == "LOGE":
+    if trans == 'LOGE':
         Mod = numpy.log(Mod)
         if OutInfo:
-            print("resistivities to " + NCFile + " transformed to: " + trans)
-    elif trans == "LOG10":
+            print('resistivities to ' + NCFile + ' transformed to: ' + trans)
+    elif trans == 'LOG10':
         Mod = numpy.log10(Mod)
         if OutInfo:
-            print("resistivities to " + NCFile + " transformed to: " + trans)
-    elif trans == "LINEAR":
+            print('resistivities to ' + NCFile + ' transformed to: ' + trans)
+    elif trans == 'LINEAR':
         pass
     else:
-        print("Transformation: " + trans + " not defined!")
+        print('Transformation: ' + trans + ' not defined!')
         sys.exit(1)
 
     M = ncOutInfo.createVariable(
-        "model", "float64", ("msiz"), zlib=zlib_in, shuffle=shuffle_in
+        'model', 'float64', ('msiz'), zlib=zlib_in, shuffle=shuffle_in
     )
     M[:, :, :] = Mod[:, :, :]
 
     if Sens is not None:
         S = ncOutInfo.createVariable(
-            "sens", "float64", ("msiz"), zlib=zlib_in, shuffle=shuffle_in
+            'sens', 'float64', ('msiz'), zlib=zlib_in, shuffle=shuffle_in
         )
         S[:, :, :] = Sens[:, :, :]
 
     if Ref is not None:
         R = ncOutInfo.createVariable(
-            "ref", "float64", ("ref"), zlib=zlib_in, shuffle=shuffle_in
+            'ref', 'float64', ('ref'), zlib=zlib_in, shuffle=shuffle_in
         )
         R[:, :, :] = Ref[:, :, :]
 
@@ -553,14 +553,14 @@ def write_model_ncd(
 
     if OutInfo:
         print(
-            "writeModNC: data written to %s in %s format"
+            'writeModNC: data written to %s in %s format'
             % (NCFile, ncOutInfo.data_model)
         )
 
 
 # def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None, reference=None,
 #                  OutInfo=True):
-#     """
+#     '''
 #     write ModEM model input in .
 
 #     Expects rho in physical units
@@ -568,38 +568,38 @@ def write_model_ncd(
 #     author: vrath
 #     last changed: Mar 13, 2021
 
-#     """
+#     '''
 #     dims = numpy.shape(rho)
 #     nx = dims[0]
 #     ny = dims[1]
 #     nz = dims[2]
 
-#     with open(ModFile, "w") as f:
+#     with open(ModFile, 'w') as f:
 #         numpy.savetxt(
-#             f, [" # 3D MT model written by ModEM in WS format"], fmt="%s")
+#             f, [' # 3D MT model written by ModEM in WS format'], fmt='%s')
 #         # line = numpy.array([nx, ny,nz, dummy, trans],dtype=('i8,i8,i8,i8,U10'))
-#         numpy.savetxt(f, dx.reshape(1, dx.shape[0]), fmt="%12.3f")
-#         numpy.savetxt(f, dy.reshape(1, dy.shape[0]), fmt="%12.3f")
-#         numpy.savetxt(f, dz.reshape(1, dz.shape[0]), fmt="%12.3f")
+#         numpy.savetxt(f, dx.reshape(1, dx.shape[0]), fmt='%12.3f')
+#         numpy.savetxt(f, dy.reshape(1, dy.shape[0]), fmt='%12.3f')
+#         numpy.savetxt(f, dz.reshape(1, dz.shape[0]), fmt='%12.3f')
 #         # write OutInfo the layers from resmodel
 #         for zi in range(dz.size):
-#             f.write("\n")
+#             f.write('\n')
 #             for yi in range(dy.size):
 #                 # line = rho[::-1, yi, zi]
 #                 # line = numpy.flipud(rho[:, yi, zi])
 #                 line = rho[:, yi, zi]
-#                 numpy.savetxt(f, line.reshape(1, nx), fmt="%12.5e")
+#                 numpy.savetxt(f, line.reshape(1, nx), fmt='%12.5e')
 
-#         f.write("\n")
+#         f.write('\n')
 
 #         cnt = numpy.asarray(reference)
-#         numpy.savetxt(f, cnt.reshape(1, cnt.shape[0]), fmt="%10.1f")
-#         f.write("%10.2f  \n" % (0.0))
+#         numpy.savetxt(f, cnt.reshape(1, cnt.shape[0]), fmt='%10.1f')
+#         f.write('%10.2f  \n' % (0.0))
 
 
 def write_model(ModFile=None, dx=None, dy=None, dz=None, mval=None, reference=None,
                 trans=None, aircells = None, mvalair = 1.e17, blank = 1.e17, OutInfo=True):
-    """
+    '''
     Write ModEM model input.
 
     Expects mval in physical units (linear).
@@ -618,7 +618,7 @@ def write_model(ModFile=None, dx=None, dy=None, dz=None, mval=None, reference=No
         ENDDO
     ENDDO
 
-    """
+    '''
     dims = numpy.shape(mval)
 
     nx = dims[0]
@@ -630,26 +630,26 @@ def write_model(ModFile=None, dx=None, dy=None, dz=None, mval=None, reference=No
 
         trans = trans.upper()
 
-        if trans == "LOGE":
+        if trans == 'LOGE':
             mval = numpy.log(mval)
             mvalair = numpy.log(mvalair)
             if OutInfo:
-                print("values to " + ModFile + " transformed to: " + trans)
-        elif trans == "LOG10":
+                print('values to ' + ModFile + ' transformed to: ' + trans)
+        elif trans == 'LOG10':
             mval = numpy.log10(mval)
             mvalair = numpy.log10(mvalair)
             if OutInfo:
-                print("values to " + ModFile + " transformed to: " + trans)
-        elif trans == "LINEAR":
+                print('values to ' + ModFile + ' transformed to: ' + trans)
+        elif trans == 'LINEAR':
             pass
 
         else:
-            print("Transformation: " + trans + " not defined!")
+            print('Transformation: ' + trans + ' not defined!')
             sys.exit(1)
 
 
     else:
-        trans = "LINEAR"
+        trans = 'LINEAR'
 
     if not aircells == None:
         mval.reshape(dims)[aircells] = mvalair
@@ -659,35 +659,35 @@ def write_model(ModFile=None, dx=None, dy=None, dz=None, mval=None, reference=No
         mval.reshape(dims)[blanks] = mvalair
 
     trans = numpy.array(trans)
-    with open(ModFile, "w") as f:
+    with open(ModFile, 'w') as f:
         numpy.savetxt(
-            f, ["# 3D MT model written by ModEM in WS format"], fmt="%s")
-        line = numpy.array([nx, ny,nz, dummy, trans],dtype="object")
+            f, ['# 3D MT model written by ModEM in WS format'], fmt='%s')
+        line = numpy.array([nx, ny,nz, dummy, trans],dtype='object')
         # line = numpy.array([nx, ny, nz, dummy, trans])
-        # numpy.savetxt(f, line.reshape(1, 5), fmt="   %s"*5)
-        numpy.savetxt(f, line.reshape(1, 5), fmt =["  %i","  %i","  %i","  %i", "  %s"])
+        # numpy.savetxt(f, line.reshape(1, 5), fmt='   %s'*5)
+        numpy.savetxt(f, line.reshape(1, 5), fmt =['  %i','  %i','  %i','  %i', '  %s'])
 
-        numpy.savetxt(f, dx.reshape(1, dx.shape[0]), fmt="%12.3f")
-        numpy.savetxt(f, dy.reshape(1, dy.shape[0]), fmt="%12.3f")
-        numpy.savetxt(f, dz.reshape(1, dz.shape[0]), fmt="%12.3f")
+        numpy.savetxt(f, dx.reshape(1, dx.shape[0]), fmt='%12.3f')
+        numpy.savetxt(f, dy.reshape(1, dy.shape[0]), fmt='%12.3f')
+        numpy.savetxt(f, dz.reshape(1, dz.shape[0]), fmt='%12.3f')
         # write OutInfo the layers from resmodel
         for zi in range(dz.size):
-            f.write("\n")
+            f.write('\n')
             for yi in range(dy.size):
                 line = mval[::-1, yi, zi]
                 # line = numpy.flipud(mval[:, yi, zi])
                 # line = mval[:, yi, zi]
-                numpy.savetxt(f, line.reshape(1, nx), fmt="%12.5e")
+                numpy.savetxt(f, line.reshape(1, nx), fmt='%12.5e')
 
-        f.write("\n")
+        f.write('\n')
 
         cnt = numpy.asarray(reference)
-        numpy.savetxt(f, cnt.reshape(1, cnt.shape[0]), fmt="%10.1f")
-        f.write("%10.2f  \n" % (0.0))
+        numpy.savetxt(f, cnt.reshape(1, cnt.shape[0]), fmt='%10.1f')
+        f.write('%10.2f  \n' % (0.0))
 
 
-def read_model(ModFile=None, trans="LINEAR", volumes=False, OutInfo=True):
-    """
+def read_model(ModFile=None, trans='LINEAR', volumes=False, OutInfo=True):
+    '''
     Read ModEM model input.
 
     Returns mval in physical units
@@ -705,8 +705,8 @@ def read_model(ModFile=None, trans="LINEAR", volumes=False, OutInfo=True):
         ENDDO
     ENDDO
 
-    """
-    with open(ModFile, "r") as f:
+    '''
+    with open(ModFile, 'r') as f:
         lines = f.readlines()
 
     lines = [line.split() for line in lines]
@@ -723,38 +723,38 @@ def read_model(ModFile=None, trans="LINEAR", volumes=False, OutInfo=True):
         mval = numpy.append(mval, numpy.array([float(sub) for sub in line]))
 
     if OutInfo:
-        print("values in " + ModFile + " are: " + trns)
-    if trns == "LOGE":
+        print('values in ' + ModFile + ' are: ' + trns)
+    if trns == 'LOGE':
         mval = numpy.exp(mval)
-    elif trns == "LOG10":
+    elif trns == 'LOG10':
         mval = numpy.power(10.0, mval)
-    elif trns == "LINEAR":
+    elif trns == 'LINEAR':
         pass
     else:
-        print("Transformation: " + trns + " not defined!")
+        print('Transformation: ' + trns + ' not defined!')
         sys.exit(1)
 
     # here mval should be in physical units, not log...
-    if "loge" in trans.lower() or "ln" in trans.lower():
+    if 'loge' in trans.lower() or 'ln' in trans.lower():
         mval = numpy.log(mval)
         if OutInfo:
-            print("values transformed to: " + trans)
-    elif "log10" in trans.lower():
+            print('values transformed to: ' + trans)
+    elif 'log10' in trans.lower():
         mval = numpy.log10(mval)
         if OutInfo:
-            print("values transformed to: " + trans)
+            print('values transformed to: ' + trans)
     else:
         if OutInfo:
-            print("values transformed to: " + trans)
+            print('values transformed to: ' + trans)
         pass
 
-    mval = mval.reshape(dims, order="F")
+    mval = mval.reshape(dims, order='F')
 
     reference = [float(sub) for sub in lines[-2][0:3]]
 
     if OutInfo:
         print(
-            "readMod: %i x %i x %i model read from %s" % (nx, ny, nz, ModFile))
+            'readMod: %i x %i x %i model read from %s' % (nx, ny, nz, ModFile))
 
     if volumes:
         vcell = numpy.zeros_like(mval)
@@ -765,7 +765,7 @@ def read_model(ModFile=None, trans="LINEAR", volumes=False, OutInfo=True):
 
         if OutInfo:
             print(
-                "readMod: %i x %i x %i cell volumes calculated" % (nx, ny, nz))
+                'readMod: %i x %i x %i cell volumes calculated' % (nx, ny, nz))
 
         return dx, dy, dz, mval, reference, trans, vcell
 
@@ -776,7 +776,7 @@ def read_model(ModFile=None, trans="LINEAR", volumes=False, OutInfo=True):
 
 
 def linear_interpolation(p1, p2, x0):
-    """
+    '''
     Function that receives as arguments the coordinates of two points (x,y)
     and returns the linear interpolation of a y0 in a given x0 position. This is the
     equivalent to obtaining y0 = y1 + (y2 - y1)*((x0-x1)/(x2-x1)).
@@ -793,7 +793,7 @@ def linear_interpolation(p1, p2, x0):
         X coordinate on which you want to interpolate a y0.
 
     Return float (interpolated y0 value)
-    """
+    '''
     y0 = p1[1] + (p2[1] - p1[1]) * ((x0 - p1[0]) / (p2[0] - p1[0]))
 
     return y0
@@ -801,7 +801,7 @@ def linear_interpolation(p1, p2, x0):
 
 def clip_model(x, y, z, rho,
                pad=[0, 0, 0], centers=False, scale=[1., 1., 1.]):
-    """
+    '''
     Clip model to ROI.
 
     Parameters
@@ -821,7 +821,7 @@ def clip_model(x, y, z, rho,
     -------
     xn, yn, zn, rhon
 
-    """
+    '''
     if numpy.size(scale) == 1:
         scale = [scale, scale, scale]
 
@@ -834,7 +834,7 @@ def clip_model(x, y, z, rho,
     rhon = rho[p_x:-p_x, p_y:-p_y, 0:-p_z]
 
     if centers:
-        print("cells3d returning cell center coordinates.")
+        print('cells3d returning cell center coordinates.')
         xn = 0.5 * (xn[:-1] + xn[1:])
         yn = 0.5 * (yn[:-1] + yn[1:])
         zn = 0.5 * (zn[:-1] + zn[1:])
@@ -843,12 +843,12 @@ def clip_model(x, y, z, rho,
 
 
 
-def mt1dfwd(freq, sig, d, inmod="res", outdat="both"):
-    """
+def mt1dfwd(freq, sig, d, inmod='res', outdat='both'):
+    '''
     1D magnetotelluric forward modelling
     based on A. Pethik's script at www.digitalearthlab.com
     Last change vr Feb 28, 2023
-    """
+    '''
 
     mu0 = 4.E-7 * numpy.pi   		# Magnetic Permeability (H/m)
 
@@ -856,13 +856,13 @@ def mt1dfwd(freq, sig, d, inmod="res", outdat="both"):
     freq = numpy.array(freq)
     d = numpy.array(d)
 
-    if "cond" in inmod.lower():
+    if 'cond' in inmod.lower():
         sig = numpy.array(sig)
-    if "res" in inmod.lower():
+    if 'res' in inmod.lower():
         sig = 1. / numpy.array(sig)
 
     if sig.ndim > 1:
-        error('IP not yet implemented')
+        sys.exit('IP not yet implemented')
 
     n = numpy.size(sig)
 
@@ -900,10 +900,10 @@ def mt1dfwd(freq, sig, d, inmod="res", outdat="both"):
         Z[ifr] = imp[0]
         # print(Z[ifr])
 
-    if "imp" in outdat.lower():
+    if 'imp' in outdat.lower():
         return Z
 
-    if "rho" in outdat.lower():
+    if 'rho' in outdat.lower():
         absZ = numpy.abs(Z)
         rhoa = (absZ * absZ) / (mu0 * w)
         phase = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))
@@ -925,12 +925,12 @@ def insert_body(
     scale=1.0,
     Out=True,
 ):
-    """
+    '''
     Insert 3d ellipsoid or box into given model.
 
     Created on Sun Jan 3 10:35:28 2021
     @author: vrath
-    """
+    '''
     xpad = pad[0]
     ypad = pad[1]
     zpad = pad[2]
@@ -956,24 +956,24 @@ def insert_body(
     baxes = body[6:9]
     bangl = body[9:12]
 
-    if action[0:3] == "rep":
-        actstring = "rhoval"
-    elif action[0:3] == "add":
-        actstring = "rho_OutInfo[ii,jj,kk] + rhoval"
+    if action[0:3] == 'rep':
+        actstring = 'rhoval'
+    elif action[0:3] == 'add':
+        actstring = 'rho_OutInfo[ii,jj,kk] + rhoval'
     else:
-        error("Action" + action + " not implemented! Exit.")
+        sys.exit('Action' + action + ' not implemented! Exit.')
 
     if Out:
         print(
-            "Body type   : " + geom + ", " + action + " rho =",
-            str(numpy.power(10.0, rhoval)) + " Ohm.m",
+            'Body type   : ' + geom + ', ' + action + ' rho =',
+            str(numpy.power(10.0, rhoval)) + ' Ohm.m',
         )
-        print("Body center : " + str(bcent))
-        print("Body axes   : " + str(baxes))
-        print("Body angles : " + str(bangl))
-        print("Smoothed with " + smooth[0] + " filter")
+        print('Body center : ' + str(bcent))
+        print('Body axes   : ' + str(baxes))
+        print('Body angles : ' + str(bangl))
+        print('Smoothed with ' + smooth[0] + ' filter')
 
-    if geom[0:3] == "ell":
+    if geom[0:3] == 'ell':
 
         for kk in numpy.arange(0, nz - zpad - 1):
             zpoint = zc[kk]
@@ -989,9 +989,9 @@ def insert_body(
                     if in_ellipsoid(position, bcent, baxes, bangl):
                         rho_OutInfo[ii, jj, kk] = eval(actstring)
                         # if Out:
-                        #     print("cell %i %i %i" % (ii, jj, kk))
+                        #     print('cell %i %i %i' % (ii, jj, kk))
 
-    if geom[0:3] == "box":
+    if geom[0:3] == 'box':
 
         for kk in numpy.arange(0, nz - zpad - 1):
             zpoint = zc[kk]
@@ -1008,19 +1008,19 @@ def insert_body(
                     if in_box(position, bcent, baxes, bangl):
                         rho_OutInfo[ii, jj, kk] = eval(actstring)
                         # if Out:
-                        #     print("cell %i %i %i" % (ii, jj, kk))
+                        #     print('cell %i %i %i' % (ii, jj, kk))
 
     if smooth is not None:
-        if smooth[0][0:3] == "uni":
+        if smooth[0][0:3] == 'uni':
             fsize = smooth[1]
             rho_OutInfo = uniform_filter(rho_OutInfo, fsize)
 
-        elif smooth[0][0:3] == "gau":
+        elif smooth[0][0:3] == 'gau':
             gstd = smooth[1]
             rho_OutInfo = gaussian_filter(rho_OutInfo, gstd)
 
         else:
-            error("Smoothing filter  " + smooth[0] + " not implemented! Exit.")
+            sys.exit('Smoothing filter  ' + smooth[0] + ' not implemented! Exit.')
 
     rho_OutInfo = numpy.power(10.0, rho_OutInfo)
 
@@ -1028,7 +1028,7 @@ def insert_body(
 
 
 def cells3d(dx, dy, dz, center=False, reference=[0., 0., 0.]):
-    """
+    '''
     Define cell coordinates.
 
     dx, dy, dz in m,
@@ -1036,7 +1036,7 @@ def cells3d(dx, dy, dz, center=False, reference=[0., 0., 0.]):
 
     @author: vrath
 
-    """
+    '''
     x = numpy.append(0.0, numpy.cumsum(dx))
     y = numpy.append(0.0, numpy.cumsum(dy))
     z = numpy.append(0.0, numpy.cumsum(dz))
@@ -1046,14 +1046,14 @@ def cells3d(dx, dy, dz, center=False, reference=[0., 0., 0.]):
     z = z + reference[2]
 
     if center:
-        print("cells3d returning cell center coordinates.")
+        print('cells3d returning cell center coordinates.')
         xc = 0.5 * (x[:-1] + x[1:])
         yc = 0.5 * (y[:-1] + y[1:])
         zc = 0.5 * (z[:-1] + z[1:])
         return xc, yc, zc
 
     else:
-        print("cells3d returning node coordinates.")
+        print('cells3d returning node coordinates.')
         return x, y, z
 
 
@@ -1064,13 +1064,13 @@ def in_ellipsoid(
     ang=[0.0, 0.0, 0.0],
     find_inside=True,
 ):
-    """
+    '''
     Find points inside arbitrary box.
 
     Defined by the 3-vectors cent, axs, ang
     vr dec 2020
 
-    """
+    '''
     # subtract center
     p = numpy.array(point) - numpy.array(cent)
     # rotation matrices
@@ -1102,13 +1102,13 @@ def in_box(
     ang=[0.0, 0.0, 0.0],
     find_inside=True,
 ):
-    """
+    '''
     Find points inside arbitrary ellipsoid.
 
     Defined by the 3-vectors cent, axs, ang
     vr dec 2020
 
-    """
+    '''
     # subtract center
     p = numpy.array(point) - numpy.array(cent)
     # rotation matrices
@@ -1142,11 +1142,11 @@ def in_box(
 
 
 def rotz(theta):
-    """
+    '''
     Calculate 3x3 rotation matriz for rotation around z axis.
 
     vr dec 2020
-    """
+    '''
     t = numpy.radians(theta)
     s = numpy.sin(t)
     c = numpy.cos(t)
@@ -1157,11 +1157,11 @@ def rotz(theta):
 
 
 def roty(theta):
-    """
+    '''
     Calculate 3x3 rotation matrix for rotationa around y axis.
 
     vr dec 2020
-    """
+    '''
     t = numpy.radians(theta)
     s = numpy.sin(t)
     c = numpy.cos(t)
@@ -1172,11 +1172,11 @@ def roty(theta):
 
 
 def rotx(theta):
-    """
+    '''
     Calculate 3x3 rotation matriz for rotation around x axis.
 
     vr dec 2020
-    """
+    '''
     t = numpy.radians(theta)
     s = numpy.sin(t)
     c = numpy.cos(t)
@@ -1188,16 +1188,16 @@ def rotx(theta):
 
 def medfilt3D(
         M,
-        kernel_size=[3, 3, 3], boundary_mode="nearest", maxiter=1, Out=True):
-    """
+        kernel_size=[3, 3, 3], boundary_mode='nearest', maxiter=1, Out=True):
+    '''
     Run iterated median filter in nD.
 
     vr  Jan 2021
-    """
+    '''
     tmp = M.copy()
     for it in range(maxiter):
         if Out:
-            print("iteration: " + str(it))
+            print('iteration: ' + str(it))
         tmp = median_filter(tmp, size=kernel_size, mode=boundary_mode)
 
     G = tmp.copy()
@@ -1208,11 +1208,11 @@ def medfilt3D(
 def anidiff3D(
         M,
         ckappa=50, dgamma=0.1, foption=1, maxiter=30, Out=True):
-    """
+    '''
     Apply anisotropic nonlinear diffusion in nD.
 
     vr  Jan 2021
-    """
+    '''
     tmp = M.copy()
 
     tmp = anisodiff3D(
@@ -1232,7 +1232,7 @@ def anisodiff3D(
         stack,
         niter=1, kappa=50, gamma=0.1, step=(1.0, 1.0, 1.0), option=1,
         plotit=False):
-    """
+    '''
     Apply 3D Anisotropic diffusion.
 
     Usage:
@@ -1287,7 +1287,7 @@ def anisodiff3D(
     March 2002 corrected diffusion eqn No 2.
     July 2012 translated to Python
     Jan 2021 slightly adapted python3 VR
-    """
+    '''
     # initialize OutInfoput array
 
     stackOutInfo = stack.copy()
@@ -1310,18 +1310,18 @@ def anisodiff3D(
 
         showplane = stack.shape[0] // 2
 
-        fig = pl.figure(figsize=(20, 5.5), num="Anisotropic diffusion")
+        fig = pl.figure(figsize=(20, 5.5), num='Anisotropic diffusion')
         ax1, ax2 = fig.add_subplot(1, 2, 1), fig.add_subplot(1, 2, 2)
 
         ax1.imshow(
             stack[showplane, ...].squeeze(),
-            interpolation="nearest")
+            interpolation='nearest')
         ih = ax2.imshow(
             stackOutInfo[showplane, ...].squeeze(),
-            interpolation="nearest", animated=True
+            interpolation='nearest', animated=True
         )
-        ax1.set_title("Original stack (Z = %i)" % showplane)
-        ax2.set_title("Iteration 0")
+        ax1.set_title('Original stack (Z = %i)' % showplane)
+        ax2.set_title('Iteration 0')
 
         fig.canvas.draw()
 
@@ -1360,7 +1360,7 @@ def anisodiff3D(
         stackOutInfo += gamma * (UD + NS + EW)
 
         if plotit:
-            iterstring = "Iteration %i" % (ii + 1)
+            iterstring = 'Iteration %i' % (ii + 1)
             ih.set_data(stackOutInfo[showplane, ...].squeeze())
             ax2.set_title(iterstring)
             fig.canvas.draw()
@@ -1372,21 +1372,21 @@ def anisodiff3D(
 def shock3d(
         M,
         dt=0.2, maxiter=30, filt=[3, 3, 3, 0.5],
-        boundary_mode="nearest", signfunc=None):
-    """
+        boundary_mode='nearest', signfunc=None):
+    '''
     Apply shock filter in nD.
 
     vr  Jan 2021
-    """
-    if signfunc is None or signfunc == "sign":
-        signcall = "-numpy.sign(L)"
+    '''
+    if signfunc is None or signfunc == 'sign':
+        signcall = '-numpy.sign(L)'
 
-    elif signfunc[0] == "sigmoid":
+    elif signfunc[0] == 'sigmoid':
         scale = 1.0
-        signcall = "-1./(1. + numpy.exp(-scale *L))"
+        signcall = '-1./(1. + numpy.exp(-scale *L))'
 
     else:
-        error("sign func " + signfunc + " not defined! Exit.")
+        sys.exit('sign func ' + signfunc + ' not defined! Exit.')
 
     kersiz = (filt[0], filt[1], filt[2])
     kerstd = filt[3]
@@ -1413,14 +1413,14 @@ def shock3d(
 
 
 def gauss3D(Kshape=(3, 3, 3), Ksigma=0.5):
-    """
+    '''
     Define 2D gaussian mask.
 
     Should give the same result as MATLAB's
     fspecial('gaussian',[shape],[sigma])
 
     vr  Jan 2021
-    """
+    '''
     k, m, n = [(ss - 1) / 2 for ss in Kshape]
     x, y, z = numpy.ogrid[-n:n+1, -m:m+1, -k:k+1]
     h = numpy.exp(-(x * x + y * y + z * z) / (2.0 * Ksigma * Ksigma))
@@ -1435,7 +1435,7 @@ def gauss3D(Kshape=(3, 3, 3), Ksigma=0.5):
 
 
 def prepare_model(rho, rhoair=1.0e17):
-    """
+    '''
     Prepare model for filtering etc.
 
     Mainly redefining the boundaries (in the case of topograpy)
@@ -1443,7 +1443,7 @@ def prepare_model(rho, rhoair=1.0e17):
     Created on Tue Jan  5 11:59:42 2021
 
     @author: vrath
-    """
+    '''
     nn = numpy.shape(rho)
 
     rho_new = rho
@@ -1473,26 +1473,26 @@ def calc_rhoa_phas(freq=None, Z=None):
 
     return rhoa, phi
 
-def mt1dfwd(freq, sig, d, inmod="r", out="imp", magfield="b"):
-    """
+def mt1dfwd(freq, sig, d, inmod='r', out='imp', magfield='b'):
+    '''
     Calulate 1D magnetotelluric forward response.
 
     based on A. Pethik's script at www.digitalearthlab.com
     Last change vr Nov 20, 2020
-    """
+    '''
     mu0 = 4.0e-7 * numpy.pi  # Magnetic Permeability (H/m)
 
     sig = numpy.array(sig)
     freq = numpy.array(freq)
     d = numpy.array(d)
 
-    if "c" in inmod[0].lower():
+    if 'c' in inmod[0].lower():
         sig = numpy.array(sig)
     else:
         sig = 1.0 / numpy.array(sig)
 
     if sig.ndim > 1:
-        error("IP not yet implemented")
+        sys.exit('IP not yet implemented')
 
     n = numpy.size(sig)
 
@@ -1530,14 +1530,14 @@ def mt1dfwd(freq, sig, d, inmod="r", out="imp", magfield="b"):
         Z[ifr] = imp[0]
         # print(Z[ifr])
 
-    if "imp" in out.lower():
+    if 'imp' in out.lower():
 
-        if "b" in magfield.lower():
+        if 'b' in magfield.lower():
             return Z/mu0
         else:
             return Z
 
-    elif "rho" in out.lower():
+    elif 'rho' in out.lower():
         absZ = numpy.abs(Z)
         rhoa = (absZ * absZ) / (mu0 * w)
         phase = numpy.rad2deg(numpy.arctan(Z.imag / Z.real))

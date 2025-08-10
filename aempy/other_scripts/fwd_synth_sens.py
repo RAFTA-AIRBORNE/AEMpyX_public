@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-"""
+'''
 Created on Tue Sep  6 10:57:01 2016
 
 @author: vrath
 
 edited by vrath  - June 11, 2022
 
-"""
+'''
 import time
 import sys
-from sys import exit as error
+
 import os
 import warnings
 from time import process_time
@@ -24,8 +24,8 @@ import matplotlib
 import matplotlib.pyplot
 
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 
 
 for pth in mypath:
@@ -43,23 +43,23 @@ import aesys
 import viz
 
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  # float('NaN')
 
 
 OutInfo = True
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 OutInfo = False
 now = datetime.now()
 
 
-"""
+'''
 System related settings.
 Parameter can be transformed according to:
     ParaTrans   = 0           no change
@@ -71,13 +71,13 @@ Data transformation is now allowed with three possible options:
 An error model is applied for the raw data, which is
 mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
-"""
-AEM_system = "aem05"
-AEM_system = "genesis"
+'''
+AEM_system = 'aem05'
+AEM_system = 'genesis'
 
-print("AEM system: " + AEM_system + "\n \n")
+print('AEM system: ' + AEM_system + '\n \n')
 
-if "aem05" in AEM_system.lower():
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     ParaTrans = 1
     DataTrans = 0
@@ -86,7 +86,7 @@ if "aem05" in AEM_system.lower():
     alt = 60.
     Data_Active = numpy.ones((1,NN[2]))
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     ParaTrans = 1
     DataTrans = 0
@@ -101,30 +101,30 @@ nD = NN[0]
 
 
 UseSigma = True
-condflag = "rho" #"sig"
+condflag = 'rho' #'sig'
 if UseSigma:
-    condflag = "sig" #"sig"
+    condflag = 'sig' #'sig'
 
 lay1rho = 10.
-IdString = AEM_system.upper()+"_3Layer_res"+str(int(lay1rho))+"_"+condflag
-PlotTitleSens = "sensitivity "+condflag+": resitivity = "+str(int(lay1rho))+" Ohm m , depth = 30 m"
-PlotTitleModl = "model "+condflag+": resitivity = "+str(int(lay1rho))+" Ohm m , depth = 30 m"
+IdString = AEM_system.upper()+'_3Layer_res'+str(int(lay1rho))+'_'+condflag
+PlotTitleSens = 'sensitivity '+condflag+': resitivity = '+str(int(lay1rho))+' Ohm m , depth = 30 m'
+PlotTitleModl = 'model '+condflag+': resitivity = '+str(int(lay1rho))+' Ohm m , depth = 30 m'
 
 
-OutDir = AEMPYX_DATA+"/Projects/SynthData/Jacobian/"
-OutName =  OutDir+"/SYNTH_"
+OutDir = AEMPYX_DATA+'/Projects/SynthData/Jacobian/'
+OutName =  OutDir+'/SYNTH_'
 
 
 if not os.path.isdir(OutDir):
-    print("File: %s does not exist, but will be created" % OutDir)
+    print('File: %s does not exist, but will be created' % OutDir)
     os.mkdir(OutDir)
 
 
 
-"""
+'''
 Define model on mesh Note: dz should be small enough to resolve layer, or
 should be adapted.
-"""
+'''
 nlyr = 60
 er =   100.         # resistivity
 mu = 1.0            # relative magnetic permeability
@@ -165,35 +165,35 @@ PlotModl = False
 if PlotSens or PlotModl:
     
     
-    PlotFormat = [".pdf", ".png", ".svg"]
+    PlotFormat = ['.pdf', '.png', '.svg']
     PdfCatalog = False
-    if ".pdf" in PlotFormat:
-        PdfCName = OutName+IdString+"_Catalog.pdf"
+    if '.pdf' in PlotFormat:
+        PdfCName = OutName+IdString+'_Catalog.pdf'
     else:
-        error(" No pdfs generated. No catalog possible!")
+        sys.exit(' No pdfs generated. No catalog possible!')
         PdfCatalog = False
     if PdfCatalog:
         pdf_list = []
     
-    """
+    '''
     Determine graphical parameter.
     => print(matplotlib.pyplot.style.available)
-    """
-    """
+    '''
+    '''
     For just plot.ing to files, choose the cairo backend (eps, pdf, png, jpg...).
     If you need to see the plots directly (plot window, or jupyter), simply
     comment OutInfo the following line. In this case matplotlib may run into
     memory problems after a few hundreds of high-resolution plot..
-    """
+    '''
     FilesOnly = False
     if FilesOnly:
-        matplotlib.use("cairo")
+        matplotlib.use('cairo')
         
-    matplotlib.pyplot.style.use("seaborn-paper")
-    matplotlib.rcParams["figure.dpi"] = 400
-    matplotlib.rcParams["axes.linewidth"] = 0.5
-    matplotlib.rcParams["savefig.facecolor"] = "none"
-    matplotlib.rcParams["savefig.transparent"] = True
+    matplotlib.pyplot.style.use('seaborn-paper')
+    matplotlib.rcParams['figure.dpi'] = 400
+    matplotlib.rcParams['axes.linewidth'] = 0.5
+    matplotlib.rcParams['savefig.facecolor'] = 'none'
+    matplotlib.rcParams['savefig.transparent'] = True
     
     Fontsize = 8
     Labelsize = Fontsize
@@ -205,25 +205,25 @@ if PlotSens or PlotModl:
     FigWidth = 8.5*cm
     
     ncols = 256
-    Colors = ["k", "r", "g", "b","m"]
-    ColorMap="hot_r"
+    Colors = ['k', 'r', 'g', 'b','m']
+    ColorMap='hot_r'
     
     Grey = 0.7
     
-    Lines = (  cycler("linestyle", ["-", "--", ":", "-."])
-             * cycler("color", ["r", "g", "b", "m"])
-             * cycler("linewidth", [1.,]))
+    Lines = (  cycler('linestyle', ['-', '--', ':', '-.'])
+             * cycler('color', ['r', 'g', 'b', 'm'])
+             * cycler('linewidth', [1.,]))
 
 
 
 
-"""
+'''
 Define models:
 These are loops over different parameters, in this case for a 3-Layer case.
 Should be adapted according to your needs.
-"""
+'''
 
-# IdString = AEM_system.upper()+"_5Layer"
+# IdString = AEM_system.upper()+'_5Layer'
 # Thick0 = [25.]
 # Thick1 = [10., 20.]
 # Thick2 = [10., 20.]
@@ -234,7 +234,7 @@ Should be adapted according to your needs.
 # Rho3 = [10., 1000]
 # Rhob = [100.]
 
-# IdString = AEM_system.upper()+"_3Layer60"
+# IdString = AEM_system.upper()+'_3Layer60'
 Thick0 = [30.]
 Thick1 = [30.]
 Thick2 = [10.]
@@ -253,10 +253,10 @@ Alt = [90.,]    #Alt = [90.,120., 180., 240.]
 Delta = [1.e-6]
 
 
-"""
+'''
 Generate Data
 
-"""
+'''
 Nsamples = 0
 Perturb = False
 SplitData= True
@@ -280,21 +280,21 @@ for alt in Alt:
                                                    rho0, rho1,rho2, rho3, rhob,
                                                    DataTrans, DatErr_add, DatErr_mult]
     
-                                            description =    "{0:2d} ".format(p_i[0])\
-                                                            +"{0:.0f} ".format(p_i[1])\
-                                                            +"{0:.0f} ".format(p_i[2])\
-                                                            +"{0:.0f} ".format(p_i[3])\
-                                                            +"{0:.0f} ".format(p_i[4])\
-                                                            +"{0:.0f} ".format(p_i[5])\
-                                                            +"{0:.0f} ".format(p_i[6])\
-                                                            +"{0:.0f} ".format(p_i[7])\
-                                                            +"{0:.0f} ".format(p_i[8])\
-                                                            +"{0:.0f} ".format(p_i[9])\
-                                                            +"{0:.0f} ".format(p_i[10])\
-                                                            +"{0:2d} ".format(p_i[11])\
-                                                            +"{0:.0f}/{1:.2f} ".format(p_i[12],p_i[13])
+                                            description =    '{0:2d} '.format(p_i[0])\
+                                                            +'{0:.0f} '.format(p_i[1])\
+                                                            +'{0:.0f} '.format(p_i[2])\
+                                                            +'{0:.0f} '.format(p_i[3])\
+                                                            +'{0:.0f} '.format(p_i[4])\
+                                                            +'{0:.0f} '.format(p_i[5])\
+                                                            +'{0:.0f} '.format(p_i[6])\
+                                                            +'{0:.0f} '.format(p_i[7])\
+                                                            +'{0:.0f} '.format(p_i[8])\
+                                                            +'{0:.0f} '.format(p_i[9])\
+                                                            +'{0:.0f} '.format(p_i[10])\
+                                                            +'{0:2d} '.format(p_i[11])\
+                                                            +'{0:.0f}/{1:.2f} '.format(p_i[12],p_i[13])
     
-                                            print("\n\n\nModel description:")
+                                            print('\n\n\nModel description:')
                                             print(description)
     
     
@@ -322,7 +322,7 @@ for alt in Alt:
                                             d_state = 0
                                             m_state = 0
                                             
-                                            m_current, m_state = inverse.transform_parameter(m_vec=m_i, m_trn=ParaTrans, m_state=m_state, mode="f")               
+                                            m_current, m_state = inverse.transform_parameter(m_vec=m_i, m_trn=ParaTrans, m_state=m_state, mode='f')               
                                             d_current, d_state = inverse.calc_fwdmodel(fwdcall=FwdCall, alt=alt,
                                                                               m_vec = m_current, m_trn=ParaTrans, m_state=m_state,
                                                                               d_trn=0, d_state=d_state, d_act = Data_Active )
@@ -339,31 +339,31 @@ for alt in Alt:
                                             Sens = []
                                             
 
-                                            s0_current = inverse.calc_sensitivity(Jac=jac, UseSigma=UseSigma, Type = "raw") #[:-1]
+                                            s0_current = inverse.calc_sensitivity(Jac=jac, UseSigma=UseSigma, Type = 'raw') #[:-1]
                                             s0_current = inverse.transform_sensitivity(S=s0_current, V=laythk, 
-                                                                                  Transform=[" val","max"])
+                                                                                  Transform=[' val','max'])
                                             Sens.append(numpy.abs(s0_current))
                                             
-                                            s1_current = inverse.calc_sensitivity(Jac=jac, UseSigma=UseSigma, Type = "cov") #[:-1]            
+                                            s1_current = inverse.calc_sensitivity(Jac=jac, UseSigma=UseSigma, Type = 'cov') #[:-1]            
                                             s1_current = inverse.transform_sensitivity(S=s1_current, V=laythk, 
-                                                                                  Transform=[" val","max"])
+                                                                                  Transform=[' val','max'])
                                             Sens.append(numpy.abs(s1_current))
                                             
-                                            s2_current = inverse.calc_sensitivity(Jac=jac, UseSigma=UseSigma, Type = "euc") #[:-1]   
+                                            s2_current = inverse.calc_sensitivity(Jac=jac, UseSigma=UseSigma, Type = 'euc') #[:-1]   
                                             s2_current = inverse.transform_sensitivity(S=s2_current, V=laythk,  
-                                                                                  Transform=[" val","max", "sqr"]) 
+                                                                                  Transform=[' val','max', 'sqr']) 
                                             Sens.append(numpy.abs(s2_current))
                                             
 
                                             d = numpy.diag(d_current)
-                                            s3_current = inverse.calc_sensitivity(Jac=d@jac, UseSigma=UseSigma, Type = "cum") 
+                                            s3_current = inverse.calc_sensitivity(Jac=d@jac, UseSigma=UseSigma, Type = 'cum') 
                                             s3_current = inverse.transform_sensitivity(S=s3_current, V=laythk, 
-                                                                                 Transform=[" val","max"]) 
+                                                                                 Transform=[' val','max']) 
                                             Sens.append(numpy.abs(s3_current))  
                                             
                                             
     
-                                            # print("\nData from this model:")
+                                            # print('\nData from this model:')
                                             # print(d_ref)
                                             
                                             
@@ -392,13 +392,13 @@ for alt in Alt:
                                             if PlotModl:
                                                 
                                                 if delt>0: 
-                                                    PlotFile = OutName+IdString+"_Delta"+str(int(numpy.log10(delt)))+"_model"
+                                                    PlotFile = OutName+IdString+'_Delta'+str(int(numpy.log10(delt)))+'_model'
                                                 else:
-                                                    PlotFile = OutName+IdString+"_DeltaAdaptive"+"_model"
+                                                    PlotFile = OutName+IdString+'_DeltaAdaptive'+'_model'
 
                                                 viz.plot_model(
                                                                 PlotFile = PlotFile,
-                                                                PlotTitle = PlotTitleModl+", delta ="+str(delt),
+                                                                PlotTitle = PlotTitleModl+', delta ='+str(delt),
                                                                 PlotFormat = PlotFormat,                    
                                                                 Depth = zn,
                                                                 Model = [],
@@ -409,57 +409,57 @@ for alt in Alt:
                                                                 Fontsizes = Fontsizes,
                                                                 SLimits = [],
                                                                 DLimits = [],
-                                                                SUnits = "",
-                                                                PlotStrng="", #Formula, #"", #"Error: mult="+str(DatErr_mult)+" add="+str(DatErr_add),
+                                                                SUnits = '',
+                                                                PlotStrng='', #Formula, #'', #'Error: mult='+str(DatErr_mult)+' add='+str(DatErr_add),
                                                                 StrngPos=[0.05,0.05])
   
 
                                                 if PdfCatalog:
-                                                         pdf_list.append(PlotFile+".pdf")
+                                                         pdf_list.append(PlotFile+'.pdf')
                                                         
                                             if PlotSens:
                                                 
                                                 
                                                 if delt>0: 
-                                                    PlotFile = OutName+IdString+"_Delta"+str(int(numpy.log10(delt)))+"_sens"
+                                                    PlotFile = OutName+IdString+'_Delta'+str(int(numpy.log10(delt)))+'_sens'
                                                 else:
-                                                    PlotFile = OutName+IdString+"_DeltaAdaptive"+"_sens"        
+                                                    PlotFile = OutName+IdString+'_DeltaAdaptive'+'_sens'        
                                                     
                                                 
                                                 viz.plot_sens(
                                                                 PlotFile = PlotFile,
-                                                                PlotTitle = PlotTitleSens+", delta ="+str(delt),
+                                                                PlotTitle = PlotTitleSens+', delta ='+str(delt),
                                                                 PlotFormat = PlotFormat,
                                                                 Depth = zn,
                                                                 Sens = Sens,
-                                                                Labels = ["coverage", "euclidean","cumulative"],    #  "cummulative"
+                                                                Labels = ['coverage', 'euclidean','cumulative'],    #  'cummulative'
                                                                 Colors = Colors,
                                                                 Lines = Lines,
                                                                 Fontsizes = Fontsizes,
                                                                 SLimits = [],
                                                                 DLimits = [],
-                                                                SUnits = "",
-                                                                PlotStrng="", #Formula, #"", #"Error: mult="+str(DatErr_mult)+" add="+str(DatErr_add),
+                                                                SUnits = '',
+                                                                PlotStrng='', #Formula, #'', #'Error: mult='+str(DatErr_mult)+' add='+str(DatErr_add),
                                                                 StrngPos=[0.05,0.05])
                                                                                                         
                                                 if PdfCatalog:
-                                                        pdf_list.append(PlotFile+".pdf")
+                                                        pdf_list.append(PlotFile+'.pdf')
                             
  
 
                                             if delt>0: 
-                                                NPZFile = OutName+IdString+"_Delta"+str(int(numpy.log10(delt)))+".npz"
+                                                NPZFile = OutName+IdString+'_Delta'+str(int(numpy.log10(delt)))+'.npz'
                                             else:
-                                                NPZFile = OutName+IdString+"_DeltaAdaptive"+".npz"
+                                                NPZFile = OutName+IdString+'_DeltaAdaptive'+'.npz'
 
                                             
                                             
-                                            print("Results written to "+NPZFile)
+                                            print('Results written to '+NPZFile)
                                             numpy.savez_compressed(NPZFile, Model_active=Model_active, Model_base=Model_base, info=Info,
                                                                    model=Model, data=Data, sens0 = Sens0, sens1 = Sens1, sens2 = Sens2, Sens3 = Sens3)
 
 
 
 if PdfCatalog:
-    print("PDF catalogue: "+PdfCName)
+    print('PDF catalogue: '+PdfCName)
     viz.make_pdf_catalog(PdfList=pdf_list, FileName=PdfCName)

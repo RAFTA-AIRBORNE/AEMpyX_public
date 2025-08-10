@@ -12,15 +12,15 @@
 #       jupytext_version: 1.15.2
 # ---
 
-"""
+'''
 Created on Tue Aug  3 17:03:39 2021
 
 @author: vrath
-"""
+'''
 
 import os
 import sys
-from sys import exit as error
+
 from time import process_time
 from datetime import datetime
 import warnings
@@ -43,8 +43,8 @@ import shapely
 # from rasterio import features
 # import affine
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -55,19 +55,19 @@ import aesys
 import viz
 import inverse
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 cm = 1/2.54
 
 OutInfo = True
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 now = datetime.now()
 
-# """
+# '''
 # System related settings.
 # Data transformation is now allowed with three possible options:
 # DataTrans   = 0           raw data
@@ -76,45 +76,45 @@ now = datetime.now()
 # An error model is applied for the raw data, which is
 # mixed additive/multiplicative. in case of data transformation,
 # errors are also transformed.
-# """
-# AEM_system = "genesis"
-AEM_system = "aem05"
-if "aem05" in AEM_system.lower():
+# '''
+# AEM_system = 'genesis'
+AEM_system = 'aem05'
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, Misc, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
 
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, Misc, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
 
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-InModDir = AEMPYX_DATA+"/results/"
+AEMPYX_DATA  = AEMPYX_ROOT+'/aempy/examples/A1_StGormans/'
+InModDir = AEMPYX_DATA+'/results/'
 
-# FileList = "search"
-# SearchStrng = "A9*k3*.npz"
-# print("Searchstring: %s \n" % SearchStrng)
+# FileList = 'search'
+# SearchStrng = 'A9*k3*.npz'
+# print('Searchstring: %s \n' % SearchStrng)
 
-FileList = "search"
-ListName = ""
-SearchStrng = "A1*k3*results.npz"
+FileList = 'search'
+ListName = ''
+SearchStrng = 'A1*k3*results.npz'
 
-if "set" in FileList.lower():
-    mod_files = [InModDir+"MUN_k3_data_merged.npz"]
+if 'set' in FileList.lower():
+    mod_files = [InModDir+'MUN_k3_data_merged.npz']
 
-if "read" in FileList.lower():
-    print("File names read from : "+ListName)
-    how = ["read", ListName, InModDir]
+if 'read' in FileList.lower():
+    print('File names read from : '+ListName)
+    how = ['read', ListName, InModDir]
     mod_files = util.get_data_list(how=how,
                               out= True, sort=True)
 
-    mod_files = numpy.loadtxt("A9-7.dat", dtype=str)
+    mod_files = numpy.loadtxt('A9-7.dat', dtype=str)
 
-if "search" in FileList.lower():
-    print("Searchstring is : "+SearchStrng)
-    how = ["search", SearchStrng, InModDir]
+if 'search' in FileList.lower():
+    print('Searchstring is : '+SearchStrng)
+    how = ['search', SearchStrng, InModDir]
     mod_files = util.get_data_list(how=how,
                               out=True,
                               fullpath=True,
@@ -122,48 +122,48 @@ if "search" in FileList.lower():
 
 ns = numpy.size(mod_files)
 if ns ==0:
-    error("No files set!. Exit.")
+    sys.exit('No files set!. Exit.')
 
 MergeModels = False
-ModelMergeFile = InModDir+"StGormans_models_merged.npz"
+ModelMergeFile = InModDir+'StGormans_models_merged.npz'
 
-PlotDir = InModDir+"/plots/"
-print("Plots written to dir: %s " % PlotDir)
-PlotName = "StGormans_models"
-print("Plot filname: %s " % PlotName)
-PlotFmt = [".pdf", ".png"] #".png", ".pdf",]
+PlotDir = InModDir+'/plots/'
+print('Plots written to dir: %s ' % PlotDir)
+PlotName = 'StGormans_models'
+print('Plot filname: %s ' % PlotName)
+PlotFmt = ['.pdf', '.png'] #'.png', '.pdf',]
 
 
-PDFCatName = PlotDir+"StGormans_mods.pdf"
+PDFCatName = PlotDir+'StGormans_mods.pdf'
 PDFCatalog = True
-if ".pdf" in PlotFmt:
+if '.pdf' in PlotFmt:
     pass
 else:
-    print(" No pdf files generated. No catalog possible!")
+    print(' No pdf files generated. No catalog possible!')
     PdfCatalog = False
 
 
-ImageType = "image"
-ImageType = "contour"
-# ImageType = "scatter"
+ImageType = 'image'
+ImageType = 'contour'
+# ImageType = 'scatter'
 
 Layers = [1, 5, 10, 15, 20, 25]
-Prop = "rho"
-Unit = r"log10 $\Omega$m"
+Prop = 'rho'
+Unit = r'log10 $\Omega$m'
 Limits = [0., 4.]
 Steps  = [0., 0.5, 1., 1.5, 2., 2.5,  3., 3.5, 4.,]
 Steps = numpy.arange(1., 3.501, 0.1)
-print("\nLayer parameters:")
+print('\nLayer parameters:')
 LayList = []
 for il in numpy.arange(len(Layers)):
-    label = "Layer"+str(Layers[il])
+    label = 'Layer'+str(Layers[il])
     LayList.append([label, Layers[il], Prop, Unit, Limits, Steps])
     print(LayList[il])
 
 
 
 
-"""
+'''
 Kernel functions for RBF:
     The radial basis function, based on the radius, r,
     given by the norm (default is Euclidean distance); the default is ‘multiquadric’:
@@ -184,17 +184,17 @@ Methods for griddata:
         'cubic'         return the value determined from a piecewise cubic,
                         continuously differentiable (C1), and approximately
                         curvature-minimizing polynomial surface.
-"""
-if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
+'''
+if ('image' in ImageType.lower()) or ('contour'in ImageType.lower()):
     step = 1
 
-    InterpMethod = ["griddata","linear"]
-    # InterpMethod = ["griddata", "cubic"]
-    # InterpMethod = ["rbf", "linear", 0.0]
-    # InterpMethod = ["rbf", "thin_plate_spline", 0.0]
-    # InterpMethod = ["rbf", "cubic", 0.01]
+    InterpMethod = ['griddata','linear']
+    # InterpMethod = ['griddata', 'cubic']
+    # InterpMethod = ['rbf', 'linear', 0.0]
+    # InterpMethod = ['rbf', 'thin_plate_spline', 0.0]
+    # InterpMethod = ['rbf', 'cubic', 0.01]
 
-    # InterpMethod = ["krig", "linear", 0.5, 340.]
+    # InterpMethod = ['krig', 'linear', 0.5, 340.]
     S = 500.
     numIndexes = [121, 141]
     smooth = 0.
@@ -206,11 +206,11 @@ if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
         DistMask = 100.
 
     if MaskPoly:
-        PolyDir = AEMPYX_DATA+"/Blocks/polygons/"
-        PolyFiles = [PolyDir+"A9_2019_utm.npz"]
-        Polygon= numpy.load(PolyFiles[0], allow_pickle=True)["Poly"][0]
+        PolyDir = AEMPYX_DATA+'/Blocks/polygons/'
+        PolyFiles = [PolyDir+'A9_2019_utm.npz']
+        Polygon= numpy.load(PolyFiles[0], allow_pickle=True)['Poly'][0]
 
-if ("scatter" in ImageType.lower()):
+if ('scatter' in ImageType.lower()):
     Decim=25
     step = min(1,abs(Decim))
     Markersize = 5
@@ -222,27 +222,27 @@ if ("scatter" in ImageType.lower()):
 
 
 # XYFact = 1.
-# XYUnits = "(m)"
-# xformatter = matplotlib.ticker.FormatStrFormatter("%7f")
-# yformatter = matplotlib.ticker.FormatStrFormatter("%6f")
+# XYUnits = '(m)'
+# xformatter = matplotlib.ticker.FormatStrFormatter('%7f')
+# yformatter = matplotlib.ticker.FormatStrFormatter('%6f')
 
-XYUnits = "(km)"
+XYUnits = '(km)'
 XYFact = 0.001
-xformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
-yformatter = matplotlib.ticker.FormatStrFormatter("%.2f")
+xformatter = matplotlib.ticker.FormatStrFormatter('%.2f')
+yformatter = matplotlib.ticker.FormatStrFormatter('%.2f')
 
-"""
+'''
 Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
-"""
+'''
 FilesOnly = False
-matplotlib.pyplot.style.use("seaborn-paper")
-matplotlib.rcParams["text.usetex"] = False
-matplotlib.rcParams["font.family"] = "sans-serif"
-matplotlib.rcParams["figure.dpi"] = 400
-matplotlib.rcParams["axes.linewidth"] = 0.5
-matplotlib.rcParams["savefig.facecolor"] = "none"
-matplotlib.rcParams["savefig.bbox"]= "tight"
+matplotlib.pyplot.style.use('seaborn-paper')
+matplotlib.rcParams['text.usetex'] = False
+matplotlib.rcParams['font.family'] = 'sans-serif'
+matplotlib.rcParams['figure.dpi'] = 400
+matplotlib.rcParams['axes.linewidth'] = 0.5
+matplotlib.rcParams['savefig.facecolor'] = 'none'
+matplotlib.rcParams['savefig.bbox']= 'tight'
 
 Fontsize = 7
 Labelsize = Fontsize
@@ -252,25 +252,25 @@ Fontsizes = [Fontsize, Labelsize, Titlesize]
 Linewidths= [0.5]
 FigWidth = 16.
 
-"""
+'''
 Determine colormap.
 => https://matplotlib.org/stable/gallery/color/colormap_reference.html
-"""
+'''
 
-Cmap ="viridis"
-Cmap = "hsv"
-# Cmap ="magma"
-Cmap = "jet_r"
-# Cmap = "seismic"
-# Cmap = "Spectral"
+Cmap ='viridis'
+Cmap = 'hsv'
+# Cmap ='magma'
+Cmap = 'jet_r'
+# Cmap = 'seismic'
+# Cmap = 'Spectral'
 cmp = matplotlib.colormaps[Cmap]
 
 if FilesOnly:
-    matplotlib.use("cairo")
+    matplotlib.use('cairo')
 
 
 if not os.path.isdir(PlotDir):
-    print("File: %s does not exist, but will be created" % PlotDir)
+    print('File: %s does not exist, but will be created' % PlotDir)
     os.mkdir(PlotDir)
 
 
@@ -282,32 +282,32 @@ if MergeModels:
 
 for filein in mod_files:
     start = process_time()
-    print("\nNModels read from: %s" % filein)
+    print('\nNModels read from: %s' % filein)
 
     Models = numpy.load(filein, allow_pickle=True)
 
-    E = Models["x"][::step]*XYFact
+    E = Models['x'][::step]*XYFact
     E_min = numpy.amin(E)
     E_max = numpy.amax(E)
-    N = Models["y"][::step]*XYFact
+    N = Models['y'][::step]*XYFact
     N_min = numpy.amin(N)
     N_max = numpy.amax(N)
-    Z = Models["d"][::step,:]
+    Z = Models['d'][::step,:]
 
-    DX = Models["mod"][::step]
+    DX = Models['mod'][::step]
 
 
     if ParaTrans==1:
        DX = numpy.log10(DX)
 
 
-    if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
+    if ('image' in ImageType.lower()) or ('contour'in ImageType.lower()):
         xi= numpy.linspace(E_min,E_max,numIndexes[0])
         yi= numpy.linspace(N_min,N_max,numIndexes[1])
         dx = numpy.around(numpy.diff(xi)[0]/XYFact, decimals=0)
         dy = numpy.around(numpy.diff(yi)[0]/XYFact, decimals=0)
-        print("Interpolation mesh, dx = "+ str(dx)+" m, dy ="+ str(dy)+" m")
-        XI, YI = numpy.meshgrid(xi, yi, indexing="ij" )
+        print('Interpolation mesh, dx = '+ str(dx)+' m, dy ='+ str(dy)+' m')
+        XI, YI = numpy.meshgrid(xi, yi, indexing='ij' )
         Pnts = numpy.stack([ E.ravel(),  N.ravel()], -1)
         Mesh = numpy.stack([XI.ravel(), YI.ravel()], -1)
 
@@ -346,17 +346,17 @@ for filein in mod_files:
 
 
         dstr = str(numpy.round(Z[0,layr-1], decimals=0))
-        if "scatter"in ImageType.lower():
-            titl = layl+" ("+dstr+" m): trn="+str(ParaTrans)
+        if 'scatter'in ImageType.lower():
+            titl = layl+' ('+dstr+' m): trn='+str(ParaTrans)
         else:
-            titl = layl+" ("+dstr+" m): "+str(ParaTrans)+"/"+InterpMethod[0]+"/"+InterpMethod[1]
+            titl = layl+' ('+dstr+' m): '+str(ParaTrans)+'/'+InterpMethod[0]+'/'+InterpMethod[1]
 
-        print("Plotting  "+titl)
+        print('Plotting  '+titl)
 
         D  = DX[:, layr-1].copy()
         D_min = numpy.amin(D)
         D_max = numpy.amax(D)
-        print("Models, read   min="+str( D_min)+"   max="+str( D_max))
+        print('Models, read   min='+str( D_min)+'   max='+str( D_max))
 
         Unit = lunt
 
@@ -367,8 +367,8 @@ for filein in mod_files:
         fig.set_figwidth(FigWidth)
 
 
-        if ("scatter" in ImageType.lower()):
-            print("Scatter Plot")
+        if ('scatter' in ImageType.lower()):
+            print('Scatter Plot')
 
 
             D[D<=plim[0]]=plim[0]
@@ -381,33 +381,33 @@ for filein in mod_files:
                 im = matplotlib.pyplot.scatter(E, N, c=D, s=Markersize**2, cmap=cmp)
 
             # ax = matplotlib.pyplot.gca()
-            ax.set_aspect("equal")
+            ax.set_aspect('equal')
             ax.xaxis.set_major_formatter(xformatter)
-            ax.set_xlabel("Easting "+XYUnits, size=Fontsizes[1])
+            ax.set_xlabel('Easting '+XYUnits, size=Fontsizes[1])
             ax.yaxis.set_major_formatter(yformatter)
-            ax.set_ylabel("Northing "+XYUnits, size=Fontsizes[1])
+            ax.set_ylabel('Northing '+XYUnits, size=Fontsizes[1])
 
-            ax.tick_params(axis="x", labelsize=Fontsizes[1]-2, labelrotation=0.)#-45)
-            ax.tick_params(axis="y", labelsize=Fontsizes[1]-2, labelrotation=0.)#-45)
-            ax.grid(which="major", axis="both", visible=True,linewidth= Linewidths[0],linestyle="--")
-            ax.set_title(AEM_system.upper()+": "+ titl)
+            ax.tick_params(axis='x', labelsize=Fontsizes[1]-2, labelrotation=0.)#-45)
+            ax.tick_params(axis='y', labelsize=Fontsizes[1]-2, labelrotation=0.)#-45)
+            ax.grid(which='major', axis='both', visible=True,linewidth= Linewidths[0],linestyle='--')
+            ax.set_title(AEM_system.upper()+': '+ titl)
 
             divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
-            cax = divider.append_axes("right", size="5%", pad=0.2)
-            cb = matplotlib.pyplot.colorbar(im, cax=cax, extend="both")
+            cax = divider.append_axes('right', size='5%', pad=0.2)
+            cb = matplotlib.pyplot.colorbar(im, cax=cax, extend='both')
             cb.ax.tick_params(labelsize=Fontsizes[1])
             cb.ax.set_title(lunt, fontsize=Fontsizes[1])
 
-        if ("image" in ImageType.lower()) or ("contour"in ImageType.lower()):
+        if ('image' in ImageType.lower()) or ('contour'in ImageType.lower()):
 
             Dats = D.flatten()
 
-            if "grid" in InterpMethod[0].lower():
+            if 'grid' in InterpMethod[0].lower():
                 DI = scipy.interpolate.griddata(Pnts, Dats, Mesh,
                                                 method=InterpMethod[1].lower())
                 DI = numpy.reshape(DI,(len(xi), len(yi)))
 
-            elif "rbf" in InterpMethod[0].lower():
+            elif 'rbf' in InterpMethod[0].lower():
                 # RBF = scipy.interpolate.Rbf(E, N, D,
                 #                             function=InterpMethod[1].lower(), smooth=InterpMethod[2])
                 # DI  = RBF(XI, YI)
@@ -421,8 +421,8 @@ for filein in mod_files:
                 DI = numpy.reshape(DI,(len(xi), len(yi)))
 
 
-            elif "krig" in InterpMethod[0].lower():
-                error("Kriging estimation not yet implemented! Exit.")
+            elif 'krig' in InterpMethod[0].lower():
+                sys.exit('Kriging estimation not yet implemented! Exit.')
 
             D[D<=plim[0]]=plim[0]
             D[D>=plim[1]]=plim[1]
@@ -440,70 +440,70 @@ for filein in mod_files:
 
             D_min = numpy.nanmin(DI)
             D_max = numpy.nanmax(DI)
-            print("Models, interpolated   min="+str( D_min)+"   max="+str( D_max))
+            print('Models, interpolated   min='+str( D_min)+'   max='+str( D_max))
 
 
             if len(plim)==0:
-                if ("image" in ImageType.lower()):
+                if ('image' in ImageType.lower()):
                     im = ax.pcolor(XI, YI, DI, cmap=cmp)
-                if ("contour" in ImageType.lower()):
+                if ('contour' in ImageType.lower()):
                     im = ax.contourf(XI, YI, DI, cmap=cmp, levels=cstp)
             else:
-                if ("image" in ImageType.lower()):
+                if ('image' in ImageType.lower()):
                     valmin, valmax = plim
                     im = ax.pcolor(XI, YI, DI,
                                    cmap=cmp,
                                    vmin=valmin, vmax=valmax)
-                if ("contour" in ImageType.lower()):
+                if ('contour' in ImageType.lower()):
                     valmin, valmax =  plim
                     im = ax.contourf(XI, YI, DI,
                                      cmap=cmp,
                                      vmin=valmin, vmax=valmax,
                                      levels=cstp)
 
-            ax.set_aspect("equal")
+            ax.set_aspect('equal')
             ax.xaxis.set_major_formatter(xformatter)
-            ax.set_xlabel("Easting "+XYUnits, size=Fontsizes[1])
+            ax.set_xlabel('Easting '+XYUnits, size=Fontsizes[1])
             ax.yaxis.set_major_formatter(yformatter)
-            ax.set_ylabel("Northing "+XYUnits, size=Fontsizes[1])
+            ax.set_ylabel('Northing '+XYUnits, size=Fontsizes[1])
 
             ax.set_title(titl,fontsize=Fontsize)
 
-            ax.grid(color="k", alpha=0.5, linestyle="dotted", linewidth=1.5)
+            ax.grid(color='k', alpha=0.5, linestyle='dotted', linewidth=1.5)
             ax.tick_params(labelsize=Labelsize)
 
 
             divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
-            cax = divider.append_axes("right", size="5%", pad=0.2)
+            cax = divider.append_axes('right', size='5%', pad=0.2)
 
-            cb = matplotlib.pyplot.colorbar(im, cax=cax, extend="both")
+            cb = matplotlib.pyplot.colorbar(im, cax=cax, extend='both')
             cb.ax.tick_params(labelsize=Fontsizes[1])
             cb.ax.set_title(lunt, fontsize=Fontsizes[1])
 
 
 
-        if "scatter" in ImageType.lower():
-            plotfile = PlotDir+PlotName+"_"+AEM_system\
-                +"_"+ImageType\
-                +"_"+ layl
+        if 'scatter' in ImageType.lower():
+            plotfile = PlotDir+PlotName+'_'+AEM_system\
+                +'_'+ImageType\
+                +'_'+ layl
         else:
-            plotfile = PlotDir+PlotName+"_"+AEM_system\
-                +"_"+ImageType\
-                +"_"+ layl\
-            +"_"+InterpMethod[0].lower()\
-            +"_"+InterpMethod[1].lower()
+            plotfile = PlotDir+PlotName+'_'+AEM_system\
+                +'_'+ImageType\
+                +'_'+ layl\
+            +'_'+InterpMethod[0].lower()\
+            +'_'+InterpMethod[1].lower()
 
         for F in PlotFmt:
-            print("Plot written to "+plotfile+F)
+            print('Plot written to '+plotfile+F)
             matplotlib.pyplot.savefig(plotfile+F,
                                       dpi=600,
-                                      bbox_inches="tight",
-                                      backend= "cairo",
+                                      bbox_inches='tight',
+                                      backend= 'cairo',
                                       transparent=True)
 
 
         if PDFCatalog:
-            pdf_list.append(plotfile+".pdf")
+            pdf_list.append(plotfile+'.pdf')
             catalog.savefig(fig)
 
 
@@ -516,7 +516,7 @@ if PdfCatalog:
     print(pdf_list)
     # viz.make_pdf_catalog(PDFList=pdf_list, FileName=PDFCatName)
     d = catalog.infodict()
-    d["Title"] =  PDFCatName
-    d["Author"] = getpass.getuser()
-    d["CreationDate"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    d['Title'] =  PDFCatName
+    d['Author'] = getpass.getuser()
+    d['CreationDate'] = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
     catalog.close()

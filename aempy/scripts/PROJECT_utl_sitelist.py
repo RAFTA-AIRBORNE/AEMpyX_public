@@ -8,17 +8,17 @@
 #     text_representation:
 #       extension: .py
 #       format_name: light
-#       format_version: "1.5"
+#       format_version: '1.5'
 #       jupytext_version: 1.11.3
 # ---
 
-"""
+'''
 
 This script produces a site list containing site names,
 coordinates and elevations, e. g., for WALDIM analysis.
 
 @author: sb & vr dec 2019
-"""
+'''
 
 # Import required modules
 
@@ -32,10 +32,10 @@ import numpy as np
 from mtpy.core.mt import MT
 import utm
 
-PY4MT_ROOT = os.environ["PY4MT_ROOT"]
-PY4MT_DATA = os.environ["PY4MT_DATA"]
+PY4MT_ROOT = os.environ['PY4MT_ROOT']
+PY4MT_DATA = os.environ['PY4MT_DATA']
 
-mypath = [PY4MT_ROOT+"/py4mt/modules/", PY4MT_ROOT+"/py4mt/scripts/"]
+mypath = [PY4MT_ROOT+'/py4mt/modules/', PY4MT_ROOT+'/py4mt/scripts/']
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -43,24 +43,24 @@ for pth in mypath:
 import util
 from version import versionstrg
 
-PY4MT_DATA = os.environ["PY4MT_DATA"]
+PY4MT_DATA = os.environ['PY4MT_DATA']
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 
-dialect = "unix"
-delim = ","
+dialect = 'unix'
+delim = ','
 to_utm = True
-to_kml = ["ffd4ff7f", 1.6, "star.png"]
+to_kml = ['ffd4ff7f', 1.6, 'star.png']
 
 # Define the path to your EDI-files and for the list produced
-# EdiDir = PY4MT_ROOT+"/work/orig/"
-EdiDir = "/home/vrath/Enfield/" 
-print(" Edifiles read from: %s" % EdiDir)
-CSVFile = EdiDir + "Sitelist.dat"
-print("Writing data to file: " + CSVFile)
+# EdiDir = PY4MT_ROOT+'/work/orig/'
+EdiDir = '/home/vrath/Enfield/' 
+print(' Edifiles read from: %s' % EdiDir)
+CSVFile = EdiDir + 'Sitelist.dat'
+print('Writing data to file: ' + CSVFile)
 
 # No changes required after this line!
 
@@ -70,20 +70,20 @@ edi_files = []
 files = os.listdir(EdiDir)
 for entry in files:
     # print(entry)
-    if entry.endswith(".edi") and not entry.startswith("."):
+    if entry.endswith('.edi') and not entry.startswith('.'):
         edi_files.append(entry)
 ns = np.size(edi_files)
 
 # Outputfile (e. g., for WALDIM analysis)
 
-with open(CSVFile, "w") as f:
+with open(CSVFile, 'w') as f:
 
     sitelist = csv.writer(f, delimiter=delim)
 
 # Loop over edifiles:
 
     for filename in edi_files:
-        print("reading data from: " + filename)
+        print('reading data from: ' + filename)
         name, ext = os.path.splitext(filename)
         file_i = EdiDir + filename
 

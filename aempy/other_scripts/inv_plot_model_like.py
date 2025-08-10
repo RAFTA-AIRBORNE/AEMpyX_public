@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # ---
-"""
-"""
+'''
+'''
 import os
 import sys
-from sys import exit as error
+
 from datetime import datetime
 from time import process_time
 from random import randrange
@@ -20,8 +20,8 @@ import matplotlib.pyplot
 import seaborn
 
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -33,56 +33,56 @@ import util
 import inverse
 import viz
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 OutInfo = True
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  # float('NaN')
 
 version, _ = versionstrg()
 now = datetime.now()
-Strng = "AEMpyX Version "+version
-print("\n\n"+Strng)
-print("Plot model-like inversion output"+"\n"+"".join("Date " + now.strftime("%m/%d/%Y, %H:%M:%S")))
-print("\n\n")
+Strng = 'AEMpyX Version '+version
+print('\n\n'+Strng)
+print('Plot model-like inversion output'+'\n'+''.join('Date ' + now.strftime('%m/%d/%Y, %H:%M:%S')))
+print('\n\n')
 
 
 OutInfo = True
 now = datetime.now()
 
-"""
-input format is ".npz",
-"""
-InModDir ="/home/vrath/work/Clara/work/AEM_FD/" # AEMPYX_DATA + "/Blocks/StGormans/proc_delete/"
-# InDatDir = AEMPYX_DATA + "/Intersection/geophysics/data/Geophysics_R12A/"
-# InDatDir = AEMPYX_DATA + "/Tests/"
-print("Models read from dir:  %s" % InModDir)
+'''
+input format is '.npz',
+'''
+InModDir ='/home/vrath/work/Clara/work/AEM_FD/' # AEMPYX_DATA + '/Blocks/StGormans/proc_delete/'
+# InDatDir = AEMPYX_DATA + '/Intersection/geophysics/data/Geophysics_R12A/'
+# InDatDir = AEMPYX_DATA + '/Tests/'
+print('Models read from dir:  %s' % InModDir)
 PlotDir = InModDir
-print("Models written to dir: %s " % PlotDir)
+print('Models written to dir: %s ' % PlotDir)
 if not os.path.isdir(PlotDir):
-    print("File: %s does not exist, but will be created" % PlotDir)
+    print('File: %s does not exist, but will be created' % PlotDir)
     os.mkdir(PlotDir)
 
 
 mod_files = [
-"A1_NM_intersection_FL11126-0_delete_PLM10_k3_prof1_nlyr32_TikhOpt_gcv_Prior30_Results.npz",
-"A1_NM_intersection_FL11126-0_delete_PLM10_k3_prof1_nlyr32_TikhOpt_gcv_Prior3000_Results.npz"
+'A1_NM_intersection_FL11126-0_delete_PLM10_k3_prof1_nlyr32_TikhOpt_gcv_Prior30_Results.npz',
+'A1_NM_intersection_FL11126-0_delete_PLM10_k3_prof1_nlyr32_TikhOpt_gcv_Prior3000_Results.npz'
               ]
 
 ReadFilelist = False
 if ReadFilelist:
     mod_files = []
-    with open("Filelist.txt", "r") as file:
+    with open('Filelist.txt', 'r') as file:
         for line in file:
             mod_files.append(line[:-1])
 
 SearchFilelist = False
 
 if SearchFilelist:
-    SearchStrng = ""
-    print("Search string: %s " % SearchStrng)
+    SearchStrng = ''
+    print('Search string: %s ' % SearchStrng)
     mod_files = util.get_filelist(searchstr=[SearchStrng], searchpath=InModDir)
 
 
@@ -90,10 +90,10 @@ mod_files = sorted(mod_files)
 ns = numpy.size(mod_files)
 
 if ns ==0:
-    error("No files found!. Exit.")
+    sys.exit('No files found!. Exit.')
 
-Fileout = PlotDir +"AEM05_TikhOpt_P30-3000_DoI.npz"
-Header = "DoI from FD models"
+Fileout = PlotDir +'AEM05_TikhOpt_P30-3000_DoI.npz'
+Header = 'DoI from FD models'
 
 start = time.time()
 
@@ -103,44 +103,44 @@ for file in mod_files:
     icount = icount+1
 
     m = numpy.load(InModDir +file)
-    m_ref = m["mod_ref"]
-    m_act = m["mod_act"]
-    nsit = len(m["site_num"])
+    m_ref = m['mod_ref']
+    m_act = m['mod_act']
+    nsit = len(m['site_num'])
     nlyr = inverse.get_nlyr(m_ref)
     prior = inverse.extract_mod(M=m_ref, m_act=m_act)
 
 
     if icount == 0:
-        modls = m["site_modl"]
-        merrs = m["site_merr"]
+        modls = m['site_modl']
+        merrs = m['site_merr']
         mrefs = prior
-        modshp0 = numpy.shape(m["site_modl"])
+        modshp0 = numpy.shape(m['site_modl'])
         # print( numpy.shape(modls))
     else:
-        modls = numpy.vstack((modls, m["site_modl"]))
-        merrs = numpy.vstack((merrs, m["site_merr"]))
+        modls = numpy.vstack((modls, m['site_modl']))
+        merrs = numpy.vstack((merrs, m['site_merr']))
         mrefs = numpy.vstack((mrefs, prior))
-        modshp = numpy.shape(m["site_modl"])
+        modshp = numpy.shape(m['site_modl'])
         if modshp != modshp0:
-            error("model dimenssions do not fit! Exit.")
+            sys.exit('model dimenssions do not fit! Exit.')
         # print( numpy.shape(modls))
 
 
 modls = numpy.log10(modls.reshape(ns, nsit, nlyr))
 mrefs = numpy.log10(mrefs.reshape(ns, nlyr))
 
-# print("modls ", numpy.shape(modls))
+# print('modls ', numpy.shape(modls))
 m_avg = numpy.sum(modls, axis=0).reshape(nsit,nlyr)
 m_dif = numpy.diff(modls, axis=0).reshape(nsit,nlyr)
 r_dif = numpy.diff(mrefs, axis=0)
-# print("avg ", numpy.shape(m_avg))
-# print("mdif", numpy.shape(m_dif))
-# print("rdif", numpy.shape(r_dif))
+# print('avg ', numpy.shape(m_avg))
+# print('mdif', numpy.shape(m_dif))
+# print('rdif', numpy.shape(r_dif))
 m_doi = numpy.abs(m_dif)/numpy.abs(r_dif)
-# print("doi", numpy.shape(doi))
+# print('doi', numpy.shape(doi))
 
-print("DoI min = "+str(numpy.amin(m_doi)))
-print("    man = "+str(numpy.amax(m_doi)))
+print('DoI min = '+str(numpy.amin(m_doi)))
+print('    man = '+str(numpy.amax(m_doi)))
 
 numpy.savez_compressed(
        file=Fileout,
@@ -150,7 +150,7 @@ numpy.savez_compressed(
        mod_ref=m_ref,
        mod_doi=m_doi,
     )
-"""
+'''
     numpy.savez_compressed(
         file=Fileout,
         fl_data=file,
@@ -174,9 +174,9 @@ numpy.savez_compressed(
         site_gps=site_gps,
         site_alt=site_alt,
         site_dem=site_dem)
-"""
-print("Results stored to "+Fileout)
+'''
+print('Results stored to '+Fileout)
 elapsed = (time.time() - start)
-print (" Used %7.4f sec \n" % (elapsed))
+print (' Used %7.4f sec \n' % (elapsed))
 
-print("\nAll done!")
+print('\nAll done!')

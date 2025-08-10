@@ -14,7 +14,7 @@
 
 import os
 import sys
-from sys import exit as error
+
 from datetime import datetime
 from time import process_time
 # from random import randrange
@@ -29,8 +29,8 @@ import scipy
 
 # %logstart -o
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -40,23 +40,23 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
+AEMPYX_DATA = '/home/vrath/work/A1_StGormans/'
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  # float('NaN')
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 OutInfo = False
 now = datetime.now()
 
 
-"""
+'''
 System related settings.
 Data transformation is now allowed with three possible options:
 DataTrans   = 0           raw data
@@ -65,92 +65,92 @@ DataTrans   = 0           raw data
 An error model is applied for the raw data, which is
 mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
-"""
-# AEM_system = "genesis"
-AEM_system = "aem05"  # "genesis"
-if "aem05" in AEM_system.lower():
+'''
+# AEM_system = 'genesis'
+AEM_system = 'aem05'  # 'genesis'
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add =  50.
     DatErr_mult = 0.03
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
 
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add = 100.
     DatErr_mult = 0.01
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 
-"""
-input formats are ".npz",".nc4",".asc"
-"""
-InFileFmt = ".npz"
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
-FileList = "search"
-SearchStrng = "*FL*k3*data.npz"
-InDatDir =  AEMPYX_DATA + "/proc/"
-if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+'''
+input formats are '.npz','.nc4','.asc'
+'''
+InFileFmt = '.npz'
+AEMPYX_DATA  = AEMPYX_ROOT+'/aempy/examples/A1_StGormans/'
+FileList = 'search'
+SearchStrng = '*FL*k3*data.npz'
+InDatDir =  AEMPYX_DATA + '/proc/'
+if not InDatDir.endswith('/'): InDatDir=InDatDir+'/'
 
 
-"""
-Output format is ".npz"
-"""
-OutFileFmt = ".npz"
-OutResDir =   AEMPYX_DATA + "/results_halfspace/"
+'''
+Output format is '.npz'
+'''
+OutFileFmt = '.npz'
+OutResDir =   AEMPYX_DATA + '/results_halfspace/'
 if not os.path.isdir(OutResDir):
-    print("File: %s does not exist, but will be created" % OutResDir)
+    print('File: %s does not exist, but will be created' % OutResDir)
     os.mkdir(OutResDir)
-print("Models written to dir: %s " % OutResDir)
+print('Models written to dir: %s ' % OutResDir)
 
 
-if "set" in FileList.lower():
-    # InDatDir = AEMPYX_DATA + "/ERT_AEM_Profiles/data/"
-    InDatDir ="/home/vrath/work/AEM_Data/Tellus/data/SYNTH/"
-    print("Data files read from dir:  %s" % InDatDir)
-    dat_files = ["SYNTH_AEM05_1Layer_Resistor.asc",
-                "SYNTH_AEM05_1Layer_Conductor.asc",]
+if 'set' in FileList.lower():
+    # InDatDir = AEMPYX_DATA + '/ERT_AEM_Profiles/data/'
+    InDatDir ='/home/vrath/work/AEM_Data/Tellus/data/SYNTH/'
+    print('Data files read from dir:  %s' % InDatDir)
+    dat_files = ['SYNTH_AEM05_1Layer_Resistor.asc',
+                'SYNTH_AEM05_1Layer_Conductor.asc',]
 
 else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
+    # how = ['search', SearchStrng, InDatDir]
+    # how = ['read', FileList, InDatDir]
+    dat_files = util.get_data_list(how=['search', SearchStrng, InDatDir],
                               out= True, sort=True)
     ns = numpy.size(dat_files)
 
 ns = numpy.size(dat_files)
 if ns ==0:
-    error("No files set!. Exit.")
+    sys.exit('No files set!. Exit.')
 
 
 
 
 
 
-"""
+'''
 Define inversion type  optional additional parameters (e.g., Waveforms )
-"""
-RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
+'''
+RunType = 'TikhOpt' # 'TikhOcc',  'MAP_ParSpace', 'MAP_DatSpace','Jack','DoI', 'RTO''
 Uncert = True
-Direction =  "normal"
+Direction =  'normal'
 
 
-RegFun = "fix" # "fix", "lcc", "gcv", "mle"
+RegFun = 'fix' # 'fix', 'lcc', 'gcv', 'mle'
 RegVal0 = 1.e-5
 NTau0 = 1
 Tau0min = numpy.log10(RegVal0)
 Tau0max = numpy.log10(RegVal0)
 Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
-if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
+if any(s in RegFun.lower() for s in ['gcv', 'upr', 'ufc', 'mle', 'lcc']):
     RegVal1Min = 0.1
     RegVal1Max = 1000.
     NTau1 =64
@@ -169,11 +169,11 @@ NSamples = 100
 Percentiles = [10., 20., 30., 40., 50., 60., 70., 80., 90.] # linear
 # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
 
-"""
+'''
 Model definition
-"""
+'''
 
-SetPrior = "set"
+SetPrior = 'set'
 ParaTrans = 1
 
 Nlyr = 1
@@ -214,28 +214,28 @@ mod_bnd[:,1] = max_val
 
 if OutInfo:
     #   print \
-    #   (" Parameter set for inverting: \n", mod_act)
-    print(" Layer thicknesses: \n", dz)
-    print(" Layer interface depths: \n", z)
-    print(" Initial halfspace resistivity of %6.2f Ohm*m" % (Guess_r))
-    print(" Log Standard error of %6.2f " % (Guess_s))
+    #   (' Parameter set for inverting: \n', mod_act)
+    print(' Layer thicknesses: \n', dz)
+    print(' Layer interface depths: \n', z)
+    print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_r))
+    print(' Log Standard error of %6.2f ' % (Guess_s))
     if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
-        print(" Upper limits: \n", mod_bnd[:, 1])
-        print(" Lower limits: \n", mod_bnd[:, 0])
+        print(' Upper limits: \n', mod_bnd[:, 1])
+        print(' Lower limits: \n', mod_bnd[:, 0])
 
-"""
+'''
 Setup Controls for different Algorithms
-"""
+'''
 
-if "tikhopt" in  RunType.lower():
+if 'tikhopt' in  RunType.lower():
 
-    D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
+    D0 = inverse.diffops(dz, der=False, mtype='sparse', otype='L0')
     L = [D0 for D in range(7)]
     L0 = scipy.sparse.block_diag(L)
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype='sparse', otype='L1')
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -246,28 +246,28 @@ if "tikhopt" in  RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
-    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, 'rms']
+    # ThreshFit = [5., 1.0e-2, 1.0e-2, 'smp']
     Delta = [1.e-5]
     RegShift = 0
 
 
     Ctrl ={
-        "system":
+        'system':
             [AEM_system, FwdCall],
-        "header":
-            [titstrng, ""],
-        "inversion":
+        'header':
+            [titstrng, ''],
+        'inversion':
             numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
                       LinPars, SetPrior, Delta, RegShift], dtype=object),
-        "covar":
+        'covar':
             numpy.array([L0, Cm0, L1, Cm1], dtype=object),
-        "uncert":
+        'uncert':
             [Uncert],
 
-        "data":
+        'data':
             numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
-        "model":
+        'model':
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
 
@@ -275,8 +275,8 @@ if OutInfo:
     print(Ctrl.keys())
 
 
-OutStrng = "_halfspace"
-print("ID string: input file + %s " % OutStrng)
+OutStrng = '_halfspace'
+print('ID string: input file + %s ' % OutStrng)
 
 
 fcount =0
@@ -288,10 +288,10 @@ for file in dat_files:
 
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
-    print("\n Reading file " + filein)
+    print('\n Reading file ' + filein)
 
     fileout = OutResDir + name + OutStrng
-    numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
+    numpy.savez_compressed(file=fileout+'_ctrl'+OutFileFmt,**Ctrl)
 
 
     DataObs, Header, _ = aesys.read_aempy(File=filein,
@@ -307,28 +307,28 @@ for file in dat_files:
     [nsite,ndata] = numpy.shape(dat_obs)
 
 
-    if "read" in SetPrior.lower():
-        error("Prior model read not yet implemented! Exit.")
+    if 'read' in SetPrior.lower():
+        sys.exit('Prior model read not yet implemented! Exit.')
         # file,filext0 = os.path.splitext(file)
         # tmp = numpy.load(file, allow_pickle=True)
-        # mod_aprel = tmp["site_modl"]
+        # mod_aprel = tmp['site_modl']
         # mod_apr = numpy.mat(inverse.extract_mod(mod_apr,mod_act))
-    elif "set" in SetPrior.lower() or "upd" in SetPrior.lower():
+    elif 'set' in SetPrior.lower() or 'upd' in SetPrior.lower():
         mod_apr = mod_apr.copy()
         mod_ini = mod_apr.copy()
         error_ini = mod_var
     else:
-        error("Prior model method "+SetPrior.lower()+" not yet implemented! Exit.")
+        sys.exit('Prior model method '+SetPrior.lower()+' not yet implemented! Exit.')
 
-    Ctrl["name"] = fl_name
+    Ctrl['name'] = fl_name
 
 
     start = process_time()
-    """
+    '''
     Loop over sites
-    """
+    '''
     sequence = range(nsite)
-    if "rev" in Direction.lower():
+    if 'rev' in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence
@@ -338,24 +338,24 @@ for file in dat_files:
     site_log = numpy.full((len(sites),logsize), numpy.nan)
 
     for ii in sites:
-        print("\n Invert site #"+str(ii))
+        print('\n Invert site #'+str(ii))
 
-        """
+        '''
         Setup model-related paramter
-        """
+        '''
 
 
         Model = dict([
-            ("m_act", mod_act),
-            ("m_apr", mod_apr),
-            ("m_var", mod_var),
-            ("m_bnd", mod_bnd),
-            ("m_ini", mod_ini)
+            ('m_act', mod_act),
+            ('m_apr', mod_apr),
+            ('m_var', mod_var),
+            ('m_bnd', mod_bnd),
+            ('m_ini', mod_ini)
             ])
 
-        """
+        '''
         Setup data-related paramter
-        """
+        '''
         dat_act = numpy.tile(data_active,(nsite,1))
         dat_err = numpy.zeros_like(dat_obs)
         dat_err[ii, :], _ = inverse.set_errors(dat_obs[ii, :],
@@ -363,29 +363,29 @@ for file in dat_files:
                                                 daterr_mult=DatErr_mult)
 
         Data = dict([
-            ("d_act", dat_act[ii,:]),
-            ("d_obs", dat_obs[ii,:]),
-            ("d_err", dat_err[ii,:]),
-            ("alt", site_alt[ii])
+            ('d_act', dat_act[ii,:]),
+            ('d_obs', dat_obs[ii,:]),
+            ('d_err', dat_err[ii,:]),
+            ('alt', site_alt[ii])
             ])
 
-        """
+        '''
         Call inversion algorithms
-        """
+        '''
         Results = inverse.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
 
-        """
+        '''
         Store inversion Results
-        """
+        '''
         if OutInfo:
-            print("Results: ",Results.keys())
+            print('Results: ',Results.keys())
 
 
-        M = Results["model"]
-        D = Results["data"]
-        C = Results["log"]
+        M = Results['model']
+        D = Results['data']
+        C = Results['log']
 
         if ii==0:
             site_num  = numpy.array([ii])
@@ -396,7 +396,7 @@ for file in dat_files:
             site_dobs = D[0].reshape((1,-1))
             site_dcal = D[1].reshape((1,-1))
             site_derr = D[2].reshape((1,-1))
-            # print("ii=0")
+            # print('ii=0')
             cc = numpy.hstack((C[0], C[1],
                               C[2],
                               C[3].ravel(),
@@ -405,11 +405,11 @@ for file in dat_files:
                               C[6].ravel()))
             site_log[ii,0:len(cc)] = cc
             if Uncert:
-                jd = Results["jacd"]
+                jd = Results['jacd']
                 site_jacd = jd.reshape((1,numpy.size(jd)))
-                postcov = Results["cpost"]
+                postcov = Results['cpost']
                 site_postcov = postcov.reshape((1,numpy.size(postcov)))
-                mres = Results["mresm"][0]
+                mres = Results['mresm'][0]
                 site_nump = numpy.sum(numpy.diag(mres))
 
         else:
@@ -458,9 +458,9 @@ for file in dat_files:
         site_dem=site_dem)
 
 
-    print("\n\nResults stored to "+fileout)
+    print('\n\nResults stored to '+fileout)
     elapsed = (process_time() - start)
-    print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+    print (' Used %7.4f sec for %6i sites' % (elapsed, ii+1))
+    print (' Average %7.4f sec/site\n' % (elapsed/(ii+1)))
 
-print("\n\nAll done!")
+print('\n\nAll done!')

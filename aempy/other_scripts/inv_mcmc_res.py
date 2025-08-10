@@ -12,7 +12,7 @@
 #       jupytext_version: 1.11.4
 # ---
 import sys
-from sys import exit as error
+
 from datetime import datetime
 from time import process_time
 import time
@@ -26,8 +26,8 @@ import numpy
 import matplotlib
 import matplotlib.pyplot
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -43,23 +43,23 @@ import viz
 
 from version import versionstrg
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 OutInfo = True
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  # float('NaN')
 
 version, _ = versionstrg()
 now = datetime.now()
 
-Strng = "AEM Metropolis-Hastings\n"+"AEMpyX Version "+version
-print("\n\n"+Strng)
-print("".join("Date " + now.strftime("%m/%d/%Y, %H:%M:%S")))
-print("\n\n")
+Strng = 'AEM Metropolis-Hastings\n'+'AEMpyX Version '+version
+print('\n\n'+Strng)
+print(''.join('Date ' + now.strftime('%m/%d/%Y, %H:%M:%S')))
+print('\n\n')
 
-"""
+'''
 System related settings.
 Data transformation is now allowed with three possible options:
 DataTrans   = 0           raw data
@@ -68,11 +68,11 @@ DataTrans   = 0           raw data
 An error model is applied for the raw data, which is
 mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
-"""
-# AEM_system = "genesis"
-AEM_system = "aem05"
+'''
+# AEM_system = 'genesis'
+AEM_system = 'aem05'
 
-if "aem05" in AEM_system.lower():
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
@@ -80,10 +80,10 @@ if "aem05" in AEM_system.lower():
     DatErr_add = 50.
     DatErr_mult = 0.0
     alt = 60.
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
 
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
@@ -91,13 +91,13 @@ if "genes" in AEM_system.lower():
     DatErr_add = 100.
     DatErr_mult = 0.01
     alt = 90.
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 StoreChain = True
 StoreSum = True
-OutName="SYNTH_"
+OutName='SYNTH_'
 
 Nsample = 800000
 Nburnin = 200000
@@ -113,42 +113,42 @@ Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
 
 
 
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
-# InDatDir = AEMPYX_DATA+"/MH_Test/"
-InDatDir = AEMPYX_ROOT+"/aempy/data/mh/"
-print("Data read from dir:  %s" % InDatDir)
+# InDatDir = AEMPYX_DATA+'/MH_Test/'
+InDatDir = AEMPYX_ROOT+'/aempy/data/mh/'
+print('Data read from dir:  %s' % InDatDir)
 
-InFileFmt = ".npz"
-dat_files = ["SYNTH_AEM05_1Layer_Conductor.npz"]
+InFileFmt = '.npz'
+dat_files = ['SYNTH_AEM05_1Layer_Conductor.npz']
 
 ReadFilelist = False
 if ReadFilelist:
-    ListFile = ""
+    ListFile = ''
 
 SearchFilelist = False
 if SearchFilelist:
-    SearchStrng = "*.asc"
-    print("Search string: %s " % SearchStrng)
+    SearchStrng = '*.asc'
+    print('Search string: %s ' % SearchStrng)
 
-# dat_files = ["SYNTH_AEM053Layer_NewCase_All_Alt_Perturb_50.asc"]
-"""
-Output formats are ".npz"
-"""
-OutFileFmt = ".npz"
-# OutDatDir = AEMPYX_DATA + "/Nearest/fwd_compare/models/"
-OutDatDir = InDatDir+"/results/"
-print("Results written to dir: %s " % OutDatDir)
+# dat_files = ['SYNTH_AEM053Layer_NewCase_All_Alt_Perturb_50.asc']
+'''
+Output formats are '.npz'
+'''
+OutFileFmt = '.npz'
+# OutDatDir = AEMPYX_DATA + '/Nearest/fwd_compare/models/'
+OutDatDir = InDatDir+'/results/'
+print('Results written to dir: %s ' % OutDatDir)
 
 if not os.path.isdir(OutDatDir):
-    print("File: %s does not exist, but will be created" % OutDatDir)
+    print('File: %s does not exist, but will be created' % OutDatDir)
     os.mkdir(OutDatDir)
 
 
 if ReadFilelist:
 
     dat_files = []
-    with open(ListFile, "r") as file:
+    with open(ListFile, 'r') as file:
         for line in file:
             dat_files.append(line[:-1])
 
@@ -159,9 +159,9 @@ dat_files = sorted(dat_files)
 ns = numpy.size(dat_files)
 
 
-"""
+'''
 Define Model
-"""
+'''
 
 nlyr = 12
 
@@ -188,7 +188,7 @@ guess_std  = 0.1
 prior_std[0 * nlyr : 1 * nlyr] = guess_std
 para_var =prior_std[0 * nlyr : 1 * nlyr]**2
 
-mod_prior, m_state = inverse.transform_parameter(m_vec=prior_avg, m_trn=ParaTrans, mode="f")
+mod_prior, m_state = inverse.transform_parameter(m_vec=prior_avg, m_trn=ParaTrans, mode='f')
 
 m_upper = m_bounds[:,0]
 m_upper[0 * nlyr : 1 * nlyr] = 6.0  # prior_avg[m_active==1] + 3*prior_std[m_active==1]
@@ -198,22 +198,22 @@ m_lower[0 * nlyr : 1 * nlyr] = -1.0  # prior_avg[m_active==1] - 3*prior_std[m_ac
 m_l = m_lower[m_active==1]
 
 xc = yc = numpy.zeros(numpy.size(zc))
-Cm_prior, _, _ = inverse.covar(xc, yc, zc, covtype= "exp", L=[CorrLength, CorrLength, CorrLength],
+Cm_prior, _, _ = inverse.covar(xc, yc, zc, covtype= 'exp', L=[CorrLength, CorrLength, CorrLength],
                 var=para_var, sparse=False, thresh=0.05,
                 calc_inverse=False)
 print(Cm_prior)
 CholFac = scipy.lininverse.cholesky(Cm_prior)
 
-print(" Parameter set for inverting: \n", m_active)
-print(" Layer thicknesses: \n", dz)
-print(" Layer interface depths: \n", zn)
-print(" Initial homogeneous halfspace resistivity of %6.2f Ohm*m \n" % (guess_rho))
-print(" Log10 Standard error of %6.2f \n " % (guess_std))
+print(' Parameter set for inverting: \n', m_active)
+print(' Layer thicknesses: \n', dz)
+print(' Layer interface depths: \n', zn)
+print(' Initial homogeneous halfspace resistivity of %6.2f Ohm*m \n' % (guess_rho))
+print(' Log10 Standard error of %6.2f \n ' % (guess_std))
 
-print(" Upper limits: \n", m_upper)
-print(" Lower limits: \n", m_lower)
+print(' Upper limits: \n', m_upper)
+print(' Lower limits: \n', m_lower)
 print(
-    " Assuming exponential vertical covariance with correlation length %6.2f m \n"
+    ' Assuming exponential vertical covariance with correlation length %6.2f m \n'
     % (CorrLength)
 )
 
@@ -228,7 +228,7 @@ for file in dat_files:
 
     name, ext = os.path.splitext(file)
     filein = InDatDir+file
-    print("\n Reading file " + filein)
+    print('\n Reading file ' + filein)
     Data, Header = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
     Data = numpy.reshape(Data,(1, -1))
@@ -247,7 +247,7 @@ for file in dat_files:
 
 
 
-    print("\n  starting simulation \n")
+    print('\n  starting simulation \n')
 
     # Metropolis-Hastings algorithm with Nsample iteration
 
@@ -319,7 +319,7 @@ for file in dat_files:
             p = numpy.random.rand(1, 1)
             if p < alpha:
                 # accept new candidate
-                # print(n, " accepted")
+                # print(n, ' accepted')
                 accept = accept + 1
 
                 mchain[scount, 0:mpara] = m_new[m_active == 1]
@@ -337,7 +337,7 @@ for file in dat_files:
                 mchain[scount, mpara : mpara + ndata] = dc_old
                 mchain[scount, mpara + ndata] = ss_old
         else:
-            # print(n, " rejected")
+            # print(n, ' rejected')
             reject = reject + 1
             continue
 
@@ -348,12 +348,12 @@ for file in dat_files:
             if accpp < Accept_min:
                 step = step * StepFactor
             print(
-                " percentage of samples accepted = %6.2f %% of %6i, with  %6i out of bounds, step set to %6.4f"
+                ' percentage of samples accepted = %6.2f %% of %6i, with  %6i out of bounds, step set to %6.4f'
                 % (accpp, scount, reject, step)
             )
 
 
-    print(" final percentage of samples accepted = %6.2f " % (100 * accept / scount))
+    print(' final percentage of samples accepted = %6.2f ' % (100 * accept / scount))
     # numpy.savez('Mh_chain',mchain)
     print(numpy.shape(mchain[Nburnin:scount, 1]))
     # numpy.savez('Mh_chain1',mchain=mchain)
@@ -381,19 +381,19 @@ for file in dat_files:
                                             Percentiles))
 
         print(
-            " Layer %3i with center at %4.1f m Resistivity:"
+            ' Layer %3i with center at %4.1f m Resistivity:'
             % (ilyr, zc[ilyr])
         )
         quantz =prc_res[ilyr,:]
         print(
-            "Percentiles: "+str(quantz)
+            'Percentiles: '+str(quantz)
         )
 
     filen, filext = os.path.splitext(file)
 
     if StoreChain:
-        filout = OutDatDir+ filen + "_MHchain" + "_" + str(Nsample) + "_CorrLength" + str(CorrLength) + filext
-        print("MCMC Results written to: "+filout)
+        filout = OutDatDir+ filen + '_MHchain' + '_' + str(Nsample) + '_CorrLength' + str(CorrLength) + filext
+        print('MCMC Results written to: '+filout)
         numpy.savez_compressed(
             filout,
             mchain=mchain[Nburnin:scount, :],
@@ -402,8 +402,8 @@ for file in dat_files:
             avg_res=avg_res, std_res=std_res, prc_res=prc_res
        )
     if StoreSum:
-        filout = OutDatDir+ filen + "_MHSummary" + "_" + str(Nsample) + "_CorrLength" + str(CorrLength) + filext
-        print("MCMC Results written to: "+filout)
+        filout = OutDatDir+ filen + '_MHSummary' + '_' + str(Nsample) + '_CorrLength' + str(CorrLength) + filext
+        print('MCMC Results written to: '+filout)
         numpy.savez_compressed(
             filout,
             nlyr=nlyr, lcorr=CorrLength,
@@ -416,12 +416,12 @@ for file in dat_files:
 
 Plots = False
 FilesOnly = False
-PlotFormat = [".pdf", ".png", ".svg"]
+PlotFormat = ['.pdf', '.png', '.svg']
 PdfCatalog = True
-if ".pdf" in PlotFormat:
-    PdfCName = OutName+"_Catalog.pdf"
+if '.pdf' in PlotFormat:
+    PdfCName = OutName+'_Catalog.pdf'
 else:
-    error(" No pdfs generated. No catalog possible!")
+    sys.exit(' No pdfs generated. No catalog possible!')
     PdfCatalog = False
 if PdfCatalog:
     pdf_list = []
@@ -430,38 +430,38 @@ if Plots:
 
     # Determine graphical parameter.
     # print(plt.style.available)
-    matplotlib.pyplot.style.use("seaborn-paper")
-    matplotlib.rcParams["figure.dpi"] = 400
-    matplotlib.rcParams["axes.linewidth"] = 0.5
-    matplotlib.rcParams["savefig.facecolor"] = "none"
+    matplotlib.pyplot.style.use('seaborn-paper')
+    matplotlib.rcParams['figure.dpi'] = 400
+    matplotlib.rcParams['axes.linewidth'] = 0.5
+    matplotlib.rcParams['savefig.facecolor'] = 'none'
     Fontsize = 10
     Labelsize = Fontsize
     Titlesize = Fontsize+2
     Linewidth= 1
     Markersize = 4
 
-    Colors = ["r", "g", "b", "m", "c", "y", "k","r", "g", "b", "m"]
-    Lines  = ["-", "--", ":", "-.","--", ":", "-.","--", ":","-","-."]
+    Colors = ['r', 'g', 'b', 'm', 'c', 'y', 'k','r', 'g', 'b', 'm']
+    Lines  = ['-', '--', ':', '-.','--', ':', '-.','--', ':','-','-.']
 
     if FilesOnly:
-        matplotlib.use("cairo")
+        matplotlib.use('cairo')
 
-    plotfile = filout = filen + "_MHchain" + "_" + str(Nsample) + "_CorrLength" + str(CorrLength)
+    plotfile = filout = filen + '_MHchain' + '_' + str(Nsample) + '_CorrLength' + str(CorrLength)
     # viz.plot_mcmc_results(
     #     PlotFile = plotfile,
-    #     PlotTitle = plotfile.replace("_"," "),
+    #     PlotTitle = plotfile.replace('_',' '),
     #     PlotFormat = PlotFormat,
     #     DPI = 400,
     #     Depth = zn,
     #     Param = quantz,
-    #     Labels=["95%", "68%", "median (50%)"],
-    #     Colors=["r", "g", "b", "g","r"],
-    #     Lines=["-", ":", ";"],
+    #     Labels=['95%', '68%', 'median (50%)'],
+    #     Colors=['r', 'g', 'b', 'g','r'],
+    #     Lines=['-', ':', ';'],
     #     Linewidth=[1.5],
     #     Markersize = 4,
     #     Fontsizes=[Fontsize, Labelsize, Titlesize],
     #     MLimits= [],
     #     SLimits= [],
     #     DLimits= [0., 120.],
-    #     PlotStrng="",
+    #     PlotStrng='',
     #     StrngPos=[0.05,0.05])

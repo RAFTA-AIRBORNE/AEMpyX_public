@@ -25,7 +25,7 @@
 # +
 import time
 import sys
-from sys import exit as error
+
 import os
 import warnings
 from time import process_time
@@ -36,8 +36,8 @@ import inspect
 
 import numpy
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 
 
 for pth in mypath:
@@ -52,25 +52,25 @@ import aesys
 # -
 
 
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 # +
 rng = numpy.random.default_rng()
 nan = numpy.nan
 
 version, _ = versionstrg()
-#script = "Tutorial0_FWD_synth.py"
+#script = 'Tutorial0_FWD_synth.py'
 script = inspect.getfile(inspect.currentframe())  # this only works in python, not jupyter notebook
 titstrng = util.print_title(version=version, fname=script, out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 Header = titstrng
 # -
 
 OutInfo = False
-AEMPYX_DATA  = "/home/vrath/Mohammednur/"
-OutDir  = AEMPYX_DATA+"/synth/data/"
+AEMPYX_DATA  = '/home/vrath/Mohammednur/'
+OutDir  = AEMPYX_DATA+'/synth/data/'
 if not os.path.isdir(OutDir):
-    print("File: %s does not exist, but will be created" % OutDir)
+    print('File: %s does not exist, but will be created' % OutDir)
     os.mkdir(OutDir)
 
 
@@ -81,11 +81,11 @@ if not os.path.isdir(OutDir):
 # A general additive/multiplicative error model is applied on the raw data before transformation, and errors are also transformed.
 
 # +
-AEM_system = "aem05"
-# AEM_system = "genesis"
-print("AEM system: " + AEM_system + "\n \n")
+AEM_system = 'aem05'
+# AEM_system = 'genesis'
+print('AEM system: ' + AEM_system + '\n \n')
 
-if "aem05" in AEM_system.lower():
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     ParaTrans = 1
     DataTrans = 0
@@ -94,7 +94,7 @@ if "aem05" in AEM_system.lower():
     alt = 60.
     DataActive = numpy.ones((1,NN[2]))
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     ParaTrans = 1
     DataTrans=0
@@ -133,19 +133,19 @@ Model_base[6*nlyr:7*nlyr-1] =[30.,30.]          #layers
 # -
 
 # rho for layer 1 (starting from 0!)
-FWDBaseName = "AEM05_Rho1"
+FWDBaseName = 'AEM05_Rho1'
 VarPar = [ 10., 100.,1000.]
 VarInd = 0 * nlyr+1
 
 # +
 
 # thickness of layer 1 (starting from 0!)
-# FWDBaseName = "AEM05_Thk1"
+# FWDBaseName = 'AEM05_Thk1'
 # VarPar = [10., 30., 50.]
 # VarInd = 6*nlyr+1
 
 # chargeability of layer 1 (starting from 0!)
-# FWDBaseName = "AEM05_m1"
+# FWDBaseName = 'AEM05_m1'
 # VarPar = [0.0001, 0.2, 0.4, 0.6, 0.8]
 # VarInd = 3*nlyr+1
 
@@ -178,7 +178,7 @@ for par in numpy.arange(len(VarPar)):
         d_state = 0
         m_state = 0
 
-        m_current, m_state = inverse.transform_parameter(m_vec=m_i, m_trn=ParaTrans, m_state=m_state, mode="f")
+        m_current, m_state = inverse.transform_parameter(m_vec=m_i, m_trn=ParaTrans, m_state=m_state, mode='f')
         d_ref, d_state = inverse.calc_fwdmodel(fwdcall=FwdCall, alt=Alt,
                                           m_vec = m_current, m_trn=ParaTrans, m_state=m_state,
                                           d_trn=0, d_state=d_state, d_act = DataActive )
@@ -206,15 +206,15 @@ if SplitData:
         m_s = Model[imod]
         d_s = Data[numpy.isin(Data[:,0],imod)]
 
-        SplitStrng = "_model"+str(imod)+"_"+str(Nsamples)+"samples"
+        SplitStrng = '_model'+str(imod)+'_'+str(Nsamples)+'samples'
 
 
-        NPZSplit=OutDir+FWDBaseName+SplitStrng+".npz"
-        print("Results written to "+NPZSplit)
+        NPZSplit=OutDir+FWDBaseName+SplitStrng+'.npz'
+        print('Results written to '+NPZSplit)
         numpy.savez_compressed(file=NPZSplit, model=m_s, data=d_s, para=p_s)
 else:
     print(numpy.shape(Data))
-    NPZFile = OutDir+FWDBaseName+".npz"
-    print("\n\nResults written to "+NPZFile)
+    NPZFile = OutDir+FWDBaseName+'.npz'
+    print('\n\nResults written to '+NPZFile)
     numpy.savez_compressed(
         file=NPZFile, model=Model, data=Data, para=Para)

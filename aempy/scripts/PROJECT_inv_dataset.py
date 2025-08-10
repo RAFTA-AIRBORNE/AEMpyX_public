@@ -19,7 +19,7 @@
 
 import os
 import sys
-from sys import exit as error
+
 from datetime import datetime
 from time import process_time, time
 # from random import randrange
@@ -35,8 +35,8 @@ import scipy
 import multiprocessing
 # from numba import njit
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -46,16 +46,16 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-AEMPYX_DATA = "/home/vrath/work/A1_StGormans/"
+AEMPYX_DATA = '/home/vrath/work/A1_StGormans/'
 # -
 
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 rng = numpy.random.default_rng()
 nan = numpy.nan
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 OutInfo = False
 
@@ -70,7 +70,7 @@ if Parallel:
     else:
         Njobs=min(Njobs, multiprocessing.cpu_count())
 
-    print(str(Njobs)+" processors will be used in parallel")
+    print(str(Njobs)+' processors will be used in parallel')
 
 else:
     Njobs = 1
@@ -90,27 +90,27 @@ else:
 # before transformation, and errors are also transformed.
 
 # +
-# AEM_system = "genesis"
-AEM_system = "aem05"  # "genesis"
-if "aem05" in AEM_system.lower():
+# AEM_system = 'genesis'
+AEM_system = 'aem05'  # 'genesis'
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add = 75. #50.
     DatErr_mult = 0.0
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
     # data_active[0] = 0   # real at 900Hz
     # data_active[4] = 0   # imag at 900Hz
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add = 100.
     DatErr_mult = 0.0
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' horizontals'
 
@@ -120,73 +120,73 @@ if "genes" in AEM_system.lower():
 ##############################################################################
 # StGormans
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examplesFlightlineAngle"
-# InDatDir =  AEMPYX_DATA + "/proc/"
-InDatDir =  AEMPYX_DATA + "/data/"
-if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
-print("Data read from dir: %s " % InDatDir)
+AEMPYX_DATA  = AEMPYX_ROOT+'/aempy/examplesFlightlineAngle'
+# InDatDir =  AEMPYX_DATA + '/proc/'
+InDatDir =  AEMPYX_DATA + '/data/'
+if not InDatDir.endswith('/'): InDatDir=InDatDir+'/'
+print('Data read from dir: %s ' % InDatDir)
 # +
 
 
 
-"""
-Output format is ".npz"
-"""
-OutFileFmt = ".npz"
-# OutResDir =   AEMPYX_DATA + "/results_parallel/"
-OutResDir =   AEMPYX_DATA + "/results/"
-if not OutResDir.endswith("/"): OutResDir=OutResDir+"/"
-print("Models written to dir: %s " % OutResDir)
+'''
+Output format is '.npz'
+'''
+OutFileFmt = '.npz'
+# OutResDir =   AEMPYX_DATA + '/results_parallel/'
+OutResDir =   AEMPYX_DATA + '/results/'
+if not OutResDir.endswith('/'): OutResDir=OutResDir+'/'
+print('Models written to dir: %s ' % OutResDir)
 if not os.path.isdir(OutResDir):
-    print("File: %s does not exist, but will be created" % OutResDir)
+    print('File: %s does not exist, but will be created' % OutResDir)
     os.mkdir(OutResDir)
 
-# FileList = "set"
-FileList = "search"  # "search", "read"
-SearchStrng = "*data.npz"
+# FileList = 'set'
+FileList = 'search'  # 'search', 'read'
+SearchStrng = '*data.npz'
 
-if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)
+if 'set' in FileList.lower():
+    print('Data files read from dir:  %s' % InDatDir)
     # dat_files = []
-    dat_files = [InDatDir+"StGormans_FL11379-0_raw.npz"]
-    # dat_files =  numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    dat_files = [InDatDir+'StGormans_FL11379-0_raw.npz']
+    # dat_files =  numpy.load(AEMPYX_DATA + '/Projects/Compare/BundoranSubsets.npz')['setC']
 
     dat_files = [os.path.basename(f) for f in dat_files]
 else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
+    # how = ['search', SearchStrng, InDatDir]
+    # how = ['read', FileList, InDatDir]
+    dat_files = util.get_data_list(how=['search', SearchStrng, InDatDir],
                               fullpath=False, out= True, sort=True)
 
 
 ns = numpy.size(dat_files)
 if ns ==0:
-    error("No files set!. Exit.")
+    sys.exit('No files set!. Exit.')
 if Njobs<=0:
     Njobs= min(Njobs, ns)
 
 # +
-"""
+'''
 Define inversion type  optional additional parameters (e.g., Waveforms )
-"""
+'''
 
-RunType = "TikhOpt" # "TikhOcc",  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
+RunType = 'TikhOpt' # 'TikhOcc',  'MAP_ParSpace', 'MAP_DatSpace','Jack','DoI', 'RTO''
 Uncert = True
-Direction = "normal"
+Direction = 'normal'
 
-SetPrior = "update"
+SetPrior = 'update'
 ParaTrans = 1
 
 LVariant = 0
 
 
-# RegFun = "lcc" # "fix", "lcc", "gcv", "mle"
+# RegFun = 'lcc' # 'fix', 'lcc', 'gcv', 'mle'
 # RegShift = +3
 
-RegFun = "gcv" # "fix", "lcc", "gcv", "mle"
+RegFun = 'gcv' # 'fix', 'lcc', 'gcv', 'mle'
 RegShift = -2 # (-2)
 
-# RegFun = "fix" # "fix", "lcc", "gcv", "mle"
+# RegFun = 'fix' # 'fix', 'lcc', 'gcv', 'mle'
 # RegShift = 0 # (-2)
 
 
@@ -196,7 +196,7 @@ Tau0min = numpy.log10(RegVal0)
 Tau0max = numpy.log10(RegVal0)
 Tau0 = numpy.logspace(Tau0min, Tau0max, NTau0)
 
-if any(s in RegFun.lower() for s in ["gcv", "upr", "ufc", "mle", "lcc"]):
+if any(s in RegFun.lower() for s in ['gcv', 'upr', 'ufc', 'mle', 'lcc']):
     RegVal1Min = 0.1
     RegVal1Max = 3000.
     NTau1 =64
@@ -212,9 +212,9 @@ Tau1 = numpy.logspace(Tau1min, Tau1max, NTau1)
 nreg = NTau0 * NTau1
 
 # +
-"""
+'''
 Model definition
-"""
+'''
 
 
 
@@ -256,29 +256,29 @@ mod_bnd[:,1] = max_val
 
 if OutInfo:
     #   print \
-    #   (" Parameter set for inverting: \n", mod_act)
-    print(" Layer thicknesses: \n", dz)
-    print(" Layer interface depths: \n", z)
-    print(" Initial halfspace resistivity of %6.2f Ohm*m" % (Guess_r))
-    print(" Log Standard error of %6.2f " % (Guess_s))
+    #   (' Parameter set for inverting: \n', mod_act)
+    print(' Layer thicknesses: \n', dz)
+    print(' Layer interface depths: \n', z)
+    print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_r))
+    print(' Log Standard error of %6.2f ' % (Guess_s))
     if numpy.size(mod_bnd) != 0:
-        print(" Upper limits: \n", mod_bnd[:, 1])
-        print(" Lower limits: \n", mod_bnd[:, 0])
+        print(' Upper limits: \n', mod_bnd[:, 1])
+        print(' Lower limits: \n', mod_bnd[:, 0])
 # -
 
 # Setup controls for different slgorithms, here in particular prepare
 # differential operator base methods for regularization matrices
 
 # +
-if "tikhopt" in  RunType.lower():
+if 'tikhopt' in  RunType.lower():
 
-    D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
+    D0 = inverse.diffops(dz, der=False, mtype='sparse', otype='L0')
     L = [D0 for D in range(7)]
     L0 = scipy.sparse.block_diag(L)
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1", variant=LVariant)
+    D1 = inverse.diffops(dz, der=False, mtype='sparse', otype='L1', variant=LVariant)
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -290,27 +290,27 @@ if "tikhopt" in  RunType.lower():
     LinPars = [Maxreduce, Rfact]
     # LinPars = []
 
-    ThreshFit = [0.9, 1.0e-2, 1.0e-2, "rms"]
-    # ThreshFit = [5., 1.0e-2, 1.0e-2, "smp"]
+    ThreshFit = [0.9, 1.0e-2, 1.0e-2, 'rms']
+    # ThreshFit = [5., 1.0e-2, 1.0e-2, 'smp']
     Delta = [1.e-5]
 
 
     ctrl_dict ={
-        "system":
+        'system':
             [AEM_system, FwdCall],
-        "header":
-            [titstrng, ""],
-        "inversion":
+        'header':
+            [titstrng, ''],
+        'inversion':
             numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshFit,
                       LinPars, SetPrior, Delta, RegShift], dtype=object),
-        "covar":
+        'covar':
             numpy.array([L0, Cm0, L1, Cm1], dtype=object),
-        "uncert":
+        'uncert':
             [Uncert],
 
-        "data":
+        'data':
             numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
-        "model":
+        'model':
             numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
                 }
 
@@ -318,14 +318,14 @@ if OutInfo:
     print(ctrl_dict.keys())
 # -
 
-outstrng =  "_"+RunType.lower()+\
-            "_"+RegFun.lower()+\
-            "_l"+str(Nlyr)+\
-            "_a"+str(round(DatErr_add,0))+\
-            "_m"+str(round(DatErr_mult*100,0))+\
-            "_p"+str(int(Guess_r))+\
-            "_d"+str(LVariant)+"_parallel"
-print("ID string: input file + %s " % outstrng)
+outstrng =  '_'+RunType.lower()+\
+            '_'+RegFun.lower()+\
+            '_l'+str(Nlyr)+\
+            '_a'+str(round(DatErr_add,0))+\
+            '_m'+str(round(DatErr_mult*100,0))+\
+            '_p'+str(int(Guess_r))+\
+            '_d'+str(LVariant)+'_parallel'
+print('ID string: input file + %s ' % outstrng)
 
 
 
@@ -348,6 +348,6 @@ else:
                                          result_dir=OutResDir,
                                          result_strng=outstrng)
 
-print("\n\nAll done!")
+print('\n\nAll done!')
 # jobelapsed = (process_time() - jobstart)
-# print (" Used %7.4f sec for this job." % (jobelapsed))
+# print (' Used %7.4f sec for this job.' % (jobelapsed))

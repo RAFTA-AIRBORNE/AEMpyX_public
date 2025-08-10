@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Apr 4, 2021
 @author: vrath
-"""
+'''
 import sys
 import os
 import inspect
 
-from sys import exit as error
+
 from datetime import datetime
 
 import numpy
@@ -22,18 +22,18 @@ import differint
 import pylops
 
 def fractrans(m=None, x=None , a=0.5):
-    """
+    '''
     Caklculate fractional derivative of m.
 
     VR Apr 2021
-    """
+    '''
     # import differint as df
 
     if m == None or x == None:
-        error("No vector for diff given! Exit.")
+        sys.exit('No vector for diff given! Exit.')
 
     if numpy.size(m) != numpy.size(x):
-        error("Vectors m and x have different length! Exit.")
+        sys.exit('Vectors m and x have different length! Exit.')
 
     x0 = x[0]
     x1 = x[-1]
@@ -46,7 +46,7 @@ def crossgrad(m1=numpy.array([]),
                 m2=numpy.array([]),
                 mesh= [numpy.array([]), numpy.array([]), numpy.array([])],
                 Out=True):
-    """
+    '''
     Crossgrad function
     
     
@@ -61,11 +61,11 @@ def crossgrad(m1=numpy.array([]),
         PhD thesis, University of Adelaide, AU
         
     vr  July 2023
-    """
+    '''
     sm = numpy.shape(m1)
     dm = m1.dim
     if dm==1:
-        error("crossgrad: For dim="+str(dm)+" no crossgrad! Exit.")
+        sys.exit('crossgrad: For dim='+str(dm)+' no crossgrad! Exit.')
     elif dm==2:
         cgdim = 1
     else:
@@ -91,16 +91,16 @@ def crossgrad(m1=numpy.array([]),
 
 def medfilt3D(
         M,
-        kernel_size=[3, 3, 3], boundary_mode="nearest", maxiter=1, Out=True):
-    """
+        kernel_size=[3, 3, 3], boundary_mode='nearest', maxiter=1, Out=True):
+    '''
     Run iterated median filter in nD.
 
     vr  Jan 2021
-    """
+    '''
     tmp = M.copy()
     for it in range(maxiter):
         if Out:
-            print("iteration: " + str(it))
+            print('iteration: ' + str(it))
         tmp = median_filter(tmp, size=kernel_size, mode=boundary_mode)
 
     G = tmp.copy()
@@ -111,11 +111,11 @@ def medfilt3D(
 def anidiff3D(
         M,
         ckappa=50, dgamma=0.1, foption=1, maxiter=30, Out=True):
-    """
+    '''
     Apply anisotropic nonlinear diffusion in nD.
 
     vr  Jan 2021
-    """
+    '''
     tmp = M.copy()
 
     tmp = anisodiff3D(
@@ -135,7 +135,7 @@ def anisodiff3D(
         stack,
         niter=1, kappa=50, gamma=0.1, step=(1.0, 1.0, 1.0), option=1,
         ploton=False):
-    """
+    '''
     Apply 3D Anisotropic diffusion.
 
     Usage:
@@ -190,7 +190,7 @@ def anisodiff3D(
     March 2002 corrected diffusion eqn No 2.
     July 2012 transcipy.linalgted to Python
     Jan 2021 slightly adapted for python3 VR
-    """
+    '''
     # initialize output array
     stackout = stack.copy()
 
@@ -247,21 +247,21 @@ def anisodiff3D(
 # def shock3d(
 #         M,
 #         dt=0.2, maxiter=30, filt=[3, 3, 3, 0.5],
-#         boundary_mode="nearest", signfunc=None):
-#     """
+#         boundary_mode='nearest', signfunc=None):
+#     '''
 #     Apply shock filter in nD.
 
 #     vr  Jan 2021
-#     """
-#     if signfunc is None or signfunc == "sign":
-#         signcall = "-numpy.sign(L)"
+#     '''
+#     if signfunc is None or signfunc == 'sign':
+#         signcall = '-numpy.sign(L)'
 
-#     elif signfunc[0] == "sigmoid":
+#     elif signfunc[0] == 'sigmoid':
 #         scale = 1.0
-#         signcall = "-1./(1. + numpy.exp(-scale *L))"
+#         signcall = '-1./(1. + numpy.exp(-scale *L))'
 
 #     else:
-#         error("sign func " + signfunc + " not defined! Exit.")
+#         sys.exit('sign func ' + signfunc + ' not defined! Exit.')
 
 #     kersiz = (filt[0], filt[1], filt[2])
 #     kerstd = filt[3]
@@ -288,14 +288,14 @@ def anisodiff3D(
 
 
 def gauss3D(Kshape=(3, 3, 3), Ksigma=0.5):
-    """
+    '''
     Define 3D gauscipy.signalan mask.
 
     Should give the same result as MATLAB's
     fspecial('gauscipy.signalan',[shape],[sigma])
 
     vr  Jan 2021
-    """
+    '''
     k, m, n = [(ss - 1) / 2 for ss in Kshape]
     x, y, z = numpy.ogrid[-n:n+1, -m:m+1, -k:k+1]
     h = numpy.exp(-(x * x + y * y + z * z) / (2.0 * Ksigma * Ksigma))
@@ -309,12 +309,12 @@ def gauss3D(Kshape=(3, 3, 3), Ksigma=0.5):
     return K
 
 def get_good_sites(q_val=None, q_thresh=None, out=True):
-    """
+    '''
     Clean models based on error or datafit
 
-    """
+    '''
     if (q_val is None) or (q_thresh is None):
-        error("mod_qc: required input missing! Exit.")
+        sys.exit('mod_qc: required input missing! Exit.')
         
         
     nsites= numpy.shape(q_val)[0]
@@ -322,7 +322,7 @@ def get_good_sites(q_val=None, q_thresh=None, out=True):
     good = numpy.where(q_val<q_thresh)
     
     if out:
-        print("number of good sites:", 
-              numpy.count_nonzero(good),"from", nsites )
+        print('number of good sites:', 
+              numpy.count_nonzero(good),'from', nsites )
         
     return good

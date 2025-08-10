@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Modules
 ===
 
@@ -8,7 +8,7 @@ Submodules:
 core1d:     1d forward modelling
 
 ################################################################################
-"""
+'''
 
 from . import core1d
 from . import aesys

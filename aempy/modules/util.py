@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Sun Nov  1 17:08:06 2020
 
 @author: vrath
-"""
+'''
 
 import os
 import sys
 import ast
 import inspect
 import warnings
-from sys import exit as error
+
 import fnmatch
 # from datetime import datetime
 
@@ -41,40 +41,40 @@ def to_ospath(inpath=None, opsys=None):
     if opsys is None:
         opsys = os.name
 
-    if "/" in inpath and opsys=="nt":
-        outpath = "\\".join(inpath.split("/"))
+    if '/' in inpath and opsys=='nt':
+        outpath = '\\'.join(inpath.split('/'))
 
-    elif "\\" in inpath and opsys=="posix":
-        outpath = "/".join (inpath.split("\\"))
+    elif '\\' in inpath and opsys=='posix':
+        outpath = '/'.join (inpath.split('\\'))
 
 
     return outpath
 
-def check_env(envar="CONDA_PREFIX", action="error"):
-    """
+def check_env(envar='CONDA_PREFIX', action='error'):
+    '''
     Check if environment variable exists
 
     Parameters
     ----------
     envar : strng, optional
-        The default is ["CONDA_PREFIX"].
+        The default is ['CONDA_PREFIX'].
 
     Returns
     -------
     None.
 
-    """
+    '''
     act_env = os.environ[envar]
     if len(act_env)>0:
-        print("\n\n")
-        print("Active conda Environment  is:  " + act_env)
-        print("\n\n")
+        print('\n\n')
+        print('Active conda Environment  is:  ' + act_env)
+        print('\n\n')
     else:
-        if "err" in action.lower():
-            error("Environment "+ act_env+"is not activated! Exit.")
+        if 'err' in action.lower():
+            sys.exit('Environment '+ act_env+'is not activated! Exit.')
 
-def sample_list(in_list= [], method = ["sample", 10], out= True):
-    """
+def sample_list(in_list= [], method = ['sample', 10], out= True):
+    '''
 
 
     Parameters
@@ -82,7 +82,7 @@ def sample_list(in_list= [], method = ["sample", 10], out= True):
     inlist : list of items
         The default is [].
     method : list
-        Determines samples . The default is ["sample", Nsample].
+        Determines samples . The default is ['sample', Nsample].
     out : boolean
         Output to stdout. The default is True.
 
@@ -93,42 +93,42 @@ def sample_list(in_list= [], method = ["sample", 10], out= True):
     Created  Dec 2023
     @author: vrath
 
-    """
+    '''
     if len(in_list)==0:
-        error("sample_list: list empty! Exit.")
+        sys.exit('sample_list: list empty! Exit.')
 
-    if "pass" in method[0].lower() or method[0].lower()=="":
+    if 'pass' in method[0].lower() or method[0].lower()=='':
         out_list = in_list
         if out:
-           print("sample_list: return original list")
+           print('sample_list: return original list')
 
-    if "rand" in method[0].lower():
+    if 'rand' in method[0].lower():
         nsamples = method[1]
         out_list = random.sample(range(len(in_list)), nsamples)
         out_list = sorted(out_list)
         if out:
-            print("sample_list: random samples = ", nsamples)
+            print('sample_list: random samples = ', nsamples)
 
-    if "step" in method[0].lower():
+    if 'step' in method[0].lower():
 
         start, stop, step = method[1:]
         out_list = in_list[start:stop:step]
         if out:
-            print("sample_list: reduced list with start/stop/step = ", start,stop,step)
+            print('sample_list: reduced list with start/stop/step = ', start,stop,step)
         print(out_list)
     return out_list
 
 
-def get_data_list(how=["search", ".npz", "./"],
+def get_data_list(how=['search', '.npz', './'],
                   sort=True, fullpath=False, out= True):
-    """
+    '''
     constructs a list of data files
 
     Parameters
     ----------
     how : list, required
-             ["search". ".npz", directory].
-             ["read", filename, directory]
+             ['search'. '.npz', directory].
+             ['read', filename, directory]
     out :   boolean, optional
             Default is True.
 
@@ -140,33 +140,33 @@ def get_data_list(how=["search", ".npz", "./"],
 
     @author: vrath
 
-    """
-    if how[0].lower() !="search" and how[0].lower() !="read":
-        error("No method given! Exit.")
+    '''
+    if how[0].lower() !='search' and how[0].lower() !='read':
+        sys.exit('No method given! Exit.')
 
 
-    if "read" in how[0].lower():
+    if 'read' in how[0].lower():
         list_file = how[1]
         indir = how[2]
-        print("Data files read from dir:  %s" % indir)
-        print("Data list file:  "+list_file)
+        print('Data files read from dir:  %s' % indir)
+        print('Data list file:  '+list_file)
         dat_files = []
-        with open(list_file, "r") as file:
+        with open(list_file, 'r') as file:
             for line in file:
                 dat_files.append(line[:-1])
         ns = numpy.size(dat_files)
         if ns ==0:
-            error("No files in list <"+list_file+"> found!. Exit.")
+            sys.exit('No files in list <'+list_file+'> found!. Exit.')
 
-    if "search" in how[0].lower():
+    if 'search' in how[0].lower():
         indir = how[2]
-        print("Data files read from dir:  %s" % indir)
+        print('Data files read from dir:  %s' % indir)
         SearchStrng = how[1]
-        print("Search string: %s " % SearchStrng)
+        print('Search string: %s ' % SearchStrng)
         dat_files = get_filelist(searchstr=[SearchStrng], searchpath=indir, fullpath=fullpath)
         ns = numpy.size(dat_files)
         if ns ==0:
-            error("No files corresponding to searchstring <"+SearchStrng+"> found!. Exit.")
+            sys.exit('No files corresponding to searchstring <'+SearchStrng+'> found!. Exit.')
 
 
     #if fullpath:
@@ -179,14 +179,14 @@ def get_data_list(how=["search", ".npz", "./"],
         dat_files = sorted(dat_files)
 
     if out:
-        print(str(ns)+" data files found:")
+        print(str(ns)+' data files found:')
         print(dat_files)
 
     return dat_files
 
-def get_filebase(file=""):
+def get_filebase(file=''):
     if len(file)==0:
-        error("get_filebase: No file!. Exit")
+        sys.exit('get_filebase: No file!. Exit')
 
         name, ext =os.path.splitext(os.path.basename(file))
 
@@ -194,17 +194,17 @@ def get_filebase(file=""):
 
 
 
-def get_filelist(searchstr=["*"], searchpath="./", sortedlist =True, fullpath=False):
-    """
+def get_filelist(searchstr=['*'], searchpath='./', sortedlist =True, fullpath=False):
+    '''
     Generate filelist from path and unix wildcard list.
 
     author: VR 3/20
 
     last change 4/23
-    """
+    '''
 
-    filelist = fnmatch.filter(os.listdir(searchpath), "*")
-    print("\n ")
+    filelist = fnmatch.filter(os.listdir(searchpath), '*')
+    print('\n ')
     print(filelist)
     for sstr in searchstr:
         filelist = fnmatch.filter(filelist, sstr)
@@ -222,14 +222,14 @@ def get_filelist(searchstr=["*"], searchpath="./", sortedlist =True, fullpath=Fa
 
 
 def check_finite(arr_in=None, out=True):
-    """
+    '''
     check for  NaNs
-    """
+    '''
     import inspect
     f_name = inspect.currentframe().f_code.co_name
 
     d0 = numpy.shape(arr_in)[0]
-    print(f_name, "shape of array before check is ", numpy.shape(arr_in))
+    print(f_name, 'shape of array before check is ', numpy.shape(arr_in))
 
     ll = numpy.arange(d0)
 
@@ -241,12 +241,12 @@ def check_finite(arr_in=None, out=True):
             continue
 
     arr_out = numpy.asarray(checked)
-    print(f_name, "shape of array after check is ", numpy.shape(arr_out))
+    print(f_name, 'shape of array after check is ', numpy.shape(arr_out))
 
     return arr_out
 
 def get_nearest_point(point=None,line=None, tol = 1.e-3):
-    """
+    '''
     Find nearest point in profile
 
     Parameters
@@ -261,7 +261,7 @@ def get_nearest_point(point=None,line=None, tol = 1.e-3):
     nearest : float
         position of nearest ppoint in profile
 
-    """
+    '''
 
     x0 = point[0]
     y0 = point[1]
@@ -284,7 +284,7 @@ def get_nearest_point(point=None,line=None, tol = 1.e-3):
 
 
 def get_direction_angle(p1=None, p2=None):
-    """
+    '''
     Determine direction of vector from p1 to p2
 
     Parameters
@@ -297,9 +297,9 @@ def get_direction_angle(p1=None, p2=None):
     ang : float
         direction angle .
 
-    """
+    '''
     if (p1 == None) or (p1 == None):
-        error("No angle can be determied as points  are not given! Exit.")
+        sys.exit('No angle can be determied as points  are not given! Exit.')
     v1 = numpy.asarray(p1)
     v2 = numpy.asarray(p2)
     dist = v2-v1
@@ -310,20 +310,20 @@ def get_direction_angle(p1=None, p2=None):
     return ang, length
 
 def list_functions(filename):
-    """
+    '''
     Generate list of functions in module.
 
     author: VR 3/21
-    """
+    '''
 
     print(filename)
     tree = parse_ast(filename)
     for func in find_functions(tree.body):
-        print("  %s" % func.name)
+        print('  %s' % func.name)
 
 
 def parse_ast(filename):
-    with open(filename, "rt") as file:
+    with open(filename, 'rt') as file:
 
         return ast.parse(file.read(), filename=filename)
 
@@ -333,15 +333,15 @@ def find_functions(body):
 
 
 def project_wgs_to_geoid(lat, lon, alt, geoid=3855 ):
-    """
+    '''
     transform ellipsoid heigth to geoid, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 09/21
 
-    """
+    '''
 
-    geoidtrans =pyproj.crs.CompoundCRS(name="WGS 84 + EGM2008 height", components=[4979, geoid])
+    geoidtrans =pyproj.crs.CompoundCRS(name='WGS 84 + EGM2008 height', components=[4979, geoid])
     wgs = pyproj.Transformer.from_crs(
             pyproj.CRS(4979), geoidtrans, always_xy=True)
     lat, lon, elev = wgs.transform(lat, lon, alt)
@@ -349,15 +349,15 @@ def project_wgs_to_geoid(lat, lon, alt, geoid=3855 ):
     return lat, lon, elev
 
 def project_utm_to_geoid(utm_x, utm_y, utm_z, utm_zone=32629, geoid=3855):
-    """
+    '''
     transform ellipsoid heigth to geoid, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 09/21
 
-    """
+    '''
 
-    geoidtrans =pyproj.crs.CompoundCRS(name="UTM + EGM2008 height", components=[utm_zone, geoid])
+    geoidtrans =pyproj.crs.CompoundCRS(name='UTM + EGM2008 height', components=[utm_zone, geoid])
     utm = pyproj.Transformer.from_crs(
             pyproj.CRS(utm_zone), geoidtrans, always_xy=True)
     utm_x, utm_y, elev = utm.transform(utm_x, utm_y, utm_z)
@@ -367,26 +367,26 @@ def project_utm_to_geoid(utm_x, utm_y, utm_z, utm_zone=32629, geoid=3855):
 
 
 def project_gk_to_latlon(gk_x, gk_y, gk_zone=5684):
-    """
+    '''
     transform utm to latlon, using pyproj
     Look for other EPSG at https://epsg.io/
     VR 04/21
-    """
-    prj_wgs = pyproj.CRS("epsg:4326")
-    prj_gk = pyproj.CRS("epsg:" + str(gk_zone))
+    '''
+    prj_wgs = pyproj.CRS('epsg:4326')
+    prj_gk = pyproj.CRS('epsg:' + str(gk_zone))
     latitude, longitude = pyproj.transform(prj_gk, prj_wgs, gk_x, gk_y)
     return latitude, longitude
 
 
 # def get_utm_zone(latitude=None, longitude=None):
-#     """
+#     '''
 #     Find EPSG from position in lat/lon, using pyproj
 
 #     VR 04/21
-#     """
-#     prj_wgs = pyproj.CRS("epsg:4326")
+#     '''
+#     prj_wgs = pyproj.CRS('epsg:4326')
 #     utm_list = pyproj.query_utm_crs_info(
-#         datum_name="WGS 84",
+#         datum_name='WGS 84',
 #         area_of_interest=pyproj.AreaOfInterest(
 #         west_lon_degree=longitude,
 #         south_lat_degree=latitude,
@@ -396,15 +396,15 @@ def project_gk_to_latlon(gk_x, gk_y, gk_zone=5684):
 #     return utm_list
 
 def get_utm_zone(latitude=None, longitude=None):
-    """
+    '''
     Find EPSG from position, using pyproj
 
     VR 08/23
-    """
+    '''
     from pyproj.aoi import AreaOfInterest
     from pyproj.database import query_utm_crs_info
     utm_list = query_utm_crs_info(
-        datum_name="WGS 84",
+        datum_name='WGS 84',
         area_of_interest=AreaOfInterest(
         west_lon_degree=longitude,
         south_lat_degree=latitude,
@@ -416,32 +416,32 @@ def get_utm_zone(latitude=None, longitude=None):
     return EPSG, utm_crs
 
 def project_latlon_to_utm(latitude, longitude, utm_zone=32629):
-    """
+    '''
     transform latlon to utm , using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 08/23
-    """
-    prj_wgs = CRS("epsg:4326")
-    prj_utm = CRS("epsg:" + str(utm_zone))
+    '''
+    prj_wgs = CRS('epsg:4326')
+    prj_utm = CRS('epsg:' + str(utm_zone))
     transformer = Transformer.from_crs(prj_wgs, prj_utm)
     utm_x, utm_y = transformer.transform(latitude, longitude)
     # transfor
-    # prj_wgs = CRS("epsg:4326")
-    # prj_utm = CRS("epsg:" + str(utm_zone))
+    # prj_wgs = CRS('epsg:4326')
+    # prj_utm = CRS('epsg:' + str(utm_zone))
     # utm_x, utm_y = pyproj.transform(prj_wgs, prj_utm, latitude, longitude)
 
     return utm_x, utm_y
 
 def project_utm_to_latlon(utm_e, utm_n, utm_zone=32629, lonlat=False):
-    """
+    '''
     transform latlon to utm , using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 08/23
-    """
-    prj_wgs = CRS("epsg:4326")
-    prj_utm = CRS("epsg:" + str(utm_zone))
+    '''
+    prj_wgs = CRS('epsg:4326')
+    prj_utm = CRS('epsg:' + str(utm_zone))
     transformer = Transformer.from_crs(prj_utm, prj_wgs)
     latitude, longitude = transformer.transform(utm_e, utm_n)
     if lonlat:
@@ -451,14 +451,14 @@ def project_utm_to_latlon(utm_e, utm_n, utm_zone=32629, lonlat=False):
 
 
 def project_latlon_to_itm(longitude, latitude):
-    """
+    '''
     transform latlon to itm , using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 08/23
-    """
-    prj_wgs = CRS("epsg:4326")
-    prj_itm = CRS("epsg:2157")
+    '''
+    prj_wgs = CRS('epsg:4326')
+    prj_itm = CRS('epsg:2157')
     transformer = Transformer.from_crs(prj_wgs, prj_itm)
     itm_e, itm_n = transformer.transform(latitude, longitude)
 
@@ -466,14 +466,14 @@ def project_latlon_to_itm(longitude, latitude):
 
 
 def project_itm_to_latlon(itm_e, itm_n):
-    """
+    '''
     transform itm to latlon, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 08/23
-    """
-    prj_wgs = CRS("epsg:4326")
-    prj_itm = CRS("epsg:2157")
+    '''
+    prj_wgs = CRS('epsg:4326')
+    prj_itm = CRS('epsg:2157')
     transformer = Transformer.from_crs(prj_itm, prj_wgs)
     latitude, longitude = transformer.transform(itm_e, itm_n)
 
@@ -481,14 +481,14 @@ def project_itm_to_latlon(itm_e, itm_n):
 
 
 def project_itm_to_utm(itm_x, itm_y, utm_zone=32629):
-    """
+    '''
     transform itm to utm, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 08/23
-    """
-    prj_utm = CRS("epsg:" + str(utm_zone))
-    prj_itm = CRS("epsg:2157")
+    '''
+    prj_utm = CRS('epsg:' + str(utm_zone))
+    prj_itm = CRS('epsg:2157')
     transformer = Transformer.from_crs(prj_itm, prj_utm)
     utm_e, utm_n = transformer.transform(itm_x, itm_y)
 
@@ -496,14 +496,14 @@ def project_itm_to_utm(itm_x, itm_y, utm_zone=32629):
 
 
 def project_utm_to_itm(utm_e, utm_n, utm_zone=32629):
-    """
+    '''
     transform utm to itm, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 08/23
-    """
-    prj_utm = CRS("epsg:" + str(utm_zone))
-    prj_itm = CRS("epsg:2157")
+    '''
+    prj_utm = CRS('epsg:' + str(utm_zone))
+    prj_itm = CRS('epsg:2157')
 
     transformer = Transformer.from_crs(prj_utm, prj_itm)
     itm_e, itm_n = transformer.transform(utm_e, utm_n)
@@ -512,18 +512,18 @@ def project_utm_to_itm(utm_e, utm_n, utm_zone=32629):
 
 
 def project_utm_to_utm(utm_e_in, utm_n_in, utm_zone_in=32629, utm_zone_out=32629):
-    """
+    '''
     transform utm to utm, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 08/23
 
-    """
+    '''
     if utm_zone_in==utm_zone_out:
         return  utm_e_in, utm_n_in
 
-    prj_utm_in = CRS("epsg:" + str(utm_zone_in))
-    prj_utm_out = CRS("epsg:" + str(utm_zone_out))
+    prj_utm_in = CRS('epsg:' + str(utm_zone_in))
+    prj_utm_out = CRS('epsg:' + str(utm_zone_out))
 
     transformer = Transformer.from_crs(prj_utm_in, prj_utm_out)
     utm_e, utm_n = transformer.transform(utm_e_in, utm_n_in)
@@ -532,15 +532,15 @@ def project_utm_to_utm(utm_e_in, utm_n_in, utm_zone_in=32629, utm_zone_out=32629
 
 
 def project_wgs_to_geoid(lat, lon, alt, geoid=3855 ):
-    """
+    '''
     transform ellipsoid heigth to geoid, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 09/21
 
-    """
+    '''
 
-    geoidtrans =pyproj.crs.CompoundCRS(name="WGS 84 + EGM2008 height", components=[4979, geoid])
+    geoidtrans =pyproj.crs.CompoundCRS(name='WGS 84 + EGM2008 height', components=[4979, geoid])
     wgs = pyproj.Transformer.from_crs(
             pyproj.CRS(4979), geoidtrans, always_xy=True)
     lat, lon, elev = wgs.transform(lat, lon, alt)
@@ -548,15 +548,15 @@ def project_wgs_to_geoid(lat, lon, alt, geoid=3855 ):
     return lat, lon, elev
 
 def project_utm_to_geoid(utm_x, utm_y, utm_z, utm_zone=32629, geoid=3855):
-    """
+    '''
     transform ellipsoid heigth to geoid, using pyproj
     Look for other EPSG at https://epsg.io/
 
     VR 09/21
 
-    """
+    '''
 
-    geoidtrans =pyproj.crs.CompoundCRS(name="UTM + EGM2008 height", components=[utm_zone, geoid])
+    geoidtrans =pyproj.crs.CompoundCRS(name='UTM + EGM2008 height', components=[utm_zone, geoid])
     utm = pyproj.Transformer.from_crs(
             pyproj.CRS(utm_zone), geoidtrans, always_xy=True)
     utm_x, utm_y, elev = utm.transform(utm_x, utm_y, utm_z)
@@ -564,37 +564,37 @@ def project_utm_to_geoid(utm_x, utm_y, utm_z, utm_zone=32629, geoid=3855):
     return utm_x, utm_y, elev
 
 def modify_polygon(Polygons=None,
-                    Operator="intersection",
+                    Operator='intersection',
                     Params=[], Out=True):
-    """
+    '''
     VR 8/21
-    """
+    '''
     if not Polygons :
-        error("No Polygons given!")
+        sys.exit('No Polygons given!')
 
-    print("Operator is " + Operator)
+    print('Operator is ' + Operator)
 
     PDims= numpy.size(Polygons)
     # print(PDims)
     if PDims == 1:
 
         Poly0 = Polygons[0]
-        if ("rot" in Operator.lower()):
+        if ('rot' in Operator.lower()):
             Angle = Params[0]
             if numpy.size(Params)==1:
-                Poly = shapely.affinity.rotate(Poly0, Angle, "center")
+                Poly = shapely.affinity.rotate(Poly0, Angle, 'center')
             else:
                 Center = Params[1]
-                Poly = shapely.affinity.rotate(Poly0, Angle, "center")
+                Poly = shapely.affinity.rotate(Poly0, Angle, 'center')
 
     else:
         Poly0 = Polygons[0]
         Poly1 = Polygons[1]
 
-        if ("int" in Operator.lower()):
+        if ('int' in Operator.lower()):
             Poly = Poly0.intersection(Poly1)
 
-        if ("uni" in Operator.lower()):
+        if ('uni' in Operator.lower()):
             Poly = Poly0.union(Poly1)
 
 
@@ -602,31 +602,31 @@ def modify_polygon(Polygons=None,
 
 
 def extract_data_poly(Data=None, PolyPoints=None, method=None, Out=True):
-    """
+    '''
      Chooses polygon area from aempy data set, given
      PolyPoints = [[X1 Y1],...[XN YN]]. First and last points will
      be connected for closure.
 
      VR 7/21
-    """
+    '''
     if method == None:
-        error("extract_data_poly: No method given")
+        sys.exit('extract_data_poly: No method given')
 
     if Data.size == 0:
-        error("No Data given!")
+        sys.exit('No Data given!')
 
     Ddims = numpy.shape(Data)
     if Out:
-        print("data matrix input: " + str(Ddims))
+        print('data matrix input: ' + str(Ddims))
 
 
-    if "env" in method.lower():
+    if 'env' in method.lower():
         poly = numpy.column_stack((PolyPoints[:,0], PolyPoints[:,1]))
         poly = shapely.geometry.Multipoint((PolyPoints[:,0], PolyPoints[:,1])).envelope
-    if "con" in method.lower():
+    if 'con' in method.lower():
         poly = numpy.column_stack((PolyPoints[:,0], PolyPoints[:,1]))
         poly = shapely.geometry.Multipoint((PolyPoints[:,0], PolyPoints[:,1])).convex_hull
-    if "shp" in method.lower():
+    if 'shp' in method.lower():
         poly = PolyPoints
 
     DPoly = []
@@ -638,23 +638,23 @@ def extract_data_poly(Data=None, PolyPoints=None, method=None, Out=True):
 
     if Out:
         Ddims = numpy.shape(DPoly)
-        print("data matrix output: " + str(Ddims))
+        print('data matrix output: ' + str(Ddims))
 
     return DPoly
 
 
-def point_inside_polygon(x, y, poly, method = "shapely"):
-    """
+def point_inside_polygon(x, y, poly, method = 'shapely'):
+    '''
     Determine if a point is inside a given polygon or not, where
     the polygon is given as a list of (x,y) pairs.
     Returns True  when point (x,y) ins inside polygon poly, False otherwise
-    Based on shapelyp.geometry module(method="shapely") or pure python
+    Based on shapelyp.geometry module(method='shapely') or pure python
     VR 8/21
-    """
+    '''
     if method is None:
-        error("point_inside_polygon: No method given")
+        sys.exit('point_inside_polygon: No method given')
 
-    if "sha" in method.lower():
+    if 'sha' in method.lower():
 
         polygon = poly #shapely.geometry.Polygon(poly) # create polygon
         point = shapely.geometry.Point(x,y) # create point
@@ -681,7 +681,7 @@ def point_inside_polygon(x, y, poly, method = "shapely"):
 
 
 def extract_data_rect(Data=None, Corners=None, Out=True):
-    """
+    '''
      Chooses rectangular area from aempy data set, given
      the left lower and right uper corners in m as [minX maxX minY maxY]
      This only produces axis-parallel selections. If a rotation is desired,
@@ -690,16 +690,16 @@ def extract_data_rect(Data=None, Corners=None, Out=True):
 
     VR 7/21
 
-    """
+    '''
 
     if Data.size == 0:
-        error("No Data given!")
+        sys.exit('No Data given!')
     if not Corners:
-        error("No Rectangle given!")
+        sys.exit('No Rectangle given!')
     print(Corners)
     Ddims = numpy.shape(Data)
     if Out:
-        print("data matrix input: " + str(Ddims))
+        print('data matrix input: ' + str(Ddims))
     Rect = []
 
 
@@ -709,8 +709,8 @@ def extract_data_rect(Data=None, Corners=None, Out=True):
         Emax = numpy.amax(Data[:, 1])
         Nmin = numpy.amin(Data[:, 2])
         Nmax = numpy.amax(Data[:, 2])
-        print("Easting:  "+str(Emin)+"-"+str(Emax))
-        print("Northing: "+str(Nmin)+"-"+str(Nmax))
+        print('Easting:  '+str(Emin)+'-'+str(Emax))
+        print('Northing: '+str(Nmin)+'-'+str(Nmax))
 
     X = [Corners[0], Corners[2]]
     Y = [Corners[1], Corners[3]]
@@ -720,8 +720,8 @@ def extract_data_rect(Data=None, Corners=None, Out=True):
     Yur = numpy.amax(Y)
 
     if Out:
-        print("Rect lower left : "+str(Xll)+", "+str(Yll))
-        print("Rect upper right: "+str(Xur)+", "+str(Yur))
+        print('Rect lower left : '+str(Xll)+', '+str(Yll))
+        print('Rect upper right: '+str(Xur)+', '+str(Yur))
 
 
     for row in numpy.arange(Ddims[0] - 1):
@@ -732,18 +732,18 @@ def extract_data_rect(Data=None, Corners=None, Out=True):
     Rect = numpy.asarray(Rect, dtype=float)
     if Out:
         Ddims = numpy.shape(Rect)
-        print("data matrix output: " + str(Ddims))
+        print('data matrix output: ' + str(Ddims))
 
     return Rect
 
 
 def project_to_line(x, y, line):
-    """
+    '''
     Projects a point onto a line, where line is represented by two arbitrary
     points. as an array
 
     VR 02/21
-    """
+    '''
     x1 = line[0, 0]
     x2 = line[1, 0]
     y1 = line[0, 1]
@@ -759,11 +759,11 @@ def project_to_line(x, y, line):
 
 def gen_searchgrid(Points=None,
                    XLimits=None, dX=None, YLimits=None, dY=None, Out=False):
-    """
+    '''
     Generate equidistant grid for searching (in m).
 
     VR 02/21
-    """
+    '''
     small = 0.1
 
     datax = Points[:, 0]
@@ -775,9 +775,9 @@ def gen_searchgrid(Points=None,
     Y = numpy.arange(numpy.min(YLimits), numpy.max(YLimits)+ small, dY)
     nYc = numpy.shape(Y)[0]-1
     if Out:
-        print("Mesh size: "+str(nXc)+"X"+str(nYc)
-              +"\nCell sizes: "+str(dX)+"X"+str(dY)
-              +"\nNuber of data = "+str(nD))
+        print('Mesh size: '+str(nXc)+'X'+str(nYc)
+              +'\nCell sizes: '+str(dX)+'X'+str(dY)
+              +'\nNuber of data = '+str(nD))
 
 
     p = numpy.zeros((nXc, nYc), dtype=object)
@@ -796,7 +796,7 @@ def gen_searchgrid(Points=None,
     # pout = numpy.array(p,dtype=object)
 
             if Out:
-               print("mesh cell: "+str(ix)+" "+str(iy))
+               print('mesh cell: '+str(ix)+' '+str(iy))
 
     return p
 
@@ -818,13 +818,13 @@ def splitall(path):
     return allparts
 
 
-def get_files(SearchString=None, SearchDirectory="."):
-    """
+def get_files(SearchString=None, SearchDirectory='.'):
+    '''
     FileList = get_files(Filterstring) produces a list
     of files from a searchstring (allows wildcards)
 
     VR 11/20
-    """
+    '''
     FileList = fnmatch.filter(os.listdir(SearchDirectory), SearchString)
 
     return FileList
@@ -832,11 +832,11 @@ def get_files(SearchString=None, SearchDirectory="."):
 
 
 def unique(list, out=False):
-    """
+    '''
     find unique elements in list/array
 
     VR 9/20
-    """
+    '''
 
     # intilize a null list
     unique_list = []
@@ -856,7 +856,7 @@ def unique(list, out=False):
 
 
 def strcount(keyword=None, fname=None):
-    """
+    '''
     count occurences of keyword in file
      Parameters
     ----------
@@ -866,14 +866,14 @@ def strcount(keyword=None, fname=None):
         DESCRIPTION. The default is None.
 
     VR 9/20
-    """
-    with open(fname, "r") as fin:
+    '''
+    with open(fname, 'r') as fin:
         return sum([1 for line in fin if keyword in line])
     # sum([1 for line in fin if keyword not in line])
 
 
 def strdelete(keyword=None, fname_in=None, fname_out=None, out=True):
-    """
+    '''
     delete lines containing on of the keywords in list
 
     Parameters
@@ -892,21 +892,21 @@ def strdelete(keyword=None, fname_in=None, fname_out=None, out=True):
     None.
 
     VR 9/20
-    """
+    '''
     nn = strcount(keyword, fname_in)
 
     if out:
-        print(str(nn) + " occurances of <" + keyword + "> in " + fname_in)
+        print(str(nn) + ' occurances of <' + keyword + '> in ' + fname_in)
 
     # if fname_out == None: fname_out= fname_in
-    with open(fname_in, "r") as fin, open(fname_out, "w") as fou:
+    with open(fname_in, 'r') as fin, open(fname_out, 'w') as fou:
         for line in fin:
             if keyword not in line:
                 fou.write(line)
 
 
 def strreplace(key_in=None, key_out=None, fname_in=None, fname_out=None):
-    """
+    '''
     replaces key_in in keywords by key_out
 
     Parameters
@@ -926,63 +926,63 @@ def strreplace(key_in=None, key_out=None, fname_in=None, fname_out=None):
 
     VR 9/20
 
-    """
+    '''
 
-    with open(fname_in, "r") as fin, open(fname_out, "w") as fou:
+    with open(fname_in, 'r') as fin, open(fname_out, 'w') as fou:
         for line in fin:
             fou.write(line.replace(key_in, key_out))
 
 
-def change_filename(old_filename="", how = ["append",""]):
-    """
+def change_filename(old_filename='', how = ['append','']):
+    '''
         Changes filename from template name.
 
         Parameters
         ----------
         old_filename : string
-            input filename as string. The default is "".
+            input filename as string. The default is ''.
         how : list
             One of the following:
-                ["append", "append_string"]
-                ["prepend"," prepend_string"]
-                ["replace", "string_in","string_out"]"
-            The default is ["append",""].
+                ['append', 'append_string']
+                ['prepend',' prepend_string']
+                ['replace', 'string_in','string_out']'
+            The default is ['append',''].
 
         Returns
         -------
        new_filename: string
 
-    """
+    '''
 
     if len(old_filename)==0:
-        error("change_filename: No input file given! Exit.")
+        sys.exit('change_filename: No input file given! Exit.')
 
     new_filename = old_filename
 
 
     how[0] = how[0].lower()
 
-    if "app" in how[0]:
+    if 'app' in how[0]:
         if len(how[1]) == 0:
-            print("change_filename: No append string given!, nothing done")
+            print('change_filename: No append string given!, nothing done')
         else:
             head, tail = os.path.split(old_filename)
             name, ext = os.path.splitext(tail)
             name =name+how[1]+ext
             new_filename = os.path.join(head,name)
 
-    if "prep" in how[0]:
+    if 'prep' in how[0]:
         if len(how[1])==0:
-            print("change_filename: No prepend string given!, nothing done")
+            print('change_filename: No prepend string given!, nothing done')
         else:
             head, tail = os.path.split(old_filename)
             name, ext = os.path.splitext(tail)
             name =how[1]+name+ext
             new_filename = os.path.join(head,name)
 
-    if "repl" in how[0]:
+    if 'repl' in how[0]:
         if  len(how[1])==0 or len(how[2])==0:
-            print("change_filename: No replace strings given!, nothing done")
+            print('change_filename: No replace strings given!, nothing done')
         else:
             new_filename = old_filename.replace(how[1], how[2])
 
@@ -994,11 +994,11 @@ def gen_grid_latlon(
         LonLimits=None,
         nLon=None,
         out=True):
-    """
+    '''
      Generates equidistant 1-d grids in latLong.
 
      VR 11/20
-    """
+    '''
     small = 0.000001
 # LonLimits = ( 6.275, 6.39)
 # nLon = 31
@@ -1014,11 +1014,11 @@ def gen_grid_latlon(
 
 
 def gen_grid_utm(XLimits=None, nX=None, YLimits=None, nY=None, out=True):
-    """
+    '''
      Generates equidistant 1-d grids in m.
 
      VR 11/20
-    """
+    '''
 
     small = 0.000001
 # LonLimits = ( 6.275, 6.39)
@@ -1035,28 +1035,28 @@ def gen_grid_utm(XLimits=None, nX=None, YLimits=None, nY=None, out=True):
 
 def export_to_vtk(points=None, scale=[1., 1., -1.],
                   modmesh=None,  methmesh=None,
-                  exportfile="./tmp.vtk"):
-    """
+                  exportfile='./tmp.vtk'):
+    '''
     write 3D model to vtk
     Expects rho in physical units
 
     author: vrath
     last changed: Oct 22, 2023
 
-    """
+    '''
     from evtk.hl import gridToVTK
 
     if points is None:
-        error("export_to_vtk: No points given! Exit.")
+        sys.exit('export_to_vtk: No points given! Exit.')
 
     if modmesh is None:
         mesh = False
-        print("export_to_vtk: No mesh given! Points will be exported.")
+        print('export_to_vtk: No mesh given! Points will be exported.')
     else:
         mesh = True
-        print("export_to_vtk: Mesh given! Grid wil will be exported.")
+        print('export_to_vtk: Mesh given! Grid wil will be exported.')
 
-    print("model-like parameter written to %s" % (exportfile))
+    print('model-like parameter written to %s' % (exportfile))
 
     east = points[:, 0]
     nrth = points[:, 1]
@@ -1074,16 +1074,16 @@ def export_to_vtk(points=None, scale=[1., 1., -1.],
         gridToVTK(exportfile, nrth, east, elev, cellData={'resistivity (in Ohm)': vals[:,0]})
 
 # def write_model_vtk(ModFile=None, dx=None, dy=None, dz=None, rho=None,
-#                     reference=None, scale=[1., 1., -1.], trans="LINEAR",
+#                     reference=None, scale=[1., 1., -1.], trans='LINEAR',
 #                     out=True):
-#     """
+#     '''
 #     write 3D model to vtk
 #     Expects rho in physical units
 
 #     author: vrath
 #     last changed: Oct 22, 2023
 
-#     """
+#     '''
 #     from evtk.hl import gridToVTK
 
 #     N = numpy.append(0.0, numpy.cumsum(dx))*scale[0]
@@ -1091,24 +1091,24 @@ def export_to_vtk(points=None, scale=[1., 1., -1.],
 #     D = numpy.append(0.0, numpy.cumsum(dz))*scale[2]
 
 #     gridToVTK(ModFile, N, E, D, cellData={'resistivity (in Ohm)': rho})
-#     print("model-like parameter written to %s" % (ModFile))
+#     print('model-like parameter written to %s' % (ModFile))
 
 
 
 
 def fractrans(m=None, x=None , a=0.5):
-    """
+    '''
     Caklculate fractional derivative of m.
 
     VR Apr 2021
-    """
+    '''
     import differint as df
 
     if m == None or x == None:
-        error("No vector for diff given! Exit.")
+        sys.exit('No vector for diff given! Exit.')
 
     if numpy.size(m) != numpy.size(x):
-        error("Vectors m and x have different length! Exit.")
+        sys.exit('Vectors m and x have different length! Exit.')
 
     x0 = x[0]
     x1 = x[-1]
@@ -1123,8 +1123,8 @@ def nearly_equal(a,b,sig_fig=6):
     return (a==b or int(a*10**sig_fig) == int(b*10**sig_fig))
 
 
-def make_pdf_catalog(WorkDir="./", PdfList= None, FileName=None):
-    """
+def make_pdf_catalog(WorkDir='./', PdfList= None, FileName=None):
+    '''
     Make pdf catalog from site-plot.
 
     Parameters
@@ -1138,8 +1138,8 @@ def make_pdf_catalog(WorkDir="./", PdfList= None, FileName=None):
     -------
     None.
 
-    """
-    error("not in 3.9! Exit")
+    '''
+    sys.exit('not in 3.9! Exit')
     import fitz
 
     catalog = fitz.open()
@@ -1151,7 +1151,7 @@ def make_pdf_catalog(WorkDir="./", PdfList= None, FileName=None):
     catalog.save(FileName, garbage=4, clean = True, deflate=True)
     catalog.close()
 
-    print("\n"+str(numpy.size(PdfList))+" files collected to "+FileName)
+    print('\n'+str(numpy.size(PdfList))+' files collected to '+FileName)
 
 
 def list_functions_in(this_module):
@@ -1165,7 +1165,7 @@ def list_functions_in(this_module):
 
 
 def segment_distance(p, p1, p2, axis=None, return_t=False, segment=True):
-    r"""
+    r'''
     Find the distance between an N-dimensional point and a line or line
     segment.
     The distance from a point to a line in N dimensions is the length
@@ -1241,7 +1241,7 @@ def segment_distance(p, p1, p2, axis=None, return_t=False, segment=True):
 
     VR July 2022
 
-    """
+    '''
     p, p1, p2 = numpy.broadcast_arrays(p, p1, p2)
     seg = p2 - p1
     norm2_seg = (seg * seg).sum(axis=axis, keepdims=True)
@@ -1271,11 +1271,11 @@ def segment_distance(p, p1, p2, axis=None, return_t=False, segment=True):
         return dist, t
 
 def find_nearest(site0=(0.,0.), sitevec=numpy.array([])):
-    """
+    '''
     Find smallest distance between points - brute force
-    """
+    '''
     if numpy.size(sitevec)==0:
-        error("find_nearest: No vector uiven! exit.")
+        sys.exit('find_nearest: No vector uiven! exit.')
 
     x0 = site0[0]
     y0 = site0[1]
@@ -1294,7 +1294,7 @@ def find_nearest(site0=(0.,0.), sitevec=numpy.array([])):
 def add_object_npz(filein=None,
                    xkeys=[], xobjects=numpy.array([]),
                    fileout = None):
-    """
+    '''
     Add object to .npz file.
 
     filein, fileout: str
@@ -1307,23 +1307,23 @@ def add_object_npz(filein=None,
         Name of object
 
     vr Oct 31, 2022
-    """
+    '''
 
     if filein is None:
-        error("File not given! Exit.")
+        sys.exit('File not given! Exit.')
     if fileout is None:
         fileout=filein
 
     if len(xobjects)==0 or len(xkeys)==0:
-        error("Objects/keys not not given! Exit.")
+        sys.exit('Objects/keys not not given! Exit.')
     if len(xobjects) != len(xkeys):
-        print("Object/key sizes do mot match! Set t0: "+xkeys)
+        print('Object/key sizes do mot match! Set t0: '+xkeys)
 
     tmp = numpy.load(filein, allow_pickle=True)
     tmp = dict(tmp)
     for iobj in numpy.arange(len(xkeys)):
         tmp[xkeys[iobj]] = xobjects[iobj]
-        print("Item "+xkeys[iobj]+" added to "+fileout)
+        print('Item '+xkeys[iobj]+' added to '+fileout)
 
     numpy.savez_compressed(fileout,**tmp)
 
@@ -1331,7 +1331,7 @@ def add_object_npz(filein=None,
 def del_object_npz(filein=None,
                    xkeys=None, xobjects=numpy.array([]),
                    fileout = None):
-    """
+    '''
     delete object from .npz file.
 
     filein:  str
@@ -1343,13 +1343,13 @@ def del_object_npz(filein=None,
         Names of objects to be deleted.
 
     vr Nov 12, 2022
-    """
+    '''
 
     if filein is None:
-        error("File not given! Exit.")
+        sys.exit('File not given! Exit.')
 
     if xkeys is None:
-        error("No key  not given! Exit.")
+        sys.exit('No key  not given! Exit.')
 
     if fileout is None:
         fileout=filein
@@ -1361,14 +1361,14 @@ def del_object_npz(filein=None,
             tmp.pop(xkeys[iobj])
 
     else:
-        print("Key {"+xkeys+"} is not in the dictionary")
+        print('Key {'+xkeys+'} is not in the dictionary')
         return
 
     numpy.savez_compressed(fileout,**tmp)
 
 
 def stack_ragged(array_list, axis=0):
-    """
+    '''
     Stack ragged arrays.
 
     based on:
@@ -1388,7 +1388,7 @@ def stack_ragged(array_list, axis=0):
     idx : numpy.array
         points to end of stacked arrays.
 
-    """
+    '''
     lengths = [numpy.shape(a)[axis] for a in array_list]
     idx = numpy.cumsum(lengths[:-1])
     stacked = numpy.concatenate(array_list, axis=axis)
@@ -1396,7 +1396,7 @@ def stack_ragged(array_list, axis=0):
 
 
 def save_stacked_array(fname, array_list, axis=0, compressed =True):
-    """
+    '''
     Stack ragged arrays.
 
     based on:
@@ -1417,7 +1417,7 @@ def save_stacked_array(fname, array_list, axis=0, compressed =True):
         stacked array.
     idx : numpy.array
         points to end of stacked arrays.
-    """
+    '''
     stacked, idx = stack_ragged(array_list, axis=axis)
     if compressed:
         numpy.savez_compressed(fname, stacked_array=stacked, stacked_index=idx)
@@ -1426,7 +1426,7 @@ def save_stacked_array(fname, array_list, axis=0, compressed =True):
 
 
 def load_stacked_arrays(fname, axis=0):
-    """
+    '''
     Stack ragged arrays.
 
     based on:
@@ -1445,37 +1445,37 @@ def load_stacked_arrays(fname, axis=0):
         stacked array.
     idx : numpy.array
         points to end of stacked arrays.
-    """
+    '''
     npzfile = numpy.load(fname)
     idx = npzfile['stacked_index']
     stacked = npzfile['stacked_array']
     return numpy.split(stacked, idx, axis=axis)
 
 
-def print_title(version="", fname="", form="%m/%d/%Y, %H:%M:%S", out=True):
-    """
+def print_title(version='', fname='', form='%m/%d/%Y, %H:%M:%S', out=True):
+    '''
     Print version, calling filename, and modification date.
-    """
+    '''
 
     import os.path
     from datetime import datetime
 
-    title = ""
+    title = ''
 
     if len(version)==0:
-        print("No version string given! Not printed to title.")
-        tstr = ""
+        print('No version string given! Not printed to title.')
+        tstr = ''
     else:
-       ndat = "\n"+"".join("Date " + datetime.now().strftime(form))
-       tstr =  "AEMpyX Version "+version+ndat+ "\n"
+       ndat = '\n'+''.join('Date ' + datetime.now().strftime(form))
+       tstr =  'AEMpyX Version '+version+ndat+ '\n'
 
     if len(fname)==0:
-        print("No calling filenane given! Not printed to title.")
-        fstr = ""
+        print('No calling filenane given! Not printed to title.')
+        fstr = ''
     else:
         fnam = os.path.basename(fname)
         mdat = datetime.fromtimestamp((os.path.getmtime(fname))).strftime(form)
-        fstr = fnam+", modified "+mdat+"\n"
+        fstr = fnam+', modified '+mdat+'\n'
         fstr = fstr + fname
 
     title = tstr+ fstr
@@ -1487,7 +1487,7 @@ def print_title(version="", fname="", form="%m/%d/%Y, %H:%M:%S", out=True):
 
 
 def anisodiff(img,niter=1,kappa=50,gamma=0.1,step=(1.,1.),option=1):
-    """
+    '''
     Anisotropic diffusion.
 
     Usage:
@@ -1544,12 +1544,12 @@ def anisodiff(img,niter=1,kappa=50,gamma=0.1,step=(1.,1.),option=1):
     April 2019 - Corrected for Python 3.7    -  AvW
     January 2022 simplified for application  -  VR
 
-    """
+    '''
 
     # ...you could always diffuse each color channel independently if you
     # really want
     if img.ndim == 3:
-        warnings.warn("Only grayscale images allowed, converting to 2D matrix")
+        warnings.warn('Only grayscale images allowed, converting to 2D matrix')
         img = img.mean(2)
 
     # initialize output array
@@ -1594,7 +1594,7 @@ def anisodiff(img,niter=1,kappa=50,gamma=0.1,step=(1.,1.),option=1):
     return imgout
 
 def anisodiff3(stack,niter=1,kappa=50,gamma=0.1,step=(1.,1.,1.),option=1):
-    """
+    '''
     3D Anisotropic diffusion.
 
     Usage:
@@ -1648,12 +1648,12 @@ def anisodiff3(stack,niter=1,kappa=50,gamma=0.1,step=(1.,1.,1.),option=1):
     June 2000  original version.
     March 2002 corrected diffusion eqn No 2.
     July 2012 translated to Python
-    """
+    '''
 
     # ...you could always diffuse each color channel independently if you
     # really want
     if stack.ndim == 4:
-        warnings.warn("Only grayscale stacks allowed, converting to 3D matrix")
+        warnings.warn('Only grayscale stacks allowed, converting to 3D matrix')
         stack = stack.mean(3)
 
     # initialize output array

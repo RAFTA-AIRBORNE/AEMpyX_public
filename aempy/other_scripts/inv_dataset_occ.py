@@ -14,7 +14,7 @@
 
 import os
 import sys
-from sys import exit as error
+
 from datetime import datetime
 # from time import process_time
 # from random import randrange
@@ -30,8 +30,8 @@ import scipy
 
 
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -43,21 +43,21 @@ import util
 import inverse
 import alg
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  # float('NaN')
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 OutInfo = False
 
 
 
-"""
+'''
 System related settings.
 Data transformation is allowed with three possible options:
 DataTrans   = 0           raw data
@@ -66,101 +66,101 @@ DataTrans   = 0           raw data
 An error model is applied for the raw data, which is
 mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
-"""
-# AEM_system = "genesis"
-AEM_system = "aem05"  # "genesis"
-if "aem05" in AEM_system.lower():
+'''
+# AEM_system = 'genesis'
+AEM_system = 'aem05'  # 'genesis'
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add =  75.
     DatErr_mult = 0.05
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
 
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nL = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add = 100.
     DatErr_mult = 0.01
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 
-# """
+# '''
 # configure moltiprocessing
-# """
+# '''
 
 
 # nprocs = 8
 # if nprocs<0:
 #     nprocs=multiprocessing.cpu_count()
 
-# print(str(nprocs)+" processors will be used in parallel")
+# print(str(nprocs)+' processors will be used in parallel')
 
 # parpool = multiprocessing.Pool()
 
-Direction =  "normal"
+Direction =  'normal'
 
 
 
-FileList = "search"  # "search", "read"
-FileList = "set"  # "search", "read"
+FileList = 'search'  # 'search', 'read'
+FileList = 'set'  # 'search', 'read'
 
-InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
-if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+InDatDir =  AEMPYX_DATA + '/Projects/InvParTest/proc_delete_PLM3s/'
+if not InDatDir.endswith('/'): InDatDir=InDatDir+'/'
 
-# SearchStrng = "*PLM3s_k3.npz"
-SearchStrng = "*1379*k[1,2,3,5].npz"
+# SearchStrng = '*PLM3s_k3.npz'
+SearchStrng = '*1379*k[1,2,3,5].npz'
 
-if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)
+if 'set' in FileList.lower():
+    print('Data files read from dir:  %s' % InDatDir)
     # dat_files = []
-    dat_files = [InDatDir+"A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3.npz"]
-    # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    dat_files = [InDatDir+'A1_rect_StGormans_FL11379-0_proc_delete_PLM3s_k3.npz']
+    # numpy.load(AEMPYX_DATA + '/Projects/Compare/BundoranSubsets.npz')['setC']
     
     dat_files = [os.path.basename(f) for f in dat_files]  
 else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
+    # how = ['search', SearchStrng, InDatDir]
+    # how = ['read', FileList, InDatDir]
+    dat_files = util.get_data_list(how=['search', SearchStrng, InDatDir],
                               out= True, sort=True)
 
 
 ns = numpy.size(dat_files)
 if ns ==0:
-    error("No files set!. Exit.")
+    sys.exit('No files set!. Exit.')
 
-"""
-Output format is ".npz"
-"""
-OutFileFmt = ".npz"
-OutDatDir =  InDatDir + "/occ/"
-if not OutDatDir.endswith("/"): OutDatDir=OutDatDir+"/"
-print("Models written to dir: %s " % OutDatDir)
+'''
+Output format is '.npz'
+'''
+OutFileFmt = '.npz'
+OutDatDir =  InDatDir + '/occ/'
+if not OutDatDir.endswith('/'): OutDatDir=OutDatDir+'/'
+print('Models written to dir: %s ' % OutDatDir)
 
 
 if not os.path.isdir(OutDatDir):
-    print("File: %s does not exist, but will be created" % OutDatDir)
+    print('File: %s does not exist, but will be created' % OutDatDir)
     os.mkdir(OutDatDir)
 
 
-"""
+'''
 Define inversion type  optional additional parameters (e.g., Waveforms )
-"""
+'''
 
-RunType = "Tikh-Occ" #  "MAP_ParSpace", "MAP_DatSpace","Jack","DoI", "RTO""
+RunType = 'Tikh-Occ' #  'MAP_ParSpace', 'MAP_DatSpace','Jack','DoI', 'RTO''
 Uncert = True
 
-"""
+'''
 Model definition
-"""
+'''
 
-SetPrior = "set"
+SetPrior = 'set'
 ParaTrans = 1
 
 Nlyr = 30
@@ -197,30 +197,30 @@ mod_bnd[:,1] = max_val
 
 if OutInfo:
     #   print \
-    #   (" Parameter set for inverting: \n", mod_act)
-    print(" Layer thicknesses: \n", dz)
-    print(" Layer interface depths: \n", z)
-    print(" Initial halfspace resistivity of %6.2f Ohm*m" % (Guess_r))
-    print(" Log Standard error of %6.2f " % (Guess_s))
+    #   (' Parameter set for inverting: \n', mod_act)
+    print(' Layer thicknesses: \n', dz)
+    print(' Layer interface depths: \n', z)
+    print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_r))
+    print(' Log Standard error of %6.2f ' % (Guess_s))
     if not numpy.size(mod_bnd) == 0:
-        print(" Upper limits: \n", mod_bnd[:, 1])
-        print(" Lower limits: \n", mod_bnd[:, 0])
+        print(' Upper limits: \n', mod_bnd[:, 1])
+        print(' Lower limits: \n', mod_bnd[:, 0])
 
-"""
+'''
 Setup Controls for different Algorithms
 
-"""
-if "occ" in RunType.lower():
-    """
+'''
+if 'occ' in RunType.lower():
+    '''
     Prepare differential operator base methods for regularization matrices
-    """
-    D0 = inverse.diffops(dz, der=False, mtype="sparse", otype="L0")
+    '''
+    D0 = inverse.diffops(dz, der=False, mtype='sparse', otype='L0')
     L = [D0 for D in range(7)]
     L0 = scipy.sparse.block_diag(L)
     Cm0 = L0.T@L0
     Cm0 = inverse.extract_cov(Cm0, mod_act)
 
-    D1 = inverse.diffops(dz, der=False, mtype="sparse", otype="L1")
+    D1 = inverse.diffops(dz, der=False, mtype='sparse', otype='L1')
     L = [D1 for D in range(7)]
     L1 = scipy.sparse.block_diag(L)
     Cm1 = L1.T@L1
@@ -242,16 +242,16 @@ if "occ" in RunType.lower():
     RegShift = 1
     
     Ctrl = dict([
-        ("system", [AEM_system, FwdCall]),        
-        ("name", ""),
-        ("inversion", 
+        ('system', [AEM_system, FwdCall]),        
+        ('name', ''),
+        ('inversion', 
          numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
                       LinPars, SetPrior, Delta, RegShift],dtype=object)),
-        ("covar", 
+        ('covar', 
          numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
-        ("transform",
+        ('transform',
          [DataTrans, ParaTrans]),
-        ("uncert", 
+        ('uncert', 
          Uncert)
        ])
 
@@ -264,11 +264,11 @@ if OutInfo:
 
 
 
-outstrng = "_nlyr"+str(Nlyr)\
-            +"_"+RunType\
-            +"_Prior"+str(int(Guess_r))\
-            +"_Err_a"+ str(int(DatErr_add))+"-m"+str(int(100*DatErr_mult))
-print("ID string: input file + %s " % outstrng)
+outstrng = '_nlyr'+str(Nlyr)\
+            +'_'+RunType\
+            +'_Prior'+str(int(Guess_r))\
+            +'_Err_a'+ str(int(DatErr_add))+'-m'+str(int(100*DatErr_mult))
+print('ID string: input file + %s ' % outstrng)
 
 
 fcount =0
@@ -282,9 +282,9 @@ for file in dat_files:
     filein = InDatDir+file
     fileout = OutDatDir + name + outstrng
 
-    numpy.savez_compressed(file=fileout+"_ctrl"+OutFileFmt,**Ctrl)
+    numpy.savez_compressed(file=fileout+'_ctrl'+OutFileFmt,**Ctrl)
 
-    print("\n Reading file " + filein)
+    print('\n Reading file ' + filein)
     DataObs, Header, _ = aesys.read_aempy(File=filein,
                                    System=AEM_system, OutInfo=False)
 
@@ -298,19 +298,19 @@ for file in dat_files:
     [nsite,ndata] = numpy.shape(dat_obs)
     dat_act = numpy.tile(data_active,(nsite,1))
 
-    if "read" in SetPrior.lower():
-        halfspace ="halfspace_results"
+    if 'read' in SetPrior.lower():
+        halfspace ='halfspace_results'
         file, filext0 = os.path.splitext(file)
         prior_file = file+halfspace+filext0
         mod_prior, var_prior = inverse.load_prior(prior_file)
 
 
     start = time.time()
-    """
+    '''
     Loop over sites
-    """
+    '''
     sequence = range(nsite)
-    if "reverse" in Direction.lower():
+    if 'reverse' in Direction.lower():
         sites = sequence[::-1]
     else:
         sites = sequence
@@ -320,17 +320,17 @@ for file in dat_files:
     site_log = numpy.full((len(sites),logsize), numpy.nan)
 
     for ii in sites:
-        print("\n Invert site #"+str(ii)+"/"+str(len(sites)))
+        print('\n Invert site #'+str(ii)+'/'+str(len(sites)))
 
-        """
+        '''
         Setup model-related parameter dict
-        """
+        '''
 
-        if "read" in SetPrior.lower():
+        if 'read' in SetPrior.lower():
             mod_apr = mod_prior[ii]
             mod_ini = mod_apr.copy()
 
-        elif "upd" in SetPrior:
+        elif 'upd' in SetPrior:
 
             if ii == 0:
                 mod_ini = mod_apr.copy()
@@ -339,22 +339,22 @@ for file in dat_files:
                 mod_ini = model.copy()
                 model = mod_ini.copy()
 
-        elif "set" in SetPrior:
+        elif 'set' in SetPrior:
 
                 mod_ini = mod_apr.copy()
                 model = mod_ini.copy()
 
         Model = dict([
-            ("m_act", mod_act),
-            ("m_apr", mod_apr),
-            ("m_var", mod_var),
-            ("m_bnd", mod_bnd),
-            ("m_ini", mod_ini)
+            ('m_act', mod_act),
+            ('m_apr', mod_apr),
+            ('m_var', mod_var),
+            ('m_bnd', mod_bnd),
+            ('m_ini', mod_ini)
             ])
 
-        """
+        '''
         Setup data-related parameter dict
-        """
+        '''
 
         dat_err = numpy.zeros_like(dat_obs)
         dat_err[ii, :], _ = inverse.set_errors(dat_obs[ii, :],
@@ -362,28 +362,28 @@ for file in dat_files:
                                                 daterr_mult=DatErr_mult)
 
         Data = dict([
-            ("d_act", dat_act[ii,:]),
-            ("d_obs", dat_obs[ii,:]),
-            ("d_err", dat_err[ii,:]),
-            ("alt", site_alt[ii])
+            ('d_act', dat_act[ii,:]),
+            ('d_obs', dat_obs[ii,:]),
+            ('d_err', dat_err[ii,:]),
+            ('alt', site_alt[ii])
             ])
 
-        """
+        '''
         Call inversion algorithms
-        """
+        '''
         Results =\
                 alg.run_occ(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
-        """
+        '''
         Store inversion Results
-        """
+        '''
         if OutInfo:
-            print("Results: ",Results.keys())
+            print('Results: ',Results.keys())
 
 
-        M = Results["model"]
-        D = Results["data"]
-        C = Results["log"]
+        M = Results['model']
+        D = Results['data']
+        C = Results['log']
 
         if ii==0:
             site_num  = numpy.array([ii])
@@ -395,7 +395,7 @@ for file in dat_files:
             site_dobs = D[0].reshape((1,-1))
             site_dcal = D[1].reshape((1,-1))
             site_derr = D[2].reshape((1,-1))
-            # print("ii=0")
+            # print('ii=0')
             cc = numpy.hstack((C[0], C[1], C[2], C[3],
                               C[4].ravel(),
                               C[5].ravel(),
@@ -403,9 +403,9 @@ for file in dat_files:
                               C[7].ravel()))
             site_log[ii,0:len(cc)] = cc
             if Uncert:
-                jacd = Results["jacd"]
+                jacd = Results['jacd']
                 site_jacd = jacd.reshape((1,numpy.size(jacd)))
-                pcov = Results["cpost"]
+                pcov = Results['cpost']
                 site_pcov = pcov.reshape((1,numpy.size(pcov)))
         else:
            site_num = numpy.vstack((site_num, ii))
@@ -425,15 +425,15 @@ for file in dat_files:
            site_log[ii,0:len(cc)] = cc
 
            if Uncert:
-               jacd = Results["jacd"]
+               jacd = Results['jacd']
                site_jacd = numpy.vstack((site_jacd,jacd.reshape((1,numpy.size(jacd)))))
-               pcov = Results["cpost"]
+               pcov = Results['cpost']
                site_pcov = numpy.vstack((site_pcov, pcov.reshape((1,numpy.size(pcov)))))
 
 
 
     numpy.savez_compressed(
-        file=fileout+"_results.npz",
+        file=fileout+'_results.npz',
         fl_data=file,
         fl_name=fl_name,
         header=titstrng,
@@ -458,7 +458,7 @@ for file in dat_files:
 
     if Uncert:
         numpy.savez_compressed(        
-            file=fileout+"_results.npz",
+            file=fileout+'_results.npz',
             fl_data=file,
             fl_name=fl_name,
             header=titstrng,
@@ -483,9 +483,9 @@ for file in dat_files:
             site_jacd= site_jacd,
             site_pcov= site_pcov)
 
-    print("\n\nResults stored to "+fileout)
+    print('\n\nResults stored to '+fileout)
     elapsed = (time.time() - start)
-    print (" Used %7.4f sec for %6i sites" % (elapsed, ii+1))
-    print (" Average %7.4f sec/site\n" % (elapsed/(ii+1)))
+    print (' Used %7.4f sec for %6i sites' % (elapsed, ii+1))
+    print (' Average %7.4f sec/site\n' % (elapsed/(ii+1)))
 
-print("\n\nAll done!")
+print('\n\nAll done!')

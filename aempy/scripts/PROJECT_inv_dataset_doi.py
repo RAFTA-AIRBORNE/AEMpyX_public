@@ -20,13 +20,13 @@
 #     text_representation:
 #       extension: .py
 #       format_name: light
-#       format_version: "1.5"
+#       format_version: '1.5'
 #       jupytext_version: 1.11.3
 # ---
 
 import os
 import sys
-from sys import exit as error
+
 from datetime import datetime
 # from time import process_time
 # from random import randrange
@@ -39,8 +39,8 @@ import scipy
 
 # %logstart -o
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 for pth in mypath:
     if pth not in sys.path:
         sys.path.insert(0,pth)
@@ -51,187 +51,187 @@ from version import versionstrg
 import util
 import inverse
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 OutInfo = True
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 rng = numpy.random.default_rng()
-nan = numpy.nan  # float("NaN")
+nan = numpy.nan  # float('NaN')
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 OutInfo = True
 now = datetime.now()
 
-Method = "Oldenburg1999"
-Method = "Variance"
+Method = 'Oldenburg1999'
+Method = 'Variance'
 
-# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
-InModDir =  AEMPYX_ROOT + "/aempy/data/AEM05/results_doi/"
-if not InModDir.endswith("/"): InModDir=InModDir+"/"
-
-
-# Method = "Oldenburg1999"
-# FileList = "set" 
-# SearchStrng = ""
-
-Method = "Variance"
-FileList = "search"  
-SearchStrng = "*results.npz"
+# InDatDir =  AEMPYX_DATA + '/Projects/InvParTest/proc_delete_PLM3s/'
+InModDir =  AEMPYX_ROOT + '/aempy/data/AEM05/results_doi/'
+if not InModDir.endswith('/'): InModDir=InModDir+'/'
 
 
-# InDatDir =  AEMPYX_DATA + "/Projects/InvParTest/proc_delete_PLM3s/"
-InDatDir =  AEMPYX_ROOT + "/aempy/data/AEM05/"
-if not InDatDir.endswith("/"): InDatDir=InDatDir+"/"
+# Method = 'Oldenburg1999'
+# FileList = 'set' 
+# SearchStrng = ''
+
+Method = 'Variance'
+FileList = 'search'  
+SearchStrng = '*results.npz'
 
 
-if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)
+# InDatDir =  AEMPYX_DATA + '/Projects/InvParTest/proc_delete_PLM3s/'
+InDatDir =  AEMPYX_ROOT + '/aempy/data/AEM05/'
+if not InDatDir.endswith('/'): InDatDir=InDatDir+'/'
+
+
+if 'set' in FileList.lower():
+    print('Data files read from dir:  %s' % InDatDir)
     # dat_files = []
-    mod_files = ["StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior10_Err_a75-m5_results.npz",
-                 "StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior1000_Err_a75-m5_results.npz"]  
-    # numpy.load(AEMPYX_DATA + "/Projects/Compare/BundoranSubsets.npz")["setC"]
+    mod_files = ['StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior10_Err_a75-m5_results.npz',
+                 'StGormans_FL11379-0_k3_nlyr36_TikhOpt_gcv_Prior1000_Err_a75-m5_results.npz']  
+    # numpy.load(AEMPYX_DATA + '/Projects/Compare/BundoranSubsets.npz')['setC']
     
 else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    mod_files = util.get_data_list(how=["search", SearchStrng, InModDir],
+    # how = ['search', SearchStrng, InDatDir]
+    # how = ['read', FileList, InDatDir]
+    mod_files = util.get_data_list(how=['search', SearchStrng, InModDir],
                               out= True, sort=True)
 
     mod_files = [os.path.basename(f) for f in mod_files]  
 
 ns = numpy.size(mod_files)
-if ns ==0: error("No files set!. Exit.")
+if ns ==0: sys.exit('No files set!. Exit.')
 
-"""
-Output format is ".npz"
-"""
-OutFileFmt = ".npz"
+'''
+Output format is '.npz'
+'''
+OutFileFmt = '.npz'
 OutModDir =  InModDir
-print("Results written to dir: %s " % OutModDir)
+print('Results written to dir: %s ' % OutModDir)
 
 if not os.path.isdir(OutModDir):
-    print("File: %s does not exist, but will be created" % OutModDir)
+    print('File: %s does not exist, but will be created' % OutModDir)
     os.mkdir(OutModDir)
 
 
-Fileout = OutModDir +"AEM05_TikhOpt_P30-3000_DoI_"+Method+".npz"
-Header = "DoI from FD models"
+Fileout = OutModDir +'AEM05_TikhOpt_P30-3000_DoI_'+Method+'.npz'
+Header = 'DoI from FD models'
 
 start = time.time()
 
 results = numpy.load(InModDir + mod_files[0])
 
 numpy.savez_compressed(Fileout,
-        fline = results["fl_name"],
-        m_act = results["mod_act"],
-        m_ref = results["mod_ref"],
-        site_x = results["site_x"],
-        site_y = results["site_y"],
-        site_z = results["site_dem"],
-        site_dact = results["dat_act"],
-        site_dobs = results["site_dobs"],
-        site_derr = results["site_derr"],
+        fline = results['fl_name'],
+        m_act = results['mod_act'],
+        m_ref = results['mod_ref'],
+        site_x = results['site_x'],
+        site_y = results['site_y'],
+        site_z = results['site_dem'],
+        site_dact = results['dat_act'],
+        site_dobs = results['site_dobs'],
+        site_derr = results['site_derr'],
         doimethod = Method.lower(),
         )
 
 
-if "old" in Method.lower():
+if 'old' in Method.lower():
     icount = -1
     for file in mod_files:
         icount = icount+1
 
         m = numpy.load(OutModDir+file)
-        m_ref = m["mod_ref"]
-        m_act = m["mod_act"]
-        nsit = len(m["site_num"])
+        m_ref = m['mod_ref']
+        m_act = m['mod_act']
+        nsit = len(m['site_num'])
         nlyr = inverse.get_nlyr(m_ref)
         prior = inverse.extract_mod(M=m_ref, m_act=m_act)
 
 
         if icount == 0:
-            modls = m["site_modl"]
-            merrs = m["site_merr"]
+            modls = m['site_modl']
+            merrs = m['site_merr']
             mrefs = prior
-            modshp0 = numpy.shape(m["site_modl"])
+            modshp0 = numpy.shape(m['site_modl'])
             # print( numpy.shape(modls))
         else:
-            modls = numpy.vstack((modls, m["site_modl"]))
-            merrs = numpy.vstack((merrs, m["site_merr"]))
+            modls = numpy.vstack((modls, m['site_modl']))
+            merrs = numpy.vstack((merrs, m['site_merr']))
             mrefs = numpy.vstack((mrefs, prior))
-            modshp = numpy.shape(m["site_modl"])
+            modshp = numpy.shape(m['site_modl'])
             if modshp != modshp0:
-                error("model dimenssions do not fit! Exit.")
+                sys.exit('model dimenssions do not fit! Exit.')
             # print( numpy.shape(modls))
 
 
     modls = numpy.log10(modls.reshape(ns, nsit, nlyr))
     mrefs = numpy.log10(mrefs.reshape(ns, nlyr))
 
-    # print("modls ", numpy.shape(modls))
+    # print('modls ', numpy.shape(modls))
     m_avg = numpy.sum(modls, axis=0).reshape(nsit,nlyr)
     m_dif = numpy.diff(modls, axis=0).reshape(nsit,nlyr)
     r_dif = numpy.diff(mrefs, axis=0)
-    # print("avg ", numpy.shape(m_avg))
-    # print("mdif", numpy.shape(m_dif))
-    # print("rdif", numpy.shape(r_dif))
+    # print('avg ', numpy.shape(m_avg))
+    # print('mdif', numpy.shape(m_dif))
+    # print('rdif', numpy.shape(r_dif))
     v_doi = numpy.abs(m_dif)/numpy.abs(r_dif)
-    # print("doi", numpy.shape(doi))
+    # print('doi', numpy.shape(doi))
 
-    print("\n\nMethod:  "+Method)
-    print("DoI min = "+str(numpy.amin(v_doi)))
-    print("    max = "+str(numpy.amax(v_doi)))
+    print('\n\nMethod:  '+Method)
+    print('DoI min = '+str(numpy.amin(v_doi)))
+    print('    max = '+str(numpy.amax(v_doi)))
     
     util.add_object_npz(filein=Fileout, 
-               xkeys=["doi_files"], xobjects=[mod_files])
+               xkeys=['doi_files'], xobjects=[mod_files])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_mavg"], xobjects=[m_avg])
+               xkeys=['site_doi_mavg'], xobjects=[m_avg])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_mdif"], xobjects=[m_dif])
+               xkeys=['site_doi_mdif'], xobjects=[m_dif])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_rdif"], xobjects=[r_dif])
+               xkeys=['site_doi_rdif'], xobjects=[r_dif])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_doi"], xobjects=[v_doi])
+               xkeys=['site_doi_doi'], xobjects=[v_doi])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_models"], xobjects=[modls])
+               xkeys=['site_doi_models'], xobjects=[modls])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_mrefs"], xobjects=[mrefs])
+               xkeys=['site_doi_mrefs'], xobjects=[mrefs])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_merrs"], xobjects=[merrs])    
+               xkeys=['site_doi_merrs'], xobjects=[merrs])    
     util.add_object_npz(filein=Fileout, 
-               xkeys=["doi_meth"], xobjects=[Method])
+               xkeys=['doi_meth'], xobjects=[Method])
 
     
 
-if "var" in Method.lower():
+if 'var' in Method.lower():
     icount = -1
     for file in mod_files:
         icount = icount+1
 
         m = numpy.load(OutModDir +file)
-        m_ref = m["mod_ref"]
-        m_act = m["mod_act"]
-        nsit = len(m["site_num"])
+        m_ref = m['mod_ref']
+        m_act = m['mod_act']
+        nsit = len(m['site_num'])
         nlyr = inverse.get_nlyr(m_ref)
         prior = inverse.extract_mod(M=m_ref, m_act=m_act)
 
 
         if icount == 0:
-            modls = m["site_modl"]
-            merrs = m["site_merr"]
+            modls = m['site_modl']
+            merrs = m['site_merr']
             mrefs = prior
-            modshp0 = numpy.shape(m["site_modl"])
+            modshp0 = numpy.shape(m['site_modl'])
             # print( numpy.shape(modls))
         else:
-            modls = numpy.vstack((modls, m["site_modl"]))
-            merrs = numpy.vstack((merrs, m["site_merr"]))
+            modls = numpy.vstack((modls, m['site_modl']))
+            merrs = numpy.vstack((merrs, m['site_merr']))
             mrefs = numpy.vstack((mrefs, prior))
-            modshp = numpy.shape(m["site_modl"])
+            modshp = numpy.shape(m['site_modl'])
             if modshp != modshp0:
-                error("model dimensions do not fit! Exit.")
+                sys.exit('model dimensions do not fit! Exit.')
             # print( numpy.shape(modls))
 
     modls = numpy.log10(modls.reshape(ns, nsit, nlyr))
@@ -245,32 +245,32 @@ if "var" in Method.lower():
     m_var = numpy.var(m_ano,axis = 0)
     v_doi = numpy.sqrt(m_var)
     
-    print("\n\nMethod:  "+Method)
-    print("DoI min = "+str(numpy.amin(v_doi)))
-    print("    max = "+str(numpy.amax(v_doi)))
+    print('\n\nMethod:  '+Method)
+    print('DoI min = '+str(numpy.amin(v_doi)))
+    print('    max = '+str(numpy.amax(v_doi)))
     
     util.add_object_npz(filein=Fileout, 
-               xkeys=["doi_files"], xobjects=[mod_files])
+               xkeys=['doi_files'], xobjects=[mod_files])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_mavg"], xobjects=[m_avg])
+               xkeys=['site_doi_mavg'], xobjects=[m_avg])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_doi"], xobjects=[v_doi])
+               xkeys=['site_doi_doi'], xobjects=[v_doi])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_ano"], xobjects=[m_ano])
+               xkeys=['site_doi_ano'], xobjects=[m_ano])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_var"], xobjects=[m_var])
+               xkeys=['site_doi_var'], xobjects=[m_var])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_models"], xobjects=[modls])
+               xkeys=['site_doi_models'], xobjects=[modls])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_mrefs"], xobjects=[mrefs])
+               xkeys=['site_doi_mrefs'], xobjects=[mrefs])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["site_doi_merrs"], xobjects=[merrs])
+               xkeys=['site_doi_merrs'], xobjects=[merrs])
     util.add_object_npz(filein=Fileout, 
-               xkeys=["doi_meth"], xobjects=[Method])
+               xkeys=['doi_meth'], xobjects=[Method])
 
 
-print("Results stored to "+Fileout)
+print('Results stored to '+Fileout)
 elapsed = (time.time() - start)
-print (" Used %7.4f sec \n" % (elapsed))
+print (' Used %7.4f sec \n' % (elapsed))
 
-print("\nAll done!")
+print('\nAll done!')

@@ -13,16 +13,16 @@
 # ---
 
 
-"""
+'''
 @author: vrath Feb 2021
 @author: duygu June 2021
 Lines 139-140 are corrected.
-"""
+'''
 
 
 import os
 import sys
-from sys import exit as error
+
 from time import process_time
 from datetime import datetime
 import warnings
@@ -33,8 +33,8 @@ import numpy
 import matplotlib
 import matplotlib.pyplot
 
-AEMPYX_ROOT = os.environ["AEMPYX_ROOT"]
-mypath = [os.path.join(AEMPYX_ROOT, "aempy/modules/")]
+AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
+mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
 
 for pth in mypath:
     if pth not in sys.path:
@@ -47,19 +47,19 @@ import prep
 import aesys
 import viz
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-AEMPYX_DATA = os.environ["AEMPYX_DATA"]
+AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
 version, _ = versionstrg()
 titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.currentframe()), out=False)
-print(titstrng+"\n\n")
+print(titstrng+'\n\n')
 
 OutInfo = True
 now = datetime.now()
 
-"""
+'''
 System related settings.
 Data transformation is now allowed with three possible options:
 DataTrans   = 0           raw data
@@ -68,82 +68,82 @@ DataTrans   = 0           raw data
 An error model is applied for the raw data, which is
 mixed additive/multiplicative. in case of data transformation,
 errors are also transformed.
-"""
+'''
 
-AEM_system = "genesis"
-if "aem05" in AEM_system.lower():
+AEM_system = 'genesis'
+if 'aem05' in AEM_system.lower():
     FwdCall,NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nD = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add =  75.
     DatErr_mult = 0.05
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
 
 
-if "genes" in AEM_system.lower():
+if 'genes' in AEM_system.lower():
     FwdCall, NN, _, _, _, = aesys.get_system_params(System=AEM_system)
     nD = NN[0]
     ParaTrans = 1
     DataTrans = 0
     DatErr_add = 100.
     DatErr_mult = 0.01
-    data_active = numpy.ones(NN[2], dtype="int8")
+    data_active = numpy.ones(NN[2], dtype='int8')
     data_active[0:11]=0  # only vertical component
     # data_active[10:11]=0  # Vertical + 'good' hoizontals'
 
 
-"""
+'''
 input formats are .npz, .nc4, 'ascii'
-"""
+'''
 
-InStrng = ""
+InStrng = ''
 
-FileList = "search"  # "search", "read"
-InDatDir =  AEMPYX_DATA + "/Projects/Compare_systems/data_reduced/"
-PlotDir  =  AEMPYX_DATA + "/Projects/Compare_systems/plots/"
-PlotStrng = " - data reduced"
-SearchStrng = "CGG*reduced.npz"
-PdfCat = "Testlines_CGG_reduced.pdf"
+FileList = 'search'  # 'search', 'read'
+InDatDir =  AEMPYX_DATA + '/Projects/Compare_systems/data_reduced/'
+PlotDir  =  AEMPYX_DATA + '/Projects/Compare_systems/plots/'
+PlotStrng = ' - data reduced'
+SearchStrng = 'CGG*reduced.npz'
+PdfCat = 'Testlines_CGG_reduced.pdf'
 
 CheckNaN = False
 
-if "set" in FileList.lower():
-    print("Data files read from dir:  %s" % InDatDir)
+if 'set' in FileList.lower():
+    print('Data files read from dir:  %s' % InDatDir)
     dat_files = []
-    f = numpy.load(AEMPYX_DATA+"/Projects/Compare_systems/BundoranSubsets.npz")
+    f = numpy.load(AEMPYX_DATA+'/Projects/Compare_systems/BundoranSubsets.npz')
 
-    dat_files = f["setC"][0]
+    dat_files = f['setC'][0]
     dat_files = [os.path.basename(d) for d in dat_files]
 else:
-    # how = ["search", SearchStrng, InDatDir]
-    # how = ["read", FileList, InDatDir]
-    dat_files = util.get_data_list(how=["search", SearchStrng, InDatDir],
+    # how = ['search', SearchStrng, InDatDir]
+    # how = ['read', FileList, InDatDir]
+    dat_files = util.get_data_list(how=['search', SearchStrng, InDatDir],
                               out= True, sort=True)
     ns = numpy.size(dat_files)
 
 ns = numpy.size(dat_files)
 if ns ==0:
-    error("No files set!. Exit.")
+    sys.exit('No files set!. Exit.')
 
 print(dat_files)
 
 
 FilesOnly = False
-PlotFmt = [".pdf", ".png"]
+PlotFmt = ['.pdf', '.png']
 PdfCatalog = True
-if ".pdf" in PlotFmt:
-    PdfCStr = SearchStrng.replace("*","").replace("_","")
+if '.pdf' in PlotFmt:
+    PdfCStr = SearchStrng.replace('*','').replace('_','')
 
 else:
-    print(" No pdfs generated. No catalog possible!")
+    print(' No pdfs generated. No catalog possible!')
     PdfCatalog = False
 
 
-IncludePlots = ["alt", "xdata", "zdata",]
-IncludePlots = ["xdata", "zdata",]
+IncludePlots = ['alt', 'xdata', 'zdata',]
+IncludePlots = ['xdata', 'zdata',]
 PlotSize = [18., 6.]
-DataTrans = "asinh"
+DataTrans = 'asinh'
 XLimits = [3.5, 12.]
 ZLimits = [6., 14.]
 
@@ -161,30 +161,30 @@ PLimits = [0., 25.]
 PlotThresh =20
 
 
-ProfType = "distance"
-if "dist" in ProfType.lower():
-    ProfLabel = "profile distance (m) "
+ProfType = 'distance'
+if 'dist' in ProfType.lower():
+    ProfLabel = 'profile distance (m) '
     ProfScale = 1. # 0.001  # m to km
 else:
-    ProfLabel = "site # (-)"
+    ProfLabel = 'site # (-)'
     ProfScale = 1. # 0.001  # m to km
 
 
 PosDegrees = False
 if PosDegrees:
     EPSG=32629
-"""
+'''
 Determine graphical parameter.
 => print(matplotlib.pyplot.style.available)
-"""
+'''
 
 
-matplotlib.pyplot.style.use("seaborn-paper")
-matplotlib.rcParams["figure.dpi"] = 400
-matplotlib.rcParams["axes.linewidth"] = 0.5
-matplotlib.rcParams["savefig.facecolor"] = "none"
-matplotlib.rcParams["savefig.transparent"] = True
-matplotlib.rcParams["savefig.bbox"] = "tight"
+matplotlib.pyplot.style.use('seaborn-paper')
+matplotlib.rcParams['figure.dpi'] = 400
+matplotlib.rcParams['axes.linewidth'] = 0.5
+matplotlib.rcParams['savefig.facecolor'] = 'none'
+matplotlib.rcParams['savefig.transparent'] = True
+matplotlib.rcParams['savefig.bbox'] = 'tight'
 Fontsize = 8
 Labelsize = Fontsize
 Titlesize = 8
@@ -196,19 +196,19 @@ Markersize = 4
 ncols = 11
 Colors = matplotlib.pyplot.cm.jet(numpy.linspace(0,1,ncols))
 Grey = 0.7
-Lcycle =Lcycle = (cycler("linestyle", ["-", "--", ":", "-."])
-          * cycler("color", ["r", "g", "b", "y"]))
+Lcycle =Lcycle = (cycler('linestyle', ['-', '--', ':', '-.'])
+          * cycler('color', ['r', 'g', 'b', 'y']))
 
-"""
+'''
 For just plot.ing to files, choose the cairo backend (eps, pdf, png, jpg...).
 If you need to see the plots directly (plot window, or jupyter), simply
 comment out the following line. In this case matplotlib may run into
 memory problems after a few hundreds of high-resolution plot..
-"""
+'''
 
 if FilesOnly:
-    print("using cairo")
-    matplotlib.use("cairo")
+    print('using cairo')
+    matplotlib.use('cairo')
 
 
 if PdfCatalog:
@@ -224,9 +224,9 @@ for file in dat_files:
     Data, Header, _ = aesys.read_aempy(File=filein,
                                     System=AEM_system, OutInfo=False)
     sD = numpy.shape(Data)
-    print("flightline "+name+"  #"
-            +str(ifl)+" of "
-            +str(numpy.size(dat_files)) +" has shape: "+str(sD))
+    print('flightline '+name+'  #'
+            +str(ifl)+' of '
+            +str(numpy.size(dat_files)) +' has shape: '+str(sD))
 
     sD = numpy.shape(Data)
     if CheckNaN:
@@ -236,15 +236,15 @@ for file in dat_files:
             Data[ii[0],3:] = numpy.nan
 
         if numpy.shape(Data)[0]-nnans < PlotThresh:
-            print("Not enough data! No plot.")
+            print('Not enough data! No plot.')
             continue
 
     if numpy.size(Data)<=nD:
-        print("Not enough data! No plot.")
+        print('Not enough data! No plot.')
         continue
 
     if PdfCatalog:
-        pdf_list.append(PlotDir+name+".pdf")
+        pdf_list.append(PlotDir+name+'.pdf')
 
     fline = Data[:, 0]
 
@@ -253,7 +253,7 @@ for file in dat_files:
 
     # not usually used
     # altitude = Data[:, 4]
-    # alt_file = name+"_altitude.txt"
+    # alt_file = name+'_altitude.txt'
     # numpy.savetxt(alt_file, altitude)
 
     viz.plot_flightline_genesis(

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Tue Jul  4 18:42:34 2023
 
 @author: vrath
-"""
+'''
 import inspect
 
 # import pymcmcstat 
@@ -19,7 +19,7 @@ import matplotlib.pyplot
 
 
 def run_EMCEE(Ctrl=None, Model=None, Data=None, OutInfo=True):
-    """
+    '''
     
 
     Returns
@@ -30,10 +30,10 @@ def run_EMCEE(Ctrl=None, Model=None, Data=None, OutInfo=True):
     References:
         
         Daniel Foreman-Mackey and David W. Hogg and Dustin Lang and Jonathan Goodman (2013)
-        "emcee": The {MCMC} Hammer
+        'emcee': The {MCMC} Hammer
         Publications of the Astronomical Society of the Pacific, doi:10.1086/670067
 
-    """
+    '''
     import emcee
 
     nix = [0]
@@ -41,7 +41,7 @@ def run_EMCEE(Ctrl=None, Model=None, Data=None, OutInfo=True):
     return nix
 
 def EMCEE_modelfun(xdata, parameter):
-    """
+    '''
 
     Parameters
     ----------
@@ -55,7 +55,7 @@ def EMCEE_modelfun(xdata, parameter):
     y : TYPE
         DESCRIPTION.
 
-    """
+    '''
     
     m = inverse.calc_fwdmodel(fwdcall=None,
               alt=None,
@@ -76,7 +76,7 @@ def EMCEE_modelfun(xdata, parameter):
     return y
 
 def EMCEE_ssfun(parameter, data):
-    """
+    '''
 
     Parameters
     ----------
@@ -90,7 +90,7 @@ def EMCEE_ssfun(parameter, data):
     TYPE
         DESCRIPTION.
 
-    """
+    '''
     xdata = data.xdata[0]
     ydata = data.ydata[0]
     # eval model
@@ -101,7 +101,7 @@ def EMCEE_ssfun(parameter, data):
 
 
 def run_dram(Ctrl=None, Model=None, Data=None, OutInfo=True):
-    """
+    '''
     
 
     Returns
@@ -148,7 +148,7 @@ def run_dram(Ctrl=None, Model=None, Data=None, OutInfo=True):
  
         
 
-    """
+    '''
     import pymcmcstat 
     from pymcmcstat.MCMC import MCMC
     from pymcmcstat.ParallelMCMC import ParallelMCMC 
@@ -159,7 +159,7 @@ def run_dram(Ctrl=None, Model=None, Data=None, OutInfo=True):
     return nix
 
 def dram_modelfun(xdata, parameter, **kwargs):
-    """
+    '''
 
     Parameters
     ----------
@@ -173,7 +173,7 @@ def dram_modelfun(xdata, parameter, **kwargs):
     y : TYPE
         DESCRIPTION.
 
-    """
+    '''
     
     
           fwdcal = 
@@ -195,7 +195,7 @@ def dram_modelfun(xdata, parameter, **kwargs):
     return y
 
 def dram_ssfun(parameter, data, **kwargs):
-    """
+    '''
 
     Parameters
     ----------
@@ -209,7 +209,7 @@ def dram_ssfun(parameter, data, **kwargs):
     TYPE
         DESCRIPTION.
 
-    """
+    '''
     xdata = data.xdata[0]
     ydata = data.ydata[0]
     # eval model
@@ -220,7 +220,7 @@ def dram_ssfun(parameter, data, **kwargs):
 
 
 # def run_hmc(Ctrl=None, Model=None, Data=None, OutInfo=True):
-#     """
+#     '''
     
 
 #     Returns
@@ -243,7 +243,7 @@ def dram_ssfun(parameter, data, **kwargs):
 #         Lecture Notes on Inverse Theory 
 #         Cambridge Open Engage Platform
 
-#     """
+#     '''
     
 #     import hmclab
 #     from hmclab import HMC
@@ -253,7 +253,7 @@ def dram_ssfun(parameter, data, **kwargs):
     
     
 #     hmc().sample(
-#         "bin_samples/tutorial_3_styblinski-tang.h5",
+#         'bin_samples/tutorial_3_styblinski-tang.h5',
 #         target,
 #         proposals=20000,
 #         stepsize=1.0,
@@ -308,7 +308,7 @@ def dram_ssfun(parameter, data, **kwargs):
 
 
 # def run_dream(Ctrl=None, Model=None, Data=None, OutInfo=True):
-#     """
+#     '''
     
 
 #     Returns
@@ -327,13 +327,13 @@ def dram_ssfun(parameter, data, **kwargs):
 #         multiple-try DREAM(ZS) and high-performance computing
 #         Water Resour. Res., 48, W01526
 #         doi10.1029/2011WR010608
-#     """
+#     '''
 #     import pydream
     
 #     return nix
 
 # def dream_modelfun(xdata, parameter):
-#     """
+#     '''
 
 #     Parameters
 #     ----------
@@ -347,7 +347,7 @@ def dram_ssfun(parameter, data, **kwargs):
 #     y : TYPE
 #         DESCRIPTION.
 
-#     """
+#     '''
     
 #     m = inverse.calc_fwdmodel(fwdcall=None,
 #               alt=None,
@@ -368,7 +368,7 @@ def dram_ssfun(parameter, data, **kwargs):
 #     return y
 
 # def dream_ssfun(parameter, data):
-#     """
+#     '''
 
 #     Parameters
 #     ----------
@@ -382,7 +382,7 @@ def dram_ssfun(parameter, data, **kwargs):
 #     TYPE
 #         DESCRIPTION.
 
-#     """
+#     '''
 #     xdata = data.xdata[0]
 #     ydata = data.ydata[0]
 #     # eval model
@@ -393,7 +393,7 @@ def dram_ssfun(parameter, data, **kwargs):
 
 
 def run_mhsimple(Ctrl=None, Model=None, Data=None, OutInfo=True):
-    """
+    '''
     run MCMC chains - straightforward Metropolis-Hastings.
 
     Returns
@@ -427,30 +427,30 @@ def run_mhsimple(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
 
         Ctrl_mh = dict([
-           ("system", [AEM_system, FwdCall]),
-           ("mh",[nsample,nburnin,
+           ('system', [AEM_system, FwdCall]),
+           ('mh',[nsample,nburnin,
                    accp_check, accp_max, accp_min, stepini, stepfac]),
-           ("covar", [Cm, Cd]),
-           ("transform", [DataTrans, ParaTrans])
+           ('covar', [Cm, Cd]),
+           ('transform', [DataTrans, ParaTrans])
            ])
 
    vrath  Feb 10, 2023
 
    @author: vrath
-       """
-    system, fwdcall = Ctrl["system"]
-    nsample, nburnin, accp_check, accp_max, accp_min, stepini, stepfac = Ctrl["mh"]
-    cm, _ = Ctrl["covar"]
-    d_trans, m_trans = Ctrl["transform"]
+       '''
+    system, fwdcall = Ctrl['system']
+    nsample, nburnin, accp_check, accp_max, accp_min, stepini, stepfac = Ctrl['mh']
+    cm, _ = Ctrl['covar']
+    d_trans, m_trans = Ctrl['transform']
 
-    """
+    '''
     unpack data block
     Data = [data_act[ii,:], data_obs[ii,:], data_error[ii,:], site_alt[ii]]
-    """
-    d_act = Data["d_act"] #.reshape(-1,1)
-    d_obs = Data["d_obs"] #.reshape(-1,1)
-    d_err = Data["d_err"]# .reshape(-1,1)
-    alt   = Data["alt"]
+    '''
+    d_act = Data['d_act'] #.reshape(-1,1)
+    d_obs = Data['d_obs'] #.reshape(-1,1)
+    d_err = Data['d_err']# .reshape(-1,1)
+    alt   = Data['alt']
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
     
@@ -459,18 +459,18 @@ def run_mhsimple(Ctrl=None, Model=None, Data=None, OutInfo=True):
                                               e_vec = d_err,
                                               d_trn=d_trn,
                                               d_state = d_state)
-    """
+    '''
     unpack model block
     
     Model =\
     [model_act, model_prior, model_var, model_bounds, model_ini]
-    """
+    '''
     
-    m_act = Model["m_act"]
-    m_ref = Model["m_apr"]
+    m_act = Model['m_act']
+    m_ref = Model['m_apr']
     
     m_state = 0
-    m_ref, m_state = inverse.transform_parameter(m_vec=m_ref, m_trn=m_trn, m_state=m_state, mode="f")
+    m_ref, m_state = inverse.transform_parameter(m_vec=m_ref, m_trn=m_trn, m_state=m_state, mode='f')
 
 
        scount = 0
@@ -589,15 +589,15 @@ def run_mhsimple(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
        mhresults =\
            dict([
-           ("avg", mod_avg),
-           ("std", mod_std),
-           ("med", mod_med),
-           ("mad", mod_mad),
-           ("percentiles", mod_prc),
+           ('avg', mod_avg),
+           ('std', mod_std),
+           ('med', mod_med),
+           ('mad', mod_mad),
+           ('percentiles', mod_prc),
            ])
 
        if ens_out:
-           mhresults["ens"] = ensemble
+           mhresults['ens'] = ensemble
 
 
        return  mhresults
@@ -606,7 +606,7 @@ def run_mhsimple(Ctrl=None, Model=None, Data=None, OutInfo=True):
 
 
 def aempy_modelfun(xdata, parameter):
-    """
+    '''
 
     Parameters
     ----------
@@ -620,7 +620,7 @@ def aempy_modelfun(xdata, parameter):
     y : TYPE
         DESCRIPTION.
 
-    """
+    '''
     
     m = inverse.calc_fwdmodel(fwdcall=None,
               alt=None,
@@ -642,7 +642,7 @@ def aempy_modelfun(xdata, parameter):
     return y
 
 def aempy_ssfun(parameter, data):
-    """
+    '''
 
     Parameters
     ----------
@@ -656,7 +656,7 @@ def aempy_ssfun(parameter, data):
     TYPE
         DESCRIPTION.
 
-    """
+    '''
     xdata = data.xdata[0]
     ydata = data.ydata[0]
     # eval model
