@@ -1,8 +1,16 @@
-# !/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-
 '''
+PROJECT_inv_dataset_lcp.py - AEMpyX Laterally Correlated Procedure (LCP).
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+
+Reference:
 This script realizes the Laterally Correlation Procedure approach
 of Christensen (2009). 
 
@@ -33,7 +41,6 @@ import scipy.interpolate
 import scipy.spatial
 import scipy.linalg
 
-import shapely
 
 AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
 mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
@@ -43,9 +50,8 @@ for pth in mypath:
 
 from version import versionstrg
 import util
-import aesys
-import viz
 import inverse
+import aesys
 
 #warnings.simplefilter(action='ignore', category=FutureWarning)
 cm = 1/2.54
@@ -152,9 +158,9 @@ if ns ==0:
 corrfile = mod_files[0].replace('.npz','_merged.npz')
 
 if MergeModels:
-    _ = util.merge_model_sets(infile_list=mod_files,
-                                   outfile_name=corrfile,
-                                   dictout= True, out=False)
+    _ = inverse.merge_model_sets(infile_list=mod_files,
+                                 outfile_name=corrfile,
+                                 out=False)
     mod_files = [corrfile]
     
 '''
@@ -301,17 +307,15 @@ for filein in mod_files:
     correlated models as prior. 
         
     '''
-    start  = process_time()    
-    
-    
-    
-    print('\n\n')
-    print('Time used for recalulating models:', elapsed-start,'s')
+    start_step3 = process_time()
 
-    elapsed = process_time()
-    
-    elapsed = process_time()
+
     print('\n\n')
-    print('Total time:', elapsed-total,'s')
+    elapsed_step3 = process_time() - start_step3
+    print('Time used for recalculating models:', elapsed_step3,'s')
+
+    elapsed_total = process_time() - total
+    print('\n\n')
+    print('Total time:', elapsed_total,'s')
 
     

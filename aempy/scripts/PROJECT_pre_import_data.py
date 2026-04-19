@@ -17,6 +17,16 @@
 
 # +
 # #!/usr/bin/env python3
+'''
+PROJECT_pre_import_data.py - AEMpyX data ingestion and flight-line extraction.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 
 # + [markdown]
 '''
@@ -29,9 +39,6 @@ import os
 import sys
 
 from time import process_time
-from datetime import datetime
-import warnings
-import getpass
 import inspect
 
 

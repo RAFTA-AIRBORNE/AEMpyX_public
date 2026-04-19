@@ -37,8 +37,6 @@ import matplotlib.backends.backend_pdf #  matplotlib.backends. backend_pdf.PdfPa
 
 import scipy.interpolate
 import scipy.spatial
-import skgstat
-import shapely
 # import rasterio
 # from rasterio import features
 # import affine
@@ -52,7 +50,6 @@ for pth in mypath:
 from version import versionstrg
 import util
 import aesys
-import viz
 import inverse
 
 warnings.simplefilter(action='ignore', category=FutureWarning)

@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_dataset_rto.py - AEMpyX randomize-then-optimize (RTO) uncertainty.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 
 import os
 import sys
@@ -9,11 +19,9 @@ from datetime import datetime
 import time
 import warnings
 import inspect
-import copy
 
 import numpy
 import scipy
-from numba import jit, prange
 # %logstart -o
 
 AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
@@ -27,7 +35,6 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-import alg
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -222,7 +229,7 @@ if OutInfo:
     print(' Layer interface depths: \n', z)
     print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_r))
     print(' Log Standard error of %6.2f ' % (Guess_s))
-    if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
+    if mod_bnd is not None and numpy.size(mod_bnd) != 0:
         print(' Upper limits: \n', mod_bnd[:, 1])
         print(' Lower limits: \n', mod_bnd[:, 0])
 
@@ -255,18 +262,17 @@ if 'tikhopt' in  RunType.lower():
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     RegShift = 1
-    Ctrl = dict([
-        ('system', [AEM_system, FwdCall]),  ('name', ''),
-        ('inversion',
-         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ('covar', 
-         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ('transform',
-         [DataTrans, ParaTrans]),
-        ('uncert', 
-         Uncert)
-       ])
+    ctrl_dict = {
+        'system'    : [AEM_system, FwdCall],
+        'header'    : [titstrng, ''],
+        'inversion' : numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
+                                   LinPars, SetPrior, Delta, RegShift], dtype=object),
+        'covar'     : numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+        'uncert'    : [Uncert],
+        'data'      : numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
+        'model'     : numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+    }
+    Ctrl = ctrl_dict
 
 if 'map' in  RunType.lower():
 
@@ -350,7 +356,7 @@ if 'rto' in RunType.lower():
     Percentiles = numpy.array([10., 20., 30., 40., 50., 60., 70., 80., 90.]) # linear
     # Percentiles = [2.3, 15.9, 50., 84.1,97.7]                   # 95/68
     Ctrl['rto'] =  numpy.array([NSamples, Percentiles], dtype=object)
-    Ctrl['output'] = ['ens ']
+    Ctrl['output'] = ['ens']
 
 if OutInfo:
     print(Ctrl.keys())
@@ -493,7 +499,7 @@ for file in dat_files:
 
         if 'rto' in RunType.lower():
             results =\
-                alg.run_rto(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_rto(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         '''

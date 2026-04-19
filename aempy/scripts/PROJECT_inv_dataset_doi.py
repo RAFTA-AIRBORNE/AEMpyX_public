@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_dataset_doi.py - Depth-of-investigation analysis for AEMpyX results.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -9,19 +19,6 @@
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.15.2
-# ---
-
-    # ! /usr/bin/python
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadat_filter: comment_questions,-all
-#     formats: py:light,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.11.3
 # ---
 
 import os
@@ -35,9 +32,7 @@ import warnings
 import inspect
 
 import numpy
-import scipy
 
-# %logstart -o
 
 AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
 mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
@@ -66,19 +61,14 @@ print(titstrng+'\n\n')
 OutInfo = True
 now = datetime.now()
 
-Method = 'Oldenburg1999'
-Method = 'Variance'
+Method = 'Variance'  # Options: 'Oldenburg1999', 'Variance'
 
 # InDatDir =  AEMPYX_DATA + '/Projects/InvParTest/proc_delete_PLM3s/'
 InModDir =  AEMPYX_ROOT + '/aempy/data/AEM05/results_doi/'
 if not InModDir.endswith('/'): InModDir=InModDir+'/'
 
 
-# Method = 'Oldenburg1999'
-# FileList = 'set' 
-# SearchStrng = ''
-
-Method = 'Variance'
+# Active method is set above.
 FileList = 'search'  
 SearchStrng = '*results.npz'
 

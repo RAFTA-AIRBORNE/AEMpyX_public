@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_dataset_genesis.py - AEMpyX dataset inversion script (Genesis TEM).
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -21,7 +31,6 @@ from datetime import datetime
 import time
 import warnings
 import inspect
-import copy
 
 import numpy
 import scipy
@@ -39,7 +48,6 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-import alg
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -202,7 +210,7 @@ if OutInfo:
     print(' Layer interface depths: \n', z)
     print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_r))
     print(' Log Standard error of %6.2f ' % (Guess_s))
-    if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
+    if mod_bnd is not None and numpy.size(mod_bnd) != 0:
         print(' Upper limits: \n', mod_bnd[:, 1])
         print(' Lower limits: \n', mod_bnd[:, 0])
 
@@ -234,18 +242,17 @@ if 'tikhopt' in  RunType.lower():
     ThreshRMS = [0.9, 1.0e-2, 1.0e-2]
     Delta = [1.e-5]
     RegShift = 1
-    Ctrl = dict([
-        ('system', [AEM_system, FwdCall]),  ('name', ''),
-        ('inversion',
-         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ('covar', 
-         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ('transform',
-         [DataTrans, ParaTrans]),
-        ('uncert', 
-         Uncert)
-       ])
+    ctrl_dict = {
+        'system'    : [AEM_system, FwdCall],
+        'header'    : [titstrng, ''],
+        'inversion' : numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
+                                   LinPars, SetPrior, Delta, RegShift], dtype=object),
+        'covar'     : numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+        'uncert'    : [Uncert],
+        'data'      : numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
+        'model'     : numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+    }
+    Ctrl = ctrl_dict
 
 if 'occ' in RunType.lower():
     '''
@@ -275,19 +282,17 @@ if 'occ' in RunType.lower():
     L = L1
     TauSeq = [0.5]
     Delta = [1.e-5]
-    Ctrl = dict([
-        ('system', [AEM_system, FwdCall]),
-        ('name', ''),
-        ('inversion', 
-         numpy.array([RunType, TauSeq, Tau0, Maxiter,ThreshRMS, 
-                      LinPars, SetPrior, Delta],dtype=object)),
-        ('covar', 
-         numpy.array( [L0, Cm0, L1, Cm1], dtype=object)),
-        ('transform',
-         [DataTrans, ParaTrans]),
-        ('uncert', 
-         Uncert)
-       ])
+    ctrl_dict = {
+        'system'    : [AEM_system, FwdCall],
+        'header'    : [titstrng, ''],
+        'inversion' : numpy.array([RunType, TauSeq, Tau0, Maxiter, ThreshRMS,
+                                   LinPars, SetPrior, Delta], dtype=object),
+        'covar'     : numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+        'uncert'    : [Uncert],
+        'data'      : numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
+        'model'     : numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+    }
+    Ctrl = ctrl_dict
 
 if 'map' in  RunType.lower():
 
@@ -312,7 +317,7 @@ if 'map' in  RunType.lower():
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ['exp', CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=True)
         Cmi=inverse.extract_cov(Cmi, mod_act)
-        Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
+        Cmi = scipy.sparse.block_diag([Cmi for _ in range(7)])
         CmiS=inverse.extract_cov(CmiS, mod_act)
         CmiS = scipy.sparse.block_diag([CmiS for Cmis in range(7)])
         C, sC = Cmi, CmiS
@@ -323,7 +328,7 @@ if 'map' in  RunType.lower():
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
         CmS=inverse.extract_cov(CmS, mod_act)
-        CmS = scipy.sparse.block_diag([CmS for CmS in range(7)])
+        CmS = scipy.sparse.block_diag([CmS for _ in range(7)])
         C, sC = Cm, CmS
 
     Maxiter = 10
@@ -363,8 +368,6 @@ print('ID string: input file + %s ' % outstrng)
 
 fcount =0
 for file in dat_files:
-
-    start = time.time()
 
     fcount=fcount+1
 
@@ -469,17 +472,17 @@ for file in dat_files:
         '''
         if 'opt' in RunType.lower():
             Results =\
-                alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if 'occ' in RunType.lower():
             Results =\
-                alg.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if 'map' in RunType.lower():
             Results =\
-                alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         '''

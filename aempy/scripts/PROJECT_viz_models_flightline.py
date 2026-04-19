@@ -47,7 +47,6 @@ from version import versionstrg
 
 
 import util
-import viz
 import inverse
 
 

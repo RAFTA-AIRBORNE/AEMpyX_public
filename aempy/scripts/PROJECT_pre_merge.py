@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+'''
+PROJECT_pre_merge.py - AEMpyX data and model merging.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -26,9 +36,6 @@ Created on Thu Apr 18 08:37:28 2024
 import os
 import sys
 
-from time import process_time
-from datetime import datetime
-import warnings
 import inspect
 
 # import pickle
@@ -45,7 +52,6 @@ for pth in mypath:
 
 from version import versionstrg
 import util
-import aesys
 import inverse
 
 # -
@@ -96,7 +102,7 @@ print('SearchStrng is %s\n' % SearchStrng)
 
 
 if not InDatDir.endswith('/'): InDatDir=InDatDir+'/'
-if not OutDatDir.endswith('/'): InDatDir=OutDatDir+'/'
+if not OutDatDir.endswith('/'): OutDatDir=OutDatDir+'/'
 if not os.path.isdir(OutDatDir):
     print('File: %s does not exist, but will be created' % OutDatDir)
     os.mkdir(OutDatDir)
@@ -119,7 +125,7 @@ if ns ==0:
 
 
 if 'dat' in DataType.lower():  
-    _ = inverse.merge_data_sets(file_list=dat_files, aem_system='aem05',
+    _ = inverse.merge_data_sets(infile_list=dat_files, aem_system='aem05',
                                        outfile_name=OutFileName,
                                        out=False)
 else:

@@ -19,6 +19,16 @@
 #!/usr/bin/env python3
 # -
 
+'''
+PROJECT_interpolate_data_area.py - AEMpyX spatial data interpolation.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # This script plots data over an spatial area.
 
 # +
@@ -26,21 +36,15 @@ import os
 import sys
 
 from time import process_time
-from datetime import datetime
-import warnings
-import getpass
 import inspect
 
 import numpy
 import matplotlib
 import matplotlib.pyplot
 import matplotlib.ticker
-import matplotlib.axis
-import mpl_toolkits.axes_grid1
 
 import scipy.interpolate
 import scipy.spatial
-import shapely
 
 AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
 mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
@@ -51,8 +55,6 @@ for pth in mypath:
 from version import versionstrg
 import util
 import aesys
-import viz
-import inverse
 
 # +
 OutInfo = True
@@ -208,14 +210,13 @@ for filein in dat_files:
                                     boxsize=None,
                                     workers=-1)
         mindist, index = D_tree.query(Mesh, k=1)
+        DI = Dats[index].reshape(XI.shape)
 
 
     
     elif 'prof'  in DataSet:
-        xi= numpy.linspace(E_min,E_max,numIndexes[0])
-        yi= numpy.linspace(N_min,N_max,numIndexes[1])
-        
-        
+        xi= numpy.linspace(E_min,E_max,NumIndexes[0])
+        yi= numpy.linspace(N_min,N_max,NumIndexes[0])
 
     for nc in numpy.arange(len(CompList)-2):
 

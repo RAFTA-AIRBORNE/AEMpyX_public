@@ -18,7 +18,6 @@ import sys
 
 import numpy
 import scipy.linalg
-import scipy.sparse 
 import scipy.signal
 import differint 
 

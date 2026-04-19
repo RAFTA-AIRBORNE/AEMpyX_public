@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_pre_reduce_flightline.py - AEMpyX flight-line data reduction.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -26,8 +36,6 @@ import sys
 
 from time import process_time
 from datetime import datetime
-import warnings
-import getpass
 import inspect
 
 
@@ -40,7 +48,6 @@ for pth in mypath:
         sys.path.insert(0,pth)
 
 from version import versionstrg
-import inverse
 import util
 import prep
 import aesys
@@ -101,7 +108,7 @@ print('SearchStrng is %s\n' % SearchStrng)
 
 
 if not InDatDir.endswith('/'): InDatDir=InDatDir+'/'
-if not OutDatDir.endswith('/'): InDatDir=OutDatDir+'/'
+if not OutDatDir.endswith('/'): OutDatDir=OutDatDir+'/'
 if not os.path.isdir(OutDatDir):
     print('File: %s does not exist, but will be created' % OutDatDir)
     os.mkdir(OutDatDir)
@@ -145,7 +152,9 @@ for filename in dat_files:
 
     if 'cut' in Action:
         if len(dat_files)==1:
-            profile = prep.get_profile(Data[:, 1], Data[:, 1])
+            dx = numpy.diff(Data[:, 1])
+            dy = numpy.diff(Data[:, 2])
+            profile = numpy.concatenate(([0.], numpy.cumsum(numpy.sqrt(dx**2 + dy**2))))
             interval[0] = numpy.amax([profile[0],interval[0]])
             interval[1] = numpy.amin([profile[-1],interval[1]])
             intvl = numpy.where(numpy.logical_and((profile>=interval[0]),
@@ -172,7 +181,7 @@ for filename in dat_files:
             print('\n Proc Action: ' + Action)
             print(' method: ', Method[:])
             Header = aesys.grow_header(Header, 'DECIMATE = '+str(Method))
-            D, blkhead = prep.reduce_data(D, Method=Method, System = AEM_system)
+            D, blkhead = prep.reduce_data(DataVec=D, Method=Method, System=AEM_system)
             print(' data block now has shape: ', numpy.shape(D))
 
             newname = name.replace('_data', '_dec_'+str(Window)+'_'+Method[0]+'_data')

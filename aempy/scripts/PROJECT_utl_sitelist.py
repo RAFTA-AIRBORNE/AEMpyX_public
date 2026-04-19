@@ -13,6 +13,17 @@
 # ---
 
 '''
+PROJECT_utl_sitelist.py - MT site list utility (py4mt / mtpy).
+
+Note: This script belongs to the py4mt / mtpy ecosystem, not AEMpyX.
+It uses PY4MT_ROOT / PY4MT_DATA environment variables and mtpy.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
 
 This script produces a site list containing site names,
 coordinates and elevations, e. g., for WALDIM analysis.

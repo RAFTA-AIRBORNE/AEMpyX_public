@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_dataset.py - AEMpyX dataset inversion script (AEM05).
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -20,14 +30,11 @@
 import os
 import sys
 
-from datetime import datetime
-from time import process_time, time
 # from random import randrange
 # import time
 # import warnings
 import inspect
 # import copy
-import getpass
 
 import numpy
 import scipy

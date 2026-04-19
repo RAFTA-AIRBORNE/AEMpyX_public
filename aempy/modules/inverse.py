@@ -784,9 +784,9 @@ def run_tikh_opt(Ctrl=None, Model=None, Data=None, OutInfo=False):
     err = extract_dat(d_err, d_act)
 
     Wd = numpy.diagflat(1.0/err, 0)
-    Wd = scipy.sparse.csr_matrix(Wd)
+    Wd = scipy.sparse.csr_array(Wd)
     Cdi = numpy.diagflat(1.0/err**2, 0)
-    Cdi = scipy.sparse.csr_matrix(Cdi)
+    Cdi = scipy.sparse.csr_array(Cdi)
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
 
@@ -1206,9 +1206,9 @@ def run_tikh_occ(Ctrl=None, Model=None, Data=None, OutInfo=False):
     obs = extract_dat(d_obs, d_act)
     err = extract_dat(d_err, d_act)
     Wd = numpy.diagflat(1.0/err, 0)
-    Wd = scipy.sparse.csr_matrix(Wd)
+    Wd = scipy.sparse.csr_array(Wd)
     Cdi = numpy.diagflat(1.0/err**2, 0)
-    Cdi = scipy.sparse.csr_matrix(Cdi)
+    Cdi = scipy.sparse.csr_array(Cdi)
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
 
@@ -1560,10 +1560,10 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
     err = extract_dat(d_err, d_act)
 
     Cd = numpy.diagflat(err**2, 0)
-    Cd = scipy.sparse.csr_matrix(Cd)
+    Cd = scipy.sparse.csr_array(Cd)
     Sd = numpy.diagflat(err, 0)
     Cdi = numpy.diagflat(1.0/err**2, 0)
-    Cdi = scipy.sparse.csr_matrix(Cdi)
+    Cdi = scipy.sparse.csr_array(Cdi)
     Sdi = numpy.diagflat(1.0/err, 0)
 
     d_cal = numpy.nan * numpy.ones_like(d_obs)
@@ -1732,9 +1732,9 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
                 JJ = Jac@Ctmp@Jac.T
                 A = JJ + Cd
                 r = (obs - cal).T+Jac@diff_m.T
-                m_delta = Ctmp*Jac.T@scipy.linalg.solve(A, r)
+                m_delta = Ctmp@Jac.T@scipy.linalg.solve(A, r)
                 # cov a posteriori
-                C = Ctmp + Ctmp*Jac.T@scipy.linalg.inv(A)@Jac*Ctmp
+                C = Ctmp + Ctmp@Jac.T@scipy.linalg.inv(A)@Jac@Ctmp
 
             m_test[itest] = m_apri + m_delta
             model_test = insert_mod(M=model_test, m=m_test[itest],
@@ -1851,7 +1851,7 @@ def run_map(Ctrl=None, Model=None, Data=None, OutInfo=False):
             Ctmp = tau[g_index]*Cm
             JJ = Jac@Ctmp@Jac.T
             A = JJ + Cd
-            C = Ctmp + Ctmp*Jac.T@scipy.linalg.inv(A)@Jac*Ctmp
+            C = Ctmp + Ctmp@Jac.T@scipy.linalg.inv(A)@Jac@Ctmp
 
         E = numpy.sqrt(C.diagonal())
         G = C@Jd.T
@@ -2558,7 +2558,7 @@ def run_nullspace(Ctrl=None, Model=None, Data=None, OutInfo=True):
     '''
     check  how much of Jacobian is explained by k
     '''
-    D = U@scipy.sparse.diags(S[:])@Vt - Jacd
+    D = U@scipy.sparse.diags_array([S[:]])@Vt - Jacd
     x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
     n_op = numpy.linalg.norm(D@x_op)/numpy.linalg.norm(x_op)
     j_op = numpy.linalg.norm(Jacd@x_op)/numpy.linalg.norm(x_op)
@@ -2701,7 +2701,7 @@ def run_sample_pcovar(Ctrl=None, Model=None, Data=None, OutInfo=True):
     '''
     chek  how mauch of Jacd is explained by k
     '''
-    D = U@scipy.sparse.diags(S[:])@Vt - Jacd.T
+    D = U@scipy.sparse.diags_array([S[:]])@Vt - Jacd.T
     x_op = numpy.random.default_rng().normal(size=numpy.shape(D)[1])
     n_op = numpy.linalg.norm(D@x_op)/numpy.linalg.norm(x_op)
     j_op = numpy.linalg.norm(Jacd.T@x_op)/numpy.linalg.norm(x_op)
@@ -4512,7 +4512,7 @@ def extract_cov(C=numpy.array([]), m_act=numpy.array([])):
         tmp = tmp.todense()
     tmp = tmp[m_act.flat != 0, :]
     A = tmp[:, m_act.flat != 0]
-    A = scipy.sparse.csr_matrix(A)
+    A = scipy.sparse.csr_array(A)
 
     return A
 
@@ -4533,7 +4533,7 @@ def extract_wgt(W=numpy.array([]), m_act=numpy.array([])):
     # tmp = tmp.todense()
     tmp = tmp[m_act != 0, :]
     A = tmp[:, m_act != 0]
-    A = scipy.sparse.csr_matrix(A)
+    A = scipy.sparse.csr_array(A)
 
     return A
 
@@ -4653,13 +4653,13 @@ def diffops(dz=None, der=False,
 
     if otype == 'L0':
         d = numpy.ones((1, nlyr))
-        L = scipy.sparse.spdiags(d, [0], nlyr, nlyr, format=mform)
+        L = scipy.sparse.diags_array(d, [0], nlyr, nlyr, format=mform)
 
     elif otype == 'L1':
 
         if nlyr==1:
             d = numpy.ones((1, nlyr))
-            L = scipy.sparse.spdiags(d, [0], nlyr, nlyr, format=mform)
+            L = scipy.sparse.diags_array(d, [0], nlyr, nlyr, format=mform)
 
         else:
 
@@ -4677,10 +4677,10 @@ def diffops(dz=None, der=False,
                 if der:
                     d[:, 1:] = d[:, 1:]*h[:]
 
-                L = scipy.sparse.spdiags(
+                L = scipy.sparse.diags_array(
                     d, [0, -1], nlyr, nlyr-1, format=mform).transpose()
                 # if der:
-                #     L = scipy.sparse.spdiags(h, [0], nlyr-1, nlyr-1, format=mform)*L
+                #     L = scipy.sparse.diags_array(h, [0], nlyr-1, nlyr-1, format=mform)*L
                 if out: print('L1 matrix variant 0 is '+str(numpy.shape(L)))
 
             elif variant == 1:
@@ -4692,7 +4692,7 @@ def diffops(dz=None, der=False,
                 if der:
                     d[:, 1:] = d[:, 1:]*h[:]
 
-                L = scipy.sparse.spdiags(
+                L = scipy.sparse.diags_array(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
                 if out: print('L1 matrix variant 1 is '+str(numpy.shape(L)))
@@ -4706,7 +4706,7 @@ def diffops(dz=None, der=False,
                 if der:
                     d[:, 1:] = d[:, 1:]*h[:]
 
-                L = scipy.sparse.spdiags(
+                L = scipy.sparse.diags_array(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
                 if out: print('L1 matrix variant 2 is '+str(numpy.shape(L)))
@@ -4721,7 +4721,7 @@ def diffops(dz=None, der=False,
                 if der:
                     d[:, 1:] = d[:, 1:]*h[:]
 
-                L = scipy.sparse.spdiags(
+                L = scipy.sparse.diags_array(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
                 if out: print('L1 matrix variant 3 is '+str(numpy.shape(L)))
@@ -4735,7 +4735,7 @@ def diffops(dz=None, der=False,
                 if der:
                     d[:, 1:] = d[:, 1:]*h[:]
 
-                L = scipy.sparse.spdiags(
+                L = scipy.sparse.diags_array(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
                 if out: print('L1 matrix variant -1 is '+str(numpy.shape(L)))
@@ -4749,7 +4749,7 @@ def diffops(dz=None, der=False,
                 if der:
                     d[:, 1:] = d[:, 1:]*h[:]
 
-                L = scipy.sparse.spdiags(
+                L = scipy.sparse.diags_array(
                     d, [0, 1], nlyr, nlyr, format=mform).transpose()
 
                 if out: print('L1 matrix variant -3 is '+str(numpy.shape(L)))
@@ -4933,10 +4933,10 @@ def covar(dx, dy, dz,
         threshS = thresh*numpy.amax(numpy.diag(SqrtC))
 
         C[numpy.abs(C) < threshC] = 0.0
-        C = scipy.sparse.csr_matrix(C)
+        C = scipy.sparse.csr_array(C)
 
         SqrtC[numpy.abs(SqrtC) < threshS] = 0.0
-        SqrtC = scipy.sparse.csr_matrix(SqrtC)
+        SqrtC = scipy.sparse.csr_array(SqrtC)
 
     return C, SqrtC
 
@@ -5116,7 +5116,7 @@ def msqrt_sparse(M=numpy.array([]), smallval=1.e-12):
 
     # check the matrix A is positive definite.
     if (LU.perm_r == numpy.arange(n)).all() and (LU.U.diagonal() > 0).all():
-        SqrtM = LU.L.dot(scipy.sparse.diags(LU.U.diagonal() ** 0.5))
+        SqrtM = LU.L @ scipy.sparse.diags_array([LU.U.diagonal() ** 0.5])
 
     else:
         sys.exit('The matrix is not positive definite')
@@ -5879,7 +5879,7 @@ def impute_matrix_isvd(Y, k=None, tol=1E-3, maxiter=10):
     if k is None:
         svdmethod = functools.partial(numpy.linalg.svd, full_matrices=False)
     else:
-        svdmethod = functools.partial(scipy.sparse.linsvds, k=k)
+        svdmethod = functools.partial(scipy.sparse.linalg.svds, k=k)
 
     if maxiter is None:
         maxiter = numpy.inf

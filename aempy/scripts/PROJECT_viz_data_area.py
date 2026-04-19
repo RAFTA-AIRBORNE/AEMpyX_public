@@ -27,7 +27,6 @@ import sys
 
 from time import process_time
 from datetime import datetime
-import warnings
 import getpass
 import inspect
 
@@ -40,7 +39,6 @@ import mpl_toolkits.axes_grid1
 
 import scipy.interpolate
 import scipy.spatial
-import shapely
 
 AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
 mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
@@ -51,7 +49,6 @@ for pth in mypath:
 from version import versionstrg
 import util
 import aesys
-import viz
 import inverse
 
 # +

@@ -18,6 +18,16 @@
 # +
 #!/usr/bin/env python3
 # -
+'''
+PROJECT_viz_data_flightline.py - AEMpyX flight-line data visualisation.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 
 
 # This script is used for the visualization of AEM data along a flightline.
@@ -27,10 +37,8 @@
 import os
 import sys
 
-from time import process_time
 from datetime import datetime
 
-import warnings
 import getpass
 import inspect
 
@@ -49,7 +57,6 @@ for pth in mypath:
 
 from version import versionstrg
 import util
-import prep
 import aesys
 import viz
 # -

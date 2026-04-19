@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_synth.py - AEMpyX synthetic data inversion ensemble.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -40,7 +50,6 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-import alg
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -164,6 +173,7 @@ Model definition
 
 SetPrior = 'set'
 ParaTrans = 1
+Direction = 'normal'
 
 PerturbPrior = True
 if PerturbPrior:
@@ -233,7 +243,7 @@ if OutInfo:
     print(' Layer interface depths: \n', z)
     print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_rv))
     print(' Log Standard error of %6.2f ' % (Guess_rs))
-    if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
+    if mod_bnd is not None and numpy.size(mod_bnd) != 0:
         print(' Upper limits: \n', mod_bnd[:, 1])
         print(' Lower limits: \n', mod_bnd[:, 0])
 
@@ -257,7 +267,6 @@ if 'tikhopt' in  RunType.lower():
     Cm1 = inverse.extract_cov(Cm1, mod_act)
 
 
-     'reverse' in Direction.lower()
 
 
     Maxreduce = 5
@@ -308,7 +317,6 @@ if 'occ' in RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-     'reverse' in Direction.lower()
 
 
     Maxiter = 10
@@ -359,18 +367,18 @@ if 'map' in  RunType.lower():
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ['exp', CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=True)
         Cmi=inverse.extract_cov(Cmi, mod_act)
-        Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
+        Cmi = scipy.sparse.block_diag([Cmi for _ in range(7)])
         CmiS=inverse.extract_cov(CmiS, mod_act)
         CmiS = scipy.sparse.block_diag([CmiS for Cmis in range(7)])
         C, sC = Cmi, CmiS
     else:
         InvSpace = 'dat'
-        Cm, CmS = inverse.covar(xc, yc, zc, covtypfileine= ['exp', CorrL],
+        Cm, CmS = inverse.covar(xc, yc, zc, covtype= ['exp', CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=False)
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
         CmS=inverse.extract_cov(CmS, mod_act)
-        CmS = scipy.sparse.block_diag([CmS for CmS in range(7)])
+        CmS = scipy.sparse.block_diag([CmS for _ in range(7)])
         C, sC = Cm, CmS
 
 
@@ -379,7 +387,6 @@ if 'map' in  RunType.lower():
     Rfact = 0.66
     LinPars = [Maxreduce, Rfact]
 
-     'reverse' in Direction.lower()
 
     Maxiter = 10
     ThreshFit = [0.5, 1.0e-2, 1.0e-2, 'rms']
@@ -534,17 +541,17 @@ for file in dat_files:
         '''
         if 'opt' in RunType.lower():
             results =\
-                alg.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_tikh_opt(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if 'occ' in RunType.lower():
             results =\
-                alg.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_tikh_occ(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         if 'map' in RunType.lower():
             results =\
-                alg.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_map(Ctrl=Ctrl, Model=Model, Data=Data,
 
                                   OutInfo=OutInfo)
         '''
@@ -585,7 +592,7 @@ for file in dat_files:
     stat_modl = numpy.vstack((m_quants, m_mean, m_stdv, m_skew, m_kurt, m_mode))
 
     d_quants, d_mean, d_stdv, d_skew, d_kurt, d_mode = \
-        inverse.calc_stat_ens(ensemble=ens_modl, quantiles=Percentiles, sum_stats=True)
+        inverse.calc_stat_ens(ensemble=ens_dcal, quantiles=Percentiles, sum_stats=True)
     stat_dcal = numpy.vstack((d_quants, d_mean, d_stdv, d_skew, d_kurt, d_mode))
 
     r_quants, r_mean, r_stdv, r_skew, r_kurt, r_mode = \

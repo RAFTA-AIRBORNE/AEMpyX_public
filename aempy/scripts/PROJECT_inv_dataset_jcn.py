@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_dataset_jcn.py - AEMpyX jackknife uncertainty estimation.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -21,11 +31,9 @@ from datetime import datetime
 import time
 import warnings
 import inspect
-import copy
 
 import numpy
 import scipy
-import random
 
 # %logstart -o
 
@@ -40,7 +48,6 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-import alg
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -243,7 +250,7 @@ if OutInfo:
     print(' Layer interface depths: \n', z)
     print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_r))
     print(' Log Standard error of %6.2f ' % (Guess_s))
-    if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
+    if mod_bnd is not None and numpy.size(mod_bnd) != 0:
         print(' Upper limits: \n', mod_bnd[:, 1])
         print(' Lower limits: \n', mod_bnd[:, 0])
 
@@ -276,19 +283,17 @@ if 'tikhopt' in  RunType.lower():
     Delta = [1.e-5]
     RegShift = 0
 
-    Ctrl = dict([
-        ('system', [AEM_system, FwdCall]),
-        ('name', ''),
-        ('inversion',
-         numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS, 
-                      LinPars, SetPrior, Delta, RegShift], dtype=object)),
-        ('covar', 
-         numpy.array([L0, Cm0, L1, Cm1], dtype=object)),
-        ('transform',
-         [DataTrans, ParaTrans]),
-        ('uncert', 
-         Uncert)
-       ])
+    ctrl_dict = {
+        'system'    : [AEM_system, FwdCall],
+        'header'    : [titstrng, ''],
+        'inversion' : numpy.array([RunType, RegFun, Tau0, Tau1, Maxiter, ThreshRMS,
+                                   LinPars, SetPrior, Delta, RegShift], dtype=object),
+        'covar'     : numpy.array([L0, Cm0, L1, Cm1], dtype=object),
+        'uncert'    : [Uncert],
+        'data'      : numpy.array([DataTrans, data_active, DatErr_add, DatErr_mult, Direction], dtype=object),
+        'model'     : numpy.array([ParaTrans, mod_act, mod_apr, mod_var, mod_bnd], dtype=object),
+    }
+    Ctrl = ctrl_dict
 
 if 'occ' in RunType.lower():
     '''
@@ -355,7 +360,7 @@ if 'map' in  RunType.lower():
         Cmi, CmiS = inverse.covar(xc, yc, zc, covtype= ['exp', CorrL],
                   var=mvar, sparse=False, thresh=0.05, inverse=True)
         Cmi=inverse.extract_cov(Cmi, mod_act)
-        Cmi = scipy.sparse.block_diag([Cmi for Cmi in range(7)])
+        Cmi = scipy.sparse.block_diag([Cmi for _ in range(7)])
         CmiS=inverse.extract_cov(CmiS, mod_act)
         CmiS = scipy.sparse.block_diag([CmiS for Cmis in range(7)])
         C, sC = Cmi, CmiS
@@ -366,7 +371,7 @@ if 'map' in  RunType.lower():
         Cm=inverse.extract_cov(Cm, mod_act)
         Cm = scipy.sparse.block_diag([Cm for Ci in range(7)])
         CmS=inverse.extract_cov(CmS, mod_act)
-        CmS = scipy.sparse.block_diag([CmS for CmS in range(7)])
+        CmS = scipy.sparse.block_diag([CmS for _ in range(7)])
         C, sC = Cm, CmS
 
     Maxiter = 10
@@ -536,7 +541,7 @@ for file in dat_files:
 
         if 'jcn' in RunType.lower():
             results =\
-                alg.run_jcn(Ctrl=Ctrl, Model=Model, Data=Data,
+                inverse.run_jcn(Ctrl=Ctrl, Model=Model, Data=Data,
                                   OutInfo=OutInfo)
 
         '''
@@ -560,8 +565,7 @@ for file in dat_files:
         if 'ens' in Ctrl['output']:
             jcn_ens = results['jcn_ens']
         
-        site_num=numpy.array([])
-        if site_num.size==0:
+        if ii == site_list[0]:
             site_num  = numpy.array([ii])
             site_nrms = C[2]
             site_modl = M[0]

@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+'''
+PROJECT_viz_kmz.py - AEMpyX KMZ/KML flight-line export for Google Earth.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -168,6 +178,7 @@ if (not os.path.isdir(DataDir)) or (not os.path.isdir(PlotDir)):
 
 
 
+imstring = ''
 for f in data_files:
     print(f)
 
@@ -197,8 +208,7 @@ for f in data_files:
         d_plot = PlotDir+name+plots_fmt
         if os.path.exists(d_plot)==True:
             src= kml.addfile(d_plot)
-            imstring ='<img width=''+str(ImageWidth)+'' align='left' src='' + src + ''/>'
-            # imstring = '<img width='1200' align='left' src='' + src + ''/>'
+            imstring = ('<img width="' + str(ImageWidth) + '" align="left" src="' + src + '"/>' )
             d.description = (imstring)
         else:
             print(d_plot+ ' does not exist!')

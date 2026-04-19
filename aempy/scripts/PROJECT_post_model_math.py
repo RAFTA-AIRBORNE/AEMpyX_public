@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 '''
+PROJECT_post_model_math.py - Two-way model averaging for AEMpyX.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
+'''
 Created on Tue Dec 24 10:26:24 2024
 
 @author: vrath
@@ -10,7 +20,6 @@ import os
 import sys
 
 from datetime import datetime
-from time import process_time, time
 import inspect
 # import copy
 from datetime import datetime
@@ -19,7 +28,6 @@ import getpass
 import getpass
 
 import numpy
-import scipy
 
 # import multiprocessing
 # from numba import njit
@@ -34,7 +42,6 @@ from version import versionstrg
 
 import aesys
 import util
-import inverse
 # -
 
 AEMPYX_DATA = os.environ['AEMPYX_DATA']
@@ -145,9 +152,9 @@ if  'two' in Method.lower():
         m_revers = m.copy()
 
         m_avg = 0.5*(m_normal + m_revers)
-        m_dif = numpy.abs(m_normal + m_revers)
+        m_dif = numpy.abs(m_normal - m_revers)
         if ParaTrans==1:
-           m = numpy.exp(m)
+           m_avg = numpy.exp(m_avg)
 
         d = dict(f1)
         d['site_modl'] = m_avg

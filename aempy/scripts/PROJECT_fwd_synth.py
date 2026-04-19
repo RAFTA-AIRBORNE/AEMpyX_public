@@ -20,17 +20,22 @@
 # #!/usr/bin/env python3
 # -
 
+'''
+PROJECT_fwd_synth.py - AEMpyX forward modelling script.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # This script allows you to do forward modelling, with several options on the output. The purpose for including this is multifold: (1) It is useful to see the response for a given model which may be hypothetical, to see what might be inverted for. (2) A series of models for parameter studies is possible. (3) a set of (perturbed) responses can be generated, which in turn may be fed into one of the inversion algorithms.
 
 # +
-import time
 import sys
 
 import os
-import warnings
-from time import process_time
-from datetime import datetime
-import getpass
 import inspect
 
 
@@ -46,7 +51,6 @@ for pth in mypath:
 
 from version import versionstrg
 import util
-import core1d
 import inverse
 import aesys
 # -
@@ -179,7 +183,7 @@ for par in numpy.arange(len(VarPar)):
         m_state = 0
 
         m_current, m_state = inverse.transform_parameter(m_vec=m_i, m_trn=ParaTrans, m_state=m_state, mode='f')
-        d_ref, d_state = inverse.calc_fwdmodel(fwdcall=FwdCall, alt=Alt,
+        d_ref, d_state = inverse.calc_fwdmodel(fwdcall=FwdCall, alt=alt,
                                           m_vec = m_current, m_trn=ParaTrans, m_state=m_state,
                                           d_trn=0, d_state=d_state, d_act = DataActive )
 
@@ -195,7 +199,7 @@ for par in numpy.arange(len(VarPar)):
         # print(mod_num, numpy.shape(Model))
 
         for ismp in numpy.arange(Nsamples):
-            _, data_obs = inverse.set_errors(d_ref, DatErr_add, DatErr_mult, perturb=PerturbDat)
+            _, data_obs = inverse.set_errors(d_ref, daterr_add=DatErr_add, daterr_mult=DatErr_mult, perturb=PerturbDat)
             data_obs =numpy.insert(data_obs,0,[mod_num, ismp, alt])
             Data =  numpy.vstack((Data, data_obs))
 

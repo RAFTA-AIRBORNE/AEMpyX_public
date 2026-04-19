@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_dataset_regpar.py - AEMpyX regularisation parameter sweep.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -20,14 +30,11 @@
 import os
 import sys
 
-from datetime import datetime
-from time import process_time, time
 # from random import randrange
 # import time
 # import warnings
 import inspect
 import copy
-import getpass
 
 import numpy
 import scipy
@@ -366,7 +373,7 @@ else:
                                          data_dir=InDatDir,
                                          data_file=filin,
                                          result_dir=OutResDir,
-                                         result_strng=outstrng+'_t'+str(ctrl_tmp['inversion'][3][0]))
+                                         result_strng=outstrng+'_t'+str(reg[0]))
 
 print('\n\nAll done!')
 # jobelapsed = (process_time() - jobstart)

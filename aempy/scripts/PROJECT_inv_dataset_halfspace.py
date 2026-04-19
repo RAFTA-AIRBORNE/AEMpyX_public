@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_inv_dataset_halfspace.py - AEMpyX halfspace inversion.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -15,19 +25,15 @@
 import os
 import sys
 
-from datetime import datetime
-from time import process_time
 # from random import randrange
 # import time
 import warnings
+from time import process_time
 import inspect
-import copy
-import getpass
 
 import numpy
 import scipy
 
-# %logstart -o
 
 AEMPYX_ROOT = os.environ['AEMPYX_ROOT']
 mypath = [os.path.join(AEMPYX_ROOT, 'aempy/modules/')]
@@ -53,7 +59,6 @@ titstrng = util.print_title(version=version, fname=inspect.getfile(inspect.curre
 print(titstrng+'\n\n')
 
 OutInfo = False
-now = datetime.now()
 
 
 '''
@@ -219,7 +224,7 @@ if OutInfo:
     print(' Layer interface depths: \n', z)
     print(' Initial halfspace resistivity of %6.2f Ohm*m' % (Guess_r))
     print(' Log Standard error of %6.2f ' % (Guess_s))
-    if not (mod_bnd == None) or (numpy.size(mod_bnd) == 0):
+    if mod_bnd is not None and numpy.size(mod_bnd) != 0:
         print(' Upper limits: \n', mod_bnd[:, 1])
         print(' Lower limits: \n', mod_bnd[:, 0])
 
@@ -281,8 +286,6 @@ print('ID string: input file + %s ' % OutStrng)
 
 fcount =0
 for file in dat_files:
-
-    start = process_time()
 
     fcount=fcount+1
 
@@ -430,7 +433,7 @@ for file in dat_files:
            site_log[ii,0:len(cc)] = cc
 
 
-    header=numpy.array(Header, dtype=object),
+    header=numpy.array(Header, dtype=object)
     fileout = OutResDir + name + OutStrng + OutFileFmt
 
     numpy.savez_compressed(

@@ -12,6 +12,16 @@
 #       jupytext_version: 1.15.2
 # ---
 
+'''
+PROJECT_viz_site_uncert.py - AEMpyX site uncertainty visualisation.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 
 '''
 Plot diverse uncertainty parameters
@@ -28,15 +38,12 @@ from time import process_time
 from datetime import datetime
 import warnings
 import random
-import functools
 import getpass
 import inspect
 
-from cycler import cycler
 
 import numpy
 import scipy.interpolate
-import scipy.linalg
 
 import matplotlib
 import matplotlib.pyplot

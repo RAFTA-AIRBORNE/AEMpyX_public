@@ -18,6 +18,16 @@
 # +
 # #!/usr/bin/env python3
 # -
+'''
+PROJECT_pre_process_flightline.py - AEMpyX flight-line data pre-processing.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # This script controls preprocessing of data required ore advantageous for
 # subsequent inversions.
 #
@@ -26,7 +36,6 @@ import os
 import sys
 
 import copy
-import getpass
 import inspect
 
 from time import process_time
@@ -169,7 +178,7 @@ for filename in dat_files:
     columns = [4, 5]
     print(' dcolumns: ', columns)
     Header = aesys.grow_header(Header, 'LPF, IIR n=8')
-    D, comment = prep.filter_column(D, columns, method=['butter', 4, 1.0 / 20.0])
+    D, comment = prep.filter_column(D, Columns=columns, Method=['butter', 4, 1.0 / 20.0])
     print(' data block now has shape: ', numpy.shape(D))
 
     action = ' plm lowpass filter'
@@ -177,7 +186,7 @@ for filename in dat_files:
     columns = [14, 14]
     print(' dcolumns: ', columns)
     Header = aesys.grow_header(Header, 'LPF, IIR n=8')
-    D, comment = prep.filter_column(D, columns, method=['butter', 4, 1.0 / 20.0])
+    D, comment = prep.filter_column(D, Columns=columns, Method=['butter', 4, 1.0 / 20.0])
     print(' data block now has shape: ', numpy.shape(D))
 
     action = 'plm threshold '
@@ -189,8 +198,8 @@ for filename in dat_files:
     print(' thresh = ', threshval)
     Header = aesys.grow_header(
         Header, 'PLM, threshold = ' + str(threshval))
-    D, nanindex = prep.insert_flag(D, action, threshval, columns,
-                                    System=AEM_system)
+    D, nanindex = prep.insert_flag(D, Criterion=action, ThreshVal=threshval,
+                                   Columns=columns, System=AEM_system)
 
     action = 'less than'
     threshval = 0.0
@@ -200,8 +209,8 @@ for filename in dat_files:
     print(' thresh = ', threshval)
     Header = aesys.grow_header(
         Header, 'DAT, threshold = ' + str(threshval))
-    D, nanindex = prep.insert_flag(D, action, threshval, columns,
-                                   System=AEM_system)
+    D, nanindex = prep.insert_flag(D, Criterion=action, ThreshVal=threshval,
+                                   Columns=columns, System=AEM_system)
     action = 'greater than'
     threshval = 120.0
     columns = [4, 4]
@@ -210,8 +219,8 @@ for filename in dat_files:
     print(' thresh = ', threshval)
     Header = aesys.grow_header(
         Header, 'ALT, threshold = ' + str(threshval))
-    D, nanindex = prep.insert_flag(D, action, threshval, columns,
-                                   System=AEM_system)
+    D, nanindex = prep.insert_flag(D, Criterion=action, ThreshVal=threshval,
+                                   Columns=columns, System=AEM_system)
 
     print('Info:')
     print(Header)
@@ -233,7 +242,7 @@ for filename in dat_files:
     columns = [6, 14]
     Header = aesys.grow_header(
         Header, 'GAP, method = ' + impute[0])
-    D = prep.handle_gaps(D, columns, Impute=impute, System=AEM_system)
+    D = prep.handle_gaps(D, Columns=columns, Impute=impute, System=AEM_system)
     print(' data block now has shape: ', numpy.shape(D))
 
     if numpy.shape(D)[0] == 0:
@@ -266,8 +275,8 @@ for filename in dat_files:
 
         k = k + 1
         print(' N pca: ', k)
-        Data_k, U, S, V, MSE, FRO = prep.calc_svd_decomp(D, columns, k=k,
-                                                  out_full=True)
+        Data_k, U, S, V, MSE, FRO = prep.calc_svd_decomp(D, columns, K=k,
+                                                  OutFull=True)
         S = S / S[0]
         F[k-1] = FRO
         if OutInfo:

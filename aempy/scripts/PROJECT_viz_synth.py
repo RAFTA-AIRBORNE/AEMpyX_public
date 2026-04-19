@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+'''
+PROJECT_viz_synth.py - AEMpyX synthetic inversion ensemble visualisation.
+
+Provenance
+----------
+AEMpyX project.
+
+@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
+With support of Claude (Anthropic, 2026)
+'''
 # ---
 # jupyter:
 #   jupytext:
@@ -47,7 +57,6 @@ from version import versionstrg
 
 import aesys
 import util
-import viz
 import viz
 import inverse
 
