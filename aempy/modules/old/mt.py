@@ -1,21 +1,13 @@
 # -*- coding: utf-8 -*-
-'''
-mt.py - Magnetotelluric processing utilities for AEMpyX.
-
-Provenance
-----------
-AEMpyX project.
-
-@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
-With support of Claude (Anthropic, 2026)
-
-Last change: vr Apr 2026
-'''
+import os
 import sys
 
+import inspect
 
 import numpy
+from numpy.linalg import norm
 from scipy.io import FortranFile
+from scipy.ndimage import laplace, convolve, gaussian_gradient_magnitude
 from scipy.ndimage import uniform_filter, gaussian_filter, median_filter
 
 
@@ -1314,7 +1306,8 @@ def anisodiff3D(
     # create the plot.figure, if requested
     if plotit:
         import pylab as pl
-    
+        from time import sleep
+
         showplane = stack.shape[0] // 2
 
         fig = pl.figure(figsize=(20, 5.5), num='Anisotropic diffusion')

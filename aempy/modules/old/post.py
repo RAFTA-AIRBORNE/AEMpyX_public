@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-post.py - Post-processing utilities for AEM inversion results.
-
-Provenance
-----------
-AEMpyX project.
-
-@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
-With support of Claude (Anthropic, 2026)
-
-Created: Apr 4, 2021
-Last change: vr Apr 2026
+Created on Apr 4, 2021
+@author: vrath
 '''
 import sys
+import os
+import inspect
 
 
+from datetime import datetime
 
 import numpy
 import scipy.linalg
 import scipy.sparse 
 import scipy.signal
+import scipy.interpolate
+from scipy.signal import medfilt, decimate
+from scipy.ndimage import laplace, convolve
+from scipy.ndimage import uniform_filter, gaussian_filter, median_filter
 import differint 
+import pylops
 
 def fractrans(m=None, x=None , a=0.5):
     '''
@@ -30,7 +29,7 @@ def fractrans(m=None, x=None , a=0.5):
     '''
     # import differint as df
 
-    if m is None or x is None:
+    if m == None or x == None:
         sys.exit('No vector for diff given! Exit.')
 
     if numpy.size(m) != numpy.size(x):
@@ -64,7 +63,7 @@ def crossgrad(m1=numpy.array([]),
     vr  July 2023
     '''
     sm = numpy.shape(m1)
-    dm = m1.ndim
+    dm = m1.dim
     if dm==1:
         sys.exit('crossgrad: For dim='+str(dm)+' no crossgrad! Exit.')
     elif dm==2:
@@ -79,7 +78,7 @@ def crossgrad(m1=numpy.array([]),
     g1 = numpy.ravel(gm1)
     g2 = numpy.ravel(gm2)
 
-    cgm = numpy.zeros((numpy.size(g1), cgdim))
+    cgm = numpy.zeros_like(g1,cgdim)
     for k in numpy.arange(numpy.size(g1)):
         cgm[k,:] = numpy.cross (g1[k], g2[k])
 

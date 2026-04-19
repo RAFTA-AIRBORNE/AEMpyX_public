@@ -1,24 +1,17 @@
 # # -*- coding: utf-8 -*-
-'''
-viz.py - Visualisation utilities for AEMpyX results.
-
-Provenance
-----------
-AEMpyX project.
-
-@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
-With support of Claude (Anthropic, 2026)
-
-Last change: vr Apr 2026
-'''
 # '''
 # Created on Sun Dec 27 17:23:34 2020
 
 # @author: vrath
 # '''
 
+import os
 import sys
 
+import inspect
+from time import process_time
+from datetime import datetime
+import warnings
 
 import math
 import numpy
@@ -28,7 +21,9 @@ import matplotlib.colors
 import matplotlib.cm
 import mpl_toolkits.axes_grid1
 import matplotlib.ticker
+import cycler
 
+import numpy
 import numpy.ma
 import simplekml
 
@@ -168,7 +163,7 @@ def plot_model_ensemble(
 
     ax.set_xscale('log')
     ax.set_xlim(XLimits)
-    ax.set_xlabel(r'resistivity ($\Omega$m)',fontsize=Fontsizes[0])
+    ax.set_xlabel('resistivity ($\Omega$m)',fontsize=Fontsizes[0])
     ax.set_ylim(YLimits)
     ax.set_ylabel('depth (m)',fontsize=Fontsizes[0])
     ax.xaxis.set_label_position('top')
@@ -771,7 +766,7 @@ def plot_model(
 
     ax.set_xscale('log')
     ax.set_xlim(XLimits)
-    ax.set_xlabel(r'resistivity ($\Omega$m)',fontsize=Fontsizes[0])
+    ax.set_xlabel('resistivity ($\Omega$m)',fontsize=Fontsizes[0])
     ax.set_ylim(YLimits)
     ax.set_ylabel('depth (m)',fontsize=Fontsizes[0])
     ax.xaxis.set_label_position('top')

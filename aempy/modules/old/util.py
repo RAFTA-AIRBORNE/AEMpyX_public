@@ -298,7 +298,7 @@ def get_direction_angle(p1=None, p2=None):
         direction angle .
 
     '''
-    if (p1 is None) or (p2 is None):
+    if (p1 == None) or (p1 == None):
         sys.exit('No angle can be determied as points  are not given! Exit.')
     v1 = numpy.asarray(p1)
     v2 = numpy.asarray(p2)
@@ -372,10 +372,9 @@ def project_gk_to_latlon(gk_x, gk_y, gk_zone=5684):
     Look for other EPSG at https://epsg.io/
     VR 04/21
     '''
-    prj_wgs = CRS('epsg:4326')
-    prj_gk = CRS('epsg:' + str(gk_zone))
-    transformer = Transformer.from_crs(prj_gk, prj_wgs, always_xy=True)
-    longitude, latitude = transformer.transform(gk_x, gk_y)
+    prj_wgs = pyproj.CRS('epsg:4326')
+    prj_gk = pyproj.CRS('epsg:' + str(gk_zone))
+    latitude, longitude = pyproj.transform(prj_gk, prj_wgs, gk_x, gk_y)
     return latitude, longitude
 
 
@@ -532,6 +531,38 @@ def project_utm_to_utm(utm_e_in, utm_n_in, utm_zone_in=32629, utm_zone_out=32629
     return utm_e, utm_n
 
 
+def project_wgs_to_geoid(lat, lon, alt, geoid=3855 ):
+    '''
+    transform ellipsoid heigth to geoid, using pyproj
+    Look for other EPSG at https://epsg.io/
+
+    VR 09/21
+
+    '''
+
+    geoidtrans =pyproj.crs.CompoundCRS(name='WGS 84 + EGM2008 height', components=[4979, geoid])
+    wgs = pyproj.Transformer.from_crs(
+            pyproj.CRS(4979), geoidtrans, always_xy=True)
+    lat, lon, elev = wgs.transform(lat, lon, alt)
+
+    return lat, lon, elev
+
+def project_utm_to_geoid(utm_x, utm_y, utm_z, utm_zone=32629, geoid=3855):
+    '''
+    transform ellipsoid heigth to geoid, using pyproj
+    Look for other EPSG at https://epsg.io/
+
+    VR 09/21
+
+    '''
+
+    geoidtrans =pyproj.crs.CompoundCRS(name='UTM + EGM2008 height', components=[utm_zone, geoid])
+    utm = pyproj.Transformer.from_crs(
+            pyproj.CRS(utm_zone), geoidtrans, always_xy=True)
+    utm_x, utm_y, elev = utm.transform(utm_x, utm_y, utm_z)
+
+    return utm_x, utm_y, elev
+
 def modify_polygon(Polygons=None,
                     Operator='intersection',
                     Params=[], Out=True):
@@ -578,7 +609,7 @@ def extract_data_poly(Data=None, PolyPoints=None, method=None, Out=True):
 
      VR 7/21
     '''
-    if method is None:
+    if method == None:
         sys.exit('extract_data_poly: No method given')
 
     if Data.size == 0:
@@ -1073,7 +1104,7 @@ def fractrans(m=None, x=None , a=0.5):
     '''
     import differint as df
 
-    if m is None or x is None:
+    if m == None or x == None:
         sys.exit('No vector for diff given! Exit.')
 
     if numpy.size(m) != numpy.size(x):
@@ -1124,8 +1155,9 @@ def make_pdf_catalog(WorkDir='./', PdfList= None, FileName=None):
 
 
 def list_functions_in(this_module):
-    """List all functions defined in a module object."""
+
     from inspect import getmembers, isfunction
+    import this_module
 
     funclist = getmembers(this_module, isfunction)
     for f in funclist:
@@ -1425,6 +1457,7 @@ def print_title(version='', fname='', form='%m/%d/%Y, %H:%M:%S', out=True):
     Print version, calling filename, and modification date.
     '''
 
+    import os.path
     from datetime import datetime
 
     title = ''

@@ -10,8 +10,10 @@ import os
 import sys
 
 import time
+from time import process_time
 from datetime import datetime
 import warnings
+import inspect
 import copy
 
 import scipy
@@ -26,6 +28,7 @@ import numpy
 import functools
 
 
+import multiprocessing
 import joblib
 
 import aesys
@@ -3288,7 +3291,7 @@ def calc_keg_update(m=numpy.array([]), r=numpy.array([]),
     ms = numpy.shape(m)
     mr = numpy.shape(r)
     if mr[0] != ms[0]:
-        sys.exit("calc_kupdate: Ensemble sizes don't match! Exit.")
+        sys.exit('calc_kupdate: Ensemble sizes don't match! Exit.')
 
     print(ms, mr)
     if (Cxy.size == 0) or (Cyy.size == 0):
@@ -3325,7 +3328,7 @@ def calc_eki_update(m=numpy.array([]), r=numpy.array([]),
 
         S. Duffield and S. S. Singh
         Ensemble Kalman inversion for general likelihoods
-        Statistics & Probability Letters, 187
+        Statistics \& Probability Letters, 187
         doi:10.1016/j.spl.2022.109523, 2022
 
     Created on Jul 9, 2022
@@ -3341,7 +3344,7 @@ def calc_eki_update(m=numpy.array([]), r=numpy.array([]),
     ms = numpy.shape(m)
     mr = numpy.shape(r)
     if mr[0] != ms[0]:
-        sys.exit("calc_kupdate: Ensemble sizes don't match! Exit.")
+        sys.exit('calc_kupdate: Ensemble sizes don't match! Exit.')
 
     if (Cxy.size == 0) or (Cyy.size == 0):
         sys.exit('calc_keg_update: One or more covariances missing! Exit.')
@@ -6166,7 +6169,7 @@ def init_layers(nlyr=26, start=1., end=10.,
     if logspace:
         dz = numpy.logspace(numpy.log10(start), numpy.log10(end), nlyr)
     else:
-        dz = numpy.linspace(start, end, nlyr)
+        dz = numpy.linalg.space(start, end, nlyr)
 
     z_node = numpy.append(0.0, numpy.cumsum(dz))
 
@@ -6191,14 +6194,14 @@ def set_prior(pval=numpy.array([]), flightline=None):
 
     '''
     if flightline is None:
-        sys.exit('set_prior: no flightline given! Exit.')
+        error ('set_prior: no flightine given! Exit.')
 
 
     dims =numpy.shape(flightline)
     prior = numpy.zeros(dims)
     dims =numpy.shape(flightline)
 
-    if numpy.size(pval)==1:
+    if numpy.size()==1:
         prior = prior + pval[0]
 
     if numpy.shape(pval)==numpy.shape(flightline):

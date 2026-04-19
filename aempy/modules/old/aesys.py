@@ -1,18 +1,15 @@
 '''
-aesys.py - AEM system definitions and data I/O for AEMpyX.
+Module controlling data IO.
 
-Provenance
-----------
-AEMpyX project.
+Created on Sun Nov  1 17:08:06 2020
 
-@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
-With support of Claude (Anthropic, 2026)
-
-Created: Sun Nov  1 17:08:06 2020
-Last change: vr Apr 2026
+@author: vrath
+@author: duygu - edited on 12 June 2021
+@author: duygu - edited on 6 April 2023
 '''
 import os
 
+import inspect
 
 import numpy
 from datetime import datetime
@@ -52,7 +49,7 @@ def get_system_params(System='aem05', OutInfo = True):
     miscpars: List of objects
         Other pars
 
-    Author: vrath, 2021-02-15
+    Author: vrath, 2021/02/15
 
     '''
     if System.lower() == 'aem05':
@@ -171,7 +168,7 @@ def get_system_params(System='aem05', OutInfo = True):
             ('P2',  [7, freqs[2],  ' - 3005 Hz']), ('Q2', [11, freqs[3],' - 3005 Hz']),
             ('P3',  [8, freqs[0],  ' - 11962 Hz']), ('Q3', [12, freqs[1],  ' - 11962 Hz']),
             ('P4',  [9, freqs[2],  ' - 24510 Hz']), ('Q4', [13, freqs[3],  ' - 24510 Hz']),
-            ('PLM', [14, 0., '']),('ALT', [4, 0., ''])
+            ('PLM', [14, 0., '']),('ALT', 0., [4, ''])
             ])
         # CompLabl = list(compdict.keys())
         miscpars = [freqs, xunits, dunits, compdict]
@@ -265,7 +262,7 @@ def get_system_params(System='aem05', OutInfo = True):
             ('P2',  [7, freqs[2],  ' - 3005 Hz']), ('Q2', [11, freqs[3],' - 3005 Hz']),
             ('P3',  [8, freqs[0],  ' - 11962 Hz']), ('Q3', [12, freqs[1],  ' - 11962 Hz']),
             ('P4',  [9, freqs[2],  ' - 24510 Hz']), ('Q4', [13, freqs[3],  ' - 24510 Hz']),
-            ('PLM', [14, 0., '']),('ALT', [4, 0., ''])
+            ('PLM', [14, 0., '']),('ALT', 0., [4, ''])
             ])
         # CompLabl = list(compdict.keys())
 
@@ -571,7 +568,7 @@ def read_survey_data(DatFile=None, Survey='A5', OutInfo=False, Invalid=numpy.nan
 
                 if ('line' in line.lower() or 'tie' in line.lower()):
                     t = line.split()
-                    fl = float(t[1])
+                    fl = numpy.float(t[1])
                     print(t)
                     continue
 
@@ -581,8 +578,8 @@ def read_survey_data(DatFile=None, Survey='A5', OutInfo=False, Invalid=numpy.nan
                 # print(t[:22])
                 tmp = [t[ii] for ii in ncol]
                 tmp[0] = fl
-                tmp[1] = float(tmp[1])
-                tmp[2] = float(tmp[2])
+                tmp[1] = numpy.float(tmp[1])
+                tmp[2] = numpy.float(tmp[2])
                 Data.append(tmp)
 
         Data = numpy.asarray(Data, dtype=float)
@@ -1248,7 +1245,7 @@ def grow_header(Header=None, Addstr=None, OutInfo=False):
         Header = ' | '.join(Header)
     except:
         Header =str(Header).replace(', ', ' | ')
-        Header = Header.replace("'", ' ')
+        Header = Header.replace(''', ' ')
         Header = Header.replace('[', '')
         Header = Header.replace(']', '')
 
@@ -1280,10 +1277,10 @@ def read_aempy(File=None, Format=None, System='aem05', OutInfo=False):
     last changed:  nov 2021
 
     '''
-    if File is None:
+    if File == None:
         sys.exit('No filename given! Exit.')
 
-    if Format is None:
+    if Format == None:
         name, ext =  os.path.splitext(File)
         ff = ext
     else:
@@ -1309,10 +1306,10 @@ def write_aempy(File=None, Data=None, Format=None, System='aem05',
     author: vrath
     last changed:  sep 2021
     '''
-    if File is None:
+    if File == None:
         sys.exit('No filename given! Exit.')
 
-    if Format is None:
+    if Format == None:
         name, ext =  os.path.splitext(File)
         ff = ext
     else:
@@ -1348,7 +1345,7 @@ def write_aempy_asc(File=None, Data=None,
     Write Tellus AEM05 Data to ASCII file.
 
     author: vrath
-    last changed: 2021-02-22
+    last changed: 2021/02/22
     '''
     if os.path.exists(File):
         os.remove(File)
@@ -1366,7 +1363,7 @@ def read_aempy_asc(File=None, System='unknown', OutInfo=False):
     Read Tellus  Data to ASCII file.
 
     author: vrath
-    last changed: 2020-11-15
+    last changed: 2020/11/15
     '''
     # print(File)
 
@@ -1391,7 +1388,7 @@ def write_aempy_npz(File=None, Data=None, Header='', System='aem05', OutInfo=Fal
     Write Tellus AEM05 Data to compressed pickle file.
 
     author: vrath
-    last changed: 2020-11-15
+    last changed: 2020/11/15
     '''
     if os.path.exists(File):
         os.remove(File)
@@ -1409,7 +1406,7 @@ def read_aempy_npz(File=None, OutInfo=False):
     Read Data from compressed pickle file.
 
     author: vrath
-    last changed: 2020-11-15
+    last changed: 2020/11/15
     '''
     if not os.path.isfile(File):
         sys.exit('File %s does not exist! Exit' % File)
@@ -1442,7 +1439,7 @@ def write_aempy_ncd(File=None, Data=None, Header='',System='aem05',
     Write data to NETCDF4 file.
 
     author: vrath
-    last changed: 2020-11-15
+    last changed: 2020/11/15
     '''
     # try:
     #     File.close
@@ -1572,7 +1569,7 @@ def read_aempy_ncd(File=None, Data=None, Split=False, OutInfo=False):
     Read data from NETCDF4 file.
 
     author: vrath
-    last changed: 2021-02-15
+    last changed: 2021/02/15
     '''
     if not os.path.isfile(File):
         sys.exit('File %s does not exist! Exit' % File)
@@ -1580,18 +1577,18 @@ def read_aempy_ncd(File=None, Data=None, Split=False, OutInfo=False):
     ncin = nc.Dataset(File, 'r', format='NETCDF4')
     print(ncin.file_format)
 
-    f = ncin.variables['line'][:]
-    x = ncin.variables['x']
-    y = ncin.variables['y']
-    g = ncin.variables['gps']
-    c = ncin.variables['clr']
-    e = ncin.variables['dem']
-    p = ncin.variables['pli']
-    q = ncin.variables['qfl']
-    d = ncin.variables['data']
+    f = ncin.variables('line')[:]
+    x = ncin.variables('x')
+    y = ncin.variables('y')
+    g = ncin.variables('gps')
+    c = ncin.variables('clr')
+    e = ncin.variables('dem')
+    p = ncin.variables('pli')
+    q = ncin.variables('qfl')
+    d = ncin.variables('data')
 
-    h = ncin.variables['header']
-    s = ncin.variables['system']
+    h = ncin.variables('header')
+    s = ncin.variables('system')
 
     System = s
 

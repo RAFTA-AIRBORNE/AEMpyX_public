@@ -1,16 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-version.py - Version string for AEMpyX.
-
-Provenance
-----------
-AEMpyX project.
-
-@authors: Duygu Kiyan (DIAS), Volker Rath (DIAS)
-With support of Claude (Anthropic, 2026)
-
-Created: Feb 2021
-Last change: vr Apr 2026
+@author: VR Feb 2021
 '''
 
 import sys
