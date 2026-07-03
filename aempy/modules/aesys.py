@@ -12,7 +12,7 @@ Created: Sun Nov  1 17:08:06 2020
 Last change: vr Apr 2026
 '''
 import os
-
+import sys
 
 import numpy
 from datetime import datetime
@@ -682,8 +682,9 @@ def read_survey_data(DatFile=None, Survey='A5', OutInfo=False, Invalid=numpy.nan
        14      18      PLM_nT         nT		Power line monitor
 
        '''
+        ncol = [0, 7, 8,  12, 13, 14,   32, 34, 36, 38, 33, 35, 37, 39,   41]
 
-        ncol = [3, 0, 1, 6, 7, 8,   10, 12, 14, 16, 11, 13, 15, 17,   18]
+        # ncol = [3, 0, 1, 6, 7, 8,   10, 12, 14, 16, 11, 13, 15, 17,   18]
 
         Data = []
         iline = 0

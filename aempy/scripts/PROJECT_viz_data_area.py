@@ -112,11 +112,19 @@ InFileFmt = '.npz'
 
 
 ##############################################################################
-# StGormans
+# Somaye
 ##############################################################################
-AEMPYX_DATA  = AEMPYX_ROOT+'/aempy/examples/A1_StGormans/'
-FileList = 'search'
-# un/comment according to which data  you want to plot
+# AEMPYX_DATA  = AEMPYX_ROOT+"/aempy/examples/A1_StGormans/"
+AEMPYX_DATA  = "/home/vrath/work/Data_Somaye/"
+FileList = "search"
+
+
+# # processed data
+SearchStrng = "*FL*k2.npz"# "search", "read"
+InDatDir = AEMPYX_DATA+"/proc_delete_PLM3s/"
+PlotDir = AEMPYX_DATA +"/plots/"
+KmlDir = AEMPYX_DATA
+PlotStrng = "proc_k2"
 
 # # raw data
 # SearchStrng = '*FL*.npz'# 'search', 'read'
@@ -124,14 +132,8 @@ FileList = 'search'
 # PlotDir = InDatDir+'/plots/'
 # PlotStrng = 'proc'
 
-# # processed data
-SearchStrng = '*FL*k2.npz'# 'search', 'read'
-InDatDir = AEMPYX_DATA+'/proc/'
-PlotDir = InDatDir+'/plots/'
-PlotStrng = 'proc_k2'
 
-
-PlotName = 'StGormans_'+PlotStrng
+PlotName = 'Somaye_'+PlotStrng
 
 
 print('Data read from dir: %s ' % InDatDir)
@@ -260,7 +262,7 @@ if ('scatter' in ImageType.lower()):
 #     ['H6', []],#[0., 2000., 100.]],
 #     ['H9', []], #[0., 2000., 100.]],
 #     ['ALT', [80., 160., 20.], 240.]     # ALTthresh = 70.
-          # ]
+#           ]
 
 # Electromagnetic data may exhibit large amplitude spreads. By setting _CompList_ the plot limits can be adapted according to your needs. For an overview, the commented section may be used, while for pulication-ready figures, the current settings should be adapted.
 
@@ -277,18 +279,18 @@ if ('scatter' in ImageType.lower()):
     #['PLM', [], 0.2],      # PLMthresh = 0.25
     # ['ALT', [40., 120., 20.], 300.]     # ALTthresh = 70.
           # ]
-CompList=[
-    ['P1', [0., 2000., 200.]],
-    ['Q1', [0., 2000., 200.]],
-    ['P2', [0., 2000., 200.]],
-    ['Q2', [0., 2000., 200.]],
-    ['P3', [0., 2000., 200.]],
-    ['Q3', [0., 2000., 200.]],
-    ['P4', [0., 2000., 200.]],
-    ['Q4', [0., 2000., 200.]],
-    ['PLM', [], 0.5],      # PLMthresh = 0.25
-    ['ALT', [40., 120., 20.], 300.]   # ALTthresh = 120
-]
+# CompList=[
+#     ['P1', [0., 2000., 200.]],
+#     ['Q1', [0., 2000., 200.]],
+#     ['P2', [0., 2000., 200.]],
+#     ['Q2', [0., 2000., 200.]],
+#     ['P3', [0., 2000., 200.]],
+#     ['Q3', [0., 2000., 200.]],
+#     ['P4', [0., 2000., 200.]],
+#     ['Q4', [0., 2000., 200.]],
+#     ['PLM', [], 0.5],      # PLMthresh = 0.25
+#     ['ALT', [40., 120., 20.], 300.]   # ALTthresh = 120
+# ]
 
 # if data extent unknown:
 CompList=[
