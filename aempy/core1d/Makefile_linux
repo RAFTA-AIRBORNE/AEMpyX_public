@@ -68,7 +68,10 @@ library:  $(src)
 	$(FC) $(FFLAGS) $(LDFLAGS) $(OTHER) $(src) -o libcore1d.so
 
 module: $(src)
-	$(f2pyexe) -m core1d -c $(src)
+	$(f2pyexe) -m core1d -c $(src) --backend meson
+
+#module: $(src)
+#	$(f2pyexe) -m core1d -c $(src)
 
 install: module
 	#cp core1d.so ../modules/core1d.so

@@ -4171,7 +4171,7 @@ def transform_parameter(m_vec=numpy.array([]),
 
         m_state_new = m_trn
 
-    if not bounds == None:
+    if bounds is not None:
         m_trans = impose_bounds(m=m_trans, bounds=bounds, mode=mode)
 
     m_trans = numpy.reshape(m_trans, mshape)
@@ -4308,7 +4308,7 @@ def calc_aniso_euclidean_norm(x1, x2, scale=None):
     anisotropic scaling for radial basic function interpolation
     '''
 
-    if scale == None:
+    if scale is None:
         fn = numpy.sqrt(((x1 - x2)**2).sum(axis=0))
     else:
         scale = scale/numpy.sum(scale)
@@ -4566,7 +4566,7 @@ def load_prior(prior_file=None,
     VR April 2023
 
     '''
-    if prior_file == None:
+    if prior_file is None:
         sys.exit('No prior file given! Exit.')
 
     if not os.path.exists(prior_file):
@@ -4653,13 +4653,13 @@ def diffops(dz=None, der=False,
 
     if otype == 'L0':
         d = numpy.ones((1, nlyr))
-        L = scipy.sparse.diags_array(d, [0], nlyr, nlyr, format=mform)
+        L = scipy.sparse.diags_array(d, offsets=[0], shape=(nlyr, nlyr), format=mform)
 
     elif otype == 'L1':
 
         if nlyr==1:
             d = numpy.ones((1, nlyr))
-            L = scipy.sparse.diags_array(d, [0], nlyr, nlyr, format=mform)
+            L = scipy.sparse.diags_array(d, offsets=[0], shape=(nlyr, nlyr), format=mform)
 
         else:
 
@@ -4678,7 +4678,7 @@ def diffops(dz=None, der=False,
                     d[:, 1:] = d[:, 1:]*h[:]
 
                 L = scipy.sparse.diags_array(
-                    d, [0, -1], nlyr, nlyr-1, format=mform).transpose()
+                    d, offsets=[0, -1], shape=(nlyr, nlyr-1), format=mform).transpose()
                 # if der:
                 #     L = scipy.sparse.diags_array(h, [0], nlyr-1, nlyr-1, format=mform)*L
                 if out: print('L1 matrix variant 0 is '+str(numpy.shape(L)))
@@ -4693,7 +4693,7 @@ def diffops(dz=None, der=False,
                     d[:, 1:] = d[:, 1:]*h[:]
 
                 L = scipy.sparse.diags_array(
-                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+                    d, offsets=[0, 1], shape=(nlyr, nlyr), format=mform).transpose()
 
                 if out: print('L1 matrix variant 1 is '+str(numpy.shape(L)))
 
@@ -4707,7 +4707,7 @@ def diffops(dz=None, der=False,
                     d[:, 1:] = d[:, 1:]*h[:]
 
                 L = scipy.sparse.diags_array(
-                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+                    d, offsets=[0, 1], shape=(nlyr, nlyr), format=mform).transpose()
 
                 if out: print('L1 matrix variant 2 is '+str(numpy.shape(L)))
 
@@ -4722,7 +4722,7 @@ def diffops(dz=None, der=False,
                     d[:, 1:] = d[:, 1:]*h[:]
 
                 L = scipy.sparse.diags_array(
-                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+                    d, offsets=[0, 1], shape=(nlyr, nlyr), format=mform).transpose()
 
                 if out: print('L1 matrix variant 3 is '+str(numpy.shape(L)))
 
@@ -4736,7 +4736,7 @@ def diffops(dz=None, der=False,
                     d[:, 1:] = d[:, 1:]*h[:]
 
                 L = scipy.sparse.diags_array(
-                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+                    d, offsets=[0, 1], shape=(nlyr, nlyr), format=mform).transpose()
 
                 if out: print('L1 matrix variant -1 is '+str(numpy.shape(L)))
 
@@ -4750,7 +4750,7 @@ def diffops(dz=None, der=False,
                     d[:, 1:] = d[:, 1:]*h[:]
 
                 L = scipy.sparse.diags_array(
-                    d, [0, 1], nlyr, nlyr, format=mform).transpose()
+                    d, offsets=[0, 1], shape=(nlyr, nlyr), format=mform).transpose()
 
                 if out: print('L1 matrix variant -3 is '+str(numpy.shape(L)))
 
@@ -5379,7 +5379,7 @@ def calc_upr(dnorm=numpy.array([]), M=numpy.array([]), err=numpy.array([])):
 
     nd = numpy.size(err)
     traceM = numpy.trace(M)
-    sqerr = numpy.linalg.alg.norm(err, 2)
+    sqerr = numpy.linalg.norm(err, 2)
     upr_val = numpy.power(dnorm, 2)/nd + (2.*sqerr/nd)*traceM - sqerr
 
     return upr_val
@@ -5933,7 +5933,7 @@ def calc_mad(datavec=numpy.array([]), median=None, Out=False):
     if numpy.size(datavec) == 0:
         sys.exit('find_nearest: No vector given! exit.')
 
-    if median == None:
+    if median is None:
         median = numpy.nanmedian(datavec)
 
     d = numpy.abs(datavec - median)
@@ -6022,7 +6022,7 @@ def calc_made(ensemble=numpy.array([]), median=None, Out=False):
     if numpy.size(ensemble) == 0:
         sys.exit('find_nearest: No vector uiven! exit.')
 
-    if median == None:
+    if median is None:
         median = numpy.nanmedian(ensemble, axis=0)
 
     d = numpy.abs(ensemble - median)
@@ -6113,13 +6113,13 @@ def sample_pcovar(cpsqrti=None, m=None, tst_sample=None,
     '''
     sys.exit('sample_pcovar: Not yet fully implemented! Exit.')
 
-    if (cpsqrti == None) or (m == None):
+    if (cpsqrti is None) or (m is None):
         sys.exit('sample_pcovar: No covariance or ref model given! Exit.')
 
     if m.ndim(m) > 1:
         m = m.flatten(order='F')
 
-    if tst_sample == None:
+    if tst_sample is None:
         print('sample_pcovar: '+str(nsamp)+' sample models will be generated!')
         if nsamp == 0:
             sys.exit('sample_pcovar: No number of samples given! Exit.')
