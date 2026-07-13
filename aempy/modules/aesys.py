@@ -1615,7 +1615,7 @@ def read_aempy_ncd(File=None, Data=None, Split=False, OutInfo=False):
         return Data, Header, System
 
 
-def merge_data_files(File_list=[],
+def merge_data_files(File_list=None,
                      Merged='merged_data', MergedHeader=None,
                      AEM_system='aem05', OutInfo=False):
     '''
@@ -1633,6 +1633,9 @@ def merge_data_files(File_list=[],
     None.
 
     '''
+    if File_list is None:
+        File_list = []
+
     nf = len (File_list)
     if nf==0:
         sys.exit('merge_data_files: file list is empty! Exit.')

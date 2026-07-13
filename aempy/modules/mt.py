@@ -659,10 +659,10 @@ def write_model(ModFile=None, dx=None, dy=None, dz=None, mval=None, reference=No
     else:
         trans = 'LINEAR'
 
-    if not aircells == None:
+    if aircells is not None:
         mval.reshape(dims)[aircells] = mvalair
 
-    if not blank == None:
+    if blank is not None:
         blanks = numpy.where(~numpy.isfinite(mval))
         mval.reshape(dims)[blanks] = mvalair
 
