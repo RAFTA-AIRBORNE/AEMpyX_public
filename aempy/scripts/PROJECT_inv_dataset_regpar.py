@@ -53,7 +53,9 @@ from version import versionstrg
 import aesys
 import util
 import inverse
-AEMPYX_DATA = '/home/vrath/work/A1_StGormans/'
+
+
+
 # -
 
 AEMPYX_DATA = os.environ['AEMPYX_DATA']
@@ -132,8 +134,17 @@ AEMPYX_DATA  = AEMPYX_ROOT+'/aempy/examples/SmallTest/'
 InDatDir =  AEMPYX_DATA + '/data/'
 if not InDatDir.endswith('/'): InDatDir=InDatDir+'/'
 print('Data read from dir: %s ' % InDatDir)
-# +
-
+# 
+##############################################################################
+# Somaye
+##############################################################################
+AEMPYX_DATA  = "/home/vrath/work/Data_Somaye/"
+FileList = "search"
+SearchStrng = "*FL*k2.npz"# "search", "read"
+InDatDir = AEMPYX_DATA+"/proc_delete_PLM3s/"
+PlotDir = AEMPYX_DATA +"/plots/"
+KmlDir = AEMPYX_DATA
+PlotStrng = "proc_k2"
 
 
 '''
@@ -148,9 +159,6 @@ if not os.path.isdir(OutResDir):
     print('File: %s does not exist, but will be created' % OutResDir)
     os.mkdir(OutResDir)
 
-# FileList = 'set'
-FileList = 'search'  # 'search', 'read'
-SearchStrng = '*k3*data.npz'
 
 if 'set' in FileList.lower():
     print('Data files read from dir:  %s' % InDatDir)
@@ -217,7 +225,7 @@ nreg = NTau0 * NTau1
 '''
 Model definition
 '''
-Nlyr = 30
+Nlyr = 24
 DzStart = 2.
 DzEnd = 8.
 dz = numpy.logspace(numpy.log10(DzStart), numpy.log10(DzEnd), Nlyr)

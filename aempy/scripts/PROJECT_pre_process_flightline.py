@@ -92,27 +92,29 @@ SingValMax = 5
 
 # +
 InFileFmt = '.npz'
+
+
+# impute = ["noise", 100.]
+impute = ["delete", 0.]
+plmthresh = 3.
+kmax = 5
+DatErr_add = 50.
+DatErr_mult = 0.05
+
 OutFileFmt = '.npz'
-
-# -
-
+OutNameStrng = "proc_"+impute[0]+"_PLM"+str(int(plmthresh))+"s"
 
 ##############################################################################
-# StGormans
+# Somaye
 ##############################################################################
-AEMPYX_DATA = '/home/vrath/work/A1_StGormans/'
+AEMPYX_DATA =  "/home/vrath/work/Data_Somaye/"
 
 Filelist = 'search' # 'set', 'read'
 
 
 # rectangle case
-# InputDataDir =  AEMPYX_DATA + '/raw/'
-# OutputDataDir =  AEMPYX_DATA + '/proc/'
-# SearchStrng = '*FL*data.npz'
-
-# lines case
-InputDataDir =  AEMPYX_DATA + '/lines/'
-OutputDataDir =  AEMPYX_DATA + '/lines/'
+InputDataDir =  AEMPYX_DATA + '/raw/'
+OutputDataDir =  AEMPYX_DATA + OutNameStrng+"/"
 SearchStrng = '*FL*data.npz'
 
 print('\n\n')

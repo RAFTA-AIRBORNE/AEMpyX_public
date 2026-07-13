@@ -122,7 +122,7 @@ FileList = "search"
 SearchStrng = "*FL*k2.npz"# "search", "read"
 InDatDir = AEMPYX_DATA+"/proc_delete_PLM3s/"
 PlotDir = AEMPYX_DATA +"/plots/"
-KmlDir = AEMPYX_DATA
+KmlDir = AEMPYX_DATA + "/kml/"
 PlotStrng = "proc_k2"
 
 
@@ -227,6 +227,33 @@ CompList=[
     ['PLM', [], 0.5],      # PLMthresh = 0.5
     ['ALT', [40., 120., 20.], 300.]   # ALTthresh = 300
 ]
+# CompList=[
+    # ['P1', [0., 2000., 100.]],
+    # ['Q1', [0., 2000., 100.]],
+    # ['P2', [0., 2000., 100.]],
+    # ['Q2', [0., 2000., 100.]],
+    # ['P3', [0., 2000., 100.]],
+    # ['Q3', [0., 2000., 100.]],
+    # ['P4', [0., 2000., 100.]],
+    # ['Q4', [0., 2000., 100.]],
+    #['PLM', [], 0.2],      # PLMthresh = 0.25
+    # ['ALT', [40., 120., 20.], 300.]     # ALTthresh = 70.
+          # ]
+# CompList=[
+#     ['P1', [0., 2000., 200.]],
+#     ['Q1', [0., 2000., 200.]],
+#     ['P2', [0., 2000., 200.]],
+#     ['Q2', [0., 2000., 200.]],
+#     ['P3', [0., 2000., 200.]],
+#     ['Q3', [0., 2000., 200.]],
+#     ['P4', [0., 2000., 200.]],
+#     ['Q4', [0., 2000., 200.]],
+#     ['PLM', [], 0.5],      # PLMthresh = 0.25
+#     ['ALT', [40., 120., 20.], 300.]   # ALTthresh = 120
+# ]
+
+
+
 # -
 
 # Below, some graphic parameters are set. The overlay image itself is

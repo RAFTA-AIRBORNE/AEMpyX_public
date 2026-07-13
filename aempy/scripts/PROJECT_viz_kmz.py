@@ -92,15 +92,24 @@ if 'genes' in AEM_system.lower():
 # file by clicking the yellow symbols at the start of the flightlines.
 
 
-AEMPYX_DATA  = AEMPYX_ROOT+'/aempy/examples/A1_StGormans/'
-OutDatDir = AEMPYX_DATA
+AEMPYX_DATA = AEMPYX_ROOT + '/aempy/examples/A1_StGormans/'
+OutDatDir = AEMPYX_DATA + '/kml'
 
+# FileList = 'search'
+# DataDir =  AEMPYX_DATA + '/raw/'
+# print(' data files read from: %s' % DataDir)
+# PlotDir =  DataDir + '/plots/'
+# print(' plots read from: %s' % PlotDir)
+# SearchStrng = '*FL*.npz'
+
+AEMPYX_DATA  =  "/home/vrath/work/Data_Somaye/"
 FileList = 'search'
-DataDir =  AEMPYX_DATA + '/raw/'
+DataDir =  AEMPYX_DATA + "/proc_delete_PLM3s/"
 print(' data files read from: %s' % DataDir)
 PlotDir =  DataDir + '/plots/'
 print(' plots read from: %s' % PlotDir)
-SearchStrng = '*FL*.npz'
+SearchStrng = '*FL*k2_data.npz'
+
 
 
 
@@ -109,7 +118,7 @@ data_files = sorted(data_files)
 ns = numpy.size(data_files)
 
 KMZDir = OutDatDir
-KMZFile = KMZDir+'StGormans_sites'
+KMZFile = KMZDir+'Somaye_profiles'
 print(' resulting KMZ file will  be  %s' % KMZFile)
 
 MarkStartPoints = True
@@ -121,7 +130,7 @@ AddImages = True
 ImageWidth= 600
 plots_fmt = '.png'
 
-AddSpecial = True
+AddSpecial = False
 if AddSpecial:
     SpecialDat = OutDatDir+'Special.dat'
     specials = []
@@ -150,13 +159,13 @@ kmz = True
 icon_dir = AEMPYX_ROOT+'/aempy/share/icons/'
 
 line_icon =  icon_dir + 'open-diamond.png'
-line_iscale = 1.6
+line_iscale = 2.
 line_icolor = simplekml.Color.yellow
 line_tscale = 1.  # sc
 line_tcolor = simplekml.Color.yellow
 
 data_icon =  icon_dir + 'square.png'
-data_iscale = 0.8
+data_iscale = 0.25
 data_icolor = simplekml.Color.red
 data_tscale = 1.
 data_tcolor = simplekml.Color.yellow
@@ -218,7 +227,7 @@ for f in data_files:
         d.style.labelstyle.color = data_tcolor
         d.style.labelstyle.scale = data_tscale
         d.style.iconstyle.icon.href = data_iref
-        d.style.iconstyle.scale = data_iscale*1.5
+        d.style.iconstyle.scale = data_iscale*4.
         d.style.iconstyle.color = line_icolor
         d.coords = [(lon[0], lat[0])]
         d.description = (imstring)
@@ -227,7 +236,7 @@ for f in data_files:
         d.style.labelstyle.color = data_tcolor
         d.style.labelstyle.scale = data_tscale
         d.style.iconstyle.icon.href = data_iref
-        d.style.iconstyle.scale = data_iscale*1.5
+        d.style.iconstyle.scale = data_iscale*4.
         d.coords = [(lon[nd-1], lat[nd-1])]
         d.description = (imstring)
     if MarkCenterPoints:
@@ -236,8 +245,7 @@ for f in data_files:
         d.style.labelstyle.color = data_tcolor
         d.style.labelstyle.scale = data_tscale
         d.style.iconstyle.icon.href = data_iref
-        d.style.iconstyle.scale = data_iscale*1.5
-        d.style.iconstyle.color = line_icolor
+        d.style.iconstyle.scale = data_iscale*4.
         d.description = (imstring)
 
 

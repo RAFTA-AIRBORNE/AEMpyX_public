@@ -71,14 +71,20 @@ Header = titstrng
 OutInfo = False
 AEMPYX_DATA = os.environ['AEMPYX_DATA']
 
+'''
+The following cell gives values to AEM-system related settings.
 
-# The following cell gives values to AEM-system related settings.
-#
-# Data transformation is activated by the variable DataTrans. Currently three possible options are allowed: _DataTrans = 0_: No transformation, i.e., the raw data are used. _DataTrans = 1_: The natural log of data is taken, only allowed for strictly positive values. _DataTrans = 2_: If data scale logarithmically, an asinh transformation (introduced by Scholl, 2000) is applied. It allows negatives, which may occur in TDEM, when IP effects are present.
-#
-# A general additive/multiplicative error model is applied on the raw data before transformation, and errors are also transformed.
-#
-
+Data transformation is activated by the variable DataTrans. Currently 
+three possible options are allowed: 
+    DataTrans = 0: No transformation, i.e., the raw data are used. 
+    DataTrans = 1: The natural log of data is taken, only allowed for 
+        strictly positive values.
+    DataTrans = 2_: If data scale logarithmically, an asinh transformation 
+        (introduced by Scholl, 2000) is applied. It allows negatives, which 
+        may occur in TDEM, when IP effects are present.
+A general additive/multiplicative error model is applied on the raw data
+before transformation, and errors are also transformed.
+'''
 
 # +
 # AEM_system = 'genesis'
@@ -107,26 +113,12 @@ if 'genes' in AEM_system.lower():
 
 # +
 InFileFmt = '.npz'
-AEMPYX_DATA  = AEMPYX_ROOT+'/aempy/examples/test/'
+AEMPYX_DATA  =  "/home/vrath/work/Data_Somaye/"
 FileList = 'search'
-
-
-# un/comment according to which data  you want to plot
-# # raw data
-# InDatDir =  AEMPYX_DATA + '/raw/'
-# PlotDir =  InDatDir + '/plots/'
-# SearchStrng = '*FL*.npz'
-# PlotStrng = ' - raw'
-# PDFCatName = PlotDir+'StGormans_raw.pdf'
-# +
-
-
-# processed data
-InDatDir =  AEMPYX_DATA + '/data/'
-PlotDir =  InDatDir + '/plots/'
 SearchStrng = '*FL*nan*.npz' # if no interpolation was chosen
-#SearchStrng = '*FL*.npz' # else
-PlotStrng = ' - proc'
+InDatDir =   AEMPYX_DATA + "/proc_delete_PLM3s/"
+PlotDir =  AEMPYX_DATA + '/plots/'
+PlotStrng = " - data proc"
 
 
 
@@ -152,9 +144,11 @@ if not os.path.isdir(PlotDir):
     print('File: %s does not exist, but will be created' % PlotDir)
     os.mkdir(PlotDir)
 
-# The next block determines the graphical output. if _PDFCatalog_ is set, a catalogue
-# including all generated figures, named _PDFCatName_ is generated. This option is only
-# available if '.pdf' is included in the output file format list (_PlotFmt_).
+'''
+The next block determines the graphical output. if PDFCatalog is set, a catalogue
+including all generated figures, named PDFCatName is generated. This option is only
+available if '.pdf' is included in the output file format list (PlotFmt).
+'''
 
 FilesOnly = False    # for headless plotting.
 PlotFmt = ['.png', '.pdf']
@@ -216,14 +210,13 @@ else:
     ProfScale = 1. # 0.001  # m to km
 # -
 
-
-# This block sets graphical parameters related to the \textit{matplotlib}.
-# package. A list of available plotting styles can be found on matplotlib's
-# website at https://matplotlib.org/stable/users/explain/customizing.htm, or
-# entering the python command
-# _print(matplotlib.pyplot.style.available)} in an appropriate_
-# window.
-#
+'''
+This block sets graphical parameters related to the matplotlib package. 
+A list of available plotting styles can be found on matplotlib's
+website at https://matplotlib.org/stable/users/explain/customizing.htm, or
+entering the python command: _print(matplotlib.pyplot.style.available)} 
+in an appropriate window.
+'''
 
 matplotlib.pyplot.style.use('seaborn-v0_8-paper')
 matplotlib.rcParams['figure.dpi'] = 400

@@ -1,10 +1,17 @@
 
 FC=x86_64-conda-linux-gnu-gfortran
 # x86_64-conda-linux-gnu-gfortran
-FFLAGS= -O3  -g -fbounds-check -Wall -fPIC -shared # -fno-underscoring
-LD= gfortran
+
+# Renamed from FFLAGS/LDFLAGS: those two names are read directly from the
+# process environment by meson (used internally by f2py's --backend meson),
+# so reusing them here for the plain-gfortran "library" target risks leaking
+# -shared/-o flags into f2py's meson build and breaking its linker-detection
+# probe. Use these local names instead.
+MY_FFLAGS = -O3 -g -fbounds-check -Wall -fPIC # -fno-underscoring
+LD = gfortran
 # x86_64-conda-linux-gnu-gfortran
-LDFLAGS=-shared -o core1d.so
+MY_LDFLAGS = -shared
+
 f2pyexe=f2py
 
 
@@ -21,25 +28,25 @@ tests: testGENESIS testAEM05 testAEM95 #testGEOTEM
 # modules
 
 filt_coef_q.o: ./filt_coef_q.f90
-	$(FC) $(FFLAGS) $(OTHER) -c	./filt_coef_q.f90
+	$(FC) $(MY_FFLAGS) $(OTHER) -c	./filt_coef_q.f90
 frequency_select.o: ./frequency_select.f90
-	$(FC) $(FFLAGS) $(OTHER) -c	./frequency_select.f90
+	$(FC) $(MY_FFLAGS) $(OTHER) -c	./frequency_select.f90
 
 # core routines
 core1d.o: ./core1d.f90
-	$(FC) $(FFLAGS) $(OTHER) -c	./core1d.f90
+	$(FC) $(MY_FFLAGS) $(OTHER) -c	./core1d.f90
 part1d.o: ./part1d.f90
-	$(FC) $(FFLAGS) $(OTHER) -c	./part1d.f90
+	$(FC) $(MY_FFLAGS) $(OTHER) -c	./part1d.f90
 
 # acquisition system-dependent
 AEM05.o: ./AEM05.f90
-	$(FC) $(FFLAGS) $(OTHER) -c	./AEM05.f90
+	$(FC) $(MY_FFLAGS) $(OTHER) -c	./AEM05.f90
 AEM95.o: ./AEM95.f90
-	$(FC) $(FFLAGS) $(OTHER) -c	./AEM95.f90
+	$(FC) $(MY_FFLAGS) $(OTHER) -c	./AEM95.f90
 #GEOTEM.o: ./GEOTEM.f90
-#	$(FC) $(FFLAGS) $(OTHER) -c	./GEOTEM.f90
+#	$(FC) $(MY_FFLAGS) $(OTHER) -c	./GEOTEM.f90
 GENESIS.o: ./GENESIS.f90
-	$(FC) $(FFLAGS) $(OTHER) -c	./GENESIS.f90
+	$(FC) $(MY_FFLAGS) $(OTHER) -c	./GENESIS.f90
 
 
 
@@ -65,10 +72,14 @@ testAEM95: BeoDriverAEM95.f90   library
 #	$(FC) -O3  -g -fbounds-check -Wall  BeoDriverGEOTEM.f90 $(src) -o BeoDriverGEOTEM.x
 
 library:  $(src) 
-	$(FC) $(FFLAGS) $(LDFLAGS) $(OTHER) $(src) -o libcore1d.so
+	$(FC) $(MY_FFLAGS) $(MY_LDFLAGS) $(OTHER) $(src) -o libcore1d.so
 
+# `env -u FFLAGS -u LDFLAGS` strips any FFLAGS/LDFLAGS that may be exported
+# in the calling shell (e.g. from conda activation scripts or a manual
+# `export` left over from testing) before invoking f2py's meson backend, so
+# meson's own compiler/linker probes never see stray -shared/-o flags.
 module: $(src)
-	$(f2pyexe) -m core1d -c $(src) --backend meson
+	env -u FFLAGS -u LDFLAGS $(f2pyexe) -m core1d -c $(src) --backend meson
 
 #module: $(src)
 #	$(f2pyexe) -m core1d -c $(src)
